@@ -1,0 +1,18 @@
+.input-enabled {
+  background-color: #fff; /* Màu nền khi có thể nhập */
+}
+
+.input-disabled {
+  background-color: #f8f9fa; /* Màu nền khi không thể nhập */
+}
+
+.checkbox-group .form-check {
+  margin-bottom: 0px; /* Giảm khoảng cách giữa các checkbox */
+}
+
+.custom-input{
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  background-color: #fff;
+}

@@ -1,0 +1,39 @@
+.card {
+  background-color: #fff;
+  border: none;
+}
+
+/* setup chart */
+canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+/* responsive for dashboard */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem; /* Giảm padding cho card */
+  }
+  canvas {
+    max-width: 100%; /* Đảm bảo biểu đồ không vượt quá chiều rộng */
+    height: auto; /* Giữ tỉ lệ của biểu đồ */
+  }
+  .row {
+    flex-direction: column; /* Sắp xếp biểu đồ theo cột trên màn hình nhỏ */
+  }
+  .col-md-6,
+  .col-md-5 {
+    margin-bottom: 1rem; /* Thêm khoảng cách giữa các biểu đồ */
+  }
+  .vertical-line {
+    display: none; /* Ẩn dấu gạch */
+  }
+}
+
+.vertical-line {
+  width: 1px; /* Độ dày của dấu gạch */
+  background-color: #d6d6d6; /* Màu sắc của dấu gạch */
+  height: 80px; /* Chiều cao của dấu gạch */
+  margin: 0 10px; /* Khoảng cách xung quanh dấu gạch */
+  align-self: center; /* Căn giữa dấu gạch trong cột */
+}
