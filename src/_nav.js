@@ -22,43 +22,104 @@ const _nav = [
     },
   },
   {
-    component: CNavItem,
-    name: 'Room',
-    to: '/admin/room',
-    icon: <CIcon icon={cilChartPie} customClassName="nav-icon" />,
-  },
-  {
     component: CNavGroup,
-    name: 'Pages',
+    name: 'Phòng',
     icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Login',
-        to: '/login',
+        name: 'Loại phòng & phòng',
+        to: '/admin/room',
       },
       {
         component: CNavItem,
-        name: 'Register',
-        to: '/register',
+        name: 'Thiết lập giá',
+        to: '/admin/room-pricing',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Hàng hóa',
+    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Danh mục',
+        to: '/#',
       },
       {
         component: CNavItem,
-        name: 'Error 404',
-        to: '/404',
+        name: 'Kiểm kho',
+        to: '/#',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Giao dịch',
+    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Đặt phòng',
+        to: '/admin/booking-manager',
       },
       {
         component: CNavItem,
-        name: 'Error 500',
-        to: '/500',
+        name: 'Hóa đơn',
+        to: '/admin/invoice-room',
       },
     ],
   },
   {
     component: CNavItem,
-    name: 'Docs',
-    href: 'https://coreui.io/react/docs/templates/installation/',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+    name: 'Nhân viên',
+    to: '/#',
+    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavGroup,
+    name: 'Báo cáo',
+    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Cuối ngày',
+        to: '/#',
+      },
+      {
+        component: CNavItem,
+        name: 'Đặt phòng',
+        to: '/#',
+      },
+      {
+        component: CNavItem,
+        name: 'Doanh thu',
+        to: '/#',
+      },
+      {
+        component: CNavItem,
+        name: 'Phòng',
+        to: '/#',
+      },
+      {
+        component: CNavItem,
+        name: 'Khách hàng',
+        to: '/#',
+      },
+      {
+        component: CNavItem,
+        name: 'Nhân viên',
+        to: '/#',
+      },
+    ],
+  },
+  {
+    component: CNavItem,
+    name: 'Lễ tân',
+    to: '/#',
+    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
   },
 ]
 

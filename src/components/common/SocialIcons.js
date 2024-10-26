@@ -7,13 +7,13 @@ export default function SocialIcons() {
     <>
       <div className="col-lg-3 px-5">
         <div className="d-inline-flex align-items-center py-2">
-          {socialIcons.map((val, index) => (
-            <div key={index}>
-              <Link className="me-3" href="">
-                {val.icon}
+          <nav className="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0">
+            <div className="navbar-nav mr-auto py-0">
+              <Link className="nav-link">
+                Đăng nhập
               </Link>
             </div>
-          ))}
+          </nav>
         </div>
       </div>
     </>

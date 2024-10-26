@@ -21,6 +21,9 @@ import { Navigate } from 'react-router-dom';
 import { jwtDecode as jwt_decode } from "jwt-decode";
 import HomeAdmin from "./pages/admin/home";
 import RoomAdmin from "./pages/admin/home/Room";
+import RoomPriceManager from "./pages/admin/home/RoomPriceManager";
+import InvoiceManagement from "./pages/admin/home/InvoiceManagement"
+import BookingManger from "./pages/admin/home/BookingManger";
 
 function App() {
   const getCookie = (name) => {
@@ -67,6 +70,9 @@ function App() {
         <Route path="/admin" >
           <Route path="home" element={<HomeAdmin />} />
           <Route path="room" element={<RoomAdmin />} />
+          <Route path="booking-manager" element={<BookingManger />} />
+          <Route path="room-pricing" element={<RoomPriceManager />} />
+          <Route path="invoice-room" element={<InvoiceManagement />} />
         </Route>
     </Route >
     )
