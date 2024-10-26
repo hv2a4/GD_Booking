@@ -11,6 +11,7 @@ import "../../assets/css/style.css";
 import "../../assets/css/animate.css";
 import "../../assets/css/animate.min.css";
 import "../../assets/css/bootstrap.min.css";
+import "../../assets/css/staff/style.css"
 export {
   Home,
   Booking,
