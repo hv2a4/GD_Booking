@@ -1,7 +1,5 @@
-import React, { useState ,useRef,useEffect} from "react";
+import React, { useState} from "react";
 import { Table } from "react-bootstrap";
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import '../../../../../assets/css/admin/css/chart.css'; // Custom CSS
 
 const RoomTable = () => {
