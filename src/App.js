@@ -30,7 +30,8 @@ import EditRoom from "./pages/staff/edit-room";
 import HomeStaff from "./pages/staff/home";
 import ListReservation from "./pages/staff/list-reservation";
 import FloorMap from "./pages/staff/floor_map";
-import AccountManager from "./pages/admin/accountManagement";
+import AccountClient from "./pages/admin/accountManagement/account-client";
+import AccountStaff from "./pages/admin/accountManagement/account-staff";
 
 function App() {
   const getCookie = (name) => {
@@ -87,7 +88,8 @@ function App() {
           <Route path="booking-manager" element={<BookingManger />} />
           <Route path="room-pricing" element={<RoomPriceManager />} />
           <Route path="invoice-room" element={<InvoiceManagement />} />
-          <Route path="account-management" element={<AccountManager />} />
+          <Route path="account-client" element={<AccountClient />} />
+          <Route path="account-staff" element={<AccountStaff />} />
         </Route>
           <Route path="/account" element={<Login />} />
     </Route >

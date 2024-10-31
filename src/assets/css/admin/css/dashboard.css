@@ -43,6 +43,6 @@ canvas {
 .border-bottom-invoice p{
   margin-top: 22px !important;
 }
-.account-management .table-responsive{
+.account-client .table-responsive{
   scrollbar-width: none;
 }

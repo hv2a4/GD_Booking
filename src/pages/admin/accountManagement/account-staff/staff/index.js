@@ -12,39 +12,32 @@ import {
     CTableRow,
 } from "@coreui/react";
 import React, { useState } from "react";
-import { Col, Row, Form } from "react-bootstrap";
-import { Label } from "recharts";
+import { Col, Row } from "react-bootstrap";
+import AddEmployeeModal from "./modal-add-employee";
 
 const Account = () => {
     const [details, setDetails] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [activePage, setActivePage] = useState(1);
     const itemsPerPage = 10;
+    const [showModal, setShowModal] = useState(false);
 
-    const cashierOptions = [
-        { id: '1', name: 'client' },
-        { id: '2', name: 'Staff' },
-        { id: '3', name: 'Admin' }
-    ]
-    const handleCashierChange = (event) => {
-        const selectedCashierId = event.target.value;
-        // Bạn có thể sử dụng selectedCashierId để cập nhật trạng thái của hóa đơn hoặc thực hiện một hành động khác
-        console.log('Thu ngân đã chọn:', selectedCashierId);
-    };
+    const handleShow = () => setShowModal(true);
+    const handleClose = () => setShowModal(false);
     const items = [
-        { id: 1, name: 'Samppa Nori', avatar: '1.jpg', registered: '2021/03/01', role: 'Member', status: 'Active' },
-        { id: 2, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 3, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 4, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 5, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 6, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 7, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 8, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 9, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 10, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 11, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 12, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
-        { id: 13, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Staff', status: 'Banned' },
+        { id: 1, name: 'Samppa Nori', avatar: '1.jpg', registered: '2021/03/01', role: 'Nhân viên', status: 'Hoạt động' },
+        { id: 2, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 3, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 4, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 5, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 6, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 7, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 8, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 9, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 10, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 11, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 12, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
+        { id: 13, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
         // Thêm các mục khác ở đây
     ];
 
@@ -53,7 +46,7 @@ const Account = () => {
             case 'Active': return 'success';
             case 'Inactive': return 'secondary';
             case 'Pending': return 'warning';
-            case 'Banned': return 'danger';
+            case 'Khóa': return 'danger';
             default: return 'primary';
         }
     };
@@ -87,14 +80,23 @@ const Account = () => {
     };
 
     return (
-        <div className="account-management">
-            <input
-                type="text"
-                placeholder="Search..."
-                onChange={handleSearch}
-                className="mb-3 form-control"
-                style={{width: "20%"}}
-            />
+        <div className="account-client">
+            <div className="d-flex">
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    onChange={handleSearch}
+                    className="mb-3 form-control"
+                    style={{ width: "20%" }}
+                />
+                <button
+                    className="mx-3 p-0 pe-3 ps-3"
+                    onClick={handleShow}
+                    style={{ borderRadius: "0.6rem",height: "37px"}}>
+                    <i className="fa fa-plus icon-btn"></i>
+                    Thêm
+                </button>
+            </div>
             <CTable responsive>
                 <CTableHead>
                     <CTableRow>
@@ -134,7 +136,8 @@ const Account = () => {
                                 <CTableDataCell colSpan="6">
                                     <CCollapse visible={details.includes(item.id)}>
                                         <CCardBody style={{ width: "auto" }}>
-                                            <Row className="mt-3">
+                                            <h3>Thông tin nhân viên</h3>
+                                            <Row className="mt-2">
                                                 <Col xs={12} md={4}>
                                                     <div className="border-bottom-invoice">
                                                         <p>Mã nhân viên: <strong>{item.id}</strong></p>
@@ -158,28 +161,17 @@ const Account = () => {
                                                         <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" />
                                                     </div>
                                                     <div className="border-bottom-invoice d-flex align-items-center" style={{ marginTop: "-19px" }}>
-                                                        <p className="mb-0 me-2">Vai trò: </p>
-                                                        <Form.Select
-                                                            aria-label="Chọn thu ngân"
-                                                            style={{ width: 'auto', border: 'none', color: '#6B6B6B', marginTop: "21px" }}
-                                                            onChange={handleCashierChange} // Gọi hàm khi có sự thay đổi
-                                                        >
-                                                            {cashierOptions.map((option) => ( // Sử dụng cashierOptions từ biến đã định nghĩa
-                                                                <option key={option.id} value={option.id}>
-                                                                    {option.name}
-                                                                </option>
-                                                            ))}
-                                                        </Form.Select>
+                                                        <p className="mb-0 me-2">Vai trò: <strong>Nhân viên</strong></p>
                                                     </div>
                                                     <div className="border-bottom-invoice d-flex">
                                                         <p>Giới tính:</p>
                                                         <div class="form-check form-check-inline mt-4 ms-2">
                                                             <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" />
-                                                                <label class="form-check-label" for="inlineRadio1">Nam</label>
+                                                            <label class="form-check-label" for="inlineRadio1">Nam</label>
                                                         </div>
                                                         <div class="form-check form-check-inline mt-4">
                                                             <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" />
-                                                                <label class="form-check-label" for="inlineRadio2">Nữ</label>
+                                                            <label class="form-check-label" for="inlineRadio2">Nữ</label>
                                                         </div>
                                                     </div>
                                                 </Col>
@@ -215,6 +207,7 @@ const Account = () => {
                     </CButton>
                 </div>
             </div>
+            <AddEmployeeModal show={showModal} handleClose={handleClose} />
         </div>
     );
 };

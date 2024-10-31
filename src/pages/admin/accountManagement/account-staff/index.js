@@ -1,7 +1,7 @@
 import React from "react";
-import LayoutAdmin from "../../../components/layout/admin/DefaultLayout";
-import Account from "./account-client";
-const AccountManager = () => {
+import LayoutAdmin from "../../../../components/layout/admin/DefaultLayout";
+import Account from "./staff";
+const AccountStaff = () => {
     return (
         <LayoutAdmin>
             <div className="container-fluid">
@@ -11,4 +11,4 @@ const AccountManager = () => {
     );
 };
 
-export default AccountManager; 
+export default AccountStaff; 
