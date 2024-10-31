@@ -291,7 +291,7 @@ const RoomAndTypeRoom = () => {
                     {/* Nội dung bảng dựa trên tab */}
                     {activeTab === "roomType" && (
                         <div className="table-responsive mt-3">
-                            <table className="table table-striped table-hover " style={{ cursor: 'pointer' }}>
+                            <table className="table" style={{ cursor: 'pointer' }}>
                                 <thead className="table-info">
                                     <tr>
                                         <th>
@@ -488,7 +488,7 @@ const RoomAndTypeRoom = () => {
 
                     {activeTab === "room" && (
                         <div className="table-responsive mt-3">
-                            <table className="table table-striped table-hover" >
+                            <table className="table">
                                 <thead className="table-info">
                                     <tr>
                                         <th>
@@ -593,7 +593,7 @@ const RoomAndTypeRoom = () => {
                                                                 {currentTab === 'bookingHistory' && (
                                                                     <div className="tab-pane fade show active">
                                                                         <h5 className="mt-3 mt-4">Lịch sử đặt phòng</h5>
-                                                                        <table className="table table-striped mt-3">
+                                                                        <table className="table  mt-3">
                                                                             <thead className="table-primary">
                                                                                 <tr>
                                                                                     <th scope="col">Mã phòng</th>
@@ -619,7 +619,7 @@ const RoomAndTypeRoom = () => {
                                                                 {currentTab === 'transactionHistory' && (
                                                                     <div className="tab-pane fade show active">
                                                                         <h5 className="mt-3">Lịch sử giao dịch</h5>
-                                                                        <table className="table table-striped mt-3">
+                                                                        <table className="table  mt-3">
                                                                             <thead className="table-primary">
                                                                                 <tr>
                                                                                     <th scope="col">Mã hóa đơn</th>
@@ -645,7 +645,7 @@ const RoomAndTypeRoom = () => {
                                                                 {currentTab === 'cleaningHistory' && (
                                                                     <div className="tab-pane fade show active">
                                                                         <h5 className="mt-3 mt-4">Lịch sử dọn phòng</h5>
-                                                                        <table className="table table-striped mt-3">
+                                                                        <table className="table  mt-3">
                                                                             <thead className="table-primary">
                                                                                 <tr>
                                                                                     <th scope="col">Thời gian</th>

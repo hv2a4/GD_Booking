@@ -1273,9 +1273,9 @@ h2,
     height: fit-content !important;
 }
 
-.modal-dialog-centered {
+/* .modal-dialog-centered {
     background: rgba(0, 0, 0, 0.5);
-}
+} */
 
 .modal-noneBg .modal-dialog-centered {
     background: transparent;

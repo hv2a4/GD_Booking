@@ -76,10 +76,21 @@ const _nav = [
     ],
   },
   {
-    component: CNavItem,
+    component: CNavGroup,
     name: 'Quản lý tài khoản',
-    to: '/admin/account-management',
     icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Khách hàng',
+        to: '/admin/account-client',
+      },
+      {
+        component: CNavItem,
+        name: 'Nhân viên',
+        to: '/admin/account-staff',
+      },
+    ],
   },
   {
     component: CNavGroup,
