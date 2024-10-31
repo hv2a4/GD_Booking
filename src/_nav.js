@@ -1,14 +1,17 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell,
-  cilCalculator,
-  cilChartPie,
-  cilDescription,
   cilSpeedometer,
-  cilStar,
+  cilBuilding,
+  cilDollar,
+  cilLayers,
+  cilList,
+  cilPeople,
+  cilBriefcase,
+  cilClipboard,
+  cilCash,
 } from '@coreui/icons'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+import { CNavGroup, CNavItem } from '@coreui/react'
 
 const _nav = [
   {
@@ -24,7 +27,7 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'Phòng',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilBuilding} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -41,7 +44,7 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'Hàng hóa',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -58,7 +61,7 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'Giao dịch',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilCash} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -74,14 +77,14 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Nhân viên',
-    to: '/#',
-    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+    name: 'Quản lý tài khoản',
+    to: '/admin/account-management',
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
   },
   {
     component: CNavGroup,
     name: 'Báo cáo',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilClipboard} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -119,7 +122,7 @@ const _nav = [
     component: CNavItem,
     name: 'Lễ tân',
     to: '/#',
-    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilBriefcase} customClassName="nav-icon" />,
   },
 ]
 

@@ -2,9 +2,19 @@
     margin: auto;
     border-radius: 20px;
 }
+@media (min-width: 1200px) {
+    .modal-dialog {
+        min-width: 800px;
+    }
+}
 
-body {
-    font-family: auto;
+@media (min-width: 992px) and (max-width: 1199px) {
+    .modal-dialog {
+        min-width: 500px;
+    }
+}
+.container-fluid .tab-content .tab-pane .table-responsive .table thead th{
+    border-style: none !important;
 }
 
 .xacnhan {
@@ -401,6 +411,14 @@ body {
     box-shadow: 0 0 0 0 rgba(81, 79, 79, 0);
     border-radius: 0.5rem;
     margin-top: 5px;
+}
+
+.cart-item td {
+    border-bottom-width: 0px !important;
+}
+
+.cart-item tr th {
+    border-bottom-color: transparent !important;
 }
 
 .cart-item-order {
@@ -822,7 +840,7 @@ td {
     text-align: left !important;
 }
 
-.override-flex-wrap{
+.override-flex-wrap {
     flex-wrap: nowrap !important;
     border: none;
 }
@@ -990,7 +1008,6 @@ h3,
 }
 
 .payment-form-block {
-    background: #f0f1f3;
     padding: 1.2rem;
     border-radius: 0.8rem;
 }
@@ -1255,15 +1272,19 @@ h2,
     height: -moz-fit-content !important;
     height: fit-content !important;
 }
-.modal-dialog-centered{
-    background: rgba(0,0,0, 0.5);
+
+.modal-dialog-centered {
+    background: rgba(0, 0, 0, 0.5);
 }
-.modal-noneBg .modal-dialog-centered{
+
+.modal-noneBg .modal-dialog-centered {
     background: transparent;
 }
-.modal-customer .modal-dialog{
+
+.modal-customer .modal-dialog {
     max-width: 726px;
 }
+
 .badge-light-warning {
     color: #cc6d00 !important;
     background-color: #f0f1f3;
@@ -1452,27 +1473,31 @@ textarea {
 .modal-body .modal-table-data {
     overflow: auto;
 }
+
 @media (max-width: 1000px) {
     .modal-fill {
         max-width: 100%;
     }
 }
+
 @media (max-width: 576px) {
     .btn-responsive .btn span {
-      display: none;
+        display: none;
     }
-  
+
     .btn-responsive .btn i {
-      margin-right: 0;
+        margin-right: 0;
     }
-  }
-  
+}
+
 .modal-backdrop.show {
-    opacity: 0.5; /* Hoặc một giá trị bạn muốn */
+    opacity: 0.5;
+    /* Hoặc một giá trị bạn muốn */
 }
 
 .table-responsive {
-    overflow-x: auto; /* Đảm bảo cuộn ngang */
+    overflow-x: auto;
+    /* Đảm bảo cuộn ngang */
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1481,8 +1506,14 @@ textarea {
         width: 3.2rem;
     }
 }
+
 @media (max-width: 767.98px) {
-    .toolbar .btn .icon-btn + span, .toolbar .btn .trv-nav .k-menu:not(.k-context-menu) > .k-item > a i + span, .trv-nav .k-menu:not(.k-context-menu) > .k-item > a .toolbar .btn i + span, .toolbar .btn .upload-image-customer.has-image .k-upload-button span + span, .upload-image-customer.has-image .k-upload-button .toolbar .btn span + span {
+
+    .toolbar .btn .icon-btn+span,
+    .toolbar .btn .trv-nav .k-menu:not(.k-context-menu)>.k-item>a i+span,
+    .trv-nav .k-menu:not(.k-context-menu)>.k-item>a .toolbar .btn i+span,
+    .toolbar .btn .upload-image-customer.has-image .k-upload-button span+span,
+    .upload-image-customer.has-image .k-upload-button .toolbar .btn span+span {
         display: none;
     }
 }
@@ -1495,135 +1526,185 @@ textarea {
 .date-picker-label {
     margin-bottom: 0.5rem;
     font-size: 1rem;
-    color: #333; /* Màu sắc nhãn */
+    color: #333;
 }
 
-.custom-date-picker{
-    padding: 0 10px; /* Padding cho DatePicker */
-    border: 1px solid #ccc; /* Viền */
-    border-radius: 0.6rem; /* Bo tròn góc */
-    font-size: 1rem; /* Kích thước chữ */
-    outline: none; /* Xóa viền khi chọn */
-    transition: border-color 0.3s; /* Hiệu ứng chuyển màu */
+.custom-date-picker {
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 0.6rem;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 12%);
+    height: 44px;
 }
-.toolbar-select .form-select{
+
+.toolbar-select .form-select {
     width: 120px;
     height: 43px;
     border-radius: 0.6rem;
     border: 1px solid #ccc;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 12%);
 }
+
 .custom-date-picker:focus {
     border-color: white;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 12%);
 }
+
 .react-date-picker__inputGroup__input {
     width: auto !important;
     border-radius: 0.6rem;
     border: 1px solid #ccc;
 }
-.react-date-picker__inputGroup__divider{
+
+.react-date-picker__inputGroup__divider {
     font-size: 20px;
     margin: 7px;
 }
+
 .react-date-picker__wrapper {
-    display: flex; /* Sử dụng flexbox để căn chỉnh các phần tử */
-    align-items: center; /* Căn giữa theo chiều dọc */
+    display: flex;
+    /* Sử dụng flexbox để căn chỉnh các phần tử */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
 }
 
 .react-date-picker__inputGroup {
-    display: flex; /* Đảm bảo nhóm input cũng sử dụng flexbox */
-    align-items: center; /* Căn giữa theo chiều dọc */
+    display: flex;
+    /* Đảm bảo nhóm input cũng sử dụng flexbox */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
 }
 
 .react-date-picker__button {
-    margin-left: 8px; /* Khoảng cách giữa các nút và input */
+    margin-left: 8px;
+    /* Khoảng cách giữa các nút và input */
 }
 
 .react-date-picker__calendar {
-    background-color: white; /* Màu nền cho calendar */
-    border: 1px solid #ccc; /* Viền cho calendar */
-    border-radius: 8px; /* Bo tròn góc */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng */
-    position: absolute; /* Đặt vị trí */
-    z-index: 1000; /* Đảm bảo calendar nằm trên các phần tử khác */
+    background-color: white;
+    /* Màu nền cho calendar */
+    border: 1px solid #ccc;
+    /* Viền cho calendar */
+    border-radius: 8px;
+    /* Bo tròn góc */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* Đổ bóng */
+    position: absolute;
+    /* Đặt vị trí */
+    z-index: 1000;
+    /* Đảm bảo calendar nằm trên các phần tử khác */
 }
 
 .react-calendar__navigation {
-    display: flex; /* Sử dụng flexbox */
-    justify-content: space-between; /* Căn giữa các nút điều hướng */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    margin-bottom: 10px; /* Khoảng cách dưới cùng */
+    display: flex;
+    /* Sử dụng flexbox */
+    justify-content: space-between;
+    /* Căn giữa các nút điều hướng */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+    margin-bottom: 10px;
+    /* Khoảng cách dưới cùng */
 }
 
 .react-calendar__navigation__arrow {
-    background: none; /* Không có nền */
-    border: none; /* Không có viền */
-    cursor: pointer; /* Con trỏ khi di chuột */
-    font-size: 1.5rem; /* Kích thước chữ */
+    background: none;
+    /* Không có nền */
+    border: none;
+    /* Không có viền */
+    cursor: pointer;
+    /* Con trỏ khi di chuột */
+    font-size: 1.5rem;
+    /* Kích thước chữ */
 }
 
 .react-calendar__navigation__label {
-    text-align: center; /* Căn giữa */
+    text-align: center;
+    /* Căn giữa */
 }
 
 .react-calendar__month-view__weekdays {
-    display: flex; /* Sử dụng flexbox cho các ngày trong tuần */
-    justify-content: space-between; /* Căn giữa */
+    display: flex;
+    /* Sử dụng flexbox cho các ngày trong tuần */
+    justify-content: space-between;
+    /* Căn giữa */
 }
 
 .react-calendar__month-view__weekdays__weekday {
-    flex: 1; /* Chiếm đều không gian */
-    text-align: center; /* Căn giữa */
-    font-weight: bold; /* Đậm chữ */
+    flex: 1;
+    /* Chiếm đều không gian */
+    text-align: center;
+    /* Căn giữa */
+    font-weight: bold;
+    /* Đậm chữ */
 }
 
 .react-calendar__month-view__days {
-    display: flex; /* Sử dụng flexbox cho các ngày */
-    flex-wrap: wrap; /* Bọc các phần tử */
+    display: flex;
+    /* Sử dụng flexbox cho các ngày */
+    flex-wrap: wrap;
+    /* Bọc các phần tử */
 }
 
 .react-calendar__tile {
-    flex: 0 0 14.2857%; /* Chiếm 1/7 không gian */
-    display: flex; /* Sử dụng flexbox cho từng ngày */
-    justify-content: center; /* Căn giữa */
-    align-items: center; /* Căn giữa theo chiều dọc */
-    padding: 10px; /* Khoảng cách bên trong */
-    border: none; /* Không có viền */
-    background: none; /* Không có nền */
-    cursor: pointer; /* Con trỏ khi di chuột */
-    transition: background 0.3s; /* Hiệu ứng chuyển tiếp */
+    flex: 0 0 14.2857%;
+    /* Chiếm 1/7 không gian */
+    display: flex;
+    /* Sử dụng flexbox cho từng ngày */
+    justify-content: center;
+    /* Căn giữa */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+    padding: 10px;
+    /* Khoảng cách bên trong */
+    border: none;
+    /* Không có viền */
+    background: none;
+    /* Không có nền */
+    cursor: pointer;
+    /* Con trỏ khi di chuột */
+    transition: background 0.3s;
+    /* Hiệu ứng chuyển tiếp */
 }
-.react-date-picker__clear-button{
-    color: white;
-    border-radius: 4px;
-    border: 1px solid rgb(128, 127, 127);
-}
-.react-date-picker__clear-button .react-date-picker__clear-button__icon{
-    stroke: #606261;
-}
-.react-date-picker__calendar-button{
+
+.react-date-picker__clear-button {
     color: white;
     border-radius: 4px;
     border: 1px solid rgb(128, 127, 127);
 }
 
-.react-date-picker__calendar-button .react-date-picker__calendar-button__icon{
+.react-date-picker__clear-button .react-date-picker__clear-button__icon {
     stroke: #606261;
 }
-.react-date-picker--closed{
+
+.react-date-picker__calendar-button {
+    color: white;
+    border-radius: 4px;
+    border: 1px solid rgb(128, 127, 127);
+}
+
+.react-date-picker__calendar-button .react-date-picker__calendar-button__icon {
+    stroke: #606261;
+}
+
+.react-date-picker--closed {
     position: static !important;
 }
-.react-date-picker__calendar--closed{
+
+.react-date-picker__calendar--closed {
     display: none;
 }
-.react-date-picker__calendar--open{
+
+.react-date-picker__calendar--open {
     width: auto !important;
 }
+
 .react-date-picker--open {
     position: relative !important;
 }
+
 .react-calendar__tile--active {
     background-color: #007bff;
     color: white;
@@ -1633,6 +1714,111 @@ textarea {
 .react-calendar__tile--neighboringMonth {
     color: #ccc;
 }
-.tab-content >.tab-pane{
-    min-height: 470px;
+
+.tab-content>.tab-pane {
+    max-height: 470px;
+}
+
+/* home*/
+
+.header {
+    display: flex;
+    align-items: center;
+    background-color: #f3f3f3;
+    padding: 10px;
+}
+
+.floor {
+    width: 100px;
+    font-weight: bold;
+}
+
+.dates {
+    display: flex;
+    flex-grow: 1;
+}
+
+.date {
+    flex: 1;
+    text-align: center;
+    padding: 5px;
+    border-right: 1px solid #ccc;
+}
+
+.floor-section {
+    margin-top: 10px;
+}
+
+.floor-header {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 10px;
+    background-color: #e9ecef;
+    border: 1px solid #ddd;
+}
+
+.toggle-icon {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.rooms {
+    display: flex;
+    flex-direction: column;
+}
+
+/* RoomSchedule.css */
+.room-schedule {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.room-name {
+    font-weight: bold;
+}
+
+.reservations {
+    position: relative;
+    height: 40px; /* Chiều cao của ô đặt phòng */
+    border: 1px solid #ccc;
+    background: #f9f9f9; /* Màu nền của vùng đặt phòng */
+    display: flex; /* Sử dụng Flexbox */
+    align-items: center; /* Canh giữa theo chiều dọc */
+    padding: 0 5px; /* Thêm một chút padding bên trái và bên phải */
+}
+
+.reservation {
+    position: absolute;
+    height: 100%;
+    color: white; /* Màu chữ */
+    text-align: left; /* Canh trái chữ */
+    line-height: 40px; /* Canh giữa chữ theo chiều dọc */
+    white-space: nowrap; /* Ngăn chặn xuống dòng */
+}
+
+.upcoming {
+    background-color: #f1cd7f;
+    color: #2f3030;
+}
+.upcoming:hover {
+    background-color: #fd7e14;
+}
+
+.ongoing {
+    background-color: rgb(106, 238, 106);
+    color: #2f3030;
+}
+.ongoing:hover {
+    background-color: rgb(32, 234, 32);
+    color: #2f3030;
+}
+
+.past {
+    background-color: rgb(165, 161, 161);
+    color: #2f3030;
+}
+.past:hover {
+    background-color: rgb(107, 104, 104);
 }

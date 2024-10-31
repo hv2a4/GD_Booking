@@ -26,6 +26,11 @@ import InvoiceManagement from "./pages/admin/home/InvoiceManagement"
 import BookingManger from "./pages/admin/home/BookingManger";
 import Login from "./pages/account/login";
 import Profile from "./pages/account/profile";
+import EditRoom from "./pages/staff/edit-room";
+import HomeStaff from "./pages/staff/home";
+import ListReservation from "./pages/staff/list-reservation";
+import FloorMap from "./pages/staff/floor_map";
+import AccountManager from "./pages/admin/accountManagement";
 
 function App() {
   const getCookie = (name) => {
@@ -70,12 +75,19 @@ function App() {
             <Route path="services" element={<Services />} />
             <Route path="profile" element={<Profile />} />
         </Route>
+        <Route path="/staff">
+          <Route path="home" element={<HomeStaff />} />
+          <Route path="edit-room" element={<EditRoom />} />
+          <Route path="list-booking-room" element={<ListReservation />} />
+          <Route path="Floor/:id" element={<FloorMap />} />
+        </Route>
         <Route path="/admin" >
           <Route path="home" element={<HomeAdmin />} />
           <Route path="room" element={<RoomAdmin />} />
           <Route path="booking-manager" element={<BookingManger />} />
           <Route path="room-pricing" element={<RoomPriceManager />} />
           <Route path="invoice-room" element={<InvoiceManagement />} />
+          <Route path="account-management" element={<AccountManager />} />
         </Route>
           <Route path="/account" element={<Login />} />
     </Route >
