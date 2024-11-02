@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { navList } from "../data/Data";
 import SocialIcons from "./SocialIcons";
-import logo from "../../assets/brand/logono.png";
+import logo from "../../../src/assets/images/about-1.jpg";
 
 export default function Header() {
   const [navbarCollapse, setNavbarCollapse] = useState(false);
