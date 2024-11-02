@@ -51,8 +51,8 @@ const RoomAndTypeRoom = () => {
     };
 
     const bookingHistory = [
-        { id: 1, time: "2024-09-23 14:30", staff: "Nguyễn Văn A", total: "500,000 VNĐ" },
-        { id: 2, time: "2024-09-24 10:15", staff: "Trần Thị B", total: "1,000,000 VNĐ" }
+        { id: 1, time: "2024-09-23 14:30", employee: "Nguyễn Văn A", total: "500,000 VNĐ" },
+        { id: 2, time: "2024-09-24 10:15", employee: "Trần Thị B", total: "1,000,000 VNĐ" }
     ];
 
     const transactionHistory = [
@@ -607,7 +607,7 @@ const RoomAndTypeRoom = () => {
                                                                                     <tr key={booking.id}>
                                                                                         <th scope="row">{booking.id}</th>
                                                                                         <td>{booking.time}</td>
-                                                                                        <td>{booking.staff}</td>
+                                                                                        <td>{booking.employee}</td>
                                                                                         <td>{booking.total}</td>
                                                                                     </tr>
                                                                                 ))}

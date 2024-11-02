@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { facility, roomItems } from "../data/Data";
+import RoomDetailModal from "../../pages/client/Room/modal-room";
 
 export default function Rooms() {
+  const [showModal, setShowModal] = useState(false);
+  const [roomItem, setRoomItem] = useState({});
+
+  const handleRoomItem = (item) => {
+    setShowModal(true);
+    setRoomItem(item);
+  }
+
   return (
     <>
       <div className="container-xxl py-5">
@@ -39,7 +48,7 @@ export default function Rooms() {
                     <div className="d-flex justify-content-between">
                       <a
                         className="btn btn-sm btn-primary rounded py-2 px-4"
-                        href=""
+                        onClick={() => handleRoomItem(item)}
                       >
                         {item.yellowbtn}
                       </a>
@@ -53,6 +62,7 @@ export default function Rooms() {
             ))}
           </div>
         </div>
+        <RoomDetailModal show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
       </div>
     </>
   );

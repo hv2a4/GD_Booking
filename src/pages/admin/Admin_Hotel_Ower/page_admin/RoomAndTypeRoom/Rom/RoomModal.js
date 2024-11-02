@@ -469,7 +469,7 @@ const AddRoomModal = () => {
                                         <Card.Body>
                                             <Row>
                                                 <Col md={12}>
-                                                    <Card.Text>
+                                                    <Card.Text style={{ wordWrap: "break-word", whiteSpace: "normal" }}>
                                                         <strong>Phòng sẽ được áp dụng theo giá của hạng phòng:</strong>
                                                     </Card.Text>
                                                     <ul style={{ listStyleType: "none", paddingLeft: 0 }}>

@@ -488,3 +488,314 @@
     padding-right: 0;
     border-right: none;
 }
+/*booking room*/
+
+.page-box-content.page-hotel {
+	background: #f4f4f4;
+	margin-top: 0;
+	padding-top: 30px;
+	margin-bottom: 100px;
+}
+
+.page-box-content.page-hotel h3 {
+	color: #15284a;
+	font-size: 20px;
+	margin: 0;
+	margin-bottom: 20px;
+}
+
+.page-box-content.page-hotel .box-content {
+	background: #fff;
+	border-radius: 5px;
+	border: solid 1px #dee3ed;
+	padding: 16px 27px;
+}
+
+.box-submit-form.create-booking {
+	margin-bottom: 20px;
+}
+
+.box-submit-form.create-booking .input-item {
+	margin-bottom: 10px;
+}
+
+.box-submit-form.create-booking label {
+	font-size: 14px;
+	color: #15284a;
+	font-weight: bold;
+	margin: 0;
+	margin-bottom: 10px;
+}
+
+.box-submit-form.create-booking label span {
+	color: #f90404;
+}
+
+.box-submit-form.create-booking input[type="text"],
+.box-submit-form.create-booking input[type="email"] {
+	height: 50px;
+}
+
+.box-submit-form.create-booking input {
+	border-radius: 5px;
+	font-size: 14px;
+	color: #191919;
+	border: solid 1px #dee3ed;
+}
+
+.box-submit-form.create-booking input[type="text"],
+.box-submit-form.create-booking input[type="email"] {
+	height: 50px;
+}
+
+.input-item.form-group.box-full-services-extra {
+	background: #f9f9fa;
+}
+
+#form-hotel-create-booking .box-services-extra .note {
+	font-size: 14px;
+	color: #333;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner {
+	margin-top: 20px;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner .box-item.type-radio {
+	width: 100%;
+	display: grid;
+	grid-template-columns: 50% auto;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner .box-item {
+	margin: 10px 0;
+	margin-bottom: 20px;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner label {
+	margin: 0;
+	color: #333;
+	font-size: 14px;
+	cursor: pointer;
+	font-weight: 400;
+	display: block;
+	user-select: none;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner input[type='radio'] {
+	position: relative;
+	cursor: pointer;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner label input {
+	margin-right: 15px;
+}
+
+.box-submit-form.create-booking input {
+	border-radius: 5px;
+	font-size: 14px;
+	color: #191919;
+	border: solid 1px #dee3ed;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner .box-checkbox-services {
+	display: grid;
+	grid-template-columns: 50% auto;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner .box-checkbox-services .box-item {
+	padding-bottom: 20px;
+	margin-top: 0;
+	padding-top: 20px;
+	border-top: 1px solid #e6e6e6;
+	margin-bottom: 0;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner .box-checkbox-payment {
+	display: grid;
+	grid-template-columns: 50% auto;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner .box-checkbox-payment .box-item {
+	padding-bottom: 20px;
+	margin-top: 0;
+	padding-top: 20px;
+	border-top: 1px solid #e6e6e6;
+	margin-bottom: 0;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner input[type='checkbox'] {
+	position: relative;
+	cursor: pointer;
+}
+
+#form-hotel-create-booking .box-services-extra .box-services-extra-inner .box-checkbox-services .box-item .box-content-item input {
+	padding: 2px 10px;
+	font-size: 14px;
+	color: #333;
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.hidden {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+.help-block {
+	display: block;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	color: #737373;
+}
+
+#form-hotel-create-booking .hotel-box-note .box-title {
+	font-size: 14px;
+	color: #085ae8;
+	user-select: none;
+	margin-bottom: 20px;
+	cursor: pointer;
+}
+
+#form-hotel-create-booking .hotel-box-note .box-title i {
+	font-size: 22px;
+	margin-right: 5px;
+}
+
+#form-hotel-create-booking .box-submit {
+	margin-top: 10px;
+}
+
+.box-submit-form.create-booking button.btn-submit-contact-booking {
+	background: #f04a22;
+	font-size: 14px;
+	line-height: 40px;
+	text-transform: uppercase;
+	min-width: 40%;
+	border-radius: 4px;
+	outline: 0;
+	color: #fff;
+	margin: auto;
+	border: 0;
+	display: block;
+}
+
+.page-box-content.page-hotel h3 {
+	color: #15284a;
+	font-size: 20px;
+	margin: 0;
+	margin-bottom: 20px;
+	font-weight: bold;
+}
+
+.hotel-page-sidebar .box-summary {
+	width: 100%;
+	min-height: 100px;
+	border-radius: 5px;
+	border: solid 1px #eff3fe;
+	background-color: #fff;
+}
+
+.hotel-page-sidebar .box-summary .summary-main {
+	padding: 20px;
+	font-size: 14px;
+	color: #15284a;
+	margin-bottom: 0;
+	padding-bottom: 15px;
+	display: grid;
+	grid-template-columns: 100px auto;
+}
+
+.hotel-page-sidebar .box-summary .summary-main .box-img {
+	width: 100%;
+	height: 80px;
+	overflow: hidden;
+}
+
+.hotel-page-sidebar .box-summary .summary-main .box-img img {
+	width: 100%;
+	border-radius: 5px;
+}
+
+.hotel-page-sidebar .box-summary .summary-main .box-title {
+	padding-left: 15px;
+}
+
+.hotel-page-sidebar .box-summary .summary-total {
+	padding: 20px 20px;
+	border-top: 1px solid #eff3fe;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info {
+	width: 100%;
+	font-size: 14px;
+	color: #191919;
+	font-weight: bold;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info tr td {
+	padding: 10px 0;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info .title {
+	font-size: 14px;
+	color: #9aa2b2;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info tr td i {
+	margin-right: 10px;
+}
+
+.icon-vnbk.icon-calendar-from-570-48 {
+	background-position: -570px -48px;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info tr .info-right {
+	text-align: right;
+}
+
+.hotel-page-sidebar .box-summary .summary-total {
+	padding: 20px 20px;
+	border-top: 1px solid #eff3fe;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.hotel-page-sidebar .box-summary .summary-total .tlb-info.tlb-info-price {
+	margin-bottom: 0;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info .title.type-tax {
+	font-size: 13px;
+	color: #2681ff;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info tr .info-right.type-tax {
+	font-size: 13px;
+	color: #2681ff;
+	text-transform: uppercase;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info tr.tr-total {
+	border-top: 1px solid #f0f2f5;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info tr.tr-total .title {
+	font-size: 14px;
+	color: #191919;
+}
+
+.hotel-page-sidebar .box-summary .summary-total table.tlb-info tr.tr-total .info-right {
+	font-size: 14px;
+	color: #ff9000;
+}
+
+.hotel-page-sidebar .box-hotline {
+	border-radius: 3px;
+	background-color: #f0f2f5;
+	line-height: 37px;
+	text-align: center;
+	margin-bottom: 10px;
+}
