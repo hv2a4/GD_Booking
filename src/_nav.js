@@ -10,6 +10,7 @@ import {
   cilCash,
   cilRoom,
   cilCloud,
+  cilStar,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 

@@ -35,7 +35,9 @@
     opacity: 1;
 }
 
-
+.text-primary{
+    color: #FEA116 !important;
+}
 /*** Button ***/
 .btn {
     font-weight: 500;
@@ -410,6 +412,9 @@
 .team-item .bg-primary,
 .team-item .bg-primary i {
     transition: .5s;
+}
+.bg-orange{
+    background-color: #FEA116;
 }
 
 .team-item:hover {

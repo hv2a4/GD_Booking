@@ -78,17 +78,17 @@ export const carouselData = [
 ];
 export const about = [
   {
-    icon: <i className="fa fa-hotel fa-2x text-primary mb-2"></i>,
+    icon: <i className="fa fa-hotel fa-2x text-orange mb-2"></i>,
     text: "Phòng",
     count: "7861",
   },
   {
-    icon: <i className="fa fa-users fa-2x text-primary mb-2"></i>,
+    icon: <i className="fa fa-users fa-2x text-orange mb-2"></i>,
     text: "Nhân viên",
     count: "1234",
   },
   {
-    icon: <i className="fa fa-users-cog fa-2x text-primary mb-2"></i>,
+    icon: <i className="fa fa-users-cog fa-2x text-orange mb-2"></i>,
     text: "khách hàng",
     count: "4321",
   },
@@ -96,34 +96,34 @@ export const about = [
 
 export const services = [
   {
-    icon: <i className="fa fa-hotel fa-2x text-primary"></i>,
+    icon: <i className="fa fa-hotel fa-2x text-orange"></i>,
     name: "Rooms & Appartment",
     discription: "Contrary to popular belief, ipsum is not simply random.",
   },
   {
-    icon: <i className="fa fa-utensils fa-2x text-primary"></i>,
+    icon: <i className="fa fa-utensils fa-2x text-orange"></i>,
     name: "Food & Restaurant",
     discription: "Contrary to popular belief, ipsum is not simply random.",
   },
   {
-    icon: <i className="fa fa-spa fa-2x text-primary"></i>,
+    icon: <i className="fa fa-spa fa-2x text-orange"></i>,
     name: "Spa & Fitness",
     discription: "Contrary to popular belief, ipsum is not simply random.",
   },
 
   {
-    icon: <i className="fa fa-swimmer fa-2x text-primary"></i>,
+    icon: <i className="fa fa-swimmer fa-2x text-orange"></i>,
     name: "Sports & Gaming",
     discription: "Contrary to popular belief, ipsum is not simply random.",
   },
   {
-    icon: <i className="fa fa-glass-cheers fa-2x text-primary"></i>,
+    icon: <i className="fa fa-glass-cheers fa-2x text-orange"></i>,
     name: "Event & Party",
     discription: "Contrary to popular belief, ipsum is not simply random.",
   },
 
   {
-    icon: <i className="fa fa-dumbbell fa-2x text-primary"></i>,
+    icon: <i className="fa fa-dumbbell fa-2x text-orange"></i>,
     name: "GYM & Yoga",
     discription: "Contrary to popular belief, ipsum is not simply random.",
   },
@@ -213,17 +213,17 @@ export const footerContact = [
 
 export const contact = [
   {
-    icon: <i className="fa fa-envelope-open text-primary me-2"></i>,
+    icon: <i className="fa fa-envelope-open text-orange me-2"></i>,
     title: "Booking",
     email: "book@example.com",
   },
   {
-    icon: <i className="fa fa-envelope-open text-primary me-2"></i>,
+    icon: <i className="fa fa-envelope-open text-orange me-2"></i>,
     title: "Technical",
     email: "tech@example.com",
   },
   {
-    icon: <i className="fa fa-envelope-open text-primary me-2"></i>,
+    icon: <i className="fa fa-envelope-open text-orange me-2"></i>,
     title: "General",
     email: "info@example.com",
   },
@@ -235,7 +235,7 @@ export const testimonial = [
     name: "Client Name",
     profession: "Profession",
     icon: (
-      <i className="fa fa-quote-right fa-3x text-primary position-absolute end-0 bottom-0 me-4 mb-n1"></i>
+      <i className="fa fa-quote-right fa-3x text-orange position-absolute end-0 bottom-0 me-4 mb-n1"></i>
     ),
     img: "../assets/img/testimonial-1.jpg",
   },
@@ -245,7 +245,7 @@ export const testimonial = [
     name: "Client Name",
     profession: "Profession",
     icon: (
-      <i className="fa fa-quote-right fa-3x text-primary position-absolute end-0 bottom-0 me-4 mb-n1"></i>
+      <i className="fa fa-quote-right fa-3x text-orange position-absolute end-0 bottom-0 me-4 mb-n1"></i>
     ),
     img: "../assets/img/testimonial-2.jpg",
   },
@@ -255,7 +255,7 @@ export const testimonial = [
     name: "Client Name",
     profession: "Profession",
     icon: (
-      <i className="fa fa-quote-right fa-3x text-primary position-absolute end-0 bottom-0 me-4 mb-n1"></i>
+      <i className="fa fa-quote-right fa-3x text-orange position-absolute end-0 bottom-0 me-4 mb-n1"></i>
     ),
     img: "../assets/img/testimonial-3.jpg",
   },
@@ -267,11 +267,11 @@ export const roomItems = [
     price: "$110/night",
     name: "Junior Suit",
     star: [
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
     ],
     description:
       "Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.",
@@ -284,11 +284,11 @@ export const roomItems = [
     price: "$110/night",
     name: "Executive Suite",
     star: [
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
     ],
     description:
       "Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.",
@@ -300,11 +300,11 @@ export const roomItems = [
     price: "$110/night",
     name: "Super Deluxe",
     star: [
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
-      <small className="fa fa-star text-primary"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
+      <small className="fa fa-star text-orange"></small>,
     ],
     description:
       "Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.",
@@ -315,17 +315,17 @@ export const roomItems = [
 
 export const facility = [
   {
-    icon: <i className="fa fa-bed text-primary me-2"></i>,
+    icon: <i className="fa fa-bed text-orange me-2"></i>,
     quantity: 3,
     facility: "bed",
   },
   {
-    icon: <i className="fa fa-bath text-primary me-2"></i>,
+    icon: <i className="fa fa-bath text-orange me-2"></i>,
     quantity: 2,
     facility: "bath",
   },
   {
-    icon: <i className="fa fa-wifi text-primary me-2"></i>,
+    icon: <i className="fa fa-wifi text-orange me-2"></i>,
     facility: "Wifi",
   },
 ];

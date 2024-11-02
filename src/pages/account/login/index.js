@@ -196,7 +196,7 @@ const AuthForm = () => {
                                             clearErrors("username");
                                           }
                                     }} />
-                                 {errors.username && <small className="text-danger"  style={{ textAlign: 'left', display: 'block' }}>{errors.username.message}</small>}
+                                 {errors.username && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }}>{errors.username.message}</small>}
                             </div>
                            
                             <div className="col-md-6">
@@ -206,7 +206,7 @@ const AuthForm = () => {
                                             clearErrors("fullname");
                                           }
                                     }}  />
-                                     {errors.fullname && <small className="text-danger"  style={{ textAlign: 'left', display: 'block' }}>{errors.fullname.message}</small>}
+                                     {errors.fullname && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }}>{errors.fullname.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="email" className="form-control"  {...register("email", {
@@ -221,7 +221,7 @@ const AuthForm = () => {
                                             clearErrors("email");
                                           }
                                     }} />
-                                     {errors.email && <small className="text-danger"  style={{ textAlign: 'left', display: 'block' }}>{errors.email.message}</small>}
+                                     {errors.email && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }}>{errors.email.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="text"  {...register("phone", {
@@ -236,7 +236,7 @@ const AuthForm = () => {
                                             clearErrors("phone");
                                         }
                                     }} />
-                                   {errors.phone && <small className="text-danger"  style={{ textAlign: 'left', display: 'block' }} >{errors.phone.message}</small>}
+                                   {errors.phone && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }} >{errors.phone.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input
@@ -253,7 +253,7 @@ const AuthForm = () => {
                                         },
                                       })}
                                 />
-                                    {errors.password && <small style={{ textAlign: 'left', display: 'block' }} className="text-danger">{errors.password.message}</small>}
+                                    {errors.password && <small style={{ textAlign: 'left', display: 'block' }} className="text-orange">{errors.password.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="password" ref={configPassword} className="form-control" placeholder="Xác nhận mật khẩu" name="confirmPassword" required {...register("configPassword", {
@@ -262,7 +262,7 @@ const AuthForm = () => {
                                         value === password || "Mật khẩu và xác nhận mật khẩu không khớp",
                                 })} />
                                 {errors.configPassword && 
-                                    <small className="text-danger" style={{ textAlign: 'left', display: 'block' }} >{errors.configPassword.message}</small>
+                                    <small className="text-orange" style={{ textAlign: 'left', display: 'block' }} >{errors.configPassword.message}</small>
                                 }
                             </div>
                         </div>

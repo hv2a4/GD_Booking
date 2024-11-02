@@ -86,7 +86,7 @@ const TTNhanPhong = () => {
                                             <i className="fa fa-pen"></i>
                                         </button>
                                         <button
-                                            className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                            className="btn btn-sm btn-icon-only btn-circle text-orange">
                                             <i className="fa fa-trash-alt"></i>
                                         </button>
                                     </td>
@@ -102,7 +102,7 @@ const TTNhanPhong = () => {
                                             <i className="fa fa-pen"></i>
                                         </button>
                                         <button
-                                            className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                            className="btn btn-sm btn-icon-only btn-circle text-orange">
                                             <i className="fa fa-trash-alt"></i>
                                         </button>
                                     </td>
@@ -133,7 +133,7 @@ const TTNhanPhong = () => {
                                         outsideclick="true"
                                         containerclassName="min-width-320"
                                         className="form-control form-control-line cell-change-price">
-                                        <strong className="text-primary">150,000</strong>
+                                        <strong className="text-orange">150,000</strong>
                                     </button>
                                 </div>
                             </div>
@@ -158,7 +158,7 @@ const TTNhanPhong = () => {
                                         <i className="fa fa-credit-card icon-btn"></i>
                                     </button>
                                 </div>
-                                <div className="payment-form-control col-form-control text-primary">
+                                <div className="payment-form-control col-form-control text-orange">
                                     <input id="txt-payment"
                                         type="text"
                                         className="form-control"
@@ -169,7 +169,7 @@ const TTNhanPhong = () => {
                                 <div className="payment-form-label col-form-label">
                                     <span>Tiền thừa </span>
                                 </div>
-                                <div className="payment-form-control col-form-control text-primary">
+                                <div className="payment-form-control col-form-control text-orange">
                                     <div className="payment-form-control col-form-control payment-total-amount font-regular">
                                         <span> 150,000</span>
                                     </div>

@@ -27,7 +27,7 @@ export default function Rooms() {
                 <div className="room-item shadow rounded overflow-hidden">
                   <div className="position-relative">
                     <img className="img-fluid" src={item.img} alt="img" />
-                    <small className="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">
+                    <small className="position-absolute start-0 top-100 translate-middle-y bg-orange text-white rounded py-1 px-3 ms-4">
                       {item.price}
                     </small>
                   </div>

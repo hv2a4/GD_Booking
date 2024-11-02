@@ -37,7 +37,7 @@ const XacNhan = () => {
                             <div className="d-flex" style={{ marginBottom: "50px" }}>
                                 <div className="d-flex align-items-center">
                                     <i className="fa-regular fa-user"></i>
-                                    <span className="text-primary font-bold"
+                                    <span className="text-orange font-bold"
                                         style={{ marginLeft: "10px" }}>e</span>
                                     <span className="ng-star-inserted"> - 092094892</span>
                                 </div>

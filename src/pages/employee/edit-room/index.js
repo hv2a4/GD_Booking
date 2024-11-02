@@ -209,7 +209,7 @@ const EditRoom = () => {
                                             </div>
                                         </div>
                                         <div className="group-room-footer">
-                                            <div className="text-primary fw-bolder">Tổng cộng: 800,000</div>
+                                            <div className="text-orange fw-bolder">Tổng cộng: 800,000</div>
                                         </div>
                                     </div>
                                 </div>
@@ -228,7 +228,7 @@ const EditRoom = () => {
                                                     <a className="btn btn-sm btn-text-neutral btn-icon-only btn-circle mr-2">
                                                         <i className="fa fa-images icon-btn"></i>
                                                     </a>
-                                                    <div className="text-primary">
+                                                    <div className="text-orange">
                                                         <span>Đang sử dụng: 1 ngày</span>
                                                     </div>
                                                 </div>

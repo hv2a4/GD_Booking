@@ -9,12 +9,12 @@ export default function About() {
         <div className="container">
           <div className="row g-5 align-items-center">
             <div className="col-lg-6">
-              <h6 className="section-title text-start text-primary text-uppercase">
+              <h6 className="section-title text-start text-orange text-uppercase">
                 Về chúng tôi
               </h6>
               <h1 className="mb-4">
                 Chào mừng đến{" "}
-                <span className="text-primary text-uppercase">Start Hotel</span>
+                <span className="text-orange text-uppercase">Start Hotel</span>
               </h1>
               <p className="mb-4">
                 Khách sạn Start Hotel – nơi nghỉ dưỡng hoàn hảo với tiện nghi hiện đại, không gian sang trọng và vị trí lý tưởng,

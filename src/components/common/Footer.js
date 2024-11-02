@@ -17,7 +17,7 @@ export default function Footer() {
         <div className="container pb-5">
           <div className="row g-5">
             <div className="col-md-6 col-lg-4">
-              <div className="bg-primary rounded p-4">
+              <div className="bg-orange rounded p-4">
                 <Link to="/">
                   <h1 className="text-white text-uppercase mb-3">Start Hotel</h1>
                 </Link>
@@ -27,7 +27,7 @@ export default function Footer() {
               </div>
             </div>
             <div className="col-md-6 col-lg-3">
-              <h6 className="section-title text-start text-primary text-uppercase mb-4">
+              <h6 className="section-title text-start text-orange text-uppercase mb-4">
                 Liên Hệ
               </h6>
               {footerContact.map((val, index) => (
@@ -47,7 +47,7 @@ export default function Footer() {
               <div className="row gy-5 g-4">
                 {footerItem.map((section, sectionIndex) => (
                   <div className="col-md-6" key={sectionIndex}>
-                    <h6 className="section-title text-start text-primary text-uppercase mb-4">
+                    <h6 className="section-title text-start text-orange text-uppercase mb-4">
                       {section.header}
                     </h6>
                     {section.UnitItem.map((item, itemIndex) => (

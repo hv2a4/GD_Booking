@@ -105,7 +105,7 @@ const ModalORR = ({ onClose }) => {
                                         </td>
                                         <td>
                                             <button
-                                                className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                                className="btn btn-sm btn-icon-only btn-circle text-orange">
                                                 <i className="fa fa-trash-alt"></i>
                                             </button>
                                         </td>
@@ -141,7 +141,7 @@ const ModalORR = ({ onClose }) => {
                                     <div className="col-md-6 text-end">
                                         <button
                                             className="form-control" style={{width: "auto"}}>
-                                            <strong className="text-primary">150,000</strong>
+                                            <strong className="text-orange">150,000</strong>
                                         </button>
                                     </div>
                                 </div>
@@ -164,7 +164,7 @@ const ModalORR = ({ onClose }) => {
                                         <span> Tiền thừa </span>
                                     </div>
                                     <div className="col-md-6 text-end">
-                                        <span className="font-regular text-primary">150,000</span>
+                                        <span className="font-regular text-orange">150,000</span>
                                     </div>
                                 </div>
                             </div>

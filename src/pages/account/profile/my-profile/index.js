@@ -217,7 +217,7 @@ const MyProfile = () => {
                                 clearErrors("username");
                               }
                         }}  disabled />
-                         {errors.username && <small className="text-danger">{errors.username.message}</small>}
+                         {errors.username && <small className="text-orange">{errors.username.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputFullname" className="form-label">Họ và tên: </label>
@@ -227,7 +227,7 @@ const MyProfile = () => {
                                 clearErrors("fullname");
                               }
                         }}  />
-                        {errors.fullname && <small className="text-danger">{errors.fullname.message}</small>}
+                        {errors.fullname && <small className="text-orange">{errors.fullname.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label htmlFor="inputEmail" className="form-label">Email</label>
@@ -237,7 +237,7 @@ const MyProfile = () => {
                                 clearErrors("email");
                               }
                         }} />
-                          {errors.email && <small className="text-danger">{errors.email.message}</small>}
+                          {errors.email && <small className="text-orange">{errors.email.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label for="inputPhone" className="form-label">Phone</label>
@@ -248,7 +248,7 @@ const MyProfile = () => {
                                 clearErrors("phone");
                               }
                         } } />
-                        {errors.phone && <small className="text-danger">{errors.phone.message}</small>}
+                        {errors.phone && <small className="text-orange">{errors.phone.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputGender" className="form-label">Giới tính</label><br />

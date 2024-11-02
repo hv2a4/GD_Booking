@@ -19,7 +19,7 @@ const HotelService = () => {
     };
 
     const hotelServices = [
-        { id: '1', serviceHotelName: 'a', price: 1000000, icon: '<i class="fa fa-bed text-primary me-2"></i>', image: '', id_hotel: 1 },
+        { id: '1', serviceHotelName: 'a', price: 1000000, icon: '<i class="fa fa-bed text-orange me-2"></i>', image: '', id_hotel: 1 },
         { id: '2', serviceHotelName: 'b', price: 2000000, icon: '<i class="fa fa-bed"></i>', image: '', id_hotel: 1 }
     ];
 

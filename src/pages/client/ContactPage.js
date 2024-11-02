@@ -19,7 +19,7 @@ export default function Contact() {
               <div className="row gy-4">
                 {contact.map((item, index) => (
                   <div className="col-md-4">
-                    <h6 className="section-title text-start text-primary text-uppercase">
+                    <h6 className="section-title text-start text-orange text-uppercase">
                       {item.title}
                     </h6>
                     <p>

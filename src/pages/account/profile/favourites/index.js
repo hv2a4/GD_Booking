@@ -12,7 +12,7 @@ const Favourite = () => {
                                 alt="..." />
                             <div className="card-body">
                                 <h5 className="card-title">Novotel Phu Quoc Resort</h5>
-                                <p className="card-text"><span className="badge text-bg-primary">9.8</span>
+                                <p className="card-text"><span className="badge text-bg-orange">9.8</span>
                                     <span style={{ fontSize: "12px" }}>Tuyệt vời - 2100 đánh giá</span>
                                 </p>
                                 <p className="card-text" style={{ fontSize: "12px" }}><i

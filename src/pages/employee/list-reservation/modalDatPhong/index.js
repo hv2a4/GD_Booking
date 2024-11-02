@@ -52,7 +52,7 @@ const DatPhong = ({ onClose }) => {
                                         <div>
                                             <span className="fw-bolder" style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}>Phòng 01 giường đôi cho 2 người</span>
                                             <a className="mr-2 text-decoration-none">
-                                                <i className="fa fa-images icon-mask hover-text-primary"></i>
+                                                <i className="fa fa-images icon-mask hover-text-orange"></i>
                                             </a>
                                             <span className="d-inline-block text-neutral" style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}>(Còn 3 phòng trống)</span>
                                         </div>
