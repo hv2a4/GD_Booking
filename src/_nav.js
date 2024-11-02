@@ -16,7 +16,7 @@ import { CNavGroup, CNavItem } from '@coreui/react'
 const _nav = [
   {
     component: CNavItem,
-    name: 'Dashboard',
+    name: 'Tổng quan',
     to: '/admin/home',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     badge: {
@@ -49,40 +49,18 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Quản lý dịch vụ',
-    icon: <CIcon icon={cilCloud} customClassName="nav-icon" />,
+    name: 'Dịch vụ & Tiện nghi',
+    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Dịch vụ phòng',
-        to: '/admin/service-room-management',
+        name: 'Dịch vụ',
+        to: '/admin/service',
       },
       {
         component: CNavItem,
-        name: 'Gói dịch vụ loại phòng',
-        to: '/#',
-      },
-      {
-        component: CNavItem,
-        name: 'Dịch vụ khách sạn',
-        to: '/#',
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
-    name: 'Hàng hóa',
-    icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Danh mục',
-        to: '/#',
-      },
-      {
-        component: CNavItem,
-        name: 'Kiểm kho',
-        to: '/#',
+        name: 'Tiện nghi',
+        to: '/admin/amenities',
       },
     ],
   },

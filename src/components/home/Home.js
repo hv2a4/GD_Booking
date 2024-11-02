@@ -5,7 +5,7 @@ import About from "./About";
 import Services from "./Service";
 import Rooms from "./Rooms";
 import Sliders from "./Slider";
-import Teams from "./Team";
+// import Teams from "./Team";
 import LayoutClient from "../layout/cilent";
 
 export default function Home() {
@@ -17,7 +17,7 @@ export default function Home() {
       <Rooms />
       <Services />
       <Sliders />
-      <Teams />
+      {/* <Teams /> */}
     </LayoutClient>
   );
 }

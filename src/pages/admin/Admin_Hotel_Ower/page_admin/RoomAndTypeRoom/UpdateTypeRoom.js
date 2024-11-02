@@ -57,7 +57,7 @@ function UpdateTypeRoom() {
             <Modal
                 show={show}
                 onHide={() => setShow(false)}
-                dialogClassName="modal-wide"
+                dialogClassName="modal-wides"
                 aria-labelledby="example-custom-modal-styling-title"
                 className='overflowY'
             >
@@ -79,13 +79,13 @@ function UpdateTypeRoom() {
                                         <Col md={12} style={{ marginBottom: '1rem' }}>
                                             <Form className="custom-form">
                                                 <Form.Group as={Row} controlId="formRoomCode" className='mt-3'>
-                                                    <Form.Label column sm={3}>Mã hạng phòng</Form.Label>
+                                                    <Form.Label column sm={3}>Mã loại phòng</Form.Label>
                                                     <Col sm={9}>
                                                         <Form.Control type="text" placeholder="Nhập mã hạng phòng" />
                                                     </Col>
                                                 </Form.Group>
                                                 <Form.Group as={Row} controlId="formRoomName" className='mt-3'>
-                                                    <Form.Label column sm={3}>Tên hạng phòng</Form.Label>
+                                                    <Form.Label column sm={3}>Tên loại phòng</Form.Label>
                                                     <Col sm={9}>
                                                         <Form.Control type="text" placeholder="Nhập tên hạng phòng" />
                                                     </Col>
@@ -103,124 +103,6 @@ function UpdateTypeRoom() {
                                                     </Col>
                                                 </Form.Group>
                                             </Form>
-                                        </Col>
-
-                                        <Col md={12} style={{ marginBottom: '1rem' }}>
-                                            <Card>
-                                                <Card.Header style={{ fontSize: '0.9rem', background: '#ECECEE' }}>
-                                                    <h6>Phụ thu quá giờ (Khi quá thời gian quy định)</h6>
-                                                </Card.Header>
-                                                <Card.Body>
-                                                    <Card.Text style={{ fontSize: '0.85rem' }}>
-                                                        <Row>
-                                                            <Col md={5}>
-                                                                <Form.Group as={Row} controlId="formRoomCode" className='mt-3'>
-                                                                    <Form.Label column sm={4}><strong style={{ fontSize: '0.85rem' }}>Hình thức</strong></Form.Label>
-                                                                    <Col sm={8}>
-                                                                        <Form.Control as="select" defaultValue="" style={{ fontSize: '0.85rem' }}>
-                                                                            <option value="room1">Tính tiền theo mỗi giờ</option>
-                                                                            <option value="room2">Tính theo % tiền phòng</option>
-                                                                        </Form.Control>
-                                                                    </Col>
-                                                                </Form.Group>
-                                                                <Form.Group as={Row} controlId="formRoomFee" className='mt-5'>
-                                                                    <Col sm={1}>
-                                                                        <Form.Check
-                                                                            type="checkbox"
-                                                                            label="" // No need for a label inside the checkbox; it's in the Form.Label
-                                                                            name="roomFeeDefault" // Name for the checkbox
-                                                                            id="roomFeeDefault"
-                                                                            style={{ fontSize: '0.85rem' }}
-                                                                        />
-                                                                    </Col>
-                                                                    <Form.Label column sm={11} style={{ fontSize: '0.85rem' }}>
-                                                                        <p style={{ fontSize: '0.85rem' }}>Mặc định tính phụ thu cho hạng phòng</p>
-                                                                    </Form.Label>
-                                                                </Form.Group>
-                                                                <Form.Group as={Row} controlId="formRoomFee" className='mt-3'>
-                                                                    <Col sm={1}>
-                                                                        <Form.Check
-                                                                            type="checkbox"
-                                                                            label="" // No need for a label inside the checkbox; it's in the Form.Label
-                                                                            name="roomFeeDefault" // Name for the checkbox
-                                                                            id="roomFeeDefault"
-                                                                            style={{ fontSize: '0.85rem' }}
-                                                                        />
-                                                                    </Col>
-                                                                    <Form.Label column sm={11} style={{ fontSize: '0.85rem' }}>
-                                                                        <p style={{ fontSize: '0.85rem' }}>Áp dụng cho tất cả hạng phòng</p>
-                                                                    </Form.Label>
-                                                                </Form.Group>
-
-                                                            </Col>
-                                                            <Col md={7}>
-                                                                <Row>
-                                                                    <Col md={6}>
-                                                                        <Form.Group as={Row} controlId="formEarlyCheckin" className='mt-3'>
-                                                                            <Form.Label column sm={6} style={{ fontSize: '0.85rem' }}><strong style={{ fontSize: '0.85rem' }}>Nhận sớm từ</strong></Form.Label>
-                                                                            <Col sm={6}>
-                                                                                <Form.Control type="number" placeholder="1" style={{ fontSize: '0.85rem' }} />
-                                                                            </Col>
-                                                                        </Form.Group>
-                                                                    </Col>
-                                                                    <Col md={6}>
-                                                                        <Form.Group as={Row} controlId="formLateFee" className='mt-3'>
-                                                                            <Form.Label column sm={6} style={{ fontSize: '0.85rem' }}><strong style={{ fontSize: '0.85rem' }}>Giờ, phụ thu</strong></Form.Label>
-                                                                            <Col sm={6} style={{ position: 'relative' }}>
-                                                                                <Form.Control
-                                                                                    type="number"
-                                                                                    placeholder="0"
-                                                                                    style={{ fontSize: '0.85rem', paddingRight: '2rem' }} // Add padding for the "%" symbol
-                                                                                />
-                                                                                <span style={{
-                                                                                    position: 'absolute',
-                                                                                    right: '10px',
-                                                                                    top: '50%',
-                                                                                    transform: 'translateY(-50%)',
-                                                                                    fontSize: '0.85rem'
-                                                                                }}>
-                                                                                    %
-                                                                                </span>
-                                                                            </Col>
-                                                                        </Form.Group>
-                                                                    </Col>
-                                                                </Row>
-                                                                <Row>
-                                                                    <Col md={6}>
-                                                                        <Form.Group as={Row} controlId="formEarlyCheckin" className='mt-3'>
-                                                                            <Form.Label column sm={6} style={{ fontSize: '0.85rem' }}><strong style={{ fontSize: '0.85rem' }}>Trả muộn từ</strong></Form.Label>
-                                                                            <Col sm={6}>
-                                                                                <Form.Control type="number" placeholder="1" style={{ fontSize: '0.85rem' }} />
-                                                                            </Col>
-                                                                        </Form.Group>
-                                                                    </Col>
-                                                                    <Col md={6}>
-                                                                        <Form.Group as={Row} controlId="formLateFee" className='mt-3'>
-                                                                            <Form.Label column sm={6} style={{ fontSize: '0.85rem' }}><strong style={{ fontSize: '0.85rem' }}>Giờ, phụ thu</strong></Form.Label>
-                                                                            <Col sm={6} style={{ position: 'relative' }}>
-                                                                                <Form.Control
-                                                                                    type="number"
-                                                                                    placeholder="0"
-                                                                                    style={{ fontSize: '0.85rem', paddingRight: '2rem' }} // Add padding for the "%" symbol
-                                                                                />
-                                                                                <span style={{
-                                                                                    position: 'absolute',
-                                                                                    right: '10px',
-                                                                                    top: '50%',
-                                                                                    transform: 'translateY(-50%)',
-                                                                                    fontSize: '0.85rem'
-                                                                                }}>
-                                                                                    %
-                                                                                </span>
-                                                                            </Col>
-                                                                        </Form.Group>
-                                                                    </Col>
-                                                                </Row>
-                                                            </Col>
-                                                        </Row>
-                                                    </Card.Text>
-                                                </Card.Body>
-                                            </Card>
                                         </Col>
                                         <Col md={12}>
                                             <Card>
@@ -296,138 +178,6 @@ function UpdateTypeRoom() {
 
                         <Tab eventKey="ImageNote" title="Hình ảnh, mô tả">
                             <ImageGalleryWithEditor />
-                        </Tab>
-
-                        <Tab eventKey="ListRoom" title="Danh sách phòng">
-                            <Card>
-                                <Card.Body>
-                                    <Form className="custom-form">
-                                        <Form.Group as={Row} controlId="formRoomCode" className=''>
-                                            <Form.Label column sm={3}>
-                                                Chọn phòng
-                                                <OverlayTrigger trigger="click" placement="right" overlay={popover}>
-                                                    <i className="bi bi-info-circle" style={{ fontSize: '1rem', marginLeft: '8px', cursor: 'pointer' }}></i>
-                                                </OverlayTrigger>
-                                            </Form.Label>
-                                            <Col sm={9}>
-                                                <Form.Control type="text" placeholder="Nhập mã loại phòng và tên loại phòng" />
-                                            </Col>
-                                        </Form.Group>
-                                    </Form>
-
-                                    {/* Danh sách phòng */}
-                                    <Table striped bordered hover>
-                                        <thead>
-                                            <tr>
-                                                <th>STT</th>
-                                                <th>Tên phòng</th>
-                                                <th>Khu vực</th>
-                                                <th>Trạng thái</th>
-                                                <th>Hành động</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {rooms.map((room, index) => (
-                                                <tr key={room.id}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{room.name}</td>
-                                                    <td>{room.floor}</td>
-                                                    <td>{room.status}</td>
-                                                    <td>
-                                                        <button className='btn btn-danger justify-content-center' onClick={() => handleDelete(room)}>
-                                                            <BsBuildingFillAdd />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </Table>
-                                </Card.Body>
-                            </Card>
-
-                            {/* Modal */}
-                            <Modal
-                                show={showModal}
-                                onHide={() => setShowModal(false)}
-                                dialogClassName="modal-cus"
-                                style={{ background: 'rgba(0, 0, 0, 0.7)' }}
-                            >
-                                <Modal.Header closeButton style={{ background: '#ECECEE' }}>
-                                    <Modal.Title style={{ fontSize: '18px' }}>Thay đổi trạng thái phòng</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body>
-                                    <Form>
-                                        <Form.Group as={Row} style={{ fontSize: '14px', alignItems: 'center' }}>
-                                            <Col sm={4} style={{ display: 'flex', alignItems: 'center' }}>
-                                                <Form.Check
-                                                    type="radio"
-                                                    label={`Chuyển ${selectedRoom?.name} sang `}
-                                                    name="statusOptions"
-                                                    checked={roomStatus !== undefined}
-                                                    onChange={() => setRoomStatus('choose')}
-                                                    style={{ marginBottom: 0 }}
-                                                />
-                                            </Col>
-                                            <Col sm={8}>
-                                                <Form.Control
-                                                    as="select"
-                                                    onChange={(e) => setRoomStatus(e.target.value)}
-                                                    disabled={roomStatus === undefined}
-                                                    style={{ fontSize: '14px' }}
-                                                >
-                                                    <option value="">--Lựa chọn--</option>
-                                                    <option value="Hạng A">Hạng A</option>
-                                                    <option value="Hạng B">Hạng B</option>
-                                                    <option value="Hạng C">Hạng C</option>
-                                                </Form.Control>
-                                            </Col>
-                                        </Form.Group>
-                                        <Form.Group style={{ fontSize: '14px' }}>
-                                            <Form.Check
-                                                type="radio"
-                                                label={`Chuyển ${selectedRoom?.name} sang loại "Chưa xác định"`}
-                                                name="statusOptions"
-                                                checked={roomStatus === undefined}
-                                                onChange={() => setRoomStatus(undefined)}
-                                                style={{ marginBottom: 0 }}
-                                            />
-                                        </Form.Group>
-                                    </Form>
-                                    <p style={{ fontSize: '13px' }}>Lưu ý: Các đặt phòng đã phát sinh sẽ không bị ảnh hưởng bởi thay đổi này.</p>
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <Row className="mt-3 justify-content-end">
-                                        <Col sm="auto">
-                                            <Button
-                                                variant="success"
-                                                style={{
-                                                    fontSize: '1rem',           // Larger font size
-                                                    fontWeight: 'bold'          // Make the text bold
-                                                }}
-                                                onClick={handleConfirm}
-                                            >
-                                                <FaSave size={14} />&nbsp;
-                                                Đồng ý
-                                            </Button>
-                                        </Col>
-                                        <Col sm="auto">
-                                            <Button
-                                                variant="dark"
-                                                style={{
-                                                    background: '#898C8D',      // Custom background color
-                                                    fontSize: '1rem',           // Larger font size
-                                                    fontWeight: 'bold',
-                                                    border: 'none'         // Make the text bold
-                                                }}
-                                                onClick={() => setShowModal(false)}
-                                            >
-                                                <ImCancelCircle size={14} />&nbsp;
-                                                Bỏ qua
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </Modal.Footer>
-                            </Modal>
                         </Tab>
 
 

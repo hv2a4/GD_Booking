@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, Col, Form, Row, Button, Table } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
-import { RiAddFill } from "react-icons/ri";
+import { RiAddCircleLine } from "react-icons/ri";
 import './modelCus.css';
 import { FaSave, FaClipboardCheck } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
@@ -9,7 +9,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import ImageListSlider from './ImagesList';
 
-function Add_Area() {
+function Add_Floor() {
     const [show, setShow] = useState(false);
 
     return (
@@ -17,11 +17,12 @@ function Add_Area() {
             <small
                 style={{ fontSize: '13px' }}
                 onClick={(e) => {
-                    e.stopPropagation(); // Ngăn sự kiện truyền lên Accordion header
+                    e.stopPropagation(); 
                     setShow(true);
                 }}
+                id="add-area"
             >
-                <RiAddFill />
+                <RiAddCircleLine size={20} />
             </small>
             <Modal
                 show={show}
@@ -57,26 +58,6 @@ function Add_Area() {
                                         <Form.Control
                                             type="text"
                                         />
-                                    </Col>
-                                </Form.Group>
-                                <Form.Group as={Row} controlId="formArea" className="mt-1">
-                                    <Form.Label column sm={4}>
-                                        Khu vực cha
-                                    </Form.Label>
-                                    <Col sm={8}>
-                                        <div style={{ display: "flex", alignItems: "center" }}>
-                                            <Form.Control
-                                                as="select"
-                                                style={{ fontSize: "0.85rem", marginRight: "5px" }} // Thêm khoảng cách bên phải
-                                            >
-                                                <option value="">--Lựa chọn khu vực--</option>
-                                                <option value="Tầng 1">Tầng 1</option>
-                                                <option value="Tầng 2">Tầng 2</option>
-                                                <option value="Tầng 3">Tầng 3</option>
-                                                <option value="Tầng 4">Tầng 4</option>
-                                                <option value="Tầng 5">Tầng 5</option>
-                                            </Form.Control>
-                                        </div>
                                     </Col>
                                 </Form.Group>
                             </Form>
@@ -120,10 +101,9 @@ function Add_Area() {
     );
 }
 
-const Add_TypeRoom = ({ NameButton }) => {
+const Add_TypeRoom = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
 
     return (
         <>
@@ -133,8 +113,8 @@ const Add_TypeRoom = ({ NameButton }) => {
                     e.stopPropagation(); // Ngăn sự kiện truyền lên Accordion header
                     setShow(true);
                 }}
+                id='add-type-room'
             >
-                {NameButton}
             </small>
             <Modal
                 show={show}
@@ -319,4 +299,5 @@ const Add_TypeRoom = ({ NameButton }) => {
     );
 }
 
-export { Add_Area, Add_TypeRoom };
+
+export { Add_Floor, Add_TypeRoom };

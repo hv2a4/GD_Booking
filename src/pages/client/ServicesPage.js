@@ -7,7 +7,7 @@ import LayoutClient from "../../components/layout/cilent";
 export default function Service() {
   return (
     <LayoutClient>
-      <Heading heading="Services" title="Home" subtitle="Services" />
+      <Heading heading="DỊCH VỤ" title="Trang chủ" subtitle="Dịch vụ" />
       <Services />
       <Sliders />
     </LayoutClient>

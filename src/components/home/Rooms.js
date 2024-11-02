@@ -17,9 +17,9 @@ export default function Rooms() {
       <div className="container-xxl py-5">
         <div className="container">
           <CommonHeading
-            heading="Our Rooms"
-            title="Rooms"
-            subtitle="Explore Our"
+            heading="Phòng của chúng tôi"
+            title="Phòng"
+            subtitle="Khám phá"
           />
           <div className="row g-4">
             {roomItems.map((item, key) => (
