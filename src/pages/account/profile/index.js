@@ -16,7 +16,7 @@ const Profile = () => {
         setTimeout(() => {
             Cookies.remove('token'); // Nếu bạn dùng `js-cookie` để quản lý cookie
         // Chuyển hướng về trang đăng nhập
-        navigate('/cilent/home');
+        navigate('/client/home');
         }, 1200);
     };
 
