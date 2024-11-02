@@ -4,14 +4,13 @@ import Team from "../client/TeamPage";
 import Testimonial from "../client/TestimonialPage";
 import Contact from "../client/ContactPage";
 import PageNotFound from "../client/PageNotFound";
-import RoomClient from "../client/RoomPage";
+import RoomClient from "./Room/RoomPage";
 import Services from "../client/ServicesPage";
 import Home from "../../components/home/Home";
 import "../../assets/css/style.css";
 import "../../assets/css/animate.css";
 import "../../assets/css/animate.min.css";
 import "../../assets/css/bootstrap.min.css";
-import "../../assets/css/staff/style.css"
 export {
   Home,
   Booking,

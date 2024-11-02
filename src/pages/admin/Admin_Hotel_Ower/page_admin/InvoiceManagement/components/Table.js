@@ -21,7 +21,7 @@ const invoiceData = [
             { date: '2024-10-01', amount: '900,000 VND', method: 'Tiền mặt' },
             { date: '2024-10-02', amount: '100,000 VND', method: 'Chuyển khoản' },
         ],
-        staff: {
+        employee: {
             id: '4'
         }
     },
@@ -42,7 +42,7 @@ const invoiceData = [
             { date: '2024-10-02', amount: '500,000 VND', method: 'Chuyển khoản' },
             { date: '2024-10-05', amount: '350,000 VND', method: 'Tiền mặt' },
         ],
-        staff: {
+        employee: {
             id: '2'
         }
     },
@@ -62,7 +62,7 @@ const invoiceData = [
         paymentHistory: [
             { date: '2024-10-03', amount: '950,000 VND', method: 'Tiền mặt' },
         ],
-        staff: {
+        employee: {
             id: '1'
         }
     }
@@ -176,31 +176,31 @@ const TableInfo = () => {
                                                             <Tab eventKey="home" title="Thông tin">
                                                                 <Row className="mt-3">
                                                                     <Col xs={12} md={4}>
-                                                                        <div className="border-bottom">
+                                                                        <div className="border-bottom-invoice">
                                                                             <p>Mã hóa đơn: <strong>{item.id}</strong></p>
                                                                         </div>
-                                                                        <div className="border-bottom">
+                                                                        <div className="border-bottom-invoice">
                                                                             <p> Mã đặt phòng: <strong>{item.room}</strong></p>
                                                                         </div>
-                                                                        <div className="border-bottom">
+                                                                        <div className="border-bottom-invoice">
                                                                             <p>Thời gian: <strong>{item.date}</strong></p>
                                                                         </div>
-                                                                        <div className="border-bottom">
+                                                                        <div className="border-bottom-invoice">
                                                                             <p>Khách hàng: <strong>{item.customer}</strong></p>
                                                                         </div>
-                                                                        <div className="border-bottom">
+                                                                        <div className="border-bottom-invoice">
                                                                             <p>Hóa đơn điện tử: <strong>{item.electronicInvoice}</strong></p>
                                                                         </div>
                                                                     </Col>
                                                                     <Col xs={12} md={4}>
-                                                                        <div className="border-bottom">
+                                                                        <div className="border-bottom-invoice">
                                                                             <p>Trạng thái: <strong>{item.status}</strong></p>
                                                                         </div>
-                                                                        <div className="border-bottom d-flex align-items-center">
+                                                                        <div className="border-bottom-invoice d-flex align-items-center" style={{marginTop: "-19px"}}>
                                                                             <p className="mb-0 me-2">Thu ngân: </p>
                                                                             <Form.Select
                                                                                 aria-label="Chọn thu ngân"
-                                                                                style={{ width: 'auto', border: 'none', color: '#6B6B6B' }}
+                                                                                style={{ width: 'auto', border: 'none', color: '#6B6B6B', marginTop: "21px" }}
                                                                                 onChange={handleCashierChange} // Gọi hàm khi có sự thay đổi
                                                                             >
                                                                                 <option value="">Chọn người bán</option>
@@ -211,7 +211,7 @@ const TableInfo = () => {
                                                                                 ))}
                                                                             </Form.Select>
                                                                         </div>
-                                                                        <div className="border-bottom">
+                                                                        <div className="border-bottom-invoice">
                                                                             <p>Tài khoản: <strong>{item.account}</strong></p>
                                                                         </div>
                                                                     </Col>

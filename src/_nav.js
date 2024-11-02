@@ -1,14 +1,17 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell,
-  cilCalculator,
-  cilChartPie,
-  cilDescription,
   cilSpeedometer,
-  cilStar,
+  cilBuilding,
+  cilLayers,
+  cilPeople,
+  cilBriefcase,
+  cilClipboard,
+  cilCash,
+  cilRoom,
+  cilCloud,
 } from '@coreui/icons'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+import { CNavGroup, CNavItem } from '@coreui/react'
 
 const _nav = [
   {
@@ -22,9 +25,15 @@ const _nav = [
     },
   },
   {
+    component: CNavItem,
+    name: 'Thông tin khách sạn',
+    to: "/admin/hotel-info",
+    icon: <CIcon icon={cilBuilding} customClassName="nav-icon" />,
+  },
+  {
     component: CNavGroup,
     name: 'Phòng',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilRoom} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -40,8 +49,30 @@ const _nav = [
   },
   {
     component: CNavGroup,
+    name: 'Quản lý dịch vụ',
+    icon: <CIcon icon={cilCloud} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Dịch vụ phòng',
+        to: '/admin/service-room-management',
+      },
+      {
+        component: CNavItem,
+        name: 'Gói dịch vụ loại phòng',
+        to: '/#',
+      },
+      {
+        component: CNavItem,
+        name: 'Dịch vụ khách sạn',
+        to: '/#',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
     name: 'Hàng hóa',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -58,7 +89,7 @@ const _nav = [
   {
     component: CNavGroup,
     name: 'Giao dịch',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilCash} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -73,15 +104,26 @@ const _nav = [
     ],
   },
   {
-    component: CNavItem,
-    name: 'Nhân viên',
-    to: '/#',
-    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+    component: CNavGroup,
+    name: 'Quản lý tài khoản',
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Khách hàng',
+        to: '/admin/account-client',
+      },
+      {
+        component: CNavItem,
+        name: 'Nhân viên',
+        to: '/admin/account-employee',
+      },
+    ],
   },
   {
     component: CNavGroup,
     name: 'Báo cáo',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilClipboard} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -96,7 +138,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Doanh thu',
-        to: '/#',
+        to: '/admin/revenue',
       },
       {
         component: CNavItem,
@@ -119,7 +161,7 @@ const _nav = [
     component: CNavItem,
     name: 'Lễ tân',
     to: '/#',
-    icon: <CIcon icon={cilCalculator} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilBriefcase} customClassName="nav-icon" />,
   },
 ]
 

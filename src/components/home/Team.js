@@ -11,7 +11,7 @@ export default function Teams() {
           <CommonHeading
             heading="Our Team"
             subtitle="Explore Our"
-            title="Staffs"
+            title="employees"
           />
           <div className="row g-4">
             {team.map((item, index) => (

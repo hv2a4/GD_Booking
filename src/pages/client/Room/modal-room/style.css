@@ -1,0 +1,39 @@
+
+  .room-detail-image {
+    max-width: 300px; /* Giới hạn chiều rộng của hình ảnh */
+    margin-right: 20px; /* Khoảng cách giữa hình ảnh và thông tin */
+  }
+  
+  .room-detail-info {
+    flex-grow: 1; /* Cho phép phần thông tin chiếm không gian còn lại */
+    scrollbar-width: none;
+  }
+  
+  .room-detail-description {
+    margin-top: 20px; /* Khoảng cách cho mô tả */
+    word-wrap: break-word; /* Cho phép chữ tự xuống dòng */
+  }
+  
+  .room-detail-price {
+    font-weight: bold; /* Làm nổi bật giá phòng */
+    color: #007bff; /* Màu xanh giống màu primary */
+  }
+  /* RoomDetailModal.css */
+.room-detail-description {
+  margin-top: 20px;
+  word-wrap: break-word; /* Hoặc sử dụng overflow-wrap: break-word; */
+  /* Thêm các thuộc tính khác nếu cần */
+}
+/* RoomDetailModal.css */
+.room-detail-description {
+  margin-top: 20px;
+  white-space: normal; /* Cho phép chữ tự xuống dòng */
+  /* Thêm các thuộc tính khác nếu cần */
+}
+/* RoomDetailModal.css */
+.room-detail-description {
+  margin-top: 20px;
+  word-wrap: break-word; /* Hoặc overflow-wrap: break-word; */
+  max-width: 100%; /* Đảm bảo phần tử cha có chiều rộng */
+  /* Thêm các thuộc tính khác nếu cần */
+}

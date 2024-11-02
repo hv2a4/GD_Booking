@@ -6,13 +6,6 @@ import LayoutClient from "../../components/layout/cilent";
 export default function Booking() {
   const [checkinDate, setCheckinDate] = useState(null);
   const [checkoutDate, setCheckoutDate] = useState(null);
-  useEffect(() => {
-    const today = new Date();
-    setCheckinDate(today);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    setCheckoutDate(tomorrow);
-  }, []);
 
   return (
     <LayoutClient>

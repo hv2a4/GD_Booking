@@ -37,3 +37,24 @@ canvas {
   margin: 0 10px; /* Khoảng cách xung quanh dấu gạch */
   align-self: center; /* Căn giữa dấu gạch trong cột */
 }
+/* .account-management tbody, td, tfoot, th, thead, tr {
+  border-style: none !important;
+} */
+.border-bottom-invoice p{
+  margin-top: 22px !important;
+}
+.account-client .table-responsive{
+  scrollbar-width: none;
+}
+.nav-link:focus, .nav-link:hover {
+  color: var(--bs-nav-link-hover-color) !important;
+}
+.header-nav .nav-link {
+  color: var(--bs-nav-link-color);
+}
+.header-toggler{
+  color: var(--bs-nav-link-color);
+}
+.header-toggler:focus, .header-toggler:hover{
+  color: var(--bs-nav-link-hover-color) !important;
+}
