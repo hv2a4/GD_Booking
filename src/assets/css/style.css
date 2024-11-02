@@ -75,7 +75,19 @@
     border-radius: 2px;
 }
 
-
+/* CSS */
+.google-login-button {
+    background-color: #4285F4; /* Ví dụ màu xanh Google */
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  .google-login-button {
+    background-color: #4285F4 !important;
+    border: none !important;
+  }
+    
+  
 /*** Navbar ***/
 .navbar-dark .navbar-nav .nav-link {
     margin-right: 30px;
