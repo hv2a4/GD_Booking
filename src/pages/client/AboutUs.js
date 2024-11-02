@@ -7,9 +7,9 @@ import LayoutClient from "../../components/layout/cilent";
 export default function AboutUs() {
   return (
     <LayoutClient>
-      <Heading heading="About" title="Home" subtitle="About" />
+      <Heading heading="GIỚI THIỆU" title="Trang chủ" subtitle="Giới thiệu" />
       <About />
-      <Team />
+      {/* <Team /> */}
     </LayoutClient>
   );
 }

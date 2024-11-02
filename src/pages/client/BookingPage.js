@@ -16,7 +16,7 @@ export default function Booking() {
 
   return (
     <LayoutClient>
-      <Heading heading="Booking" title="Home" subtitle="Booking" />
+      <Heading heading="ĐẶT PHÒNG" title="Trang chủ" subtitle="Đặt phòng" />
       <div className="container-xxl py-5">
         <div className="container">
           <div className="text-center wow fadeInUp" data-wow-delay="0.1s">

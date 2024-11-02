@@ -14,7 +14,7 @@ import {
   PageNotFound,
   RoomClient,
   Services,
-  Team,
+  // Team,
   Testimonial,
 } from "./pages/client/index";
 import { Navigate } from 'react-router-dom';
@@ -26,6 +26,7 @@ import InvoiceManagement from "./pages/admin/home/InvoiceManagement"
 import BookingManger from "./pages/admin/home/BookingManger";
 import Login from "./pages/account/login";
 import Profile from "./pages/account/profile";
+import ServicesPage from "./pages/admin/home/Services";
 
 function App() {
   const getCookie = (name) => {
@@ -61,7 +62,7 @@ function App() {
         <Route path="/client">
             <Route path="home" element={<Home />} />
             <Route path="booking" element={<Booking />} />
-            <Route path="team" element={<Team />} />
+            {/* <Route path="team" element={<Team />} /> */}
             <Route path="testimonial" element={<Testimonial />} />
             <Route path="about" element={<AboutUs />} />
             <Route path="contact" element={<Contact />} />
@@ -76,6 +77,7 @@ function App() {
           <Route path="booking-manager" element={<BookingManger />} />
           <Route path="room-pricing" element={<RoomPriceManager />} />
           <Route path="invoice-room" element={<InvoiceManagement />} />
+          <Route path="service" element={<ServicesPage />} />
         </Route>
           <Route path="/account" element={<Login />} />
     </Route >

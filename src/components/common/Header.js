@@ -26,13 +26,13 @@ export default function Header() {
               to="/"
               className="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
             >
-              <img className="sidebar-brand-full rounded-5 transparent-image" src={logo} alt="Logo" height={70} width={150}/>
+              <img className="sidebar-brand-full transparent-image" src={logo} alt="Logo" height={80} width={80} />
             </Link>
           </div>
           <div className="col-lg-9">
             <nav className="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0">
               <Link to="/" className="navbar-brand d-block d-lg-none">
-                <img className="sidebar-brand-full transparent-image" src={logo} alt="Logo" height={50} width={100}/>
+                <img className="sidebar-brand-full transparent-image" src={logo} alt="Logo" height={50} width={100} />
               </Link>
               <button
                 type="button"
@@ -49,8 +49,8 @@ export default function Header() {
                 }
               >
                 <div className="navbar-nav mr-auto py-0">
-                  {navList.map((item, index) => (
-                    <div key={index}>
+                  {navList.map((item) => (
+                    <div key={item.id}>
                       {item.subItems ? (
                         <div
                           className="nav-item dropdown"
@@ -61,25 +61,25 @@ export default function Header() {
                             {item.text}
                           </Link>
                           <div
-                            className={`dropdown-menu rounded-0 m-0 ${
-                              activeDropdown === item.id ? "show" : ""
-                            }`}
+                            className={`dropdown-menu rounded-0 m-0 ${activeDropdown === item.id ? "show" : ""
+                              }`}
                           >
                             {item.subItems.map((sub) => (
-                              <Link to={sub.path} className="dropdown-item">
+                              <Link key={sub.id} to={sub.path} className="dropdown-item">
                                 {sub.text}
                               </Link>
                             ))}
                           </div>
                         </div>
                       ) : (
-                        <Link to={item.path} className="nav-item nav-link">
+                        <Link key={item.id} to={item.path} className="nav-item nav-link">
                           {item.text}
                         </Link>
                       )}
                     </div>
                   ))}
                 </div>
+
                 <SocialIcons />
               </div>
             </nav>

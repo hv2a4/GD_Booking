@@ -5,7 +5,7 @@ import { DeleteModelTypeRoom, DeleteModelRoom } from "./DeleteModel";
 import { UpdateRoomModal } from "./Rom/RoomModal";
 import { Add_TypeRoom } from "./Rom/AddAndUpdate";
 import { AddRoomModal } from "./Rom/RoomModal";
-import { SearchBox, StatusSelector, RoomTypeSelector, AreaSelector } from "./Filter/FilterTypeRoom";
+import { SearchBox, StatusSelector, RoomTypeSelector, FloorSelector } from "./Filter/FilterTypeRoom";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import { useToken } from "../Service/GetTokens";
 import axios from "axios";
@@ -28,41 +28,29 @@ const RoomAndTypeRoom = () => {
     const selectedTypeRoomIdRef = useRef(''); // UseRef for non-rendering updates
 
     const roomTypes = [
-        { id: 1, code: "LP001", name: "Loại phòng 1", quantity: 5, pricePerHour: 100000, pricePerDay: 800000, status: "Còn trống", branch: "Chi nhánh A" },
-        { id: 2, code: "LP002", name: "Loại phòng 2", quantity: 3, pricePerHour: 120000, pricePerDay: 900000, status: "Đang sử dụng", branch: "Chi nhánh B" },
-        { id: 3, code: "LP003", name: "Loại phòng 3", quantity: 7, pricePerHour: 110000, pricePerDay: 850000, status: "Còn trống", branch: "Chi nhánh A" },
+        { id: 1, typeRoomName: "Loại phòng 1", quantity: 5, price: 800000, idTypeBed: 1, guestLimit: 1, bedCount: 1 },
     ];
 
     const rooms = [
-        { id: 1, name: "Phòng A1", roomType: "Loại phòng 1", area: "Khu vực 1", pricePerHour: 100000, pricePerDay: 800000, status: "Còn trống", notes: "Gần hồ bơi" },
-        { id: 2, name: "Phòng A2", roomType: "Loại phòng 2", area: "Khu vực 2", pricePerHour: 120000, pricePerDay: 900000, status: "Đang sử dụng", notes: "Có cửa sổ hướng biển" },
-        { id: 3, name: "Phòng A3", roomType: "Loại phòng 3", area: "Khu vực 1", pricePerHour: 110000, pricePerDay: 850000, status: "Còn trống", notes: "Thích hợp cho gia đình" },
-        { id: 4, name: "Phòng A4", roomType: "Loại phòng 1", area: "Khu vực 3", pricePerHour: 100000, pricePerDay: 800000, status: "Còn trống", notes: "Gần quầy lễ tân" },
-        { id: 5, name: "Phòng B1", roomType: "Loại phòng 2", area: "Khu vực 2", pricePerHour: 120000, pricePerDay: 900000, status: "Còn trống", notes: "Có minibar" },
-        { id: 6, name: "Phòng C1", roomType: "Loại phòng 3", area: "Khu vực 1", pricePerHour: 110000, pricePerDay: 850000, status: "Đang sửa chữa", notes: "Sửa chữa định kỳ" },
+        { id: 1, name: "Phòng A1", roomType: "Loại phòng 1", floor: "Tầng 1", pricDay: 800000, status: "Còn trống", notes: "Gần hồ bơi" },
+        { id: 2, name: "Phòng A2", roomType: "Loại phòng 2", floor: "Tầng 2", pricDay: 900000, status: "Đang sử dụng", notes: "Có cửa sổ hướng biển" },
+        { id: 3, name: "Phòng A3", roomType: "Loại phòng 3", floor: "Tầng 1", pricDay: 850000, status: "Còn trống", notes: "Thích hợp cho gia đình" },
+        { id: 4, name: "Phòng A4", roomType: "Loại phòng 1", floor: "Tầng 3", pricDay: 800000, status: "Còn trống", notes: "Gần quầy lễ tân" },
+        { id: 5, name: "Phòng B1", roomType: "Loại phòng 2", floor: "Tầng 2", pricDay: 900000, status: "Còn trống", notes: "Có minibar" },
+        { id: 6, name: "Phòng C1", roomType: "Loại phòng 3", floor: "Tầng 1", pricDay: 850000, status: "Đang sửa chữa", notes: "Sửa chữa định kỳ" },
     ];
     const roomInfo = {
         name: "Phòng VIP",
-        area: "Khu A",
-        pricePerHour: 500000,
-        pricePerDay: 1000000,
+        floor: "Khu A",
+        priceHour: 500000,
+        priceDay: 1000000,
         status: "Đang hoạt động",
         notes: "Phòng có máy lạnh và wifi miễn phí."
     };
 
     const bookingHistory = [
-        { id: 1, time: "2024-09-23 14:30", staff: "Nguyễn Văn A", total: "500,000 VNĐ" },
-        { id: 2, time: "2024-09-24 10:15", staff: "Trần Thị B", total: "1,000,000 VNĐ" }
-    ];
-
-    const transactionHistory = [
-        { id: 1, time: "2024-09-23 15:00", cashier: "Nguyễn Văn A", total: "500,000 VNĐ" },
-        { id: 2, time: "2024-09-24 11:00", cashier: "Trần Thị B", total: "1,000,000 VNĐ" }
-    ];
-
-    const cleaningHistory = [
-        { time: "2024-09-23 12:00", cleaner: "Nguyễn Văn A", role: "Nhân viên dọn phòng", status: "Đã hoàn thành" },
-        { time: "2024-09-24 09:00", cleaner: "Trần Thị B", role: "Nhân viên dọn phòng", status: "Đã hoàn thành" }
+        { id: 1, checkIn: "2024-09-23", checkOut: "2024-09-25", client: "Nguyễn Văn A" },
+        { id: 2, checkIn: "2024-09-25", checkOut: "2024-09-26", client: "Trần Thị B" }
     ];
 
     const handleRoomSelection = (id, event) => {
@@ -198,50 +186,68 @@ const RoomAndTypeRoom = () => {
         }
     };
 
-    console.log("Đây là danh loai phòng lấy được", listTypeRoom);
-    console.log("Mã loại phòng đã chọn:", selectedTypeRoomIdRef.current);
+    const handlAddRoomClick = (e) => {
+        e.preventDefault();
+        const addRoom = document.getElementById('add-room');
+        if (addRoom) {
+            addRoom.click();
+        }
+    };
+
+    const handlAddTypeRoomClick = (e) => {
+        e.preventDefault();
+        const addTypeRoom = document.getElementById('add-type-room');
+        if (addTypeRoom) {
+            addTypeRoom.click();
+        }
+    }
+
+    // console.log("Đây là danh loai phòng lấy được", listTypeRoom);
+    // console.log("Mã loại phòng đã chọn:", selectedTypeRoomIdRef.current);
     return (
         <div className="container-fluid">
-            {activeTab === 'roomType' ?
-                <Card>
-                    <Card.Body>
-                        <Row>
-                            <Col md={6}>
-                                <SearchBox />
-                            </Col>
-                            <Col md={6}>
-                                <StatusSelector />
-                            </Col>
-                        </Row>
-                    </Card.Body>
-                </Card>
-                :
-                <Card>
-                    <Card.Body>
-                        <Row>
-                            <Col md={3}>
-                                <SearchBox />
-                            </Col>
-                            <Col md={3}>
-                                <RoomTypeSelector />
-                            </Col>
-                            <Col md={3}>
-                                <AreaSelector />
-                            </Col>
-                            <Col md={3}>
-                                <StatusSelector />
-                            </Col>
-                        </Row>
-                    </Card.Body>
-                </Card>
-            }
             <div className="card shadow-sm">
                 <div className="card-body">
+                    <h2 className="card-title">Loại phòng & Phòng</h2>
                     <div className="row align-items-center mb-3">
-                        <div className="col-12 col-md-6">
-                            <h3 className="card-title">Loại phòng & Phòng</h3>
+                        <div className="col-12 col-md-10">
+                            {activeTab === 'roomType' ?
+                                <Card>
+                                    <Card.Body>
+                                        <Row>
+                                            <Col md={3}></Col>
+                                            <Col md={3}>
+                                                <SearchBox placeholder="Tìm kiếm loại phòng." />
+                                            </Col>
+                                            <Col md={3}>
+                                                <StatusSelector />
+                                            </Col>
+                                            <Col md={3}></Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                                :
+                                <Card>
+                                    <Card.Body>
+                                        <Row>
+                                            <Col md={3}>
+                                                <SearchBox placeholder="Tìm kiếm phòng." />
+                                            </Col>
+                                            <Col md={3}>
+                                                <RoomTypeSelector />
+                                            </Col>
+                                            <Col md={3}>
+                                                <FloorSelector />
+                                            </Col>
+                                            <Col md={3}>
+                                                <StatusSelector />
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                            }
                         </div>
-                        <div className="col-12 col-md-6 text-md-end">
+                        <div className="col-12 col-md-2 text-md-end">
                             <div className="btn-group">
                                 <button type="button" className="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <MdAdd />&nbsp;
@@ -249,23 +255,31 @@ const RoomAndTypeRoom = () => {
                                 </button>
                                 <ul className="dropdown-menu">
                                     <li>
-                                        <a className="dropdown-item" href="#">
+                                        <a
+                                            className="dropdown-item" href="#"
+                                            onClick={handlAddTypeRoomClick}
+                                        >
                                             <MdAdd />
-                                            <Add_TypeRoom NameButton={
-                                                <>Loại phòng</>
-                                            }
-                                            />
+                                            Loại phòng
                                         </a>
-
+                                        <div className="d-none">
+                                            <Add_TypeRoom />
+                                        </div>
                                     </li>
+
                                     <li>
-                                        <a className="dropdown-item" href="#">
-                                            <AddRoomModal />
+                                        <a className="dropdown-item" href="#" onClick={handlAddRoomClick}>
+                                            <MdAdd />
+                                            Phòng
+                                            <div className="d-none">
+                                                <AddRoomModal />
+                                            </div>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
+
                     </div>
 
                     {/* Tabs */}
@@ -307,59 +321,44 @@ const RoomAndTypeRoom = () => {
                                         <th>Mã loại phòng</th>
                                         <th>Tên loại phòng</th>
                                         <th>Số lượng phòng</th>
-                                        <th>Giá giờ</th>
                                         <th>Giá cả ngày</th>
-                                        <th>Diện tích phòng</th>
+                                        <th>Loại giường</th>
                                         <th>Sức chứa</th>
-                                        <th>Trạng thái</th>
-                                        <th>Địa chỉ</th>
+                                        <th>Số giường</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {listTypeRoom.map(({ typeRoomId, typeRoomName, priceDay, priceHour, acreage, capacity, numberOfRooms, status, fullAddress }) => (
-                                        <React.Fragment key={typeRoomId}>
+                                    {roomTypes.map(({ id, typeRoomName, quantity, price, idTypeBed, guestLimit, bedCount }) => (
+                                        <React.Fragment key={id}>
                                             <tr onClick={(e) => {
                                                 // Chỉ mở rộng thông tin nếu không nhấn vào checkbox
                                                 if (e.target.type !== "checkbox") {
-                                                    handleRowClick(typeRoomId);
+                                                    handleRowClick(id);
                                                 }
                                             }}
                                             >
                                                 <td>
                                                     <input
                                                         type="checkbox"
-                                                        checked={selectedRoomTypes.includes(typeRoomId)}
+                                                        checked={selectedRoomTypes.includes(id)}
                                                         onChange={(e) => {
                                                             e.stopPropagation(); // Ngăn chặn sự kiện lan truyền
-                                                            toggleRoomTypeSelection(typeRoomId);
+                                                            toggleRoomTypeSelection(id);
                                                         }}
                                                     />
                                                 </td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>LP {typeRoomId}</td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>{typeRoomName}</td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>{numberOfRooms} </td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>{priceDay.toLocaleString()} VNĐ</td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>{priceHour.toLocaleString()} VNĐ</td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>{acreage.toFixed(2)} m²</td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>{capacity}</td>
-                                                <td onClick={() => handleTypeRoomSelect(typeRoomId)}>{status}</td>
-                                                <td>
-                                                    <span
-                                                        style={{
-                                                            width: "250px",
-                                                            height: "auto",
-                                                            whiteSpace: "nowrap",
-                                                            overflow: "hidden",
-                                                            textOverflow: "ellipsis"
-                                                        }}
-                                                    >
-                                                        {fullAddress}
-                                                    </span>
-                                                </td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>LP{id}</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{typeRoomName}</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{quantity} </td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{price} VNĐ</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{idTypeBed}</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{guestLimit} người/phòng</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{bedCount} giường</td>
                                             </tr>
 
                                             {/* Hàng chi tiết mở rộng */}
-                                            {expandedRow === typeRoomId && (
+                                            {expandedRow === id && (
                                                 <tr>
                                                     <td colSpan="10">
                                                         <Card>
@@ -383,32 +382,27 @@ const RoomAndTypeRoom = () => {
                                                                                 <div className="tab-pane fade show active mt-5">
                                                                                     <Row className="mb-4 align-items-start">
                                                                                         {/* Cột chứa hình ảnh */}
-                                                                                        <Col md={2} className="d-flex justify-content-center">
-                                                                                            <img src={typeRoomImage} alt="Hạng phòng" style={{ width: "120px", height: "120px", borderRadius: "8px", objectFit: "cover" }} />
+                                                                                        <Col md={4} className="d-flex justify-content-center">
+                                                                                            <img src={typeRoomImage} alt="Hạng phòng" style={{ width: '100%', height: '100%' }} />
                                                                                         </Col>
 
                                                                                         {/* Cột chứa thông tin loại phòng */}
-                                                                                        <Col md={5}>
-                                                                                            <div style={{ maxHeight: "150px", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                                                                                                <p><strong>Mã loại phòng:</strong> LP {typeRoomId}</p>
+                                                                                        <Col md={4}>
+                                                                                            <div style={{ overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                                                                                                <p><strong>Mã loại phòng:</strong> {id}</p>
                                                                                                 <p><strong>Tên loại phòng:</strong> {typeRoomName}</p>
-                                                                                                <p><strong>Số lượng phòng:</strong> {numberOfRooms}</p>
-                                                                                                <p><strong>Sức chứa tối đa:</strong> {capacity}/phòng</p>
+                                                                                                <p><strong>Số lượng phòng:</strong> {quantity}</p>
+                                                                                                <p><strong>Loại giường:</strong> {idTypeBed}</p>
+                                                                                                <p><strong>Số giường:</strong> {bedCount}</p>
+                                                                                                <p><strong>Sức chứa tối đa:</strong> {guestLimit} người/phòng</p>
                                                                                             </div>
                                                                                         </Col>
 
                                                                                         {/* Cột chứa thông tin giá cả và địa chỉ */}
-                                                                                        <Col md={5}>
-                                                                                            <div style={{ maxHeight: "150px", overflowY: "auto", scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                                                                                                <p><strong>Giá giờ:</strong> {priceHour.toLocaleString()} VNĐ</p>
-                                                                                                <p><strong>Giá cả ngày:</strong> {priceDay.toLocaleString()} VNĐ</p>
+                                                                                        <Col md={4}>
+                                                                                            <div style={{ overflowY: "auto", scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                                                                                <p><strong>Giá cả ngày:</strong> {price} VNĐ</p>
                                                                                                 <p><strong>Phụ thu quá giờ:</strong> Tính tiền mỗi giờ</p>
-                                                                                                <p>
-                                                                                                    <strong>Địa chỉ:</strong>
-                                                                                                    <span >
-                                                                                                        {fullAddress}
-                                                                                                    </span>
-                                                                                                </p>
                                                                                             </div>
                                                                                         </Col>
                                                                                     </Row>
@@ -503,15 +497,14 @@ const RoomAndTypeRoom = () => {
                                             />
                                         </th>
                                         <th>Tên phòng</th>
-                                        <th>Khu vực</th>
-                                        <th>Giá giờ</th>
+                                        <th>Tầng</th>
                                         <th>Giá cả ngày</th>
                                         <th>Trạng thái</th>
                                         <th>Ghi chú</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {rooms.map(({ id, name, area, pricePerHour, pricePerDay, status, notes }) => (
+                                    {rooms.map(({ id, name, floor, priceDay, status, notes }) => (
                                         <React.Fragment key={id}>
                                             <tr>
                                                 <td>
@@ -522,9 +515,8 @@ const RoomAndTypeRoom = () => {
                                                     />
                                                 </td>
                                                 <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{name}</td>
-                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{area}</td>
-                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{pricePerHour.toLocaleString()} VNĐ</td>
-                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{pricePerDay.toLocaleString()} VNĐ</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{floor}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{priceDay} VNĐ</td>
                                                 <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{status}</td>
                                                 <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{notes}</td>
                                             </tr>
@@ -543,16 +535,6 @@ const RoomAndTypeRoom = () => {
                                                                         Lịch sử đặt phòng
                                                                     </button>
                                                                 </li>
-                                                                <li className="nav-item">
-                                                                    <button className={`nav-link ${currentTab === 'transactionHistory' ? 'active' : ''}`} onClick={() => setCurrentTab('transactionHistory')}>
-                                                                        Lịch sử giao dịch
-                                                                    </button>
-                                                                </li>
-                                                                <li className="nav-item">
-                                                                    <button className={`nav-link ${currentTab === 'cleaningHistory' ? 'active' : ''}`} onClick={() => setCurrentTab('cleaningHistory')}>
-                                                                        Lịch sử dọn phòng
-                                                                    </button>
-                                                                </li>
                                                             </ul>
                                                             <div className="tab-content">
                                                                 {currentTab === 'info' && (
@@ -563,7 +545,7 @@ const RoomAndTypeRoom = () => {
                                                                                 <div className="row mb-3">
                                                                                     <div className="col-6">
                                                                                         <p><strong>Tên phòng:</strong> {roomInfo.name}</p>
-                                                                                        <p><strong>Khu vực:</strong> {roomInfo.area}</p>
+                                                                                        <p><strong>Tầng:</strong> {roomInfo.floor}</p>
                                                                                     </div>
                                                                                     <div className="col-6">
                                                                                         <p><strong>Trạng thái:</strong> {roomInfo.status}</p>
@@ -571,8 +553,7 @@ const RoomAndTypeRoom = () => {
                                                                                 </div>
                                                                                 <div className="row mb-3">
                                                                                     <div className="col-6">
-                                                                                        <p><strong>Giá giờ:</strong> {roomInfo.pricePerHour.toLocaleString()} VNĐ</p>
-                                                                                        <p><strong>Giá cả ngày:</strong> {roomInfo.pricePerDay.toLocaleString()} VNĐ</p>
+                                                                                        <p><strong>Giá cả ngày:</strong> {roomInfo.priceDay} VNĐ</p>
                                                                                     </div>
                                                                                     <div className="col-6">
                                                                                     </div>
@@ -591,76 +572,24 @@ const RoomAndTypeRoom = () => {
                                                                 )}
 
                                                                 {currentTab === 'bookingHistory' && (
-                                                                    <div className="tab-pane fade show active">
-                                                                        <h5 className="mt-3 mt-4">Lịch sử đặt phòng</h5>
+                                                                    <div className="tab-pane fade show active" style={{minHeight: 'auto'}}>
+                                                                        <h5 className="mt-3 mt-4">Lịch đặt phòng</h5>
                                                                         <table className="table table-striped mt-3">
                                                                             <thead className="table-primary">
                                                                                 <tr>
                                                                                     <th scope="col">Mã phòng</th>
-                                                                                    <th scope="col">Thời gian đặt</th>
-                                                                                    <th scope="col">Nhân viên đặt</th>
-                                                                                    <th scope="col">Tổng cộng</th>
+                                                                                    <th scope="col">Check in</th>
+                                                                                    <th scope="col">Check out</th>
+                                                                                    <th scope="col">Khách hàng</th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
                                                                                 {bookingHistory.map(booking => (
                                                                                     <tr key={booking.id}>
                                                                                         <th scope="row">{booking.id}</th>
-                                                                                        <td>{booking.time}</td>
-                                                                                        <td>{booking.staff}</td>
-                                                                                        <td>{booking.total}</td>
-                                                                                    </tr>
-                                                                                ))}
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                )}
-
-                                                                {currentTab === 'transactionHistory' && (
-                                                                    <div className="tab-pane fade show active">
-                                                                        <h5 className="mt-3">Lịch sử giao dịch</h5>
-                                                                        <table className="table table-striped mt-3">
-                                                                            <thead className="table-primary">
-                                                                                <tr>
-                                                                                    <th scope="col">Mã hóa đơn</th>
-                                                                                    <th scope="col">Thời gian</th>
-                                                                                    <th scope="col">Thu ngân</th>
-                                                                                    <th scope="col">Tổng cộng</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                {transactionHistory.map(transaction => (
-                                                                                    <tr key={transaction.id}>
-                                                                                        <th scope="row">{transaction.id}</th>
-                                                                                        <td>{transaction.time}</td>
-                                                                                        <td>{transaction.cashier}</td>
-                                                                                        <td>{transaction.total}</td>
-                                                                                    </tr>
-                                                                                ))}
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                )}
-
-                                                                {currentTab === 'cleaningHistory' && (
-                                                                    <div className="tab-pane fade show active">
-                                                                        <h5 className="mt-3 mt-4">Lịch sử dọn phòng</h5>
-                                                                        <table className="table table-striped mt-3">
-                                                                            <thead className="table-primary">
-                                                                                <tr>
-                                                                                    <th scope="col">Thời gian</th>
-                                                                                    <th scope="col">Người dọn</th>
-                                                                                    <th scope="col">Vai trò</th>
-                                                                                    <th scope="col">Trạng thái</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                {cleaningHistory.map((cleaning, index) => (
-                                                                                    <tr key={index}>
-                                                                                        <td>{cleaning.time}</td>
-                                                                                        <td>{cleaning.cleaner}</td>
-                                                                                        <td>{cleaning.role}</td>
-                                                                                        <td>{cleaning.status}</td>
+                                                                                        <td>{booking.checkIn}</td>
+                                                                                        <td>{booking.checkOut}</td>
+                                                                                        <td>{booking.client}</td>
                                                                                     </tr>
                                                                                 ))}
                                                                             </tbody>
