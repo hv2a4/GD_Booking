@@ -3,20 +3,21 @@ import CIcon from '@coreui/icons-react'
 import {
   cilSpeedometer,
   cilBuilding,
-  cilDollar,
   cilLayers,
-  cilList,
   cilPeople,
   cilBriefcase,
   cilClipboard,
   cilCash,
+  cilRoom,
+  cilCloud,
+  cilStar,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 
 const _nav = [
   {
     component: CNavItem,
-    name: 'Dashboard',
+    name: 'Tổng quan',
     to: '/admin/home',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     badge: {
@@ -25,9 +26,15 @@ const _nav = [
     },
   },
   {
+    component: CNavItem,
+    name: 'Thông tin khách sạn',
+    to: "/admin/hotel-info",
+    icon: <CIcon icon={cilBuilding} customClassName="nav-icon" />,
+  },
+  {
     component: CNavGroup,
     name: 'Phòng',
-    icon: <CIcon icon={cilBuilding} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilRoom} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
@@ -43,18 +50,18 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Hàng hóa',
-    icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
+    name: 'Dịch vụ & Tiện nghi',
+    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Danh mục',
-        to: '/#',
+        name: 'Dịch vụ',
+        to: '/admin/service',
       },
       {
         component: CNavItem,
-        name: 'Kiểm kho',
-        to: '/#',
+        name: 'Tiện nghi',
+        to: '/admin/amenities',
       },
     ],
   },
@@ -88,7 +95,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Nhân viên',
-        to: '/admin/account-staff',
+        to: '/admin/account-employee',
       },
     ],
   },
@@ -110,7 +117,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Doanh thu',
-        to: '/#',
+        to: '/admin/revenue',
       },
       {
         component: CNavItem,

@@ -1,10 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { FaClipboardCheck } from "react-icons/fa";
 import { RiAddFill } from "react-icons/ri";
-import { Add_Area, Add_TypeRoom } from "./AddAndUpdate";
+import { Add_Floor, Add_TypeRoom } from "./AddAndUpdate";
 import './modelCus.css';
 import { MdAdd } from "react-icons/md";
 import { FaSave } from "react-icons/fa";
@@ -16,7 +16,7 @@ const UpdateRoomModal = () => {
     const handleShow = () => setShow(true);
 
     const [roomName, setRoomName] = useState('');
-    const [area, setArea] = useState('');
+    const [floor, setFloor] = useState('');
     const [roomType, setRoomType] = useState('');
     const [startDate, setStartDate] = useState('');
     const [notes, setNotes] = useState('');
@@ -64,7 +64,7 @@ const UpdateRoomModal = () => {
     const handleSave = () => {
         const roomData = {
             roomName,
-            area,
+            floor,
             roomType,
             startDate,
             notes,
@@ -84,7 +84,7 @@ const UpdateRoomModal = () => {
             <Modal
                 show={show}
                 onHide={handleClose}
-                dialogClassName="modal-wide"
+                dialogClassName="modal-wides"
                 aria-labelledby="example-custom-modal-styling-title"
             >
                 <Modal.Header closeButton>
@@ -115,17 +115,17 @@ const UpdateRoomModal = () => {
 
                                         <Form.Group as={Row} controlId="formArea" className="mt-3">
                                             <Form.Label column sm={4}>
-                                                Khu vực
+                                                Tầng
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <div style={{ display: "flex", alignItems: "center" }}>
                                                     <Form.Control
                                                         as="select"
-                                                        value={area}
-                                                        onChange={(e) => setArea(e.target.value)}
+                                                        value={floor}
+                                                        onChange={(e) => setFloor(e.target.value)}
                                                         style={{ fontSize: "0.85rem", marginRight: "5px" }} // Thêm khoảng cách bên phải
                                                     >
-                                                        <option value="">--Lựa chọn khu vực--</option>
+                                                        <option value="">--Lựa chọn tầng--</option>
                                                         <option value="Tầng 1">Tầng 1</option>
                                                         <option value="Tầng 2">Tầng 2</option>
                                                         <option value="Tầng 3">Tầng 3</option>
@@ -133,7 +133,7 @@ const UpdateRoomModal = () => {
                                                         <option value="Tầng 5">Tầng 5</option>
                                                     </Form.Control>
                                                     {/* Biểu tượng nằm sau ô chọn */}
-                                                    <Add_Area />
+                                                    <Add_Floor />
                                                 </div>
                                             </Col>
                                         </Form.Group>
@@ -196,7 +196,7 @@ const UpdateRoomModal = () => {
                                             <Row>
                                                 <Col md={12}>
                                                     <Card.Text>
-                                                        <strong>Phòng sẽ được áp dụng theo giá của hạng phòng:</strong>
+                                                        <strong>Phòng áp dụng theo giá của loại phòng:</strong>
                                                     </Card.Text>
                                                     <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
                                                         <li>
@@ -285,24 +285,33 @@ const UpdateRoomModal = () => {
     );
 };
 
-const AddRoomModal = () => {
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
 
+const AddRoomModal = () => {
+    const [show, setShow] = useState(false); // Bắt đầu với show là false
     const [roomName, setRoomName] = useState('');
-    const [area, setArea] = useState('');
+    const [floor, setFloor] = useState('');
     const [roomType, setRoomType] = useState('');
     const [startDate, setStartDate] = useState('');
     const [notes, setNotes] = useState('');
-    const [images, setImages] = useState(Array(9).fill(null)); // Using Array(9).fill(null) for better readability
-    const fileInputRef = useRef(null); // Tạo reference cho input file
+    const [images, setImages] = useState(Array(9).fill(null));
+    const fileInputRef = useRef(null);
     const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+
+    // Hàm để mở modal
+    const handleShow = () => {
+        if (!show) { // Chỉ mở modal nếu nó đang đóng
+            setShow(true);
+        }
+    };
+
+    // Hàm để đóng modal
+    const handleClose = () => {
+        setShow(false);
+    };
 
     // Xử lý click vào ô thêm ảnh
     const handleAddImageClick = (index) => {
         setSelectedImageIndex(index);
-        // Kích hoạt sự kiện click vào input file ẩn
         fileInputRef.current.click();
     };
 
@@ -316,50 +325,47 @@ const AddRoomModal = () => {
         }
     };
 
+    // Lấy giá dựa vào loại phòng
     const getPrice = () => {
-        if (roomType === 'Phòng VIP') {
-            return {
-                hourPrice: '300,000',
-                dayPrice: '1,000,000',
-                nightPrice: '1,000,000',
-                overtimeFee: 'Tính tiền mỗi giờ'
-            };
-        } else {
-            return {
-                hourPrice: '200,000',
-                dayPrice: '800,000',
-                nightPrice: '800,000',
-                overtimeFee: 'Tính tiền mỗi giờ'
-            };
-        }
+        return roomType === 'Phòng VIP' ? {
+            hourPrice: '300,000',
+            dayPrice: '1,000,000',
+            nightPrice: '1,000,000',
+            overtimeFee: 'Tính tiền mỗi giờ'
+        } : {
+            hourPrice: '200,000',
+            dayPrice: '800,000',
+            nightPrice: '800,000',
+            overtimeFee: 'Tính tiền mỗi giờ'
+        };
     };
 
     const prices = getPrice();
 
+    // Lưu dữ liệu phòng
     const handleSave = () => {
         const roomData = {
             roomName,
-            area,
+            floor,
             roomType,
             startDate,
             notes,
             images
         };
         console.log("Room data saved:", roomData);
-        handleClose();
+        handleClose(); // Đóng modal sau khi lưu
     };
 
     return (
         <>
-            <small style={{ fontSize: '13px' }} onClick={handleShow}>
-                <MdAdd />
-                Phòng
+            <small style={{ fontSize: '13px', cursor: 'pointer' }} id="add-room" onClick={handleShow}>
+                Thêm phòng
             </small>
             <Modal
                 show={show}
                 onHide={handleClose}
-                dialogClassName="modal-wide"
-                aria-labelledby="example-custom-modal-styling-title"
+                dialogClassName="modal-wides"
+                style={{ background: 'rgba(0, 0, 0, 0.7)' }}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
@@ -389,26 +395,21 @@ const AddRoomModal = () => {
 
                                         <Form.Group as={Row} controlId="formArea" className="mt-3">
                                             <Form.Label column sm={4}>
-                                                Khu vực
+                                                Tầng
                                             </Form.Label>
                                             <Col sm={8}>
-                                                <div style={{ display: "flex", alignItems: "center" }}>
-                                                    <Form.Control
-                                                        as="select"
-                                                        value={area}
-                                                        onChange={(e) => setArea(e.target.value)}
-                                                        style={{ fontSize: "0.85rem", marginRight: "5px" }} // Thêm khoảng cách bên phải
-                                                    >
-                                                        <option value="">--Lựa chọn khu vực--</option>
-                                                        <option value="Tầng 1">Tầng 1</option>
-                                                        <option value="Tầng 2">Tầng 2</option>
-                                                        <option value="Tầng 3">Tầng 3</option>
-                                                        <option value="Tầng 4">Tầng 4</option>
-                                                        <option value="Tầng 5">Tầng 5</option>
-                                                    </Form.Control>
-                                                    {/* Biểu tượng nằm sau ô chọn */}
-                                                    <Add_Area />
-                                                </div>
+                                                <Form.Control
+                                                    as="select"
+                                                    value={floor}
+                                                    onChange={(e) => setFloor(e.target.value)}
+                                                >
+                                                    <option value="">--Lựa chọn tầng--</option>
+                                                    <option value="Tầng 1">Tầng 1</option>
+                                                    <option value="Tầng 2">Tầng 2</option>
+                                                    <option value="Tầng 3">Tầng 3</option>
+                                                    <option value="Tầng 4">Tầng 4</option>
+                                                    <option value="Tầng 5">Tầng 5</option>
+                                                </Form.Control>
                                             </Col>
                                         </Form.Group>
 
@@ -417,20 +418,15 @@ const AddRoomModal = () => {
                                                 Loại phòng
                                             </Form.Label>
                                             <Col sm={8}>
-                                                <div style={{ display: "flex", alignItems: "center" }}>
-                                                    <Form.Control
-                                                        as="select"
-                                                        value={roomType}
-                                                        onChange={(e) => setRoomType(e.target.value)}
-                                                        style={{ fontSize: "0.85rem", marginRight: "5px" }} // Thêm khoảng cách bên phải
-                                                    >
-                                                        <option value="">--Lựa chọn loại phòng--</option>
-                                                        <option value="Phòng thường">Phòng thường</option>
-                                                        <option value="Phòng VIP">Phòng VIP</option>
-                                                    </Form.Control>
-                                                    {/* Biểu tượng nằm sau ô chọn */}
-                                                    < Add_TypeRoom NameButton={<RiAddFill />} />
-                                                </div>
+                                                <Form.Control
+                                                    as="select"
+                                                    value={roomType}
+                                                    onChange={(e) => setRoomType(e.target.value)}
+                                                >
+                                                    <option value="">--Lựa chọn loại phòng--</option>
+                                                    <option value="Phòng thường">Phòng thường</option>
+                                                    <option value="Phòng VIP">Phòng VIP</option>
+                                                </Form.Control>
                                             </Col>
                                         </Form.Group>
 
@@ -470,7 +466,7 @@ const AddRoomModal = () => {
                                             <Row>
                                                 <Col md={12}>
                                                     <Card.Text>
-                                                        <strong>Phòng sẽ được áp dụng theo giá của hạng phòng:</strong>
+                                                        Phòng áp dụng theo giá của loại phòng:
                                                     </Card.Text>
                                                     <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
                                                         <li>
@@ -478,8 +474,6 @@ const AddRoomModal = () => {
                                                         </li>
                                                         <li>
                                                             <span>• Giá cả ngày:</span> <strong>{prices.dayPrice}</strong>
-                                                        </li>
-                                                        <li>
                                                         </li>
                                                         <li>
                                                             <span>• Phụ thu quá giờ:</span> <strong>{prices.overtimeFee}</strong>
@@ -514,7 +508,6 @@ const AddRoomModal = () => {
                                     ref={fileInputRef}
                                     style={{ display: 'none' }} // Ẩn input file
                                 />
-
                             </Row>
                         </Card.Body>
                     </Card>
@@ -525,11 +518,6 @@ const AddRoomModal = () => {
                         <Col sm="auto">
                             <Button
                                 variant="success"
-                                style={{
-                                    padding: '0.75rem 1.5rem',  // Increase padding for larger size
-                                    fontSize: '1rem',           // Larger font size
-                                    fontWeight: 'bold'          // Make the text bold
-                                }}
                                 onClick={handleSave}
                             >
                                 <FaSave size={14} />&nbsp;
@@ -539,13 +527,6 @@ const AddRoomModal = () => {
                         <Col sm="auto">
                             <Button
                                 variant="dark"
-                                style={{
-                                    background: '#898C8D',      // Custom background color
-                                    padding: '0.75rem 1.5rem',  // Increase padding for larger size
-                                    fontSize: '1rem',           // Larger font size
-                                    fontWeight: 'bold',
-                                    border: 'none'         // Make the text bold
-                                }}
                                 onClick={handleClose}
                             >
                                 <ImCancelCircle size={14} />&nbsp;
@@ -554,8 +535,9 @@ const AddRoomModal = () => {
                         </Col>
                     </Row>
                 </Modal.Footer>
-            </Modal >
+            </Modal>
         </>
     );
 };
+
 export { UpdateRoomModal, AddRoomModal };

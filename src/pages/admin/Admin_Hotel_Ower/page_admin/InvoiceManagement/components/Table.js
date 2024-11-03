@@ -21,7 +21,7 @@ const invoiceData = [
             { date: '2024-10-01', amount: '900,000 VND', method: 'Tiền mặt' },
             { date: '2024-10-02', amount: '100,000 VND', method: 'Chuyển khoản' },
         ],
-        staff: {
+        employee: {
             id: '4'
         }
     },
@@ -42,7 +42,7 @@ const invoiceData = [
             { date: '2024-10-02', amount: '500,000 VND', method: 'Chuyển khoản' },
             { date: '2024-10-05', amount: '350,000 VND', method: 'Tiền mặt' },
         ],
-        staff: {
+        employee: {
             id: '2'
         }
     },
@@ -62,7 +62,7 @@ const invoiceData = [
         paymentHistory: [
             { date: '2024-10-03', amount: '950,000 VND', method: 'Tiền mặt' },
         ],
-        staff: {
+        employee: {
             id: '1'
         }
     }

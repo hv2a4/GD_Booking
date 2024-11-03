@@ -9,15 +9,15 @@ export default function Services() {
         <div className="container">
           <div className="text-center wow fadeInUp" data-wow-delay="0.1s">
             <CommonHeading
-              heading="Our Services"
-              title="Services"
-              subtitle="Explore Our"
+              heading="Dịch vụ phòng của chúng tôi"
+              title="Dịch vụ"
+              subtitle="Khám phá"
             />
           </div>
           <div className="row g-4">
             {services.map((item, index) => (
               <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                <a className="service-item rounded" href="">
+                <a className="service-item rounded text-orange" href="">
                   <div className="service-icon bg-transparent border rounded p-1">
                     <div className="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
                       {item.icon}

@@ -9,21 +9,20 @@ export default function About() {
         <div className="container">
           <div className="row g-5 align-items-center">
             <div className="col-lg-6">
-              <h6 className="section-title text-start text-primary text-uppercase">
-                About Us
+              <h6 className="section-title text-start text-orange text-uppercase">
+                Về chúng tôi
               </h6>
               <h1 className="mb-4">
-                Welcome to{" "}
-                <span className="text-primary text-uppercase">Hotelier</span>
+                Chào mừng đến{" "}
+                <span className="text-orange text-uppercase">Start Hotel</span>
               </h1>
               <p className="mb-4">
-                Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit.
-                Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit,
-                sed stet lorem sit clita duo justo magna dolore erat amet
+                Khách sạn Start Hotel – nơi nghỉ dưỡng hoàn hảo với tiện nghi hiện đại, không gian sang trọng và vị trí lý tưởng,
+                mang đến cho bạn trải nghiệm tuyệt vời.
               </p>
               <div className="row g-3 pb-4">
-                {about.map((item, key) => (
-                  <div className="col-sm-4 wow fadeIn" data-wow-delay="0.1s">
+                {about.map((item, index) => (
+                  <div className="col-sm-4 wow fadeIn" data-wow-delay="0.1s" key={index}>
                     <div className="border rounded p-1">
                       <div className="border rounded text-center p-4">
                         {item.icon}
@@ -36,8 +35,9 @@ export default function About() {
                   </div>
                 ))}
               </div>
+
               <a className="btn btn-primary py-3 px-5 mt-2" href="">
-                Explore More
+                Khám phá
               </a>
             </div>
             <div className="col-lg-6">

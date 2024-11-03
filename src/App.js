@@ -14,7 +14,7 @@ import {
   PageNotFound,
   RoomClient,
   Services,
-  Team,
+  // Team,
   Testimonial,
 } from "./pages/client/index";
 import { Navigate } from 'react-router-dom';
@@ -26,12 +26,18 @@ import InvoiceManagement from "./pages/admin/home/InvoiceManagement"
 import BookingManger from "./pages/admin/home/BookingManger";
 import Login from "./pages/account/login";
 import Profile from "./pages/account/profile";
-import EditRoom from "./pages/staff/edit-room";
-import HomeStaff from "./pages/staff/home";
-import ListReservation from "./pages/staff/list-reservation";
-import FloorMap from "./pages/staff/floor_map";
+import EditRoom from "./pages/employee/edit-room";
+import Homeemployee from "./pages/employee/home";
+import ListReservation from "./pages/employee/list-reservation";
+import FloorMap from "./pages/employee/floor_map";
 import AccountClient from "./pages/admin/accountManagement/account-client";
-import AccountStaff from "./pages/admin/accountManagement/account-staff";
+import Accountemployee from "./pages/admin/accountManagement/account-employee";
+import HotelInfo from "./pages/admin/hotel-info";
+import PageBookRoom from "./pages/client/booking-room";
+import Invoice from "./pages/client/invoice";
+import RevenueReport from "./pages/admin/report-generation/revenue";
+import ServiceRoom from "./pages/admin/service-management/service-room";
+import ServicesPage from "./pages/admin/home/Services";
 
 function App() {
   const getCookie = (name) => {
@@ -67,7 +73,7 @@ function App() {
         <Route path="/client">
             <Route path="home" element={<Home />} />
             <Route path="booking" element={<Booking />} />
-            <Route path="team" element={<Team />} />
+            {/* <Route path="team" element={<Team />} /> */}
             <Route path="testimonial" element={<Testimonial />} />
             <Route path="about" element={<AboutUs />} />
             <Route path="contact" element={<Contact />} />
@@ -75,9 +81,11 @@ function App() {
             <Route path="rooms" element={<RoomClient />} />
             <Route path="services" element={<Services />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="booking-room" element={<PageBookRoom />} />
+            <Route path="invoice" element={<Invoice />} />
         </Route>
-        <Route path="/staff">
-          <Route path="home" element={<HomeStaff />} />
+        <Route path="/employee">
+          <Route path="home" element={<Homeemployee />} />
           <Route path="edit-room" element={<EditRoom />} />
           <Route path="list-booking-room" element={<ListReservation />} />
           <Route path="Floor/:id" element={<FloorMap />} />
@@ -89,7 +97,11 @@ function App() {
           <Route path="room-pricing" element={<RoomPriceManager />} />
           <Route path="invoice-room" element={<InvoiceManagement />} />
           <Route path="account-client" element={<AccountClient />} />
-          <Route path="account-staff" element={<AccountStaff />} />
+          <Route path="account-employee" element={<Accountemployee />} />
+          <Route path="hotel-info" element={<HotelInfo />} />
+          <Route path="revenue" element={<RevenueReport />} />
+          <Route path="service-room-management" element={<ServiceRoom />} />
+          <Route path="service" element={<ServicesPage />} />
         </Route>
           <Route path="/account" element={<Login />} />
     </Route >

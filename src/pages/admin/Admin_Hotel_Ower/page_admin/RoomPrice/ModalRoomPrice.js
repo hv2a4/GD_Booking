@@ -286,7 +286,7 @@ const EditRoomPriceModal = ({ labelName }) => {
     return (
         <>
             <p
-                className="nav-link text-primary mb-0"
+                className="nav-link text-orange mb-0"
                 style={{ fontSize: '0.9rem', cursor: 'pointer' }}
                 onClick={handleShow}
             >

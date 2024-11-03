@@ -6,7 +6,7 @@ import LayoutClient from "../../components/layout/cilent";
 export default function Testimonial() {
   return (
     <LayoutClient>
-      <Heading heading="Testimonial" title="Home" subtitle="Testimonial" />
+      <Heading heading="LỜI CHỨNG THỰC" title="Trang chủ" subtitle="Lời chứng thực" />
       <Sliders />
     </LayoutClient>
   );

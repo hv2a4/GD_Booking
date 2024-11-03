@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
 import { ClipLoader } from "react-spinners"; // Import spinner từ react-spinners
-import { ToastContainer, toast,Bounce } from 'react-toastify';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { jwtDecode as jwt_decode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import { imageDb } from './Config';  // Đồng bộ với file Config.js
 import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { v4 } from "uuid";
+import { useForm } from 'react-hook-form';
 
 const MyProfile = () => {
     const [userData, setUserData] = useState(null);
@@ -41,36 +42,52 @@ const MyProfile = () => {
             }));
         }
     };
-   
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        formState: { errors },
+        clearErrors,
+      } = useForm({
+        mode: "onBlur", // Xác thực khi mất tiêu điểm
+      });
+
     const handleLogin = async (event) => {
         event.preventDefault();
+        const isValid = Object.keys(errors).length === 0; // Nếu không có lỗi, isValid sẽ là true
+
+        if (!isValid) {
+            return; // Nếu có lỗi, không làm gì cả và thoát khỏi hàm
+        }
+
         setLoading(true); // Bắt đầu loading
         let imagePath = avatar;
         if (updateImage && !img) {
             alert("Please select a file first.");
             return;
-          }
-          if (img) {
+        }
+        if (img) {
             try {
                 const imgRef = ref(imageDb, `files/${v4()}`);
                 console.log("Image Reference:", imgRef);
-    
+
                 // Upload image and get the download URL
                 const snapshot = await uploadBytes(imgRef, img);
                 console.log("Upload successful:", snapshot);
-                
+
                 imagePath = await getDownloadURL(imgRef);
                 console.log("Image download URL:", imagePath);
             } catch (error) {
                 console.error("Error uploading file:", error);
                 return; // Stop further execution if image upload fails
             }
-        }else{
-            console.log("ảnh cũ: "+avatar)
+        } else {
+            console.log("ảnh cũ: " + avatar)
         }
-        
-        
-        
+
+
+
         // setLoading(true); // Bắt đầu loading
         // setTimeout(() => {
         //     setLoading(false); // Kết thúc loading sau 2 giây giả lập
@@ -82,40 +99,40 @@ const MyProfile = () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    id:id,
+                    id: id,
                     username: username, // Gửi email hoặc thông tin khác
                     avatar: imagePath,
-                    email:email,
-                    phone:phone,
-                    gender:gender,
-                    fullname:fullname
+                    email: email,
+                    phone: phone,
+                    gender: gender,
+                    fullname: fullname
                 }),
             });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             const result = await response.json();
-            if(result.code == 200){
+            if (result.code == 200) {
                 setLoading(false); // Bắt đầu loading
                 console.log('User updated successfully:', result);
                 console.log(result.token);
-                Cookies.set("token", result.token, { expires:  6 /24 })
+                Cookies.set("token", result.token, { expires: 6 / 24 })
                 toast.success("Cập Nhật thành công!");
-               
+
             }
-            
+
             // Handle successful response
         } catch (error) {
             console.error('Error updating user:', error);
             // Handle error
         }
     };
-    
-   
+
+
     useEffect(() => {
 
         if (token) {
@@ -129,9 +146,9 @@ const MyProfile = () => {
                 setEmail(decodedTokens.email || '');
                 setPhone(decodedTokens.phone || '');
                 setAvatar(decodedTokens.avatar || '');
-                setGender(decodedTokens.gender || '')
-                console.log("avartar: "+decodedTokens.avatar);
-                console.log("id người dùng: " + decodedTokens.gender);
+                setGender(decodedTokens.gender === true ? true : false);
+                console.log("avartar: " + decodedTokens.avatar);
+                console.log("giới tính: " + decodedTokens.gender);
             } catch (error) {
                 console.error("Lỗi giải mã token:", error);
             }
@@ -145,7 +162,7 @@ const MyProfile = () => {
     }, [avatar]);
     return (
         <div style={{ position: 'relative' }}>
-             <ToastContainer
+            <ToastContainer
                 position="top-right"
                 autoClose={2000}
                 hideProgressBar={false}
@@ -164,7 +181,7 @@ const MyProfile = () => {
                 <div className="col-md-12">
                     <div className="text-center mb-3">
                         <img
-                            src={preview?preview:avatar}
+                            src={preview ? preview : avatar}
                             alt="Avatar"
                             className="rounded-circle"
                             style={{ width: "150px", height: "150px" }}
@@ -186,44 +203,72 @@ const MyProfile = () => {
                             style={{ display: "none" }}
                             accept="image/*"
                             ref={fileInputRef}
-                            onChange={ handleFileChange}
+                            onChange={handleFileChange}
                         />
                     </Form.Group>
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputUsername" className="form-label">Tên tài khoản: </label>
-                    <input type="text" className="form-control" id="inputUsername" value={username}
-                        onChange={(e) => setUsername(e.target.value)} />
+                    <input type="text" className="form-control" 
+                     {...register("username", { required: "Tài khoản là bắt buộc" })}
+                     id="inputUsername" value={username}
+                        onChange={(e) =>{setUsername(e.target.value)
+                            if (errors.username) {
+                                clearErrors("username");
+                              }
+                        }}  disabled />
+                         {errors.username && <small className="text-orange">{errors.username.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputFullname" className="form-label">Họ và tên: </label>
-                    <input type="text" className="form-control" id="inputFullname"  value={fullname}
-                        onChange={(e) => setFullname(e.target.value)}  />
+                    <input type="text"  {...register("fullname", { required: "Họ Tên là bắt buộc" })} className="form-control" id="inputFullname" value={fullname}
+                        onChange={(e) =>{setFullname(e.target.value)
+                            if (errors.fullname) {
+                                clearErrors("fullname");
+                              }
+                        }}  />
+                        {errors.fullname && <small className="text-orange">{errors.fullname.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label htmlFor="inputEmail" className="form-label">Email</label>
-                    <input type="email" className="form-control" id="inputEmail" value={email}
-                        onChange={(e) => setEmail(e.target.value)} />
+                    <input type="email" {...register("email", { required: "Email là bắt buộc" })} className="form-control" id="inputEmail" value={email}
+                        onChange={(e) =>{ setEmail(e.target.value)
+                            if (errors.email) {
+                                clearErrors("email");
+                              }
+                        }} />
+                          {errors.email && <small className="text-orange">{errors.email.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label for="inputPhone" className="form-label">Phone</label>
-                    <input type="text" className="form-control" id="inputPhone" value={phone}
-                        onChange={(e) => setPhone(e.target.value)} />
+                    <input type="text" {...register("phone", { required: "Số điện thoại là bắt buộc" })} className="form-control" id="inputPhone" value={phone}
+                        onChange={(e) =>{
+                            setPhone(e.target.value)
+                            if (errors.phone) {
+                                clearErrors("phone");
+                              }
+                        } } />
+                        {errors.phone && <small className="text-orange">{errors.phone.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputGender" className="form-label">Giới tính</label><br />
                     <div className="form-check form-check-inline">
                         <input className="form-check-input" type="radio" name="inlineRadioOptions"
-                            id="inlineRadio1"  value="true"
+                            id="inlineRadio1" value="true"
                             checked={gender === true}
                             onChange={() => setGender(true)} />
                         <label className="form-check-label" htmlFor="inlineRadio1">Nam</label>
                     </div>
                     <div className="form-check form-check-inline">
-                        <input className="form-check-input" type="radio" name="inlineRadioOptions"
-                            id="inlineRadio2"  value="false"
+                        <input
+                            className="form-check-input"
+                            type="radio"
+                            name="inlineRadioOptions"
+                            id="inlineRadio2"
+                            value="false"
                             checked={gender === false}
-                            onChange={() => setGender(false)} />
+                            onChange={() => setGender(false)}
+                        />
                         <label className="form-check-label" htmlFor="inlineRadio2">Nữ</label>
                     </div>
                 </div>

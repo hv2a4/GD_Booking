@@ -46,3 +46,15 @@ canvas {
 .account-client .table-responsive{
   scrollbar-width: none;
 }
+.nav-link:focus, .nav-link:hover {
+  color: var(--bs-nav-link-hover-color) !important;
+}
+.header-nav .nav-link {
+  color: var(--bs-nav-link-color);
+}
+.header-toggler{
+  color: var(--bs-nav-link-color);
+}
+.header-toggler:focus, .header-toggler:hover{
+  color: var(--bs-nav-link-hover-color) !important;
+}

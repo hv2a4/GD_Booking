@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Cookies } from "react-cookie";
+
 
 export const BASE_URL = "http://localhost:8080/";
 

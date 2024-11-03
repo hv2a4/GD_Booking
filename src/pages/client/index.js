@@ -1,10 +1,10 @@
 import AboutUs from "../client/AboutUs";
 import Booking from "../client/BookingPage";
-import Team from "../client/TeamPage";
+// import Team from "../client/TeamPage";
 import Testimonial from "../client/TestimonialPage";
 import Contact from "../client/ContactPage";
 import PageNotFound from "../client/PageNotFound";
-import RoomClient from "../client/RoomPage";
+import RoomClient from "./Room/RoomPage";
 import Services from "../client/ServicesPage";
 import Home from "../../components/home/Home";
 import "../../assets/css/style.css";
@@ -15,7 +15,7 @@ export {
   Home,
   Booking,
   Testimonial,
-  Team,
+  // Team,
   AboutUs,
   Contact,
   PageNotFound,

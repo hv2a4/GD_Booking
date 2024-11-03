@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
-import { NavLink } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
+import React, { useEffect, useRef } from 'react';
+import { NavLink } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   CContainer,
   CDropdown,
@@ -13,8 +13,8 @@ import {
   CNavLink,
   CNavItem,
   useColorModes,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
 import {
   cilBell,
   cilContrast,
@@ -23,24 +23,29 @@ import {
   cilMenu,
   cilMoon,
   cilSun,
-} from '@coreui/icons'
+} from '@coreui/icons';
 
-import { AppBreadcrumb } from './index'
-import { AppHeaderDropdown } from './header/index'
+import { AppBreadcrumb } from './index';
+import { AppHeaderDropdown } from './header/index';
 
 const AppHeader = () => {
-  const headerRef = useRef()
-  const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-
-  const dispatch = useDispatch()
-  const sidebarShow = useSelector((state) => state.sidebarShow)
+  const headerRef = useRef();
+  const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
+  const dispatch = useDispatch();
+  const sidebarShow = useSelector((state) => state.sidebarShow);
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
       headerRef.current &&
-        headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0)
-    })
-  }, [])
+        headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0);
+    });
+  }, []);
+
+  useEffect(() => {
+    // Apply the corresponding mode class to body
+    document.body.classList.remove('light-mode', 'dark-mode');
+    document.body.classList.add(colorMode === 'dark' ? 'dark-mode' : 'light-mode');
+  }, [colorMode]);
 
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
@@ -51,7 +56,7 @@ const AppHeader = () => {
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
-        <CHeaderNav className="d-none d-md-flex">
+        {/* <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/dashboard" as={NavLink}>
               Dashboard
@@ -63,8 +68,8 @@ const AppHeader = () => {
           <CNavItem>
             <CNavLink href="#">Settings</CNavLink>
           </CNavItem>
-        </CHeaderNav>
-        <CHeaderNav className="ms-auto">
+        </CHeaderNav> */}
+        {/* <CHeaderNav className="ms-auto">
           <CNavItem>
             <CNavLink href="#">
               <CIcon icon={cilBell} size="lg" />
@@ -80,7 +85,7 @@ const AppHeader = () => {
               <CIcon icon={cilEnvelopeOpen} size="lg" />
             </CNavLink>
           </CNavItem>
-        </CHeaderNav>
+        </CHeaderNav> */}
         <CHeaderNav>
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
@@ -135,7 +140,7 @@ const AppHeader = () => {
         <AppBreadcrumb />
       </CContainer>
     </CHeader>
-  )
-}
+  );
+};
 
-export default AppHeader
+export default AppHeader;

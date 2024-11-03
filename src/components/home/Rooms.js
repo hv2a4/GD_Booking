@@ -1,16 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { facility, roomItems } from "../data/Data";
+import RoomDetailModal from "../../pages/client/Room/modal-room";
 
 export default function Rooms() {
+  const [showModal, setShowModal] = useState(false);
+  const [roomItem, setRoomItem] = useState({});
+
+  const handleRoomItem = (item) => {
+    setShowModal(true);
+    setRoomItem(item);
+  }
+
   return (
     <>
       <div className="container-xxl py-5">
         <div className="container">
           <CommonHeading
-            heading="Our Rooms"
-            title="Rooms"
-            subtitle="Explore Our"
+            heading="Phòng của chúng tôi"
+            title="Phòng"
+            subtitle="Khám phá"
           />
           <div className="row g-4">
             {roomItems.map((item, key) => (
@@ -18,7 +27,7 @@ export default function Rooms() {
                 <div className="room-item shadow rounded overflow-hidden">
                   <div className="position-relative">
                     <img className="img-fluid" src={item.img} alt="img" />
-                    <small className="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">
+                    <small className="position-absolute start-0 top-100 translate-middle-y bg-orange text-white rounded py-1 px-3 ms-4">
                       {item.price}
                     </small>
                   </div>
@@ -39,7 +48,7 @@ export default function Rooms() {
                     <div className="d-flex justify-content-between">
                       <a
                         className="btn btn-sm btn-primary rounded py-2 px-4"
-                        href=""
+                        onClick={() => handleRoomItem(item)}
                       >
                         {item.yellowbtn}
                       </a>
@@ -53,6 +62,7 @@ export default function Rooms() {
             ))}
           </div>
         </div>
+        <RoomDetailModal show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
       </div>
     </>
   );
