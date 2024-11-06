@@ -32,6 +32,7 @@ const request = async ({ method = "GET", path = "", data = {}, headers = {}, tok
     return null;
   }
 };
+
 const firebaseConfig = {
   apiKey: "AIzaSyC-yTelb8SWfOKdNBmbbtEqPpEVQjSuJPc",
   authDomain: "myprojectimg-164dd.firebaseapp.com",
@@ -40,6 +41,7 @@ const firebaseConfig = {
   messagingSenderId: "369775366834",
   appId: "1:369775366834:web:3062b759c0a71362722fab"
 };
+
 const app = initializeApp(firebaseConfig);
 const imageDb = getStorage(app);
 export {request, imageDb};

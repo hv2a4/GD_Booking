@@ -36,7 +36,6 @@ import HotelInfo from "./pages/admin/hotel-info";
 import PageBookRoom from "./pages/client/booking-room";
 import Invoice from "./pages/client/invoice";
 import RevenueReport from "./pages/admin/report-generation/revenue";
-import ServiceRoom from "./pages/admin/service-management/service-room";
 import ServicesPage from "./pages/admin/home/Services";
 import ReservationReport from "./pages/admin/report-generation/reservation-report";
 import RoomClassReport from "./pages/admin/report-generation/room-class-report";
