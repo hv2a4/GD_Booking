@@ -11,35 +11,23 @@ import {
     CTableHeaderCell,
     CTableRow,
 } from "@coreui/react";
-import React, { useState } from "react";
-import { Col, Row } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Button, Card, Col, Row } from "react-bootstrap";
 import AddEmployeeModal from "./modal-add-employee";
+import { getAllEmployee, updateActiveAccount } from "../../../../../services/admin/account-manager";
+import ReactPaginate from "react-paginate";
+import Alert from "../../../../../config/alert";
 
 const Account = () => {
     const [details, setDetails] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [activePage, setActivePage] = useState(1);
+    const [activePage, setActivePage] = useState(0);
     const itemsPerPage = 10;
     const [showModal, setShowModal] = useState(false);
-
+    const [employees, setEmployee] = useState([]);
+    const [alert, setAlert] = useState(null);
     const handleShow = () => setShowModal(true);
     const handleClose = () => setShowModal(false);
-    const items = [
-        { id: 1, name: 'Samppa Nori', avatar: '1.jpg', registered: '2021/03/01', role: 'Nhân viên', status: 'Hoạt động' },
-        { id: 2, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 3, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 4, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 5, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 6, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 7, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 8, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 9, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 10, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 11, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 12, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        { id: 13, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Nhân viên', status: 'Khóa' },
-        // Thêm các mục khác ở đây
-    ];
 
     const getBadge = (status) => {
         switch (status) {
@@ -48,6 +36,20 @@ const Account = () => {
             case 'Pending': return 'warning';
             case 'Khóa': return 'danger';
             default: return 'primary';
+        }
+    };
+    useEffect(() => {
+        handleGetAllEmployee();
+    }, []);
+
+    const handleGetAllEmployee = async () => {
+        try {
+            const res = await getAllEmployee();
+            const employee = res.filter((e) => e.roleDto.roleName === "Staff");
+            setEmployee(employee);
+        } catch (error) {
+            console.error("Failed to fetch employees:", error);
+            setAlert({ type: 'error', title: 'Lỗi khi tải dữ liệu nhân viên' });
         }
     };
 
@@ -62,25 +64,45 @@ const Account = () => {
         setDetails(newDetails);
     };
 
-    const filteredItems = items.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredItems = employees.filter(item =>
+        item.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.roleDto.roleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.isDelete ? "hoạt động" : "khóa").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const paginatedItems = filteredItems.slice(
-        (activePage - 1) * itemsPerPage,
-        activePage * itemsPerPage
-    );
+    const startOffset = activePage * itemsPerPage;
+    const endOffset = startOffset + itemsPerPage;
+    const currentItems = filteredItems.slice(startOffset, endOffset);
+    const pageCount = Math.ceil(filteredItems.length / itemsPerPage);
 
-    // Reset page number when search term changes
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
-        setActivePage(1);
+        setActivePage(0);
     };
 
+    const handlePageClick = (event) => {
+        setActivePage(event.selected);
+    };
+    const handleToggleStatus = async (id) => {
+        try {
+            await updateActiveAccount(id);
+            setEmployee((prevEmployees) =>
+                prevEmployees.map((employee) =>
+                    employee.id === id
+                        ? { ...employee, isDelete: !employee.isDelete }
+                        : employee
+                )
+            );
+            setAlert({ type: 'success', title: 'Cập nhật trạng thái thành công' });
+            setTimeout(() => setAlert(null), 3000);
+        } catch (error) {
+            setAlert({ type: 'error', title: 'Xảy ra lỗi khi cập nhật trạng thái' });
+        }
+
+    };
     return (
         <div className="account-client">
+            {alert && <Alert type={alert.type} title={alert.title} />}
             <div className="d-flex">
                 <input
                     type="text"
@@ -89,124 +111,117 @@ const Account = () => {
                     className="mb-3 form-control"
                     style={{ width: "20%" }}
                 />
-                <button
-                    className="mx-3 p-0 pe-3 ps-3"
+                <Button
+                    variant="success"
+                    className="mx-3 p-0 pe-3 ps-3 text-right"
                     onClick={handleShow}
-                    style={{ borderRadius: "0.6rem",height: "37px"}}>
+                    style={{ borderRadius: "0.6rem", height: "37px" }}>
                     <i className="fa fa-plus icon-btn"></i>
                     Thêm
-                </button>
+                </Button>
             </div>
             <CTable responsive>
                 <CTableHead>
                     <CTableRow>
                         <CTableHeaderCell>Ảnh</CTableHeaderCell>
                         <CTableHeaderCell>Họ tên</CTableHeaderCell>
-                        <CTableHeaderCell>Ngày sinh</CTableHeaderCell>
+                        <CTableHeaderCell>Số điện thoại</CTableHeaderCell>
                         <CTableHeaderCell>Vai trò</CTableHeaderCell>
                         <CTableHeaderCell>Trạng thái</CTableHeaderCell>
                         <CTableHeaderCell>Hành động</CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {paginatedItems.map((item) => (
+                    {currentItems.map((item) => (
                         <React.Fragment key={item.id}>
                             <CTableRow>
                                 <CTableDataCell>
-                                    <CAvatar src={`./../../images/avatars/${item.avatar}`} />
+                                    <CAvatar src={item.avatar} />
                                 </CTableDataCell>
-                                <CTableDataCell>{item.name}</CTableDataCell>
-                                <CTableDataCell>{new Date(item.registered).toLocaleDateString('en-US')}</CTableDataCell>
-                                <CTableDataCell>{item.role}</CTableDataCell>
+                                <CTableDataCell>{item.fullname}</CTableDataCell>
+                                <CTableDataCell>{item.phone}</CTableDataCell>
+                                <CTableDataCell>{item.roleDto.roleName}</CTableDataCell>
                                 <CTableDataCell>
-                                    <CBadge color={getBadge(item.status)}>{item.status}</CBadge>
+                                    <CBadge color={getBadge(item.isDelete ? "Active" : "Khóa")}>
+                                        {item.isDelete ? "hoạt động" : "khóa"}
+                                    </CBadge>
                                 </CTableDataCell>
                                 <CTableDataCell>
-                                    <CButton
-                                        color="primary"
-                                        variant="outline"
+                                    <Button
+                                        variant="outline-primary"
                                         size="sm"
                                         onClick={() => toggleDetails(item.id)}
+                                        style={{ borderRadius: '5px' }}
                                     >
                                         {details.includes(item.id) ? 'Hide' : 'Show'}
-                                    </CButton>
+                                    </Button>
                                 </CTableDataCell>
                             </CTableRow>
                             <CTableRow>
                                 <CTableDataCell colSpan="6">
-                                    <CCollapse visible={details.includes(item.id)}>
-                                        <CCardBody style={{ width: "auto" }}>
-                                            <h3>Thông tin nhân viên</h3>
-                                            <Row className="mt-2">
-                                                <Col xs={12} md={4}>
-                                                    <div className="border-bottom-invoice">
-                                                        <p>Mã nhân viên: <strong>{item.id}</strong></p>
-                                                    </div>
-                                                    <div className="border-bottom-invoice">
-                                                        <p>Họ tên: <strong>Lê Minh Khôi</strong></p>
-                                                    </div>
-                                                    <div className="border-bottom-invoice">
-                                                        <p>Tài khoản: <strong>mjkkhoi</strong></p>
-                                                    </div>
-                                                    <div className="border-bottom-invoice">
-                                                        <p>Email: <strong>mjkkhoi1@gmail.com</strong></p>
-                                                    </div>
-                                                    <div className="border-bottom-invoice">
-                                                        <p>Số điện thoại: <strong>0987887575</strong></p>
-                                                    </div>
-                                                </Col>
-                                                <Col xs={12} md={4}>
-                                                    <div className="form-check form-switch d-flex border-bottom-invoice ps-0 mb-3 mt-3">
-                                                        <label className="form-check-label me-5">Trạng thái:</label>
-                                                        <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" />
-                                                    </div>
-                                                    <div className="border-bottom-invoice d-flex align-items-center" style={{ marginTop: "-19px" }}>
-                                                        <p className="mb-0 me-2">Vai trò: <strong>Nhân viên</strong></p>
-                                                    </div>
-                                                    <div className="border-bottom-invoice d-flex">
-                                                        <p>Giới tính:</p>
-                                                        <div class="form-check form-check-inline mt-4 ms-2">
-                                                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" />
-                                                            <label class="form-check-label" for="inlineRadio1">Nam</label>
+                                    <Card>
+                                        <CCollapse visible={details.includes(item.id)}>
+                                            <CCardBody style={{ width: "auto" }}>
+                                                <h3>Thông tin nhân viên</h3>
+                                                <Row className="mt-2">
+                                                    <Col xs={12} md={4}>
+                                                        <div className="border-bottom-invoice">
+                                                            <p>Mã nhân viên: <strong>{item.id}</strong></p>
                                                         </div>
-                                                        <div class="form-check form-check-inline mt-4">
-                                                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" />
-                                                            <label class="form-check-label" for="inlineRadio2">Nữ</label>
+                                                        <div className="border-bottom-invoice">
+                                                            <p>Họ tên: <strong>{item.fullname}</strong></p>
                                                         </div>
-                                                    </div>
-                                                </Col>
-                                            </Row>
-                                            <div className="d-flex justify-content-end me-5">
-                                                <CButton size="sm" color="info" className="mx-2">Cập nhật</CButton>
-                                                <CButton size="sm" color="danger" className="ms-1">Delete</CButton>
-                                            </div>
-                                        </CCardBody>
-                                    </CCollapse>
+                                                        <div className="border-bottom-invoice">
+                                                            <p>Tài khoản: <strong>{item.username}</strong></p>
+                                                        </div>
+                                                        <div className="border-bottom-invoice">
+                                                            <p>Email: <strong>{item.email}</strong></p>
+                                                        </div>
+                                                        <div className="border-bottom-invoice">
+                                                            <p>Số điện thoại: <strong>{item.phone}</strong></p>
+                                                        </div>
+                                                    </Col>
+                                                    <Col xs={12} md={4}>
+                                                        <div className="form-check form-switch d-flex border-bottom-invoice ps-0 mb-3 mt-3">
+                                                            <label className="form-check-label me-5">Trạng thái:</label>
+                                                            <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked={item.isDelete} onChange={() => handleToggleStatus(item.id)} />
+                                                        </div>
+                                                        <div className="border-bottom-invoice d-flex align-items-center" style={{ marginTop: "-19px" }}>
+                                                            <p className="mb-0 me-2">Vai trò: <strong>{item.roleDto.roleName}</strong></p>
+                                                        </div>
+                                                        <div className="border-bottom-invoice">
+                                                            <p>Giới tính: <strong>{item.gender ? "Nam" : "Nữ"}</strong></p>
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                            </CCardBody>
+                                        </CCollapse>
+                                    </Card>
                                 </CTableDataCell>
                             </CTableRow>
                         </React.Fragment>
                     ))}
                 </CTableBody>
             </CTable>
-            <div className="d-flex justify-content-between align-items-center mt-3 mb-2">
-                <p>Page {activePage} of {Math.ceil(filteredItems.length / itemsPerPage)}</p>
-                <div>
-                    <CButton
-                        disabled={activePage === 1}
-                        onClick={() => setActivePage((prev) => prev - 1)}
-                        className="btn-outline-primary"
-                    >
-                        Previous
-                    </CButton>
-                    <CButton
-                        className="ms-2 btn-outline-secondary"
-                        disabled={activePage === Math.ceil(filteredItems.length / itemsPerPage)}
-                        onClick={() => setActivePage((prev) => prev + 1)}
-                    >
-                        Next
-                    </CButton>
-                </div>
-            </div>
+            <ReactPaginate
+                breakLabel="..."
+                nextLabel=">"
+                previousLabel="<"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={3}
+                marginPagesDisplayed={1}
+                pageCount={pageCount}
+                containerClassName="pagination justify-content-center mt-4"
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+                activeClassName="active"
+            />
             <AddEmployeeModal show={showModal} handleClose={handleClose} />
         </div>
     );

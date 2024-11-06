@@ -14,31 +14,35 @@ import {
 import React, { useEffect, useState } from "react";
 import CustomerInformation from "./customer-information";
 import BookingHistory from "./booking-history";
-import { getDataFromAPI } from "../../../../../services/ServiceAPI/Authorization";
+import { getAllEmployee, updateActiveAccount } from "../../../../../services/admin/account-manager";
+import ReactPaginate from "react-paginate";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Alert from "../../../../../config/alert";
+import { Card } from "react-bootstrap";
 
 const Account = () => {
     const [details, setDetails] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [activePage, setActivePage] = useState(1);
+    const [activePage, setActivePage] = useState(0);
     const [currentTab, setCurrentTab] = useState('info');
-    const itemsPerPage = 10;
-    const [dataUser, setDataUser] = useState([]);
-    const items = [
-        { id: 1, name: 'Samppa Noriabc', avatar: '1.jpg', registered: '2021/03/01', role: 'Khách hàng', status: 'Hoạt động' },
-        { id: 2, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 3, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 4, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 5, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 6, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 7, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 8, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 9, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 10, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 11, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 12, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        { id: 13, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
+    const [user, setUser] = useState([]);
+    const [alert, setAlert] = useState(null);
+    const itemsPerPage = 5;
 
-    ];
+    useEffect(() => {
+        handleGetAllClient();
+    }, []);
+
+    const handleGetAllClient = async () => {
+        try {
+            const res = await getAllEmployee();
+            const user = res.filter((e) => e.roleDto.roleName === "Customer");
+            setUser(user);
+        } catch (error) {
+            setAlert({ type: 'error', title: 'Lỗi khi tải dữ liệu khách hàng' });
+        }
+
+    };
 
     const getBadge = (status) => {
         switch (status) {
@@ -66,21 +70,42 @@ const Account = () => {
         setDetails(newDetails);
     };
 
-    const filteredItems = items.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredItems = user.filter(item =>
+        item.fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.roleDto.roleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.isDelete ? "hoạt động" : "khóa").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const paginatedItems = filteredItems.slice(
-        (activePage - 1) * itemsPerPage,
-        activePage * itemsPerPage
-    );
+    const startOffset = activePage * itemsPerPage;
+    const endOffset = startOffset + itemsPerPage;
+    const currentItems = filteredItems.slice(startOffset, endOffset);
+    const pageCount = Math.ceil(filteredItems.length / itemsPerPage);
 
-    // Reset page number when search term changes
+    const handlePageClick = (event) => {
+        setActivePage(event.selected);
+    };
+
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
-        setActivePage(1);
+        setActivePage(0);
+    };
+    const handleToggleDeleteStatus = async (id) => {
+        console.log(id);
+        try {
+            await updateActiveAccount(id);
+            setUser((prevUsers) =>
+                prevUsers.map((user) =>
+                    user.id === id
+                        ? { ...user, isDelete: !user.isDelete }
+                        : user
+                )
+            );
+            setAlert({ type: 'success', title: 'Cập nhật trạng thái thành công' });
+            setTimeout(() => setAlert(null), 3000);
+        } catch (error) {
+            setAlert({ type: 'error', title: 'Xảy ra lỗi khi cập nhật trạng thái' });
+        }
+
     };
     
     useEffect(()=> {
@@ -89,6 +114,7 @@ const Account = () => {
 
     return (
         <div className="account-client">
+            {alert && <Alert type={alert.type} title={alert.title} />}
             <input
                 type="text"
                 placeholder="Search..."
@@ -101,24 +127,22 @@ const Account = () => {
                     <CTableRow>
                         <CTableHeaderCell>Ảnh</CTableHeaderCell>
                         <CTableHeaderCell>Họ tên</CTableHeaderCell>
-                        <CTableHeaderCell>Email</CTableHeaderCell>
-                        <CTableHeaderCell>Vai trò</CTableHeaderCell>
+                        <CTableHeaderCell>Số điện thoại</CTableHeaderCell>
                         <CTableHeaderCell>Trạng thái</CTableHeaderCell>
                         <CTableHeaderCell>Hành động</CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {dataUser.map((item) => (
+                    {currentItems.map((item) => (
                         <React.Fragment key={item.id}>
                             <CTableRow>
                                 <CTableDataCell>
-                                    <CAvatar src={`./../../images/avatars/${item.avatar}`} />
+                                    <CAvatar src={item.avatar} />
                                 </CTableDataCell>
                                 <CTableDataCell>{item.fullname}</CTableDataCell>
-                                <CTableDataCell>{item.email}</CTableDataCell>
-                                <CTableDataCell>{item.roleDto ? item.roleDto.roleName : 'N/A'}</CTableDataCell>
+                                <CTableDataCell>{item.phone}</CTableDataCell>
                                 <CTableDataCell>
-                                    <CBadge color={getBadge(item.status)}>{item.status}</CBadge>
+                                    <CBadge color={getBadge(item.isDelete ? "Active" : "Khóa")}>{item.isDelete ? "hoạt động" : "khóa"}</CBadge>
                                 </CTableDataCell>
                                 <CTableDataCell>
                                     <CButton
@@ -133,59 +157,61 @@ const Account = () => {
                             </CTableRow>
                             <CTableRow>
                                 <CTableDataCell colSpan="6">
-                                    <CCollapse visible={details.includes(item.id)}>
-                                        <CCardBody style={{ width: "auto" }}>
-                                            <ul className="nav nav-tabs" role="tablist">
-                                                <li className="nav-item">
-                                                    <button className={`nav-link ${currentTab === 'info' ? 'active' : ''}`} onClick={() => setCurrentTab('info')}>
-                                                        Thông tin
-                                                    </button>
-                                                </li>
-                                                <li className="nav-item">
-                                                    <button className={`nav-link ${currentTab === 'bookingHistory' ? 'active' : ''}`} onClick={() => setCurrentTab('bookingHistory')}>
-                                                        Lịch sử đặt phòng
-                                                    </button>
-                                                </li>
-                                            </ul>
-                                            <div className="tab-content">
-                                                {currentTab === "info" && (
-                                                    <div className="tab-pane fade show active">
-                                                        <CustomerInformation item={item} />
-                                                    </div>
-                                                )}
-                                                {currentTab === "bookingHistory" && (
-                                                    <div className="tab-pane fade show active">
-                                                        <BookingHistory />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </CCardBody>
-                                    </CCollapse>
+                                    <Card>
+                                        <CCollapse visible={details.includes(item.id)}>
+                                            <CCardBody style={{ width: "auto" }}>
+                                                <ul className="nav nav-tabs" role="tablist">
+                                                    <li className="nav-item">
+                                                        <button className={`nav-link ${currentTab === 'info' ? 'active' : ''}`} onClick={() => setCurrentTab('info')}>
+                                                            Thông tin
+                                                        </button>
+                                                    </li>
+                                                    <li className="nav-item">
+                                                        <button className={`nav-link ${currentTab === 'bookingHistory' ? 'active' : ''}`} onClick={() => setCurrentTab('bookingHistory')}>
+                                                            Lịch sử đặt phòng
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                                <div className="tab-content">
+                                                    {currentTab === "info" && (
+                                                        <div className="tab-pane fade show active">
+                                                            <CustomerInformation item={item} onToggleDeleteStatus={() => handleToggleDeleteStatus(item.id)} />
+                                                        </div>
+                                                    )}
+                                                    {currentTab === "bookingHistory" && (
+                                                        <div className="tab-pane fade show active">
+                                                            <BookingHistory />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </CCardBody>
+                                        </CCollapse>
+                                    </Card>
                                 </CTableDataCell>
                             </CTableRow>
                         </React.Fragment>
                     ))}
                 </CTableBody>
             </CTable>
-            <div className="d-flex justify-content-between align-items-center mt-3 mb-2">
-                <p>Page {activePage} of {Math.ceil(filteredItems.length / itemsPerPage)}</p>
-                <div>
-                    <CButton
-                        disabled={activePage === 1}
-                        onClick={() => setActivePage((prev) => prev - 1)}
-                        className="btn-outline-primary"
-                    >
-                        Previous
-                    </CButton>
-                    <CButton
-                        className="ms-2 btn-outline-secondary"
-                        disabled={activePage === Math.ceil(filteredItems.length / itemsPerPage)}
-                        onClick={() => setActivePage((prev) => prev + 1)}
-                    >
-                        Next
-                    </CButton>
-                </div>
-            </div>
+            <ReactPaginate
+                breakLabel="..."
+                nextLabel=">"
+                previousLabel="<"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={3}
+                marginPagesDisplayed={1}
+                pageCount={pageCount}
+                containerClassName="pagination justify-content-center mt-4"
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+                activeClassName="active"
+            />
         </div>
     );
 };

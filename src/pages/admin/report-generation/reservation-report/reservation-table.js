@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import RevenueChilren from './revenue-chilren';
+import ReservationChilrenTable from './reservation-chilren-table';
 import * as XLSX from 'xlsx';
-import "./style.css";
+import "../revenue/style.css";
 
-const RevenueTable = () => {
+const ReservationTable = () => {
     const [expandedRows, setExpandedRows] = useState({});
     const [exportType, setExportType] = useState('');
 
@@ -33,15 +33,17 @@ const RevenueTable = () => {
     const rows = [
         {
             date: '01/11/2024',
-            revenue: '52,920,000',
-            refund: '0',
-            netRevenue: '52,920,000',
+            quantityPR: '2',
+            quantityRP: '2',
+            valuePR: '52,920,000',
+            customerPaid: '0',
         },
         {
             date: '02/11/2024',
-            revenue: '35,000,000',
-            refund: '0',
-            netRevenue: '35,000,000',
+            quantityPR: '1',
+            quantityRP: '2',
+            valuePR: '42,920,000',
+            customerPaid: '0',
         },
     ];
 
@@ -75,7 +77,7 @@ const RevenueTable = () => {
                     <option value="excel">Xuất Excel</option>
                     <option value="pdf">Xuất PDF</option>
                 </select>
-                <h2 style={{ marginRight: '80px' }}>Báo cáo doanh thu </h2>
+                <h2 style={{ marginRight: '80px' }}>Báo cáo đặt phòng </h2>
                 
                 <button
                     onClick={handleExport}
@@ -99,18 +101,13 @@ const RevenueTable = () => {
                 <thead>
                     <tr>
                         <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Thời gian</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Doanh thu</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Giá trị trả</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Doanh thu thuần</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>SL đặt phòng</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>SL phòng đặt</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Giá trị đặt phòng</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Khách đã trả</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style={{ backgroundColor: '#f7f3d6', fontWeight: 'bold', textAlign: 'center' }}>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>Tổng</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>87,920,000</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>0</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>87,920,000</td>
-                    </tr>
                     {rows.map((row, index) => (
                         <React.Fragment key={index}>
                             <tr>
@@ -130,12 +127,13 @@ const RevenueTable = () => {
                                         {expandedRows[row.date] ? '+' : '−'} {row.date}
                                     </button>
                                 </td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.revenue}</td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.refund}</td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.netRevenue}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.quantityPR}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.quantityRP}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.valuePR}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.customerPaid}</td>
                             </tr>
                             {!expandedRows[row.date] && (
-                                <RevenueChilren />
+                                <ReservationChilrenTable />
                             )}
                         </React.Fragment>
                     ))}
@@ -145,4 +143,4 @@ const RevenueTable = () => {
     );
 };
 
-export default RevenueTable;
+export default ReservationTable;
