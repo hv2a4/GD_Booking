@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
 import { Button, Container, Row, Col, Card } from "react-bootstrap";
 
-const ImageListSlider = () => {
+const ImageListSlider = ({ onImagesChange, maxImages }) => {
     const [images, setImages] = useState([]);
 
     const handleImageChange = (e) => {
-        if (images.length >= 20) {
-            alert("Chỉ có thể thêm tối đa 10 ảnh.");
+        if (images.length >= maxImages) {
+            alert(`Chỉ có thể thêm tối đa ${maxImages} ảnh.`);
             return;
         }
-
+    
         const file = e.target.files[0];
         if (file) {
             const imageUrl = URL.createObjectURL(file);
-            setImages((prevImages) => [...prevImages, imageUrl]); // Thêm ảnh mới vào danh sách
+            const updatedImages = [...images, imageUrl];
+            setImages(updatedImages);
+            onImagesChange(updatedImages); // Gọi hàm callback
+            e.target.value = ""; // Reset input sau khi chọn ảnh
         }
     };
+
     const handleEditImage = (index) => {
         const input = document.createElement("input");
         input.type = "file";
@@ -25,20 +29,22 @@ const ImageListSlider = () => {
             const file = e.target.files[0];
             if (file) {
                 const imageUrl = URL.createObjectURL(file);
-                setImages((prevImages) => {
-                    const updatedImages = [...prevImages];
-                    updatedImages[index] = imageUrl; // Cập nhật hình ảnh tại vị trí index
-                    return updatedImages;
-                });
+                const updatedImages = [...images];
+                updatedImages[index] = imageUrl;
+                setImages(updatedImages);
+                onImagesChange(updatedImages); // Gọi hàm callback
             }
         };
 
-        input.click(); // Mở hộp thoại chọn file
+        input.click();
     };
 
     const handleDeleteImage = (index) => {
-        setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+        const updatedImages = images.filter((_, i) => i !== index);
+        setImages(updatedImages);
+        onImagesChange(updatedImages); // Gọi hàm callback
     };
+
     return (
         <Container>
             <div className="image-gallery mt-3">
@@ -58,13 +64,18 @@ const ImageListSlider = () => {
                             </div>
                         </Col>
                     ))}
-                    {images.length < 10 && (
+                    {images.length < maxImages && (  // Sử dụng maxImages
                         <Col xs={6} sm={4} md={2} className="mb-3">
                             <Card className="add-image-card">
-                                <label htmlFor="image-upload" className="add-image-placeholder">
+                                <Button
+                                    variant="outline-secondary"
+                                    className="add-image-placeholder"
+                                    onClick={() => document.getElementById("image-upload").click()}
+                                    style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+                                >
                                     <span>+</span>
                                     <p>Thêm ảnh</p>
-                                </label>
+                                </Button>
                                 <input
                                     id="image-upload"
                                     type="file"

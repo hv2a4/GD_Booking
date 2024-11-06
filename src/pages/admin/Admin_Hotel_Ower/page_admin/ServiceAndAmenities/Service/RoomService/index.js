@@ -1,26 +1,25 @@
 import React, { useState } from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
-import { DeleteHotelServiceModal, HotelServiceFormModal } from './FormModal';
+import { DeleteRoomServiceModal, RoomServiceFormModal } from './FormModal';
 
 
-
-const HotelService = () => {
-    const [selectedHotelService, setSelectedHotelService] = useState([]);
+const RoomService = () => {
+    const [selectedRoomService, setSelectedRoomService] = useState([]);
     const [expandedRow, setExpandedRow] = useState(null);
 
     const handleRowClick = (id) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
 
-    const toggleHotelServiceSelection = (id) => {
-        setSelectedHotelService(prev =>
+    const toggleRoomServiceSelection = (id) => {
+        setSelectedRoomService(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         );
     };
 
-    const hotelServices = [
-        { id: '1', serviceHotelName: 'a', price: 1000000, icon: '<i class="fa fa-bed text-orange me-2"></i>', image: '', id_hotel: 1 },
-        { id: '2', serviceHotelName: 'b', price: 2000000, icon: '<i class="fa fa-bed"></i>', image: '', id_hotel: 1 }
+    const roomServices = [
+        { id: '1', serviceRoomName: 'a', price: 1000000, description: 'mô tả 1', image: '', id_typeServiceRoom: 1 },
+        { id: '2', serviceRoomName: 'b', price: 2000000, description: 'mô tả 2', image: '', id_typeServiceRoom: 2 },
     ];
 
     return (
@@ -32,20 +31,21 @@ const HotelService = () => {
                             <input
                                 type="checkbox"
                                 onChange={() => {
-                                    const allSelected = selectedHotelService.length === hotelServices.length;
-                                    setSelectedHotelService(allSelected ? [] : hotelServices.map(hotelService => hotelService.id));
+                                    const allSelected = selectedRoomService.length === roomServices.length;
+                                    setSelectedRoomService(allSelected ? [] : roomServices.map(roomService => roomService.id));
                                 }}
-                                checked={selectedHotelService.length === hotelServices.length}
+                                checked={selectedRoomService.length === roomServices.length}
                             />
                         </th>
-                        <th>Mã dịch vụ khách sạn</th>
-                        <th>Tên dịch vụ khách sạn</th>
+                        <th>Mã dịch vụ phòng</th>
+                        <th>Tên dịch vụ phòng</th>
                         <th>Giá</th>
-                        <th>Icon</th>
+                        <th>Loại dịch vụ phòng</th>
+                        <th>Mô tả</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {hotelServices.map(({ id, serviceHotelName, price, icon }) => (
+                    {roomServices.map(({ id, serviceRoomName, price, description, image, id_typeServiceRoom }) => (
                         <React.Fragment key={id}>
                             <tr onClick={(e) => {
                                 if (e.target.type !== "checkbox") {
@@ -55,17 +55,18 @@ const HotelService = () => {
                                 <td>
                                     <input
                                         type="checkbox"
-                                        checked={selectedHotelService.includes(id)}
+                                        checked={selectedRoomService.includes(id)}
                                         onChange={(e) => {
                                             e.stopPropagation();
-                                            toggleHotelServiceSelection(id);
+                                            toggleRoomServiceSelection(id);
                                         }}
                                     />
                                 </td>
                                 <td>{id}</td>
-                                <td>{serviceHotelName}</td>
+                                <td>{serviceRoomName}</td>
                                 <td>{price} VNĐ</td>
-                                <td dangerouslySetInnerHTML={{ __html: icon }}></td>
+                                <td>{id_typeServiceRoom}</td>
+                                <td>{description}</td>
                             </tr>
 
                             {/* Hàng chi tiết mở rộng */}
@@ -82,15 +83,16 @@ const HotelService = () => {
                                                                     <img src={''} alt="" style={{ width: '100%', height: '100%' }} />
                                                                 </Col>
                                                                 <Col md={8}>
-                                                                    <p><strong>Mã dịch vụ khách sạn:</strong>{id}</p>
-                                                                    <p><strong>Tên dịch vụ khách sạn:</strong> {serviceHotelName}</p>
+                                                                    <p><strong>Mã dịch vụ phòng:</strong>{id}</p>
+                                                                    <p><strong>Tên dịch vụ phòng:</strong> {serviceRoomName}</p>
                                                                     <p><strong>Giá:</strong> {price} VND</p>
-                                                                    <p><strong>Icon:</strong> <span dangerouslySetInnerHTML={{ __html: icon }}></span></p>
+                                                                    <p><strong>Loại dịch vụ phòng:</strong> {id_typeServiceRoom}</p>
+                                                                    <p><strong>Mô tả:</strong>{description}</p>
                                                                 </Col>
                                                             </Row>
                                                             <div className="d-flex justify-content-end">
-                                                                <HotelServiceFormModal idHotelService={id} />
-                                                                <DeleteHotelServiceModal id={id} serviceHotelName={serviceHotelName} />
+                                                                <RoomServiceFormModal idRommService={id} />
+                                                                <DeleteRoomServiceModal id={id} serviceRoomName={serviceRoomName} />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -108,4 +110,4 @@ const HotelService = () => {
     );
 };
 
-export default HotelService;
+export default RoomService;

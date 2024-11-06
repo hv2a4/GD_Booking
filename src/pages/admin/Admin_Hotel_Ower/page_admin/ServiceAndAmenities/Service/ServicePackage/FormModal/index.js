@@ -1,22 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
-import { GiCancel } from "react-icons/gi";
-import ImageListSlider from '../../../../RoomAndTypeRoom/Rom/ImagesList';
 import { useForm } from 'react-hook-form';
+import { GiCancel } from "react-icons/gi";
 
-const HotelServiceFormModal = ({ idHotelService }) => {
+const PackedServiceFormModal = ({ idPackedService }) => {
     const [show, setShow] = useState(false);
     const { register, handleSubmit } = useForm(); // Khởi tạo useForm
 
-    const [images, setImages] = useState([]);
-
-    const handleImagesChange = (newImages) => {
-        setImages(newImages);
-    };
-
-    const handleShow = () => setShow(true);
+    const handleShow = () => {if(!show){setShow(true)}};
     const handleClose = () => setShow(false);
 
     const onSubmit = (data) => {
@@ -27,9 +20,9 @@ const HotelServiceFormModal = ({ idHotelService }) => {
     return (
         <>
             {(() => {
-                if (!idHotelService) {
+                if (!idPackedService) {
                     return (
-                        <small style={{ fontSize: '13px', cursor: 'pointer' }} id="hotel-service-form" onClick={handleShow}>
+                        <small style={{ fontSize: '13px', cursor: 'pointer' }} id="packed-service-form" onClick={handleShow}>
                             Thêm
                         </small>
                     );
@@ -50,7 +43,7 @@ const HotelServiceFormModal = ({ idHotelService }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        <h5>{!idHotelService ? 'Thêm' : 'Cập nhật'} Dịch Vụ Khách Sạn</h5>
+                        <h5>{!idPackedService ? 'Thêm' : 'Cập nhật'} Gói Dịch Vụ</h5>
                     </Modal.Title>
                 </Modal.Header>
 
@@ -67,21 +60,21 @@ const HotelServiceFormModal = ({ idHotelService }) => {
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Mã dịch vụ khách sạn tự động" disabled
+                                                    placeholder="Mã gói dịch vụ tự động" disabled
                                                     name='id'
-                                                    value={idHotelService}
+                                                    value={idPackedService}
                                                 />
                                             </Col>
                                         </Form.Group>
-                                        <Form.Group as={Row} controlId="serviceHotelName" className="mt-3">
+                                        <Form.Group as={Row} controlId="servicePackageName" className="mt-3">
                                             <Form.Label column sm={4}>
-                                                Tên dịch vụ khách sạn
+                                                Tên gói dịch vụ
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    {...register('serviceHotelName', { required: true })} // Đăng ký trường với react-hook-form
-                                                    placeholder="Nhập tên dịch vụ khách sạn..."
+                                                    {...register('servicePackageName', { required: true })} // Đăng ký trường với react-hook-form
+                                                    placeholder="Nhập tên gói dịch vụ..."
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -100,21 +93,6 @@ const HotelServiceFormModal = ({ idHotelService }) => {
                                             </Col>
                                         </Form.Group>
 
-                                        <Form.Group as={Row} controlId="icon" className="mt-3">
-                                            <Form.Label column sm={4}>
-                                                Icon
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Control
-                                                    type="text"
-                                                    {...register('icon', { required: true })} // Đăng ký trường với react-hook-form
-                                                    placeholder="Nhập icon..."
-                                                />
-                                            </Col>
-                                        </Form.Group>
-                                        <Row className='mt-3'>
-                                            <ImageListSlider onImagesChange={handleImagesChange} maxImages={1} />
-                                        </Row>
                                         <Button variant="success" type="submit" className="mt-3 d-none" id='btnsubmit'>
                                             <FaSave size={14} />&nbsp;Lưu
                                         </Button>
@@ -154,7 +132,7 @@ const HotelServiceFormModal = ({ idHotelService }) => {
     );
 };
 
-const DeleteHotelServiceModal = ({ id, serviceHotelName }) => {
+const DeletePackedServiceModal = ({ id, servicePackageName }) => {
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -167,10 +145,10 @@ const DeleteHotelServiceModal = ({ id, serviceHotelName }) => {
             </button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton style={{ border: 'none' }}>
-                    <Modal.Title>Xóa dịch vụ khách sạn </Modal.Title>
+                    <Modal.Title>Xóa gói dịch vụ </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn xóa dịch vụ khách sạn <strong>{serviceHotelName}</strong> này?
+                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{servicePackageName}</strong> này?
                 </Modal.Body>
                 <Modal.Footer style={{ border: 'none' }}>
                     <Button variant="danger" onClick={handleClose}>
@@ -191,4 +169,4 @@ const DeleteHotelServiceModal = ({ id, serviceHotelName }) => {
     );
 }
 
-export { HotelServiceFormModal, DeleteHotelServiceModal };
+export { PackedServiceFormModal, DeletePackedServiceModal } ;

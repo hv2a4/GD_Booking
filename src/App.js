@@ -100,7 +100,7 @@ function App() {
           <Route path="account-employee" element={<Accountemployee />} />
           <Route path="hotel-info" element={<HotelInfo />} />
           <Route path="revenue" element={<RevenueReport />} />
-          <Route path="service-room-management" element={<ServiceRoom />} />
+          {/* <Route path="service-room-management" element={<ServiceRoom />} /> */}
           <Route path="service" element={<ServicesPage />} />
         </Route>
           <Route path="/account" element={<Login />} />
