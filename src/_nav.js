@@ -106,13 +106,8 @@ const _nav = [
     items: [
       {
         component: CNavItem,
-        name: 'Cuối ngày',
-        to: '/#',
-      },
-      {
-        component: CNavItem,
         name: 'Đặt phòng',
-        to: '/#',
+        to: '/admin/reservation-report',
       },
       {
         component: CNavItem,
@@ -122,17 +117,12 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Phòng',
-        to: '/#',
-      },
-      {
-        component: CNavItem,
-        name: 'Khách hàng',
-        to: '/#',
+        to: '/admin/room-class-report',
       },
       {
         component: CNavItem,
         name: 'Nhân viên',
-        to: '/#',
+        to: '/admin/employee-report',
       },
     ],
   },

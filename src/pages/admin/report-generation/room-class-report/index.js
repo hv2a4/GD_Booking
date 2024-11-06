@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import LayoutAdmin from '../../../../components/layout/admin/DefaultLayout';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import RevenueTable from './revenue-table';
+import RoomClassTable from './table';
 import { Card, Form } from 'react-bootstrap';
-import RevenueChart from './revenue-chart';
+import RoomClassChart from './chart';
 
-const RevenueReport = () => {
+const RoomClassReport = () => {
     const [checkinDate, setCheckinDate] = useState(null);
     const [checkoutDate, setCheckoutDate] = useState(null);
     const [view, setView] = useState('table'); // Default to table view
@@ -82,12 +82,12 @@ const RevenueReport = () => {
             </div>
 
             {view === 'chart' ? (
-                <RevenueChart/>
+                <RoomClassChart/>
             ) : (
-                <RevenueTable />
+                <RoomClassTable />
             )}
         </LayoutAdmin>
     );
 };
 
-export default RevenueReport;
+export default RoomClassReport;

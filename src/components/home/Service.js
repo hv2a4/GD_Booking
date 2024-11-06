@@ -1,8 +1,9 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import CommonHeading from "../common/CommonHeading";
 import { services } from "../data/Data";
 
 export default function Services() {
+  // const [services, setService] = useState([]);
   return (
     <>
       <div className="container-xxl py-5">
