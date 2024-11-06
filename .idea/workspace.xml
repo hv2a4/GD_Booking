@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5281fde2-7fc9-478b-9ee4-ca44eb634d3e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/config/configApi/Axios_api.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/ServiceAPI/Authorization.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/ServiceAPI/BasicAPI.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/admin/accountManagement/account-client/client/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/admin/accountManagement/account-client/client/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -66,25 +69,28 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="2oBRqc13orvq3PS01OtS7dZaqan" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;vu&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Du_An/DATN/Fornd_end/DDXL/hotel-project-react&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.start.executor&quot;: &quot;Run&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;D:\\Setup Dev\\SetUpApp\\WebStorm 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "vu",
+    "last_opened_file_path": "D:/Du_An/DATN/Fornd_end/Steamzone/SteamZoneHR",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.start.executor": "Run",
+    "ts.external.directory.path": "D:\\Setup Dev\\SetUpApp\\WebStorm 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Du_An\DATN\Fornd_end\DDXL\hotel-project-react\src\config\configApi" />
@@ -116,6 +122,8 @@
       <updated>1730341173830</updated>
       <workItem from="1730341175063" duration="1002000" />
       <workItem from="1730379787222" duration="2589000" />
+      <workItem from="1730690430450" duration="1380000" />
+      <workItem from="1730882082250" duration="23000" />
     </task>
     <servers />
   </component>

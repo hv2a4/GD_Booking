@@ -11,9 +11,10 @@ import {
     CTableHeaderCell,
     CTableRow,
 } from "@coreui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomerInformation from "./customer-information";
 import BookingHistory from "./booking-history";
+import { getDataFromAPI } from "../../../../../services/ServiceAPI/Authorization";
 
 const Account = () => {
     const [details, setDetails] = useState([]);
@@ -21,9 +22,9 @@ const Account = () => {
     const [activePage, setActivePage] = useState(1);
     const [currentTab, setCurrentTab] = useState('info');
     const itemsPerPage = 10;
-
+    const [dataUser, setDataUser] = useState([]);
     const items = [
-        { id: 1, name: 'Samppa Nori', avatar: '1.jpg', registered: '2021/03/01', role: 'Khách hàng', status: 'Hoạt động' },
+        { id: 1, name: 'Samppa Noriabc', avatar: '1.jpg', registered: '2021/03/01', role: 'Khách hàng', status: 'Hoạt động' },
         { id: 2, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
         { id: 3, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
         { id: 4, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
@@ -36,7 +37,7 @@ const Account = () => {
         { id: 11, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
         { id: 12, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
         { id: 13, name: 'Estavan Lykos', avatar: '2.jpg', registered: '2018/02/07', role: 'Khách hàng', status: 'Khóa' },
-        // Thêm các mục khác ở đây
+
     ];
 
     const getBadge = (status) => {
@@ -48,7 +49,12 @@ const Account = () => {
             default: return 'primary';
         }
     };
-
+    // Lấy dữ liệu khách hàng từ API
+    const getData = async () => {
+        const response = await getDataFromAPI('/api/account/getAll');
+        const filteredData = response.filter(user => user.roleDto.roleName === "Customer");
+        setDataUser(filteredData);
+    };
     const toggleDetails = (index) => {
         const position = details.indexOf(index);
         let newDetails = details.slice();
@@ -76,6 +82,10 @@ const Account = () => {
         setSearchTerm(e.target.value);
         setActivePage(1);
     };
+    
+    useEffect(()=> {
+        getData()
+    },[])
 
     return (
         <div className="account-client">
@@ -91,22 +101,22 @@ const Account = () => {
                     <CTableRow>
                         <CTableHeaderCell>Ảnh</CTableHeaderCell>
                         <CTableHeaderCell>Họ tên</CTableHeaderCell>
-                        <CTableHeaderCell>Ngày sinh</CTableHeaderCell>
+                        <CTableHeaderCell>Email</CTableHeaderCell>
                         <CTableHeaderCell>Vai trò</CTableHeaderCell>
                         <CTableHeaderCell>Trạng thái</CTableHeaderCell>
                         <CTableHeaderCell>Hành động</CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {paginatedItems.map((item) => (
+                    {dataUser.map((item) => (
                         <React.Fragment key={item.id}>
                             <CTableRow>
                                 <CTableDataCell>
                                     <CAvatar src={`./../../images/avatars/${item.avatar}`} />
                                 </CTableDataCell>
-                                <CTableDataCell>{item.name}</CTableDataCell>
-                                <CTableDataCell>{new Date(item.registered).toLocaleDateString('en-US')}</CTableDataCell>
-                                <CTableDataCell>{item.role}</CTableDataCell>
+                                <CTableDataCell>{item.fullname}</CTableDataCell>
+                                <CTableDataCell>{item.email}</CTableDataCell>
+                                <CTableDataCell>{item.roleDto ? item.roleDto.roleName : 'N/A'}</CTableDataCell>
                                 <CTableDataCell>
                                     <CBadge color={getBadge(item.status)}>{item.status}</CBadge>
                                 </CTableDataCell>
@@ -140,12 +150,12 @@ const Account = () => {
                                             <div className="tab-content">
                                                 {currentTab === "info" && (
                                                     <div className="tab-pane fade show active">
-                                                        <CustomerInformation item = {item}/>
+                                                        <CustomerInformation item={item} />
                                                     </div>
                                                 )}
                                                 {currentTab === "bookingHistory" && (
                                                     <div className="tab-pane fade show active">
-                                                        <BookingHistory/>
+                                                        <BookingHistory />
                                                     </div>
                                                 )}
                                             </div>
