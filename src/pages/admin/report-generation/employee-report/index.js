@@ -2,19 +2,11 @@ import React, { useState } from 'react';
 import LayoutAdmin from '../../../../components/layout/admin/DefaultLayout';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import RevenueTable from './revenue-table';
-import { Card, Form } from 'react-bootstrap';
-import RevenueChart from './revenue-chart';
+import EmployeeReportTable from './employee-report-table';
 
-const RevenueReport = () => {
+const EmployeeReport = () => {
     const [checkinDate, setCheckinDate] = useState(null);
     const [checkoutDate, setCheckoutDate] = useState(null);
-    const [view, setView] = useState('table'); // Default to table view
-
-    const handleViewChange = (event) => {
-        setView(event.target.id);
-    };
-
     const handleSubmit = (event) => {
         event.preventDefault(); // Ngăn chặn hành vi gửi mặc định
         // Xử lý dữ liệu ở đây, ví dụ: gửi đến API hoặc hiển thị thông báo
@@ -25,29 +17,6 @@ const RevenueReport = () => {
     return (
         <LayoutAdmin>
             <div className="row mb-3 d-flex justify-content-center">
-                <div className="col-md-2 mb-3 mb-sm-0 mt-2">
-                    <Card style={{ padding: '10px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
-                        <Card.Body>
-                            <Card.Title><strong className='fs-6'>Kiểu hiển thị</strong></Card.Title>
-                            <Form>
-                                <Form.Check
-                                    type="radio"
-                                    label="Sơ đồ"
-                                    onChange={handleViewChange}
-                                    id="chart"
-                                    checked={view === 'chart'}
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    label="Báo cáo"
-                                    onChange={handleViewChange}
-                                    id="table"
-                                    checked={view === 'table'}
-                                />
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </div>
                 <div className='col-md-4'>
                     <form onSubmit={handleSubmit}>
                         <div className='row'>
@@ -80,14 +49,10 @@ const RevenueReport = () => {
                     </form>
                 </div>
             </div>
-
-            {view === 'chart' ? (
-                <RevenueChart/>
-            ) : (
-                <RevenueTable />
-            )}
+        <EmployeeReportTable/>
+            
         </LayoutAdmin>
     );
 };
 
-export default RevenueReport;
+export default EmployeeReport;

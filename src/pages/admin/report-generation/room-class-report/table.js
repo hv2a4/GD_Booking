@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import RevenueChilren from './revenue-chilren';
+import RoomTable from './chilren-table';
 import * as XLSX from 'xlsx';
-import "./style.css";
+import "../revenue/style.css";
 
-const RevenueTable = () => {
+const RoomClassTable = () => {
     const [expandedRows, setExpandedRows] = useState({});
     const [exportType, setExportType] = useState('');
 
-    const toggleExpand = (date) => {
+    const toggleExpand = (id) => {
         setExpandedRows((prevExpandedRows) => ({
             ...prevExpandedRows,
-            [date]: !prevExpandedRows[date],
+            [id]: !prevExpandedRows[id],
         }));
     };
 
@@ -32,16 +32,20 @@ const RevenueTable = () => {
     };
     const rows = [
         {
-            date: '01/11/2024',
-            revenue: '52,920,000',
-            refund: '0',
-            netRevenue: '52,920,000',
+            id: '000012',
+            typeRoom: 'Phòng 01 giường đôi cho 2 người',
+            quantityOrder: '2',
+            roomMoney: '52,920,000',
+            serviceMoney: '0',
+            total: '52,920,000',
         },
         {
-            date: '02/11/2024',
-            revenue: '35,000,000',
-            refund: '0',
-            netRevenue: '35,000,000',
+            id: '000013',
+            typeRoom: 'Phòng 01 giường đơn',
+            quantityOrder: '2',
+            roomMoney: '52,920,000',
+            serviceMoney: '0',
+            total: '52,920,000',
         },
     ];
 
@@ -75,7 +79,7 @@ const RevenueTable = () => {
                     <option value="excel">Xuất Excel</option>
                     <option value="pdf">Xuất PDF</option>
                 </select>
-                <h2 style={{ marginRight: '80px' }}>Báo cáo doanh thu </h2>
+                <h2 style={{ marginRight: '80px' }}>Báo cáo đặt phòng </h2>
                 
                 <button
                     onClick={handleExport}
@@ -98,25 +102,21 @@ const RevenueTable = () => {
             <table style={{ border: '1px solid #ddd', width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
                 <thead>
                     <tr>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Thời gian</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Doanh thu</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Giá trị trả</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Doanh thu thuần</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Mã loại phòng</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Loại phòng</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>SL hóa đơn</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Tiền phòng</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Tiền dịch vụ</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Tổng tiền</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style={{ backgroundColor: '#f7f3d6', fontWeight: 'bold', textAlign: 'center' }}>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>Tổng</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>87,920,000</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>0</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>87,920,000</td>
-                    </tr>
                     {rows.map((row, index) => (
                         <React.Fragment key={index}>
                             <tr>
                                 <td style={{ padding: '10px', border: '1px solid #ddd' }}>
                                     <button
-                                        onClick={() => toggleExpand(row.date)}
+                                        onClick={() => toggleExpand(row.id)}
                                         style={{
                                             cursor: 'pointer',
                                             fontSize: '16px',
@@ -127,15 +127,17 @@ const RevenueTable = () => {
                                             textAlign: 'left',
                                         }}
                                     >
-                                        {expandedRows[row.date] ? '+' : '−'} {row.date}
+                                        {expandedRows[row.id] ? '+' : '−'} {row.id}
                                     </button>
                                 </td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.revenue}</td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.refund}</td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.netRevenue}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.typeRoom}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.quantityOrder}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.roomMoney}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.serviceMoney}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.total}</td>
                             </tr>
-                            {!expandedRows[row.date] && (
-                                <RevenueChilren />
+                            {!expandedRows[row.id] && (
+                                <RoomTable />
                             )}
                         </React.Fragment>
                     ))}
@@ -145,4 +147,4 @@ const RevenueTable = () => {
     );
 };
 
-export default RevenueTable;
+export default RoomClassTable;

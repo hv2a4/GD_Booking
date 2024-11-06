@@ -58,3 +58,30 @@ canvas {
 .header-toggler:focus, .header-toggler:hover{
   color: var(--bs-nav-link-hover-color) !important;
 }
+body.dark-mode .app-header {
+  background-color: #333; /* Đặt màu nền tối */
+  color: #fff; /* Đặt màu chữ sáng */
+}
+
+body.light-mode .app-header {
+  background-color: #fff; /* Đặt màu nền sáng */
+  color: #333; /* Đặt màu chữ tối */
+}
+.border-bottom {
+  border-bottom: 1px solid #323a49;
+}
+.pagination .page-item {
+  margin: 0 5px; /* Tăng khoảng cách giữa các số trang */
+  border: none;
+}
+
+.pagination .page-link {
+  padding: 8px 12px; /* Tăng kích thước các nút để dễ bấm hơn */
+  border: none;
+}
+.pagination .page-link:focus {
+  box-shadow: none;
+}
+.table td {
+  border-bottom-width: 0px !important;
+}

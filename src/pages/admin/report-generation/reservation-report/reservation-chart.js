@@ -1,8 +1,8 @@
 import React from 'react';
 import { CChartBar } from '@coreui/react-chartjs';
-import "./style.css";
+import "../revenue/style.css";
 
-const RevenueChart = () => {
+const ReservationChart = () => {
   const rows = [
     {
       date: '01/11/2024',
@@ -15,18 +15,28 @@ const RevenueChart = () => {
       refund: '0',
     },
     {
-      date: '02/11/2024',
+      date: '03/11/2024',
+      revenue: '15,000,000',
+      refund: '0',
+    },
+    {
+      date: '04/11/2024',
+      revenue: '20,000,000',
+      refund: '0',
+    },
+    {
+      date: '05/11/2024',
       revenue: '35,000,000',
       refund: '0',
     },
     {
-      date: '02/11/2024',
-      revenue: '35,000,000',
+      date: '06/11/2024',
+      revenue: '50,000,000',
       refund: '0',
     },
     {
-      date: '02/11/2024',
-      revenue: '35,000,000',
+      date: '07/11/2024',
+      revenue: '10,000,000',
       refund: '0',
     },
   ];
@@ -36,7 +46,7 @@ const RevenueChart = () => {
 
   return (
     <div style={{
-        maxWidth: '900px',
+        maxWidth: "900px",
         margin: '20px auto',
         padding: '20px',
         fontFamily: 'Arial, sans-serif',
@@ -79,4 +89,4 @@ const RevenueChart = () => {
   );
 };
 
-export default RevenueChart;
+export default ReservationChart;

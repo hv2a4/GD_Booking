@@ -38,6 +38,9 @@ import Invoice from "./pages/client/invoice";
 import RevenueReport from "./pages/admin/report-generation/revenue";
 import ServiceRoom from "./pages/admin/service-management/service-room";
 import ServicesPage from "./pages/admin/home/Services";
+import ReservationReport from "./pages/admin/report-generation/reservation-report";
+import RoomClassReport from "./pages/admin/report-generation/room-class-report";
+import EmployeeReport from "./pages/admin/report-generation/employee-report";
 
 function App() {
   const getCookie = (name) => {
@@ -102,6 +105,9 @@ function App() {
           <Route path="revenue" element={<RevenueReport />} />
           {/* <Route path="service-room-management" element={<ServiceRoom />} /> */}
           <Route path="service" element={<ServicesPage />} />
+          <Route path="reservation-report" element={<ReservationReport />} />
+          <Route path="room-class-report" element={<RoomClassReport />} />
+          <Route path="employee-report" element={<EmployeeReport />} />
         </Route>
           <Route path="/account" element={<Login />} />
     </Route >

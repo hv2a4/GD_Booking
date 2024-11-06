@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import RevenueChilren from './revenue-chilren';
 import * as XLSX from 'xlsx';
-import "./style.css";
+import EmployeeReportChilren from './chilren-table';
 
 const RevenueTable = () => {
     const [expandedRows, setExpandedRows] = useState({});
@@ -32,16 +31,18 @@ const RevenueTable = () => {
     };
     const rows = [
         {
-            date: '01/11/2024',
-            revenue: '52,920,000',
-            refund: '0',
-            netRevenue: '52,920,000',
+            id: "1",
+            name: 'Lê Minh Khôi',
+            quantity: '1',
+            price: '120,000',
+            total: '120,000',
         },
         {
-            date: '02/11/2024',
-            revenue: '35,000,000',
-            refund: '0',
-            netRevenue: '35,000,000',
+            id: "2",
+            name: 'Lê Văn B',
+            quantity: '3',
+            price: '120,000',
+            total: '360,000',
         },
     ];
 
@@ -75,7 +76,7 @@ const RevenueTable = () => {
                     <option value="excel">Xuất Excel</option>
                     <option value="pdf">Xuất PDF</option>
                 </select>
-                <h2 style={{ marginRight: '80px' }}>Báo cáo doanh thu </h2>
+                <h2 style={{ marginRight: '80px' }}>Báo cáo nhân viên </h2>
                 
                 <button
                     onClick={handleExport}
@@ -98,25 +99,19 @@ const RevenueTable = () => {
             <table style={{ border: '1px solid #ddd', width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
                 <thead>
                     <tr>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Thời gian</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Nhân viên</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>SL bán</th>
+                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Giá dịch vụ</th>
                         <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Doanh thu</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Giá trị trả</th>
-                        <th style={{ backgroundColor: '#FEA116', padding: '10px', border: '1px solid #ddd' }}>Doanh thu thuần</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style={{ backgroundColor: '#f7f3d6', fontWeight: 'bold', textAlign: 'center' }}>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>Tổng</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>87,920,000</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>0</td>
-                        <td style={{ padding: '10px', border: '1px solid #ddd' }}>87,920,000</td>
-                    </tr>
                     {rows.map((row, index) => (
                         <React.Fragment key={index}>
                             <tr>
                                 <td style={{ padding: '10px', border: '1px solid #ddd' }}>
                                     <button
-                                        onClick={() => toggleExpand(row.date)}
+                                        onClick={() => toggleExpand(row.id)}
                                         style={{
                                             cursor: 'pointer',
                                             fontSize: '16px',
@@ -127,15 +122,15 @@ const RevenueTable = () => {
                                             textAlign: 'left',
                                         }}
                                     >
-                                        {expandedRows[row.date] ? '+' : '−'} {row.date}
+                                        {expandedRows[row.id] ? '+' : '−'} {row.name}
                                     </button>
                                 </td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.revenue}</td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.refund}</td>
-                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.netRevenue}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.quantity}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.price}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>{row.total}</td>
                             </tr>
                             {!expandedRows[row.date] && (
-                                <RevenueChilren />
+                                <EmployeeReportChilren />
                             )}
                         </React.Fragment>
                     ))}
