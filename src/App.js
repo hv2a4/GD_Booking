@@ -40,6 +40,7 @@ import ServicesPage from "./pages/admin/home/Services";
 import ReservationReport from "./pages/admin/report-generation/reservation-report";
 import RoomClassReport from "./pages/admin/report-generation/room-class-report";
 import EmployeeReport from "./pages/admin/report-generation/employee-report";
+import AmenitiesPage from "./pages/admin/home/Amenities";
 
 function App() {
   const getCookie = (name) => {
@@ -102,8 +103,8 @@ function App() {
           <Route path="account-employee" element={<Accountemployee />} />
           <Route path="hotel-info" element={<HotelInfo />} />
           <Route path="revenue" element={<RevenueReport />} />
-          {/* <Route path="service-room-management" element={<ServiceRoom />} /> */}
           <Route path="service" element={<ServicesPage />} />
+          <Route path="amenities" element={<AmenitiesPage />} />
           <Route path="reservation-report" element={<ReservationReport />} />
           <Route path="room-class-report" element={<RoomClassReport />} />
           <Route path="employee-report" element={<EmployeeReport />} />
