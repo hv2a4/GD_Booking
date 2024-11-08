@@ -11,17 +11,18 @@ import { ToastContainer, toast,Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import request from '../../../config/configApi'; 
 import { useForm } from 'react-hook-form';
+
+
 const AuthForm = () => {
     const [isSignUp, setIsSignUp] = useState(true);
     const [loading, setLoading] = useState(false); // Trạng thái loading
     const [username, setUsername] = useState('');
     const [usernames, setUsernames] = useState('');
-    const password = useRef(null);
-    const configPassword = useRef(null);
-    const passwords = useRef(null);
+    
     const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
+   
     const handleSignUpClick = () => {
         setIsSignUp(true);
     };
@@ -35,6 +36,7 @@ const AuthForm = () => {
         watch,
         reset,
         trigger,
+        getValues,
         formState: { errors },
         clearErrors,
       } = useForm({
@@ -70,14 +72,25 @@ const AuthForm = () => {
           
           const decodedToken = jwt_decode(data.token);
           console.log("Decoded Token:", decodedToken.role.roleName);
-          if(decodedToken.role.roleName=='Customer'){
+          
+          if(decodedToken.role == 'Customer'){
             setLoading(false); // Kết thúc loading sau 2 giây giả lập
             toast.success("Đăng Nhập thành công!");
             setTimeout(() => {
                 navigate('/client/home');
-            }, 1700);
-          }else if(decodedToken.role.roleName=='Admin'){
-              navigate('/admin/home');
+            }, 1500);
+          }else if(decodedToken.role == 'Staff'){
+            setLoading(false); // Kết thúc loading sau 2 giây giả lập
+            toast.success("Đăng Nhập thành công!");
+            setTimeout(() => {
+                navigate('/employee/home');
+            }, 1500);
+          }else if(decodedToken.role =='HotelOwner'){
+            setLoading(false); // Kết thúc loading sau 2 giây giả lập
+            toast.success("Đăng Nhập thành công!");
+            setTimeout(() => {
+            navigate('/admin/home');
+            }, 1500);
           }
       } catch (error) {
           console.error("Error posting data to API:", error);
@@ -92,48 +105,45 @@ const AuthForm = () => {
             return;
         }
         setLoading(true);
-        try {
-          
+       
+        try{
+            const payload = {
+                username: username,
+                email: email,
+                phone: phone,
+                fullname: fullname,
+                passwords: getValues("password"), // Ensure password.current is defined
+            };
+            console.log("Request payload:", payload); // Log payload for inspection
+            
             const response = await fetch('http://localhost:8080/api/account/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    username: username,
-                    email:email,
-                    phone:phone,
-                    fullname:fullname,
-                    passwords:password.current.value
-                }),
+                body: JSON.stringify(payload),
             });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-    
             const result = await response.json();
-          
             if(result.code == 201){
                 setLoading(false); // Bắt đầu loading
-                setUsername('');
-                setEmail('');
-                setPhone('');
-                setFullname('');
-                password.current.value = ''; 
-                toast.success("Đăng ký thành công!");
+                toast.success("Đăng Ký thành công!");
+                setTimeout(() => {
+                    reset();
+                },800);
                
-            }else{
+            }else {
                 setLoading(false);
-                toast.error("Đăng ký thất bại!")
+                toast.error("Đăng Ký thất bại!")
             } 
-        } catch (error) {
+        }catch(error){
+            setLoading(false);
+            console.log(error);
             console.error("Error posting data to API:", error);
         }
     }
     const handleLoginSimple = async (event) =>{
         event.preventDefault();
         console.log("đã zo thành công");
-        console.log(password.current.value);
         setLoading(true);
         try {
             const response = await fetch('http://localhost:8080/api/account/loginToken', {
@@ -143,21 +153,41 @@ const AuthForm = () => {
                 },
                 body: JSON.stringify({
                     username: usernames,
-                    passwords:passwords.current.value
+                    passwords: getValues("passwords")
                 }),
             });
            
     
             const result = await response.json();
+
+            
             if(result.code == 200){
                 setLoading(false); // Bắt đầu loading
                 console.log('User updated successfully:', result);
                 console.log(result.token);
                 Cookies.set("token", result.token, { expires:  6 /24 });
-                toast.success("Đăng Nhập thành công!");
-                setTimeout(() => {
-                    navigate('/client/home');
-                }, 1700);
+                const decodedToken = jwt_decode(Cookies.get("token"));
+                console.log("Decoded Token:", decodedToken.role.roleName);
+                
+                if(decodedToken.role == 'Customer'){
+                  setLoading(false); // Kết thúc loading sau 2 giây giả lập
+                  toast.success("Đăng Nhập thành công!");
+                  setTimeout(() => {
+                      navigate('/client/home');
+                  }, 1500);
+                }else if(decodedToken.role == 'Staff'){
+                  setLoading(false); // Kết thúc loading sau 2 giây giả lập
+                  toast.success("Đăng Nhập thành công!");
+                  setTimeout(() => {
+                      navigate('/employee/home');
+                  }, 1500);
+                }else if(decodedToken.role =='HotelOwner'){
+                  setLoading(false); // Kết thúc loading sau 2 giây giả lập
+                  toast.success("Đăng Nhập thành công!");
+                  setTimeout(() => {
+                  navigate('/admin/home');
+                  }, 1500);
+                }
             }else {
                 setLoading(false);
                 toast.error("Đăng Nhập thất bại!")
@@ -190,7 +220,7 @@ const AuthForm = () => {
                         <div className="row g-3">
                             <div className="col-md-6">
                                 <input type="text" className="form-control" {...register("username", { required: "Tài Khoản không được rỗng" })}
-                                      placeholder="Tên tài khoản"  name="username" required value={username}
+                                      placeholder="Tên tài khoản"  name="username" required 
                                       onChange={(e) =>{setUsername(e.target.value)
                                         if (errors.username) {
                                             clearErrors("username");
@@ -244,22 +274,23 @@ const AuthForm = () => {
                                     className="form-control"
                                     placeholder="Mật khẩu"
                                     name="password"
-                                    ref={password}
-                                    required
+                                    
                                     {...register("password", {
                                         required: "Mật khẩu là bắt buộc",
                                         validate: {
-                                          minLength: (value) => value.length >= 6 || "Mật khẩu phải có ít nhất 6 ký tự",
+                                            minLength: (value) => value.length >= 6 || "Mật khẩu phải có ít nhất 6 ký tự",
                                         },
-                                      })}
+                                    })}
+                                    required
                                 />
                                     {errors.password && <small style={{ textAlign: 'left', display: 'block' }} className="text-orange">{errors.password.message}</small>}
                             </div>
                             <div className="col-md-6">
-                                <input type="password" ref={configPassword} className="form-control" placeholder="Xác nhận mật khẩu" name="confirmPassword" required {...register("configPassword", {
+                                <input type="password"  className="form-control" placeholder="Xác nhận mật khẩu" name="confirmPassword" 
+                                  {...register("configPassword", {
                                     required: "Xác nhận mật khẩu là bắt buộc",
                                     validate: (value) =>
-                                        value === password || "Mật khẩu và xác nhận mật khẩu không khớp",
+                                        value === getValues("password") || "Mật khẩu và xác nhận mật khẩu không khớp",
                                 })} />
                                 {errors.configPassword && 
                                     <small className="text-orange" style={{ textAlign: 'left', display: 'block' }} >{errors.configPassword.message}</small>
@@ -278,7 +309,9 @@ const AuthForm = () => {
                                 <input type="text" className="form-control" placeholder="Tài Khoản" name="fullname" required onChange={(e) => setUsernames(e.target.value)}  />
                             </div>
                             <div className="col-md-12">
-                                <input type="password" className="form-control" placeholder="Mật Khẩu" name="email" required  ref={passwords} />
+                                <input type="password" className="form-control" placeholder="Mật Khẩu" name="passwords"  
+                                {...register("passwords")} // Đăng ký input mà không cần kiểm tra lỗi
+                              required />
                             </div>
                             <a href="#">Quên mật khẩu?</a>
                             <button type="submit" className="btn btn-primary mt-3" onClick={handleLoginSimple} style={{ width: '100%' }} >Đăng nhập</button>
