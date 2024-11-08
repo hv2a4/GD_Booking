@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import { DeleteHotelServiceModal, HotelServiceFormModal } from './FormModal';
-
+import { request } from "../../../../../../../config/configApi";
+import { get } from "jquery";
 
 
 const HotelService = () => {
     const [selectedHotelService, setSelectedHotelService] = useState([]);
     const [expandedRow, setExpandedRow] = useState(null);
-
+    const [dataServiceHotel, setDataService] = useState([]);
     const handleRowClick = (id) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
@@ -17,11 +18,25 @@ const HotelService = () => {
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         );
     };
+    
+    const getData = async() => {
+        const response = await request({method:"GET", path:"api/service-hotel/getAll"});
+        setDataService(response);        
+    } 
 
-    const hotelServices = [
-        { id: '1', serviceHotelName: 'a', price: 1000000, icon: '<i class="fa fa-bed text-orange me-2"></i>', image: '', id_hotel: 1 },
-        { id: '2', serviceHotelName: 'b', price: 2000000, icon: '<i class="fa fa-bed"></i>', image: '', id_hotel: 1 }
-    ];
+    const hotelServices = dataServiceHotel.map((item) => ({
+        id: item.id,
+        serviceHotelName: item.serviceHotelName,
+        price: item.price,
+        icon: item.icon,
+        image: item.image,
+        id_hotel: item.id_hotel
+    }));
+ 
+
+    useEffect(()=>{
+        getData()
+    },[]);
 
     return (
         <div className="table-responsive mt-3">
@@ -62,10 +77,10 @@ const HotelService = () => {
                                         }}
                                     />
                                 </td>
-                                <td>{id}</td>
+                                <td>{`SV${id.toString().padStart(3, '0')}`}</td>
                                 <td>{serviceHotelName}</td>
                                 <td>{price} VNĐ</td>
-                                <td dangerouslySetInnerHTML={{ __html: icon }}></td>
+                                <td><i className={icon}></i></td>
                             </tr>
 
                             {/* Hàng chi tiết mở rộng */}
