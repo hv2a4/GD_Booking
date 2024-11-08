@@ -1,14 +1,14 @@
 import React from "react"
 import LayoutAdmin from "../../../components/layout/admin/DefaultLayout";
-import ServicesPageComponent from '../Admin_Hotel_Ower/page_admin/ServiceAndAmenities/Service';
-const ServicesPage = () => {
+import AmenitiesPageComponent from "../Admin_Hotel_Ower/page_admin/ServiceAndAmenities/Amenities";
+const AmenitiesPage = () => {
     return (
         <LayoutAdmin>
             <div className="container-fluid">
-                <ServicesPageComponent />
+                <AmenitiesPageComponent />
             </div>
         </LayoutAdmin>
     );
 }
 
-export default ServicesPage;
+export default AmenitiesPage;
