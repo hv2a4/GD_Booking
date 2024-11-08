@@ -88,7 +88,7 @@ const ServicesPageComponent = () => {
                                             onClick={handlAddHotelServiceClick}
                                         >
                                             <MdAdd />
-                                            DV khách sạn
+                                            Dịch vụ khách sạn
                                         </a>
                                         <div className="d-none">
                                             <HotelServiceFormModal />
@@ -107,7 +107,7 @@ const ServicesPageComponent = () => {
                                     <li>
                                         <a className="dropdown-item" href="#" onClick={handlAddRoomServiceClick}>
                                             <MdAdd />
-                                            DV phòng
+                                            Dịch vụ phòng
                                             <div className="d-none">
                                                 <RoomServiceFormModal />
                                             </div>
@@ -116,7 +116,7 @@ const ServicesPageComponent = () => {
                                     <li>
                                         <a className="dropdown-item" href="#" onClick={handlAddTypeServiceRoomClick}>
                                             <MdAdd />
-                                            Loại dv phòng
+                                            Loại dịch vụ phòng
                                             <div className="d-none">
                                                 <RoomServiceRoomFormModal />
                                             </div>
@@ -135,7 +135,7 @@ const ServicesPageComponent = () => {
                                 className={`nav-link ${currentTab === 0 ? "active" : ""}`}
                                 onClick={() => setCurrentTab(0)}
                             >
-                                DV khách sạn
+                                Dịch vụ khách sạn
                             </button>
                         </li>
                         <li className="nav-item" role="presentation">
@@ -151,7 +151,7 @@ const ServicesPageComponent = () => {
                                 className={`nav-link ${currentTab === 2 ? "active" : ""}`}
                                 onClick={() => setCurrentTab(2)}
                             >
-                                Dv phòng
+                                Dịch vụ phòng
                             </button>
                         </li>
                         <li className="nav-item" role="presentation">
@@ -159,7 +159,7 @@ const ServicesPageComponent = () => {
                                 className={`nav-link ${currentTab === 3 ? "active" : ""}`}
                                 onClick={() => setCurrentTab(3)}
                             >
-                                Loại dv phòng
+                                Loại dịch vụ phòng
                             </button>
                         </li>
                     </ul>

@@ -194,6 +194,10 @@ const Account = () => {
                                                         </div>
                                                     </Col>
                                                 </Row>
+                                                <div className="d-flex justify-content-end me-5">
+                                                    <CButton size="sm" color="info" className="mx-2">Cập nhật</CButton>
+                                                    <CButton size="sm" color="danger" className="ms-1">Delete</CButton>
+                                                </div>
                                             </CCardBody>
                                         </CCollapse>
                                     </Card>
