@@ -53,12 +53,7 @@ const Account = () => {
             default: return 'primary';
         }
     };
-    // Lấy dữ liệu khách hàng từ API
-    const getData = async () => {
-        const response = await getDataFromAPI('/api/account/getAll');
-        const filteredData = response.filter(user => user.roleDto.roleName === "Customer");
-        setDataUser(filteredData);
-    };
+
     const toggleDetails = (index) => {
         const position = details.indexOf(index);
         let newDetails = details.slice();
@@ -107,10 +102,6 @@ const Account = () => {
         }
 
     };
-    
-    useEffect(()=> {
-        getData()
-    },[])
 
     return (
         <div className="account-client">
