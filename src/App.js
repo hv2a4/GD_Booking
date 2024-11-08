@@ -41,7 +41,6 @@ import ReservationReport from "./pages/admin/report-generation/reservation-repor
 import RoomClassReport from "./pages/admin/report-generation/room-class-report";
 import EmployeeReport from "./pages/admin/report-generation/employee-report";
 import AmenitiesPage from "./pages/admin/home/Amenities";
-import ServiceRoom from "./pages/admin/service-management/service-room";
 import Cookies from 'js-cookie';
 import { Outlet } from "react-router-dom";
 
@@ -123,7 +122,6 @@ const router = createBrowserRouter(
               <Route path="account-employee" element={<Accountemployee />} />
               <Route path="hotel-info" element={<HotelInfo />} />
               <Route path="revenue" element={<RevenueReport />} />
-              <Route path="service-room-management" element={<ServiceRoom />} />
               <Route path="service" element={<ServicesPage />} />
           </Route>
 
