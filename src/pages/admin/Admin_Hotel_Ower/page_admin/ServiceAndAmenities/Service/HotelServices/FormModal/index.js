@@ -1,46 +1,70 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
 import { GiCancel } from "react-icons/gi";
 import ImageListSlider from '../../../../RoomAndTypeRoom/Rom/ImagesList';
 import { useForm } from 'react-hook-form';
+import uploadImageToFirebase from '../../../../../../../../config/fireBase';
+import { updateServiceHotel } from '../../../../../../../../services/admin/service-management';
 
-const HotelServiceFormModal = ({ idHotelService }) => {
+const HotelServiceFormModal = ({ item }) => {
     const [show, setShow] = useState(false);
-    const { register, handleSubmit } = useForm(); // Khởi tạo useForm
+    const { register, handleSubmit } = useForm();
+    const [images, setImages] = useState();
+    const [serviceHotel, setServiceHotel] = useState(item);
 
-    const [images, setImages] = useState([]);
+    useEffect(() => {
+        if (item) console.log(item.id); // Log only if item is defined
+    }, [item]);
 
-    const handleImagesChange = (newImages) => {
-        setImages(newImages);
+    const handleImagesChange = (file) => {
+        setImages(file);
+        console.log(file);
+        
+        
     };
 
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
 
-    const onSubmit = (data) => {
-        console.log(data); // Xử lý dữ liệu submit tại đây
-        handleClose(); // Đóng modal sau khi lưu
+    const onSubmit = async () => {
+        try {
+            const urlImage = await uploadImageToFirebase(images); // Wait for the image URL
+            const updatedServiceHotel = {
+                ...serviceHotel,
+                image: urlImage || ""
+            };
+            const res = await updateServiceHotel(updatedServiceHotel);
+            if(res){
+                console.log(res.message);
+            }
+            console.log(images);
+            handleClose();
+        } catch (error) {
+            console.error("Error updating hotel service:", error);
+        }
     };
+    
 
     return (
         <>
-            {(() => {
-                if (!idHotelService) {
-                    return (
-                        <small style={{ fontSize: '13px', cursor: 'pointer' }} id="hotel-service-form" onClick={handleShow}>
-                            Thêm
-                        </small>
-                    );
-                } else {
-                    return (
-                        <small className="btn btn-success me-2" style={{ fontSize: '13px', cursor: 'pointer' }} onClick={handleShow}>
-                            <FaClipboardCheck />&nbsp;Cập nhật
-                        </small>
-                    );
-                }
-            })()}
+            {item ? (
+                <small
+                    className="btn btn-success me-2"
+                    style={{ fontSize: '13px', cursor: 'pointer' }}
+                    onClick={handleShow}
+                >
+                    <FaClipboardCheck />&nbsp;Cập nhật
+                </small>
+            ) : (
+                <small
+                    style={{ fontSize: '13px', cursor: 'pointer' }}
+                    onClick={handleShow}
+                >
+                    Thêm
+                </small>
+            )}
 
             <Modal
                 show={show}
@@ -50,16 +74,15 @@ const HotelServiceFormModal = ({ idHotelService }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        <h5>{!idHotelService ? 'Thêm' : 'Cập nhật'} Dịch Vụ Khách Sạn</h5>
+                        <h5>{item ? 'Cập nhật' : 'Thêm'} Dịch Vụ Khách Sạn</h5>
                     </Modal.Title>
                 </Modal.Header>
-
                 <Modal.Body>
                     <Card>
                         <Card.Body>
                             <Row>
                                 <Col md={12}>
-                                    <Form onSubmit={handleSubmit(onSubmit)}> {/* Thêm onSubmit vào form */}
+                                    <Form onSubmit={handleSubmit(onSubmit)}>
                                         <Form.Group as={Row} controlId="formRoomName" className="mt-3">
                                             <Form.Label column sm={4}>
                                                 Mã dịch vụ khách sạn
@@ -68,8 +91,8 @@ const HotelServiceFormModal = ({ idHotelService }) => {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Mã dịch vụ khách sạn tự động" disabled
-                                                    name='id'
-                                                    value={idHotelService}
+                                                    value={serviceHotel?.id || ''}
+                                                    onChange={(e) => setServiceHotel({...item, id: e.target.value})}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -80,12 +103,12 @@ const HotelServiceFormModal = ({ idHotelService }) => {
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    {...register('serviceHotelName', { required: true })} // Đăng ký trường với react-hook-form
                                                     placeholder="Nhập tên dịch vụ khách sạn..."
+                                                    value={serviceHotel?.serviceHotelName || ''}
+                                                    onChange={(e) => setServiceHotel({...item, serviceHotelName: e.target.value })}
                                                 />
                                             </Col>
                                         </Form.Group>
-
                                         <Form.Group as={Row} controlId="price" className="mt-3">
                                             <Form.Label column sm={4}>
                                                 Giá
@@ -93,27 +116,16 @@ const HotelServiceFormModal = ({ idHotelService }) => {
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="number"
-                                                    {...register('price', { required: true, min: 1 })} // Đăng ký trường với react-hook-form
+                                                    {...register('price', { required: true, min: 1 })}
                                                     min="1" step="1"
                                                     placeholder="Nhập giá dịch vụ khách sạn..."
-                                                />
-                                            </Col>
-                                        </Form.Group>
-
-                                        <Form.Group as={Row} controlId="icon" className="mt-3">
-                                            <Form.Label column sm={4}>
-                                                Icon
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Control
-                                                    type="text"
-                                                    {...register('icon', { required: true })} // Đăng ký trường với react-hook-form
-                                                    placeholder="Nhập icon..."
+                                                    value={serviceHotel?.price || ''}
+                                                    onChange={(e) => setServiceHotel({...item, price: e.target.value })}
                                                 />
                                             </Col>
                                         </Form.Group>
                                         <Row className='mt-3'>
-                                            <ImageListSlider onImagesChange={handleImagesChange} maxImages={1} />
+                                            <ImageListSlider onImagesChange={handleImagesChange} maxImages={1} img={serviceHotel?.image}/>
                                         </Row>
                                         <Button variant="success" type="submit" className="mt-3 d-none" id='btnsubmit'>
                                             <FaSave size={14} />&nbsp;Lưu
@@ -124,7 +136,6 @@ const HotelServiceFormModal = ({ idHotelService }) => {
                         </Card.Body>
                     </Card>
                 </Modal.Body>
-
                 <Modal.Footer>
                     <Row className="mt-3 justify-content-end">
                         <Col sm="auto">
@@ -134,9 +145,7 @@ const HotelServiceFormModal = ({ idHotelService }) => {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     const btnSubmit = document.getElementById('btnsubmit');
-                                    if(btnSubmit){
-                                        btnSubmit.click();
-                                    }
+                                    if (btnSubmit) btnSubmit.click();
                                 }}
                             >
                                 <FaSave size={14} />&nbsp;Lưu
