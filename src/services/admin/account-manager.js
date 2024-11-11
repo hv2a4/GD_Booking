@@ -4,7 +4,7 @@ const getAllEmployee = async () => {
     const res = await request({
         method: "GET",
         path: "/api/account/getAll"
-    });
+    }); 
     return res;
 }
 

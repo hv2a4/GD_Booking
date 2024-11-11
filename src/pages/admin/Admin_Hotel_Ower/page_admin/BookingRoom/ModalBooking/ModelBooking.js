@@ -1,11 +1,13 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, Col, Form, InputGroup, Row, Table, Toast } from "react-bootstrap";
 import { CiFilter } from "react-icons/ci";
 import '../styles/disible.css';
 import { FaSave } from "react-icons/fa";
 import { MdCancelPresentation } from "react-icons/md";
 import { RiLoopLeftFill } from "react-icons/ri";
-
+import { request } from "../../../../../../config/configApi";
+import { getDataReservations } from "../../../../../../services/admin/crudServiceReservations";
+import Alert from "../../../../../../config/alert";
 const DatePicker = ({ label, id, value, onChange }) => {
     return (
         <Form.Group className="mb-3" controlId={id}>
@@ -31,6 +33,8 @@ const SearchBooking = () => {
     const [booking, setBooking] = useState(null);
     const [activeRow, setActiveRow] = useState(null);
     const [selectedRows, setSelectedRows] = useState(new Set());
+    const [dataReservations, setDataReservations] = useState([]);
+    const [alert, setAlert] = useState(null);
 
     const handleTableOpenAndClose = (rowId) => {
         if (activeRow === rowId) {
@@ -40,9 +44,15 @@ const SearchBooking = () => {
         }
     }
 
-    const formatDateForInput = (date) => {
-        return new Date(date).toISOString().slice(0, 16);
-    };
+    function formatDateForInput(date) {
+        // Kiểm tra xem date có phải là một giá trị hợp lệ không
+        if (!date || isNaN(Date.parse(date))) {
+            console.error('Invalid date value:', date);
+            return ''; // Hoặc trả về một giá trị mặc định hợp lệ
+        }
+        return new Date(date).toISOString().slice(0, 16); // Chuyển đổi thành ISO string
+    }
+
 
     const handleInputChange = (e) => {
         const { value } = e.target;
@@ -65,7 +75,16 @@ const SearchBooking = () => {
         // Nếu năm khác năm hiện tại, hiển thị cả năm; nếu không, chỉ hiển thị ngày/tháng
         return year !== currentYear ? `${day}/${month}/${year}` : `${day}/${month}`;
     };
+    const formatDates = (dateString) => {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0'); // Thêm '0' nếu ngày có 1 chữ số
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Lấy tháng và thêm '0' nếu cần
+        const year = date.getFullYear(); // Lấy năm của ngày đã chọn
+        const currentYear = new Date().getFullYear(); // Năm hiện tại
 
+        // Nếu năm khác năm hiện tại, hiển thị cả năm; nếu không, chỉ hiển thị ngày/tháng
+        return year !== currentYear ? `${day}${month}${year}` : `${day}${month}`;
+    };
     const handleSaveDateRange = () => {
         if (startDate && endDate) {
             const formattedStartDate = formatDate(startDate);
@@ -74,7 +93,7 @@ const SearchBooking = () => {
             setShowToast(false);
         }
     };
-    
+
     const handleTimeOptionChange = (e) => {
         setSelectedTimeOption(e.target.value);
     };
@@ -82,71 +101,31 @@ const SearchBooking = () => {
     const handleRadioChange = (radio) => {
         setSelectedRadio(radio);  // Cập nhật radio được chọn
     };
+    const handleGetReservations = async () => {
+        try {
+            const res = await getDataReservations();  // Lấy dữ liệu từ API
 
-    const bookings = [
-        {
-            id: "DP000013",
-            maDatPhong: "P302",
-            maHoaDon: "HĐ001",
-            trangThaiThanhToan: "Chưa thanh toán",
-            trangThaiDatPhong: "Đang xử lý",
-            thoiGianDat: "03/10/2024 13:17",
-            thoiGianNhan: "03/10/2024 14:00",
-            thoiGianTra: "03/10/2024 14:17",
-            tenPhong: "Phòng 01 giường đơn (Giờ)",
-            khachHang: "Khách lẻ",
-            bangGia: "121212",
-            kenhBan: "Khách đến trực tiếp",
-            trangThai: "Đang xử lý",
-            chiNhanh: "Chi nhánh trung tâm",
-            nhanVienDat: "Chưa xác định",
-            taiKhoanTao: "Nguyễn Anh Hảo",
-            chiTiet: {
-                maHangHoa: "Single Bedroom",
-                tenHang: "Phòng 01 giường đơn (Giờ) P.302",
-                soLuong: 1,
-                donGia: 150000, // Giá đơn vị
-                giamGia: 0, // Không có giảm giá
-                giaBan: 150000, // Giá bán
-                thanhTien: 150000, // Thành tiền
-            },
-            tongTien: 150000,
-            giamGia: 0,
-            khachDaTra: 0,
-            conCanTra: 150000,
-        },
-        {
-            id: "DP000014",
-            maDatPhong: "P303",
-            maHoaDon: "HĐ002",
-            trangThaiThanhToan: "Đã thanh toán",
-            trangThaiDatPhong: "Hoàn thành",
-            thoiGianDat: "04/10/2024 10:00",
-            thoiGianNhan: "04/10/2024 11:00",
-            thoiGianTra: "04/10/2024 12:00",
-            tenPhong: "Phòng 02 giường đôi (Ngày)",
-            khachHang: "Khách lẻ",
-            bangGia: "232323",
-            kenhBan: "Đặt qua web",
-            trangThai: "Hoàn thành",
-            chiNhanh: "Chi nhánh thứ 2",
-            nhanVienDat: "Nguyễn Văn A",
-            taiKhoanTao: "Nguyễn Văn B",
-            chiTiet: {
-                maHangHoa: "Double Bedroom",
-                tenHang: "Phòng 02 giường đôi (Ngày) P.303",
-                soLuong: 1,
-                donGia: 300000, // Giá đơn vị
-                giamGia: 50000, // Giảm giá 50,000 VNĐ
-                giaBan: 250000, // Giá bán sau khi giảm
-                thanhTien: 250000, // Thành tiền sau khi giảm
-            },
-            tongTien: 250000,
-            giamGia: 50000,
-            khachDaTra: 250000,
-            conCanTra: 0,
-        },
-    ];
+            // Kiểm tra xem `res` có phải là mảng hay không
+            if (Array.isArray(res)) {
+                const user = res.filter((e) => e.roleName === 'Customer');
+                setDataReservations(user);
+            } else {
+                throw new Error("Dữ liệu không phải là mảng");
+            }
+        } catch (error) {
+            setAlert({ type: 'error', title: 'Lỗi khi tải dữ liệu đặt phòng' });
+            console.log("Lỗi khi tải dữ liệu đặt phòng: ", error);
+        }
+    }
+
+    const formatCurrencyVND = (amount) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    };
+
+    useEffect(() => {
+        handleGetReservations();
+    }, []);
+
 
     const toggleRowSelection = (rowId) => {
         setSelectedRows((prevSelected) => {
@@ -160,15 +139,6 @@ const SearchBooking = () => {
         });
     }
 
-    const toggleAllRows = () => {
-        if (selectedRows.size === bookings.length) {
-            setSelectedRows(new Set());
-        } else {
-            setSelectedRows(new Set(bookings.map((booking) => booking.id)));
-        }
-    }
-
-    const employees = ["Nguyễn Văn A", "Nguyễn Văn B", "Chưa xác định"];
 
     return (
         <>
@@ -331,204 +301,34 @@ const SearchBooking = () => {
                         )}
                     </Row>
                     <Row>
+                        {alert && <Alert type={alert.type} title={alert.title} />}
                         <Table responsive bordered className="mt-5">
                             <thead>
                                 <tr className="table-limited-text" >
-                                    <th>
-                                        <Form.Check
-                                            type="checkbox"
-                                            checked={selectedRows.size === bookings.length}
-                                            onChange={toggleAllRows}
-                                        />
-                                    </th>
-
-                                    <th>Mã đặt phòng</th>
-                                    <th>Mã hóa đơn</th>
-                                    <th>Trạng thái</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thời gian đặt</th>
-                                    <th>Thời gian nhận</th>
-                                    <th>Thời gian thời gian trả</th>
-                                    <th>Tên phòng</th>
-                                    <th>khách hàng</th>
+                                    <th>Số hiệu đặt phòng</th>
+                                    <th>Tên khách hàng</th>
+                                    <th>Ngày đến</th>
+                                    <th>Ngày đi</th>
+                                    <th>Số lượng khách</th>
+                                    <th>Trạng thái đặt phòng</th>
+                                    <th>Tổng giá trị đặt phòng</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {bookings.map((booking) => (
-                                    <React.Fragment key={booking.id}>
+                                {dataReservations.map((booking) => (
+                                    <React.Fragment key={booking.bookingId}>
                                         <tr
-                                            onClick={() => handleTableOpenAndClose(booking.id)}
-                                            className="table-limited-text"
+                                            onClick={() => handleTableOpenAndClose(booking.bookingId)}
+                                            className="table-limited-text"  
                                         >
-                                            <td>
-                                                <Form.Check
-                                                    type="checkbox"
-                                                    checked={selectedRows.has(booking.id)}
-                                                    onChange={() => toggleRowSelection(booking.id)}
-                                                    onClick={(e) => e.stopPropagation()} // Prevents checkbox clicks from selecting the entire row
-                                                />
-                                            </td>
-                                            <td>{booking.maDatPhong}</td>
-                                            <td>{booking.maHoaDon}</td>
-                                            <td>{booking.trangThaiThanhToan}</td>
-                                            <td>{booking.trangThaiDatPhong}</td>
-                                            <td>{booking.thoiGianDat}</td>
-                                            <td>{booking.thoiGianNhan}</td>
-                                            <td>{booking.thoiGianTra}</td>
-                                            <td>{booking.tenPhong}</td>
-                                            <td>{booking.khachHang}</td>
+                                            <td>BK{booking.bookingId} {formatDates(booking.createAt)}</td>
+                                            <td>{booking.accountFullname}</td>
+                                            <td>{formatDate(booking.startAt)}</td>
+                                            <td>{formatDate(booking.endAt)}</td>
+                                            <td>{booking.max_guests}</td>
+                                            <td>{booking.statusBookingName}</td>
+                                            <td>{formatCurrencyVND(booking.total_amount)}</td>
                                         </tr>
-
-                                        {/* Hiển thị thông tin chi tiết nếu activeRow === booking.id */}
-                                        {activeRow === booking.id && (
-                                            <tr>
-                                                <td colSpan="10">
-                                                    <div className="booking-details">
-                                                        <div className="row">
-                                                            <div className="col-md-6">
-                                                                <p>
-                                                                    <strong>Mã đặt phòng:</strong>	&nbsp;
-                                                                    <input
-                                                                        type="text"
-                                                                        value={booking.id}
-                                                                        onChange={(e) => handleInputChange(e, 'id')}
-                                                                        className="custom-input"
-                                                                        disabled
-                                                                    />
-                                                                </p>
-                                                                <p>
-                                                                    <strong>Thời gian:</strong>&nbsp;
-                                                                    <input
-                                                                        type="datetime-local"
-                                                                        value={formatDateForInput(booking.thoiGianDat)}
-                                                                        onChange={(e) => handleInputChange(e, 'thoiGianDat')}
-                                                                        className="custom-input"
-                                                                    />
-                                                                </p>
-                                                                <p>
-                                                                    <strong>Khách hàng:</strong>&nbsp;
-                                                                    <input
-                                                                        type="text"
-                                                                        value={booking.khachHang}
-                                                                        onChange={(e) => handleInputChange(e, 'khachHang')}
-                                                                        className="custom-input"
-                                                                        disabled
-                                                                    />
-                                                                </p>
-                                                                <p>
-                                                                    <strong>Bảng giá:</strong>	&nbsp;
-                                                                    <input
-                                                                        type="text"
-                                                                        value={booking.bangGia}
-                                                                        onChange={(e) => handleInputChange(e, 'bangGia')}
-                                                                        className="custom-input"
-                                                                        disabled
-                                                                    />
-                                                                </p>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <p>
-                                                                    <strong>Trạng thái:</strong>&nbsp;
-                                                                    <input
-                                                                        type="text"
-                                                                        value={booking.trangThai}
-                                                                        onChange={(e) => handleInputChange(e, 'trangThai')}
-                                                                        className="custom-input"
-                                                                        disabled
-                                                                    />
-                                                                </p>
-                                                                <p>
-                                                                    <strong>Chi nhánh:</strong>&nbsp;
-                                                                    <input
-                                                                        type="text"
-                                                                        value={booking.chiNhanh}
-                                                                        onChange={(e) => handleInputChange(e, 'chiNhanh')}
-                                                                        className="custom-input"
-                                                                        disabled
-                                                                    />
-                                                                </p>
-                                                                <p>
-                                                                    <strong>Nhân viên:</strong> &nbsp;
-                                                                    <select
-                                                                        onChange={(e) => handleInputChange(e, 'nhanVienDat')}
-                                                                        className="custom-input"
-                                                                    >
-                                                                        {employees.map((employee, index) => (
-                                                                            <option key={index} value={employee}>
-                                                                                {employee}
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
-                                                                </p>
-
-                                                                <p>
-                                                                    <strong>Tài khoản tạo:</strong>&nbsp;
-                                                                    <input
-                                                                        type="text"
-                                                                        value={booking.taiKhoanTao}
-                                                                        onChange={(e) => handleInputChange(e, 'taiKhoanTao')}
-                                                                        className="custom-input"
-                                                                        disabled
-                                                                    />
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <table className="table border table-hover">
-                                                            <thead className="table-info">
-                                                                <tr>
-                                                                    <th>Mã hàng hóa</th>
-                                                                    <th>Tên hàng</th>
-                                                                    <th>Số lượng</th>
-                                                                    <th>Đơn giá</th>
-                                                                    <th>Giảm giá</th>
-                                                                    <th>Giá bán</th>
-                                                                    <th>Thành tiền</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>{booking.chiTiet.maHangHoa}</td>
-                                                                    <td>
-                                                                        {booking.chiTiet.tenHang} <br />
-                                                                        <span>{booking.chiTiet.phong} - {booking.chiTiet.ngayDat} ({booking.chiTiet.thoiGianSuDung})</span>
-                                                                    </td>
-                                                                    <td>{booking.chiTiet.soLuong}</td>
-                                                                    <td>{new Intl.NumberFormat('vi-VN').format(booking.chiTiet.donGia)} VNĐ</td>
-                                                                    <td>{new Intl.NumberFormat('vi-VN').format(booking.chiTiet.giamGia)} VNĐ</td>
-                                                                    <td>{new Intl.NumberFormat('vi-VN').format(booking.chiTiet.giaBan)} VNĐ</td>
-                                                                    <td>{new Intl.NumberFormat('vi-VN').format(booking.chiTiet.thanhTien)} VNĐ</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-
-                                                        <div className="row">
-                                                            <div className="col-md-8"></div>
-                                                            <div className="col-md-4">
-                                                                <p><strong>Tổng tiền hàng:</strong> {new Intl.NumberFormat('vi-VN').format(booking.tongTien)} VNĐ</p>
-                                                                <p><strong>Giảm giá:</strong> {new Intl.NumberFormat('vi-VN').format(booking.giamGia)} VNĐ</p>
-                                                                <p><strong>Khách đã trả:</strong> {new Intl.NumberFormat('vi-VN').format(booking.khachDaTra)} VNĐ</p>
-                                                                <p><strong>Còn cần trả:</strong> {new Intl.NumberFormat('vi-VN').format(booking.conCanTra)} VNĐ</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="d-flex justify-content-end mt-3">
-                                                            <button className="btn btn-success">
-                                                                <RiLoopLeftFill /> &nbsp;                                                            &nbsp;
-                                                                Xử lý đặt phòng
-                                                            </button> &nbsp; &nbsp;
-                                                            <button className="btn btn-success">
-                                                                <FaSave /> &nbsp;
-                                                                Lưu
-                                                            </button> &nbsp; &nbsp;
-                                                            <button className="btn btn-danger">
-                                                                <MdCancelPresentation />&nbsp;
-                                                                Hủy đặt phòng
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )}
 
                                     </React.Fragment>
                                 ))}
