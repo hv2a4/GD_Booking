@@ -7,6 +7,14 @@ import { AmenitiesHotelFormModal, DeleteAmenitiesHotelModal } from "./FormModal"
 const AmenitiesHotel = () => {
     const [selectedAmenitiesHotel, setSelectedAmenitiesHotel] = useState([]);
     const [expandedRow, setExpandedRow] = useState(null);
+    const [dataAmenitiesHotel, setAmenitiesHotel] = useState([]);
+    const [editIndex, setEditIndex] = useState(null)
+    const [formData, setFormData] = useState({
+        amenitiesHotelName: '',
+        icon: '',
+        id:''
+    })
+    const [isRefreshTable, setIsRefreshTable] = useState(false)
 
     const handleRowClick = (id) => {
         setExpandedRow(expandedRow === id ? null : id);
@@ -18,10 +26,10 @@ const AmenitiesHotel = () => {
         );
     };
 
-    const amenitiesHotels = [
-        { id: '1', amenitiesHotelName: 'a', icon: '', id_hotel: 1},
-        { id: '2', amenitiesHotelName: 'b', icon: '', id_hotel: 1}
-    ];
+    // const amenitiesHotels = [
+    //     { id: '1', amenitiesHotelName: 'a', icon: '', id_hotel: 1},
+    //     { id: '2', amenitiesHotelName: 'b', icon: '', id_hotel: 1}
+    // ];
 
     return (
         <div className="table-responsive mt-3">
