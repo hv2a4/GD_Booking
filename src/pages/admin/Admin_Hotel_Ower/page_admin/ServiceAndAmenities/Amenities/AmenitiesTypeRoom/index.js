@@ -1,27 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import { AmenitiesTypeRoomFormModal, DeleteAmenitiesTypeRoomModal } from "./FormModal";
-
+import axios from "axios";
 
 
 const AmenitiesTypeRoom = () => {
     const [selectedAmenitiesTypeRoom, setSelectedAmenitiesTypeRoom] = useState([]);
     const [expandedRow, setExpandedRow] = useState(null);
+    const [dataAmenitiesTypeRoom, setAmenitiesTypeRoom] = useState([]);
+    const [editIndex, setEditIndex] = useState(null);
+    const [formData, setFormData] = useState({
+        amenitiesTypeRoomName: '',
+        icon: ''
+    });
+    const [isRefeshTable, setIsRefeshTable] = useState(false);
 
     const handleRowClick = (id) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
-
+    
     const toggleAmenitiesTypeRoomSelection = (id) => {
         setSelectedAmenitiesTypeRoom(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         );
     };
 
-    const amenitiesTypeRooms = [
-        { id: '1', amenitiesTypeRoomName: 'a', icon: ''},
-        { id: '2', amenitiesTypeRoomName: 'b', icon: ''}
-    ];
+    // Hiện danh sách
+    const getDataAmenitiesTypeRoom = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/amenities-type-room/getAll');
+            setAmenitiesTypeRoom(response.data);  // Cập nhật dữ liệu
+            console.log("Lấy dữ liệu thành công");
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // Khi người dùng nhấn nút sửa, tải dữ liệu vào form
+    const handleEdit = (id) => {
+        const item = dataAmenitiesTypeRoom.find(data => data.id === id);
+        if (item) {
+            setFormData({
+                amenitiesTypeRoomName: item.amenitiesTypeRoomName,
+                icon: item.icon
+            });
+        }
+    };
+
+    // console.log(isRefeshTable);
+    useEffect(() => {
+       if(isRefeshTable){
+        getDataAmenitiesTypeRoom();  // Gọi API để lấy dữ liệu khi component render lần đầu
+       }else{
+        getDataAmenitiesTypeRoom();  // Gọi API để lấy dữ liệu khi component render lần đầu
+       }
+    }, [isRefeshTable]);
 
     return (
         <div className="table-responsive mt-3">
@@ -32,10 +65,10 @@ const AmenitiesTypeRoom = () => {
                             <input
                                 type="checkbox"
                                 onChange={() => {
-                                    const allSelected = selectedAmenitiesTypeRoom.length === amenitiesTypeRooms.length;
-                                    setSelectedAmenitiesTypeRoom(allSelected ? [] : amenitiesTypeRooms.map(amenitiesTypeRoom => amenitiesTypeRoom.id));
+                                    const allSelected = selectedAmenitiesTypeRoom.length === dataAmenitiesTypeRoom.length;
+                                    setSelectedAmenitiesTypeRoom(allSelected ? [] : dataAmenitiesTypeRoom.map(amenitiesTypeRoom => amenitiesTypeRoom.id));
                                 }}
-                                checked={selectedAmenitiesTypeRoom.length === amenitiesTypeRooms.length}
+                                checked={selectedAmenitiesTypeRoom.length === dataAmenitiesTypeRoom.length}
                             />
                         </th>
                         <th>Mã tiện nghi loại phòng</th>
@@ -44,7 +77,7 @@ const AmenitiesTypeRoom = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {amenitiesTypeRooms.map(({ id, amenitiesTypeRoomName, icon}) => (
+                    {dataAmenitiesTypeRoom.map(({ id, amenitiesTypeRoomName, icon}) => (
                         <React.Fragment key={id}>
                             <tr onClick={(e) => {
                                 if (e.target.type !== "checkbox") {
@@ -85,7 +118,14 @@ const AmenitiesTypeRoom = () => {
                                                                 <Col md={4}></Col>
                                                             </Row>
                                                             <div className="d-flex justify-content-end">
-                                                                <AmenitiesTypeRoomFormModal idAmenitiesTypeRoom={id} />
+                                                                <AmenitiesTypeRoomFormModal 
+                                                                    idAmenitiesTypeRoom={id}
+                                                                    formData={formData}
+                                                                    setFormData={setFormData}
+                                                                    handleEdit={handleEdit}
+                                                                    getDataAmenitiesTypeRoom={getDataAmenitiesTypeRoom} 
+                                                                    refeshTable={setIsRefeshTable}
+                                                                />
                                                                 <DeleteAmenitiesTypeRoomModal id={id} amenitiesTypeRoomName={amenitiesTypeRoomName} />
                                                             </div>
                                                         </div>

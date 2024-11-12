@@ -1,22 +1,83 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
 import { GiCancel } from "react-icons/gi";
 import { useForm } from 'react-hook-form';
+// import { toast } from 'react-toastify'; 
+import axios from 'axios';
 
-const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom }) => {
+const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom, amenitiesTypeRoomName, icon, refeshTable }) => {
     const [show, setShow] = useState(false);
-    const { register, handleSubmit } = useForm(); // Khởi tạo useForm
-
-
+    const { register, handleSubmit,  setValue, reset  } = useForm(); // Khởi tạo useForm
+    const [formEdit, setFormEdit] = useState({
+        id : "",
+        amenitiesTypeRoomName : "",
+        icon : ""
+    })
 
     const handleShow = () => setShow(true);
-    const handleClose = () => setShow(false);
+    const handleClose = () => {
+        setShow(false);
+        reset(); // Reset form khi đóng modal
+    };
+
+
+    const handleEdit = async (id) => {
+        try {
+            const res = await axios.get(`http://localhost:8080/api/amenities-type-room/getById/${id}`);
+            // console.log(res.data);
+            setFormEdit(res.data.data)
+        } catch (error) {
+            console.log(error);
+            
+        }
+    };
+    // Khi idAmenitiesTypeRoom có giá trị, gọi handleEdit để tải dữ liệu
+    useEffect(() => {
+        if (idAmenitiesTypeRoom) {
+            handleEdit(idAmenitiesTypeRoom);  // Gọi handleEdit nếu có id
+        } else {
+            reset({ amenitiesTypeRoomName: '', icon: '' });  // Reset form nếu không có id
+        }
+    }, [idAmenitiesTypeRoom, reset]);
 
     const onSubmit = (data) => {
-        console.log(data); // Xử lý dữ liệu submit tại đây
-        handleClose(); // Đóng modal sau khi lưu
+        const { amenitiesTypeRoomName, icon } = formEdit;
+        if (idAmenitiesTypeRoom) {
+            axios.put(`http://localhost:8080/api/amenities-type-room/update/${idAmenitiesTypeRoom}`, { amenitiesTypeRoomName, icon })
+                .then(response => {
+                    console.log("Cập nhật thành công", response);
+                    handleClose();
+                    refeshTable(true);
+                    alert("Cập nhật thành công!"); // Hiển thị thông báo alert
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert("Đã xảy ra lỗi khi cập nhật!"); // Thông báo lỗi nếu có
+                });
+        } else {
+            axios.post('http://localhost:8080/api/amenities-type-room/add', { amenitiesTypeRoomName, icon })
+                .then(response => {
+                    console.log("Thêm mới thành công", response);
+                    handleClose();
+                    refeshTable(true);
+                    alert("Đã thêm thành công!"); // Hiển thị thông báo alert
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert("Đã xảy ra lỗi khi thêm!"); // Thông báo lỗi nếu có
+                });
+        }
+    };
+
+    //Hàm xử lí thay đổi dữ liệu
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormEdit((pre) => ({
+            ...pre,
+            [name]: value,
+        }));
     };
 
     return (
@@ -28,14 +89,23 @@ const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom }) => {
                             Thêm
                         </small>
                     );
-                } else {
-                    return (
-                        <small className="btn btn-success me-2" style={{ fontSize: '13px', cursor: 'pointer' }} onClick={handleShow}>
-                            <FaClipboardCheck />&nbsp;Cập nhật
-                        </small>
-                    );
-                }
-            })()}
+                } 
+                // else {
+                //     return (
+                //         <small className="btn btn-success me-2" style={{ fontSize: '13px', cursor: 'pointer' }} onClick={handleShow}>
+                //             <FaClipboardCheck />&nbsp;Cập nhật
+                //         </small>
+                //     );
+                // }
+            })()} 
+
+            <small
+                className={idAmenitiesTypeRoom ? "btn btn-success me-2" : ""}
+                style={{ fontSize: '13px', cursor: 'pointer' }}
+                onClick={handleShow}
+            >
+                {idAmenitiesTypeRoom ? <><FaClipboardCheck />&nbsp;Cập nhật</> : 'Thêm'}
+            </small>
 
             <Modal
                 show={show}
@@ -45,7 +115,7 @@ const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        <h5>{!idAmenitiesTypeRoom ? 'Thêm' : 'Cập nhật'} Tiện Nghi Loại Phòng</h5>
+                        <h5>{idAmenitiesTypeRoom ? 'Cập nhật' : 'Thêm'} Tiện Nghi Loại Phòng</h5>
                     </Modal.Title>
                 </Modal.Header>
 
@@ -64,7 +134,7 @@ const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom }) => {
                                                     type="text"
                                                     placeholder="Mã tiện nghi loại phòng tự động" disabled
                                                     name='id'
-                                                    value={idAmenitiesTypeRoom}
+                                                    value={formEdit.id}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -75,8 +145,11 @@ const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom }) => {
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    {...register('amenitiesTypeRoomName', { required: true })} // Đăng ký trường với react-hook-form
                                                     placeholder="Nhập tên tiện nghi loại phòng..."
+                                                    name='amenitiesTypeRoomName'
+                                                    value={formEdit.amenitiesTypeRoomName}
+                                                    onChange={handleInputChange}
+                                                    // {...register('amenitiesTypeRoomName', { required: true })}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -87,12 +160,16 @@ const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom }) => {
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Control
-                                                    type="text"
-                                                    {...register('icon', { required: true })} // Đăng ký trường với react-hook-form
-                                                    placeholder="Nhập icon..."
+                                                     type="text"
+                                                     placeholder="Nhập icon..."
+                                                     name="icon"
+                                                     value={formEdit.icon}
+                                                     onChange={handleInputChange}
+                                                    //  {...register('icon', { required: true })}
                                                 />
                                             </Col>
                                         </Form.Group>
+                                        {/* Nút Lưu ẩn, sẽ được kích hoạt khi nhấn vào nút Lưu trong footer */}
                                         <Button variant="success" type="submit" className="mt-3 d-none" id='btnsubmit'>
                                             <FaSave size={14} />&nbsp;Lưu
                                         </Button>
@@ -112,8 +189,8 @@ const AmenitiesTypeRoomFormModal = ({ idAmenitiesTypeRoom }) => {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     const btnSubmit = document.getElementById('btnsubmit');
-                                    if(btnSubmit){
-                                        btnSubmit.click();
+                                    if (btnSubmit) {
+                                        btnSubmit.click();  // Kích hoạt submit form khi nhấn Lưu
                                     }
                                 }}
                             >
