@@ -1,13 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Card, Col, Form, InputGroup, Row, Table, Toast } from "react-bootstrap";
-import { CiFilter } from "react-icons/ci";
+import React, { useEffect, useState } from "react";
+import { Card, Col, Form, Row, Table, Toast } from "react-bootstrap";
 import '../styles/disible.css';
-import { FaSave } from "react-icons/fa";
-import { MdCancelPresentation } from "react-icons/md";
-import { RiLoopLeftFill } from "react-icons/ri";
-import { request } from "../../../../../../config/configApi";
-import { getDataReservations } from "../../../../../../services/admin/crudServiceReservations";
+import { getDataReservations, updateStatusBooking } from "../../../../../../services/admin/crudServiceReservations";
 import Alert from "../../../../../../config/alert";
+import DetailBooking from "./DetailBooking";
 const DatePicker = ({ label, id, value, onChange }) => {
     return (
         <Form.Group className="mb-3" controlId={id}>
@@ -23,16 +19,11 @@ const DatePicker = ({ label, id, value, onChange }) => {
 };
 
 const SearchBooking = () => {
-    const [status, setStatus] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [showToast, setShowToast] = useState(false);
     const [timeRange, setTimeRange] = useState("");
-    const [selectedRadio, setSelectedRadio] = useState("selectOption"); // Mặc định ô đầu tiên được chọn
-    const [selectedTimeOption, setSelectedTimeOption] = useState(""); // Giá trị select
-    const [booking, setBooking] = useState(null);
     const [activeRow, setActiveRow] = useState(null);
-    const [selectedRows, setSelectedRows] = useState(new Set());
     const [dataReservations, setDataReservations] = useState([]);
     const [alert, setAlert] = useState(null);
 
@@ -43,27 +34,6 @@ const SearchBooking = () => {
             setActiveRow(rowId); // Mở thông tin chi tiết cho dòng hiện tại
         }
     }
-
-    function formatDateForInput(date) {
-        // Kiểm tra xem date có phải là một giá trị hợp lệ không
-        if (!date || isNaN(Date.parse(date))) {
-            console.error('Invalid date value:', date);
-            return ''; // Hoặc trả về một giá trị mặc định hợp lệ
-        }
-        return new Date(date).toISOString().slice(0, 16); // Chuyển đổi thành ISO string
-    }
-
-
-    const handleInputChange = (e) => {
-        const { value } = e.target;
-        setBooking((prevBooking) => ({
-            ...prevBooking,
-            thoiGianDat: value, // Cập nhật giá trị thoiGianDat
-        }));
-    };
-
-    const handleToggle = () => setStatus(!status);
-    const handleShowToast = () => setShowToast(true);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -94,13 +64,6 @@ const SearchBooking = () => {
         }
     };
 
-    const handleTimeOptionChange = (e) => {
-        setSelectedTimeOption(e.target.value);
-    };
-
-    const handleRadioChange = (radio) => {
-        setSelectedRadio(radio);  // Cập nhật radio được chọn
-    };
     const handleGetReservations = async () => {
         try {
             const res = await getDataReservations();  // Lấy dữ liệu từ API
@@ -108,7 +71,16 @@ const SearchBooking = () => {
             // Kiểm tra xem `res` có phải là mảng hay không
             if (Array.isArray(res)) {
                 const user = res.filter((e) => e.roleName === 'Customer');
-                setDataReservations(user);
+
+                // Sắp xếp dữ liệu theo thời gian tăng dần (theo trường startAt)
+                const sortedReservations = user.sort((a, b) => {
+                    const dateA = new Date(a.startAt);  // Chuyển đổi startAt thành đối tượng Date
+                    const dateB = new Date(b.startAt);  // Chuyển đổi startAt thành đối tượng Date
+                    return dateA - dateB;  // Sắp xếp tăng dần
+                });
+
+                // Cập nhật dữ liệu đã sắp xếp
+                setDataReservations(sortedReservations);
             } else {
                 throw new Error("Dữ liệu không phải là mảng");
             }
@@ -116,190 +88,51 @@ const SearchBooking = () => {
             setAlert({ type: 'error', title: 'Lỗi khi tải dữ liệu đặt phòng' });
             console.log("Lỗi khi tải dữ liệu đặt phòng: ", error);
         }
-    }
+    };
+
 
     const formatCurrencyVND = (amount) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
 
+    function getStatusBadgeClass(status) {
+        switch (status) {
+            case 'chờ xác nhận':
+                return 'badge-pending'; // Màu cam nhạt
+            case 'xác nhận từ khách hàng':
+                return 'badge-customer-confirmed'; // Màu xanh lơ
+            case 'xác nhận từ khách sạn':
+                return 'badge-hotel-confirmed'; // Màu xanh dương
+            case 'Đang sử dụng khách sạn':
+                return 'badge-in-use'; // Màu xanh lá sáng
+            case 'Hoàn thành':
+                return 'badge-completed'; // Màu xanh lá đậm
+            case 'Đã hủy':
+                return 'badge-cancelled'; // Màu đỏ đậm
+            case 'Đã quá hạn':
+                return 'badge-expired'; // Màu xám đen
+            default:
+                return 'badge-default'; // Màu xám nhạt
+        }
+    }
+
+    const handleUpdateBookingStatus = async (id) => {
+        try {
+            await updateStatusBooking(id);
+            setAlert({ type: 'success', title: 'Hủy đặt phòng thành công' });
+            handleGetReservations();
+        } catch (error) {
+            setAlert({ type: 'error', title: 'Lỗi khi tải dữ liệu đặt phòng' });
+        }
+    }
     useEffect(() => {
         handleGetReservations();
     }, []);
-
-
-    const toggleRowSelection = (rowId) => {
-        setSelectedRows((prevSelected) => {
-            const newSelected = new Set(prevSelected);
-            if (newSelected.has(rowId)) {
-                newSelected.delete(rowId);
-            } else {
-                newSelected.add(rowId);
-            }
-            return newSelected;
-        });
-    }
-
 
     return (
         <>
             <Card style={{ border: 'none', boxShadow: 'none' }}>
                 <Card.Body>
-                    <Row>
-                        <Col md={12} className="text-end">
-                            <button
-                                className="btn"
-                                style={{
-                                    backgroundColor: 'white',
-                                    border: 'none',
-                                    color: '#000',
-                                    padding: '5px 10px',
-                                    boxShadow: 'none'
-                                }}
-                                onClick={handleToggle}
-                            >
-                                <CiFilter size={20} />
-                            </button>
-                        </Col>
-                        {status && (
-                            <Row className="mt-3">
-                                <Col md={6}>
-                                    <Row>
-                                        <Col md={6}>
-                                            <Card>
-                                                <Card.Body>
-                                                    <Card.Title>Tìm kiếm</Card.Title>
-                                                    <Form.Group className="mb-3" controlId="Id">
-                                                        <Form.Control
-                                                            type="text"
-                                                            placeholder="Theo mã đặt phòng"
-                                                            style={{ fontSize: '12px' }}
-                                                        />
-                                                    </Form.Group>
-                                                    <Form.Group className="mb-3" controlId="customerInfo">
-                                                        <Form.Control
-                                                            type="text"
-                                                            placeholder="Theo mã, tên, điện thoại KH"
-                                                            style={{ fontSize: '12px' }}
-                                                        />
-                                                    </Form.Group>
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Control
-                                                            type="text"
-                                                            placeholder="Tìm kiếm theo loại phòng"
-                                                            style={{ fontSize: '12px' }}
-                                                        />
-                                                    </Form.Group>
-                                                </Card.Body>
-                                            </Card>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Card>
-                                                <Card.Body>
-                                                    <Card.Title>Thời gian đặt</Card.Title>
-
-                                                    {/* Radio cho phần chọn select */}
-                                                    <Form.Group className="mb-3" controlId="timeOption">
-                                                        <InputGroup>
-                                                            <InputGroup.Radio
-                                                                name="timeOption"
-                                                                checked={selectedRadio === 'selectOption'}
-                                                                onChange={() => handleRadioChange('selectOption')}
-                                                                aria-label="Radio button for following select input"
-                                                            />
-                                                            <Form.Select
-                                                                aria-label="Select input with radio button"
-                                                                style={{ border: '1px solid #eee' }}
-                                                                value={selectedTimeOption} // Giá trị select lưu vào state
-                                                                onChange={handleTimeOptionChange} // Hàm thay đổi giá trị select
-                                                                disabled={selectedRadio !== 'selectOption'} // Disable nếu radio không được chọn
-                                                            >
-                                                                <option value="">Hôm nay</option>
-                                                                <option value="1">Hôm qua</option>
-                                                                <option value="2">Tuần này</option>
-                                                                <option value="3">Tuần trước</option>
-                                                                <option value="4">7 ngày</option>
-                                                            </Form.Select>
-                                                        </InputGroup>
-                                                    </Form.Group>
-
-                                                    {/* Radio cho phần chọn khoảng thời gian (date range) */}
-                                                    <Form.Group className="mb-3" controlId="timeOptionText">
-                                                        <InputGroup>
-                                                            <InputGroup.Radio
-                                                                name="timeOption"
-                                                                checked={selectedRadio === 'textInput'}
-                                                                onChange={() => handleRadioChange('textInput')}
-                                                                aria-label="Radio button for following text input"
-                                                            />
-                                                            <Form.Control
-                                                                aria-label="Text input with date range picker"
-                                                                value={timeRange} // Giá trị được lưu ở đây sau khi chọn ngày
-                                                                placeholder="Chọn thời gian"
-                                                                className={selectedRadio === 'textInput' ? 'input-enabled' : 'input-disabled'}
-                                                                onClick={handleShowToast}  // Hiển thị Toast khi nhấp vào ô thứ 2
-                                                                readOnly
-                                                                disabled={selectedRadio !== 'textInput'} // Disable nếu radio không được chọn
-                                                            />
-                                                        </InputGroup>
-                                                    </Form.Group>
-                                                </Card.Body>
-                                            </Card>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                                <Col md={6}>
-                                    <Row>
-                                        <Col md={6}>
-                                            <Card>
-                                                <Card.Body>
-                                                    <Card.Title>Trạng thái</Card.Title>
-                                                    <Form className="checkbox-group">
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label="Chờ xác nhận"
-                                                        />
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label="Đang xử lý"
-                                                        />
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label="Hoàn thành"
-                                                        />
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label="Đã hủy"
-                                                        />
-                                                    </Form>
-                                                </Card.Body>
-                                            </Card>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Card>
-                                                <Card.Body>
-                                                    <Card.Title>Trạng thái thanh toán</Card.Title>
-                                                    <Form className="checkbox-group">
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label="Chưa thanh toán"
-                                                        />
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label="Tạm ứng"
-                                                        />
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label="Đã thanh toán hết"
-                                                        />
-                                                    </Form>
-                                                </Card.Body>
-                                            </Card>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        )}
-                    </Row>
                     <Row>
                         {alert && <Alert type={alert.type} title={alert.title} />}
                         <Table responsive bordered className="mt-5">
@@ -312,6 +145,7 @@ const SearchBooking = () => {
                                     <th>Số lượng khách</th>
                                     <th>Trạng thái đặt phòng</th>
                                     <th>Tổng giá trị đặt phòng</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -319,17 +153,29 @@ const SearchBooking = () => {
                                     <React.Fragment key={booking.bookingId}>
                                         <tr
                                             onClick={() => handleTableOpenAndClose(booking.bookingId)}
-                                            className="table-limited-text"  
+                                            className="table-limited-text"
                                         >
                                             <td>BK{booking.bookingId} {formatDates(booking.createAt)}</td>
                                             <td>{booking.accountFullname}</td>
                                             <td>{formatDate(booking.startAt)}</td>
                                             <td>{formatDate(booking.endAt)}</td>
-                                            <td>{booking.max_guests}</td>
-                                            <td>{booking.statusBookingName}</td>
+                                            <td>{booking.max_guests} người</td>
+                                            <td>
+                                                <span className={`badge ${getStatusBadgeClass(booking.statusBookingName)}`}>
+                                                    {booking.statusBookingName}
+                                                </span>
+                                            </td>
                                             <td>{formatCurrencyVND(booking.total_amount)}</td>
+                                            <td className="d-flex justify-content-between">
+                                                <DetailBooking object={booking} />
+                                                <button
+                                                    className="btn btn-danger"
+                                                    onClick={() => handleUpdateBookingStatus(booking.bookingId)}
+                                                >
+                                                    Hủy
+                                                </button>
+                                            </td>
                                         </tr>
-
                                     </React.Fragment>
                                 ))}
                             </tbody>

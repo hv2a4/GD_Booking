@@ -1,31 +1,55 @@
 import { request } from "../../config/configApi";
 import Cookies from 'js-cookie';
 
-const getTokenFromCookie = () => {
-    return Cookies.get('token');  // Lấy token từ cookie
+const getCookie = () => {
+    const cookie = Cookies.get("token");
+    return cookie;
 }
-// Hàm lấy dữ liệu từ API
+
 const getDataReservations = async () => {
     try {
         const res = await request({
             method: "GET",
-            path: "/api/reservations/getAll",
-            token:getTokenFromCookie()
+            path: '/api/reservations/getAll',
+            token: getCookie()
         });
 
-        // Log dữ liệu nhận được từ API để kiểm tra
-        console.log('Dữ liệu nhận được từ API:', res);
-
-        // Kiểm tra mảng
-        if (!Array.isArray(res)) {
-            throw new Error("Dữ liệu trả về không phải là mảng");
+        // Đảm bảo trả về dữ liệu nếu là mảng
+        if (Array.isArray(res)) {
+            return res;  // Trả về dữ liệu nếu là mảng
+        } else {
+            throw new Error("Dữ liệu không phải là mảng");
         }
+    } catch (error) {
+        console.error('Lỗi khi tải dữ liệu đặt phòng:', error);
+        throw error;  // Ném lỗi để có thể xử lý ở nơi gọi hàm
+    }
+}
 
+const getByIdBooking = async (id) => {
+    try {
+        const res = await request({
+            method: "GET",
+            path: `/api/reservations/selectBookingById?bookingId=${id}`,
+            token: getCookie()
+        });
         return res;
     } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu:", error);
-        throw error;
+        throw new Error("Lỗi khi lấy dữ liệu tư API: ", error)
     }
-};
+}
 
-export { getDataReservations };
+const updateStatusBooking = async (id) => {
+    try {
+        const res = await request({
+            method: "PUT",
+            path: `/api/reservations/statusBooking?bookingId=${id}`,
+            token: getCookie()
+        });
+        return res;
+    } catch (error) {
+        throw new Error("Lỗi khi lấy dữ liệu từ api: ", error);
+    }
+}
+export { getDataReservations, getByIdBooking, updateStatusBooking };
+
