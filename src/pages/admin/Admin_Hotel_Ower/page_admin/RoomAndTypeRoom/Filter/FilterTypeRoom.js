@@ -6,15 +6,17 @@ import Select from 'react-select';
 import { RiAddCircleLine } from "react-icons/ri";
 
 // Component tìm kiếm chung
-function SearchBox({ placeholder }) {
+function SearchBox({ placeholder, onSearch }) {
     return (
-        <Form>
             <Form.Group controlId="search">
-                <Form.Control type="text" placeholder={placeholder} />
+                <Form.Control
+                    type="text"
+                    placeholder={placeholder}
+                    onChange={(e) => onSearch(e.target.value)}
+                />
             </Form.Group>
-        </Form>
     );
-}
+};
 
 // Component chọn trạng thái với combobox
 function StatusSelector() {

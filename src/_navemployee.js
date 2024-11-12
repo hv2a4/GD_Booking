@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import CIcon from '@coreui/icons-react'
 import {
   cilHome,
@@ -7,39 +7,41 @@ import {
   cilLayers,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
+import { getAllFloor } from './services/employee/floor';
 
-const _nav = [
-  {
-    component: CNavItem,
-    name: 'Sơ đồ',
-    to: '/employee/home',
-    icon: <CIcon icon={cilHome} customClassName="nav-icon" />, // Home icon for layout overview
-  },
-  {
-    component: CNavItem,
-    name: 'Danh sách đặt phòng',
-    to: '/employee/list-booking-room',
-    icon: <CIcon icon={cilList} customClassName="nav-icon" />, // List icon for reservations
-  },
-  {
-    component: CNavGroup,
-    name: 'Quản lý tầng',
-    icon: <CIcon icon={cilBuilding} customClassName="nav-icon" />, // Building icon for floor management
-    items: [
-      {
-        component: CNavItem,
-        name: 'Tầng 1',
-        to: '/employee/Floor/1',
-        icon: <CIcon icon={cilLayers} customClassName="nav-icon" />, // Layer icon for individual floors
-      },
-      {
-        component: CNavItem,
-        name: 'Tầng 2',
-        to: '/employee/Floor/2',
-        icon: <CIcon icon={cilLayers} customClassName="nav-icon" />, // Layer icon reused for consistency
-      },
-    ],
-  },
-]
+export const createNavData = async () => {
+  const floors = await getAllFloor(); // Lấy dữ liệu từ API
+  if (!Array.isArray(floors)) {
+    console.error("Floors data is not an array:", floors);
+    return []; // Trả về mảng rỗng nếu không phải mảng
+  }
 
-export default _nav
+  const floorItems = floors.map(floor => ({
+    component: CNavItem,
+    name: `${floor.floorName}`,
+    to: `/employee/Floor/${floor.id}`,
+    icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
+  }));
+
+  return [
+    {
+      component: CNavItem,
+      name: 'Sơ đồ',
+      to: '/employee/home',
+      icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
+    },
+    {
+      component: CNavItem,
+      name: 'Danh sách đặt phòng',
+      to: '/employee/list-booking-room',
+      icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+    },
+    {
+      component: CNavGroup,
+      name: 'Quản lý tầng',
+      icon: <CIcon icon={cilBuilding} customClassName="nav-icon" />,
+      items: floorItems,
+    },
+  ];
+};
+
