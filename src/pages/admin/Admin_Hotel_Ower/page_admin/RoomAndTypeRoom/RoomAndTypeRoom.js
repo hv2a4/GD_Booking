@@ -3,12 +3,15 @@ import { MdAdd } from "react-icons/md";
 // import UpdateTypeRoom from "./UpdateTypeRoom";
 import { DeleteModelTypeRoom, DeleteModelRoom } from "./DeleteModel";
 import { UpdateRoomModal } from "./Rom/RoomModal";
-import { Add_Update_TypeRoom } from "./Rom/AddAndUpdate";
+import { Add_Update_TypeRoom, Update_Images_TypeRoom } from "./Rom/AddAndUpdate";
 import { AddRoomModal } from "./Rom/RoomModal";
 import { SearchBox, StatusSelector, RoomTypeSelector, FloorSelector } from "./Filter/FilterTypeRoom";
-import { Card, Col, Form, Row } from "react-bootstrap";
-import axios from "axios";
-import typeRoomImage from "../../../../../assets/images/about-1.jpg";
+import { Card, CardHeader, CardTitle, Col, Form, Row } from "react-bootstrap";
+import { request } from '../../../../../config/configApi';
+import Cookies from 'js-cookie';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+
 const RoomAndTypeRoom = () => {
     const [activeTab, setActiveTab] = useState("roomType");
     const [selectedRoomTypes, setSelectedRoomTypes] = useState([]);
@@ -17,46 +20,29 @@ const RoomAndTypeRoom = () => {
     const [selectedRoomIds, setSelectedRoomIds] = useState([]);
     const [expandedRowId, setExpandedRowId] = useState(null);
     const [currentTab, setCurrentTab] = useState('info'); // Đổi tên biến ở đây
-    const [listRoomDetail, setListRoomDetail] = useState([]);
     const selectedTypeRoomIdRef = useRef(''); // UseRef for non-rendering updates
+    const [roomTypes, setRoomTypes] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const location = useLocation();
 
-    const roomTypes = [
-        { id: 1, typeRoomName: "Loại phòng 1", quantity: 5, price: 800000, idTypeBed: 'Giường đơn', guestLimit: '1-1;1-2', bedCount: 2, acreage: 5 },
-        { id: 2, typeRoomName: "Loại phòng 2", quantity: 7, price: 900000, idTypeBed: 'Giường đôi', guestLimit: '1-2;2-2', bedCount: 1, acreage: 6 },
-    ];
+    useEffect(() => {
+        const fetchRoomTypes = async () => {
+            const response = await request({
+                method: "GET",
+                path: "/api/type-room/getAll",
+                token: Cookies.get('token'), // Thay thế bằng token nếu cần
+            });
 
-    const getGuestLimit = (guestLimit) => {
-        if (guestLimit && typeof guestLimit === 'string') {
-            const parts = guestLimit.split(';');
-
-            // Kiểm tra nếu không tách được đúng hai phần
-            if (parts.length < 2) {
-                return "Dữ liệu không hợp lệ: không có đủ phần 'standard' và 'max'";
+            if (response) {
+                setRoomTypes(response);
             }
+        };
+        fetchRoomTypes();
+    }, [location]);
 
-            const [standard, max] = parts;
-
-            // Kiểm tra nếu không tách được đúng định dạng người lớn - trẻ em
-            const standardParts = standard.split('-').map(Number);
-            const maxParts = max.split('-').map(Number);
-
-            if (standardParts.length < 2 || maxParts.length < 2) {
-                return "Dữ liệu không hợp lệ: định dạng của 'standard' hoặc 'max' không đúng";
-            }
-
-            const [adultsStandard, childrenStandard] = standardParts;
-            const [adultsMax, childrenMax] = maxParts;
-
-            const guestLimits = {
-                adultsStandard,
-                childrenStandard,
-                adultsMax,
-                childrenMax
-            };
-            return guestLimits;
-        }
-        return "Dữ liệu không hợp lệ: guestLimit không tồn tại hoặc không phải chuỗi hợp lệ";
-    };
+    useEffect(() => {
+        setFilteredData(roomTypes);
+    }, [roomTypes]);
 
 
     const rooms = [
@@ -110,8 +96,14 @@ const RoomAndTypeRoom = () => {
         }
     }
 
-    // console.log("Đây là danh loai phòng lấy được", listTypeRoom);
-    // console.log("Mã loại phòng đã chọn:", selectedTypeRoomIdRef.current);
+    const handleSearchTypeRoom = (query) => {
+        const searchResults = roomTypes.filter((item) =>
+            item.typeRoomName.toLowerCase().includes(query.toLowerCase()) ||
+            item.id.toString().includes(query)
+        );
+        setFilteredData(searchResults);
+    };
+
     return (
         <div className="container-fluid">
             <div className="card shadow-sm">
@@ -123,14 +115,11 @@ const RoomAndTypeRoom = () => {
                                 <Card>
                                     <Card.Body>
                                         <Row>
-                                            <Col md={3}></Col>
-                                            <Col md={3}>
-                                                <SearchBox placeholder="Tìm kiếm loại phòng." />
+                                            <Col md={4}></Col>
+                                            <Col md={4}>
+                                                <SearchBox onSearch={handleSearchTypeRoom} placeholder="Tìm kiếm loại phòng." />
                                             </Col>
-                                            <Col md={3}>
-                                                <StatusSelector />
-                                            </Col>
-                                            <Col md={3}></Col>
+                                            <Col md={4}></Col>
                                         </Row>
                                     </Card.Body>
                                 </Card>
@@ -220,25 +209,24 @@ const RoomAndTypeRoom = () => {
                                             <input
                                                 type="checkbox"
                                                 onChange={() => {
-                                                    const allSelected = selectedRoomTypes.length === roomTypes.length;
-                                                    setSelectedRoomTypes(allSelected ? [] : roomTypes.map(room => room.id));
+                                                    const allSelected = selectedRoomTypes.length === filteredData.length;
+                                                    setSelectedRoomTypes(allSelected ? [] : filteredData.map(roomType => roomType.id));
                                                 }}
-                                                checked={selectedRoomTypes.length === roomTypes.length}
+                                                checked={selectedRoomTypes.length === filteredData.length}
                                             />
                                         </th>
                                         <th>Mã loại phòng</th>
                                         <th>Tên loại phòng</th>
-                                        <th>Số lượng phòng</th>
-                                        <th>Giá cả ngày</th>
+                                        <th>Giá</th>
                                         <th>Giường</th>
-                                        <th>Sức chứa tiêu chuẩn</th>
-                                        <th>Sức chứa tối đa</th>
+                                        <th>Sức chứa</th>
                                         <th>Diện tích</th>
+                                        <th>Hình ảnh</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {roomTypes.map(({ id, typeRoomName, quantity, price, idTypeBed, guestLimit, bedCount, acreage }) => (
+                                    {filteredData.map(({ id, typeRoomName, price, typeBedDto, guestLimit, bedCount, acreage, typeRoomImageDto }) => (
                                         <React.Fragment key={id}>
                                             <tr onClick={(e) => {
                                                 // Chỉ mở rộng thông tin nếu không nhấn vào checkbox
@@ -259,14 +247,15 @@ const RoomAndTypeRoom = () => {
                                                 </td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{id}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{typeRoomName}</td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{quantity} </td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{price} VNĐ</td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{bedCount + ' ' + idTypeBed}</td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{getGuestLimit(guestLimit)?.adultsStandard + ' người lớn và ' +
-                                                    getGuestLimit(guestLimit)?.childrenStandard + ' trẻ em'}</td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{getGuestLimit(guestLimit)?.adultsMax + ' người lớn và ' +
-                                                    getGuestLimit(guestLimit)?.childrenMax + ' trẻ em'}</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{bedCount + ' ' + typeBedDto.bedName}</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{guestLimit + ' người'}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{acreage} m2</td>
+                                                <td onClick={(e) => {
+                                                    e.stopPropagation();
+                                                }}>
+                                                    <Update_Images_TypeRoom typeRoomImage={typeRoomImageDto} typeRoomName={typeRoomName} idTypeRoom={id} />
+                                                </td>
                                             </tr>
 
                                             {/* Hàng chi tiết mở rộng */}
@@ -275,107 +264,39 @@ const RoomAndTypeRoom = () => {
                                                     <td colSpan="10">
                                                         <Card>
                                                             <Card.Body>
+                                                                <CardTitle>Thông tin</CardTitle>
                                                                 <Row>
                                                                     <div className="container-fluid">
-                                                                        <ul className="nav nav-tabs">
-                                                                            <li className="nav-item">
-                                                                                <button className={`nav-link ${expandedTab === "info" ? "active" : ""}`} onClick={() => setExpandedTab("info")}>
-                                                                                    Thông tin
-                                                                                </button>
-                                                                            </li>
-                                                                            <li className="nav-item">
-                                                                                <button className={`nav-link ${expandedTab === "roomList" ? "active" : ""}`} onClick={() => setExpandedTab("roomList")}>
-                                                                                    Danh sách phòng
-                                                                                </button>
-                                                                            </li>
-                                                                        </ul>
-                                                                        <div className="tab-content">
-                                                                            {expandedTab === "info" && (
-                                                                                <div className="tab-pane fade show active mt-5">
-                                                                                    <Row className="mb-4 align-items-start">
-                                                                                        {/* Cột chứa hình ảnh */}
-                                                                                        <Col md={4} className="d-flex justify-content-center">
-                                                                                            <img src={typeRoomImage} alt="Hạng phòng" />
-                                                                                        </Col>
-
-                                                                                        {/* Cột chứa thông tin loại phòng */}
-                                                                                        <Col md={4}>
-                                                                                            <div style={{ overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                                                                                                <p><strong>Mã loại phòng:</strong> {id}</p>
-                                                                                                <p><strong>Tên loại phòng:</strong> {typeRoomName}</p>
-                                                                                                <p><strong>Số lượng phòng:</strong> {quantity}</p>
-                                                                                                <p><strong>Giường:</strong> {bedCount + ' ' + idTypeBed}</p>
-                                                                                                <p><strong>Diện tích:</strong> {acreage} m2</p>
-                                                                                            </div>
-                                                                                        </Col>
-
-                                                                                        {/* Cột chứa thông tin giá cả và địa chỉ */}
-                                                                                        <Col md={4}>
-                                                                                            <div style={{ overflowY: "auto", scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                                                                                                <p><strong>Sức chứa tiêu chuẩn:</strong> {getGuestLimit(guestLimit)?.adultsStandard + ' người lớn và ' +
-                                                                                                    getGuestLimit(guestLimit)?.childrenStandard + ' trẻ em'}</p>
-                                                                                                <p><strong>Sức chứa tối đa:</strong> {getGuestLimit(guestLimit)?.adultsMax + ' người lớn và ' +
-                                                                                                    getGuestLimit(guestLimit)?.childrenMax + ' trẻ em'}</p>
-                                                                                                <p><strong>Giá cả ngày:</strong> {price} VNĐ</p>
-                                                                                                <p><strong>Phụ thu quá giờ:</strong> Tính tiền mỗi giờ</p>
-                                                                                            </div>
-                                                                                        </Col>
-                                                                                    </Row>
-
-                                                                                    {/* Các nút cập nhật và xóa */}
-                                                                                    <div className="d-flex justify-content-end">
-                                                                                        <Add_Update_TypeRoom idTypeRoom={id} />
-                                                                                        <DeleteModelTypeRoom ID_Room={typeRoomName} />
+                                                                        <div className="tab-pane fade show active mt-5">
+                                                                            <Row className="mb-4 align-items-start">
+                                                                                {/* Cột chứa thông tin loại phòng */}
+                                                                                <Col md={6}>
+                                                                                    <div style={{ overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                                                                                        <p><strong>Mã loại phòng:</strong> {id}</p>
+                                                                                        <p><strong>Tên loại phòng:</strong> {typeRoomName}</p>
+                                                                                        <p><strong>Giường:</strong> {bedCount + ' ' + typeBedDto.bedName}</p>
+                                                                                        <p><strong>Sức chứa:</strong> {guestLimit + ' người'}</p>
                                                                                     </div>
-                                                                                </div>
-                                                                            )}
+                                                                                </Col>
 
-                                                                            {expandedTab === "roomList" && (
-                                                                                <div className="tab-pane fade show active mt-4">
-                                                                                    <div className="table-responsive">
-                                                                                        <Card>
-                                                                                            <Card.Body>
-                                                                                                <div className="d-flex justify-content-end">
-                                                                                                    <Form.Select
-                                                                                                        aria-label="Chọn số tầng"
-                                                                                                        className="ms-auto"
-                                                                                                        style={{ width: 'auto' }}
-                                                                                                        onChange={''}
-                                                                                                    >
-                                                                                                        <option value="">Chọn số tầng</option>
-                                                                                                    </Form.Select>
-                                                                                                </div>
-                                                                                            </Card.Body>
-                                                                                        </Card>
-                                                                                        <table className="table">
-                                                                                            <thead className="thead-dark">
-                                                                                                <tr>
-                                                                                                    <th>Tên phòng</th>
-                                                                                                    <th>Tầng</th>
-                                                                                                    <th>Trạng thái</th>
-                                                                                                </tr>
-                                                                                            </thead>
-                                                                                            <tbody>
-                                                                                                {listRoomDetail && listRoomDetail.length > 0 ? (
-                                                                                                    listRoomDetail.map((item, index) => (
-                                                                                                        <tr key={index}>
-                                                                                                            <td>{item.roomName}</td>
-                                                                                                            <td>{item.floorName}</td>
-                                                                                                            <td>{item.statusRoomName}</td>
-                                                                                                        </tr>
-                                                                                                    ))
-                                                                                                ) : (
-                                                                                                    <tr>
-                                                                                                        <td colSpan="3">Không có dữ liệu</td>
-                                                                                                    </tr>
-                                                                                                )}
-                                                                                            </tbody>
-
-                                                                                        </table>
+                                                                                {/* Cột chứa thông tin giá cả và địa chỉ */}
+                                                                                <Col md={6}>
+                                                                                    <div style={{ overflowY: "auto", scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                                                                        <p><strong>Diện tích:</strong> {acreage} m2</p>
+                                                                                        <p><strong>Giá cả ngày:</strong> {price} VNĐ</p>
+                                                                                        <p><strong>Phụ thu quá giờ:</strong> Tính tiền mỗi giờ</p>
                                                                                     </div>
-                                                                                </div>
-                                                                            )}
+                                                                                </Col>
+
+                                                                            </Row>
+
+                                                                            {/* Các nút cập nhật và xóa */}
+                                                                            <div className="d-flex justify-content-end">
+                                                                                <Add_Update_TypeRoom idTypeRoom={id} />
+                                                                                <DeleteModelTypeRoom idTypeRoom={id} />
+                                                                            </div>
                                                                         </div>
+
                                                                     </div>
                                                                 </Row>
                                                             </Card.Body>
@@ -414,90 +335,90 @@ const RoomAndTypeRoom = () => {
                                 </thead>
                                 <tbody>
                                     {rooms.map(({ id, name, id_TypeRoom, id_floor, status }) => (
-                                    <React.Fragment key={id}>
-                                        <tr>
-                                            <td>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedRoomIds.includes(id)}
-                                                    onChange={(e) => handleRoomSelection(id, e)}
-                                                />
-                                            </td>
-                                            <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{name}</td>
-                                            <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{id_TypeRoom}</td>
-                                            <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{id_floor}</td>
-                                            <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{status}</td>
-                                        </tr>
-                                        {expandedRowId === id && (
+                                        <React.Fragment key={id}>
                                             <tr>
-                                                <td colSpan="8">
-                                                    <div>
-                                                        <ul className="nav nav-tabs" role="tablist">
-                                                            <li className="nav-item">
-                                                                <button
-                                                                    className={`nav-link ${currentTab === 'info' ? 'active' : ''}`}
-                                                                    onClick={() => setCurrentTab('info')}
-                                                                >
-                                                                    Thông tin
-                                                                </button>
-                                                            </li>
-                                                            <li className="nav-item">
-                                                                <button
-                                                                    className={`nav-link ${currentTab === 'bookingHistory' ? 'active' : ''}`}
-                                                                    onClick={() => setCurrentTab('bookingHistory')}
-                                                                >
-                                                                    Lịch sử đặt phòng
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                        <div className="tab-content">
-                                                            {currentTab === 'info' && (
-                                                                <div className="tab-pane fade show active">
-                                                                    <div className="card mb-3 mt-4" style={{ border: 'none' }}>
-                                                                        <div className="card-body">
-                                                                            <h5 className="card-title">Thông tin phòng</h5>
-                                                                            <div className="row mb-3">
-                                                                                <div className="col-6">
-                                                                                    <p><strong>Tên phòng:</strong> {name}</p>
-                                                                                    <p><strong>Tầng:</strong> {id_floor}</p>
+                                                <td>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedRoomIds.includes(id)}
+                                                        onChange={(e) => handleRoomSelection(id, e)}
+                                                    />
+                                                </td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{name}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{id_TypeRoom}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{id_floor}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{status}</td>
+                                            </tr>
+                                            {expandedRowId === id && (
+                                                <tr>
+                                                    <td colSpan="8">
+                                                        <div>
+                                                            <ul className="nav nav-tabs" role="tablist">
+                                                                <li className="nav-item">
+                                                                    <button
+                                                                        className={`nav-link ${currentTab === 'info' ? 'active' : ''}`}
+                                                                        onClick={() => setCurrentTab('info')}
+                                                                    >
+                                                                        Thông tin
+                                                                    </button>
+                                                                </li>
+                                                                <li className="nav-item">
+                                                                    <button
+                                                                        className={`nav-link ${currentTab === 'bookingHistory' ? 'active' : ''}`}
+                                                                        onClick={() => setCurrentTab('bookingHistory')}
+                                                                    >
+                                                                        Lịch sử đặt phòng
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                            <div className="tab-content">
+                                                                {currentTab === 'info' && (
+                                                                    <div className="tab-pane fade show active">
+                                                                        <div className="card mb-3 mt-4" style={{ border: 'none' }}>
+                                                                            <div className="card-body">
+                                                                                <h5 className="card-title">Thông tin phòng</h5>
+                                                                                <div className="row mb-3">
+                                                                                    <div className="col-6">
+                                                                                        <p><strong>Tên phòng:</strong> {name}</p>
+                                                                                        <p><strong>Tầng:</strong> {id_floor}</p>
+                                                                                    </div>
+                                                                                    <div className="col-6">
+                                                                                        <p><strong>Loại phòng:</strong> {id_TypeRoom}</p>
+                                                                                        <p><strong>Trạng thái:</strong> {status}</p>
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div className="col-6">
-                                                                                <p><strong>Loại phòng:</strong> {id_TypeRoom}</p>
-                                                                                    <p><strong>Trạng thái:</strong> {status}</p>
+                                                                                <div className="d-flex justify-content-end">
+                                                                                    <UpdateRoomModal />
+                                                                                    <DeleteModelRoom Name_Room={name} />
                                                                                 </div>
-                                                                            </div>
-                                                                            <div className="d-flex justify-content-end">
-                                                                                <UpdateRoomModal />
-                                                                                <DeleteModelRoom Name_Room={name} />
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            )}
+                                                                )}
 
-                                                            {currentTab === 'bookingHistory' && (
-                                                                <div className="tab-pane fade show active" style={{ minHeight: 'auto' }}>
-                                                                    <table className="table table-striped mt-3">
-                                                                        <thead className="table-primary">
-                                                                            <tr>
-                                                                                <th scope="col">Mã phòng</th>
-                                                                                <th scope="col">Check in</th>
-                                                                                <th scope="col">Check out</th>
-                                                                                <th scope="col">Khách hàng</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            )}
+                                                                {currentTab === 'bookingHistory' && (
+                                                                    <div className="tab-pane fade show active" style={{ minHeight: 'auto' }}>
+                                                                        <table className="table table-striped mt-3">
+                                                                            <thead className="table-primary">
+                                                                                <tr>
+                                                                                    <th scope="col">Mã phòng</th>
+                                                                                    <th scope="col">Check in</th>
+                                                                                    <th scope="col">Check out</th>
+                                                                                    <th scope="col">Khách hàng</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </React.Fragment>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
                                     ))}
                                 </tbody>
                             </table>

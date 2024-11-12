@@ -9,13 +9,12 @@ const ImageListSlider = ({ onImagesChange, maxImages }) => {
             alert(`Chỉ có thể thêm tối đa ${maxImages} ảnh.`);
             return;
         }
-    
+
         const file = e.target.files[0];
         if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            const updatedImages = [...images, imageUrl];
+            const updatedImages = [...images, file]; // Lưu trữ File thay vì URL
             setImages(updatedImages);
-            onImagesChange(updatedImages); // Gọi hàm callback
+            onImagesChange(updatedImages); // Truyền danh sách File qua callback
             e.target.value = ""; // Reset input sau khi chọn ảnh
         }
     };
@@ -28,11 +27,10 @@ const ImageListSlider = ({ onImagesChange, maxImages }) => {
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
-                const imageUrl = URL.createObjectURL(file);
                 const updatedImages = [...images];
-                updatedImages[index] = imageUrl;
+                updatedImages[index] = file; // Thay thế File tại vị trí đã chọn
                 setImages(updatedImages);
-                onImagesChange(updatedImages); // Gọi hàm callback
+                onImagesChange(updatedImages); // Truyền danh sách File qua callback
             }
         };
 
@@ -42,17 +40,20 @@ const ImageListSlider = ({ onImagesChange, maxImages }) => {
     const handleDeleteImage = (index) => {
         const updatedImages = images.filter((_, i) => i !== index);
         setImages(updatedImages);
-        onImagesChange(updatedImages); // Gọi hàm callback
+        onImagesChange(updatedImages); // Truyền danh sách File qua callback
     };
 
     return (
         <Container>
-            <div className="image-gallery mt-3">
+            <div className="image-gallery">
                 <Row>
                     {images.map((image, index) => (
                         <Col key={index} xs={6} sm={4} md={2} className="mb-3">
                             <Card className="image-card">
-                                <Card.Img variant="top" src={image || "https://via.placeholder.com/100"} />
+                                <Card.Img
+                                    variant="top"
+                                    src={image instanceof File ? URL.createObjectURL(image) : "https://via.placeholder.com/100"} // Hiển thị URL từ File tạm thời
+                                />
                             </Card>
                             <div className="button-container">
                                 <Button variant="warning" size="sm" onClick={() => handleEditImage(index)}>
@@ -64,7 +65,7 @@ const ImageListSlider = ({ onImagesChange, maxImages }) => {
                             </div>
                         </Col>
                     ))}
-                    {images.length < maxImages && (  // Sử dụng maxImages
+                    {images.length < maxImages && (
                         <Col xs={6} sm={4} md={2} className="mb-3">
                             <Card className="add-image-card">
                                 <Button
