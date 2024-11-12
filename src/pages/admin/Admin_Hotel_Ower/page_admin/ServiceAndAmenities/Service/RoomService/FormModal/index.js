@@ -1,42 +1,96 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
 import { GiCancel } from "react-icons/gi";
 import ImageListSlider from '../../../../RoomAndTypeRoom/Rom/ImagesList';
 import { useForm } from 'react-hook-form';
+import { createRoomService, deleteRoomService, getAllTypeRoomService, updateRoomService } from '../../../../../../../../services/admin/service-management';
+import uploadImageToFirebase from '../../../../../../../../config/fireBase';
+import { Cookies } from "react-cookie";
+import Alert from '../../../../../../../../config/alert';
 
-const RoomServiceFormModal = ({ idRommService }) => {
+const RoomServiceFormModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
-    const { register, handleSubmit } = useForm(); // Khởi tạo useForm
+    const { register, handleSubmit, setValue } = useForm(); // Khởi tạo useForm
+    const [images, setImages] = useState();
+    const [typeRoomService, setTypeRoomService] = useState([]);
+    const [alert, setAlert] = useState(null);
+    const cookie = new Cookies();
+    const token = cookie.get("token");
 
-    const [images, setImages] = useState([]);
+    useEffect(() => {
+        if (item) {
+            setValue("id", item.id);
+            setValue("serviceRoomName", item.serviceRoomName);
+            setValue("price", item.price);
+            setValue("typeServiceRoom", item?.typeServiceRoomDto?.id);
+        }
+        handleTypeRoomService();
+    }, [item, setValue]);
+
 
     const handleImagesChange = (newImages) => {
         setImages(newImages);
     };
 
+    const handleTypeRoomService = async () => {
+        try {
+            const data = await getAllTypeRoomService();
+            if (!data) {
+                console.log("hfhsf");
+            } else {
+                setTypeRoomService(data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     const handleShow = () => {
-        if(!show){
+        if (!show) {
             setShow(true);
         }
     }
-    const handleClose = () => setShow(false);
+    const handleClose = () => {
+        setShow(false);
+        setAlert(null);
+    }
 
-    const onSubmit = (data) => {
-        console.log("Submitting data:", data); // Xác minh dữ liệu được gửi
-        handleClose();
+    const onSubmit = async (data) => {
+        console.log(images);
+        const urlImage = images ? await uploadImageToFirebase(images) : item.imageName;
+
+        const service = { ...data, imageName: urlImage || "" }
+        console.log(service);
+
+        try {
+            const res = item ? await updateRoomService(service.id, service, token) : createRoomService(service, token);
+
+            if (res) {
+                setAlert({ type: res.status, title: res.message });  // Chỉ gọi setAlert sau khi nhận phản hồi từ API
+            } else {
+                setAlert({ type: res.status, title: res.message });
+            }
+
+            if (item) {
+                refreshData();
+            }
+        } catch (error) {
+            setAlert({ type: "error", title: error.message });
+        } finally {
+            // Đảm bảo đóng modal chỉ sau khi thông báo hiển thị
+            setTimeout(() => {
+                handleClose();
+            }, 1000);
+        }
     };
 
-    // const onSubmit = (data) => {
-    //     console.log(data); // Xử lý dữ liệu submit tại đây
-    //     handleClose(); // Đóng modal sau khi lưu
-    // };
 
     return (
         <>
             {(() => {
-                if (!idRommService) {
+                if (!item) {
                     return (
                         <small style={{ fontSize: '13px', cursor: 'pointer' }} id="room-service-form" onClick={handleShow}>
                             Thêm
@@ -59,7 +113,8 @@ const RoomServiceFormModal = ({ idRommService }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        <h5>{!idRommService ? 'Thêm' : 'Cập nhật'} Dịch Vụ Phòng</h5>
+                        {alert && <Alert type={alert.type} title={alert.title} />}
+                        <h5>{!item ? 'Thêm' : 'Cập nhật'} Dịch Vụ Phòng</h5>
                     </Modal.Title>
                 </Modal.Header>
 
@@ -78,7 +133,6 @@ const RoomServiceFormModal = ({ idRommService }) => {
                                                     type="text"
                                                     placeholder="Mã dịch vụ phòng tự động" disabled
                                                     name='id'
-                                                    value={idRommService}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -101,18 +155,21 @@ const RoomServiceFormModal = ({ idRommService }) => {
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Select
-                                                    {...register('typeServiceRoom', { required: true })} // Đăng ký trường với react-hook-form
+                                                    {...register('typeServiceRoom', { required: true })}
                                                     id="id_typeServiceRoom"
                                                     aria-label="Chọn loại dịch vụ phòng"
                                                 >
                                                     <option value="">Chọn loại dịch vụ phòng...</option>
-                                                    <option value="standard">Standard</option>
-                                                    <option value="deluxe">Deluxe</option>
-                                                    <option value="suite">Suite</option>
+                                                    {typeRoomService.map((item, index) => {
+                                                        return (
+                                                            <option value={item?.id} key={index}>
+                                                                {item?.serviceRoomName}
+                                                            </option>
+                                                        );
+                                                    })}
                                                 </Form.Select>
                                             </Col>
                                         </Form.Group>
-
 
                                         <Form.Group as={Row} controlId="price" className="mt-3">
                                             <Form.Label column sm={4}>
@@ -128,7 +185,7 @@ const RoomServiceFormModal = ({ idRommService }) => {
                                             </Col>
                                         </Form.Group>
 
-                                        <Form.Group as={Row} controlId="description" className="mt-3">
+                                        {/* <Form.Group as={Row} controlId="description" className="mt-3">
                                             <Form.Label column sm={4}>
                                                 Mô tả
                                             </Form.Label>
@@ -140,10 +197,10 @@ const RoomServiceFormModal = ({ idRommService }) => {
                                                     placeholder="Nhập mô tả..."
                                                 />
                                             </Col>
-                                        </Form.Group>
+                                        </Form.Group> */}
 
                                         <Row className='mt-3'>
-                                            <ImageListSlider onImagesChange={handleImagesChange} maxImages={1} />
+                                            <ImageListSlider onImagesChange={handleImagesChange} maxImages={1} img={item?.imageName} />
                                         </Row>
                                         <Button variant="success" type="submit" className="mt-3 d-none" id='btnsubmit'>
                                             <FaSave size={14} />&nbsp;Lưu
@@ -184,11 +241,30 @@ const RoomServiceFormModal = ({ idRommService }) => {
     );
 };
 
-const DeleteRoomServiceModal = ({ id, serviceRoomName }) => {
+const DeleteRoomServiceModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
-
+    const [alert, setAlert] = useState(null);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const cookie = new Cookies();
+    const token = cookie.get("token");
+    const handleDelete = async () => {
+        try {
+            const res = await deleteRoomService(item?.id,token);
+            refreshData();
+            if (res) {
+                setAlert({ type:"warning", title: res.message });
+                // Gọi refreshData để tải lại dữ liệu
+            }
+        } catch (error) {
+            setAlert({ type: 'error', title: error.message });
+        }
+
+        // Đảm bảo rằng bạn cho thời gian để render thông báo trước khi đóng modal
+        setTimeout(() => {
+            handleClose();
+        }, 1000);
+    }
 
     return (
         <>
@@ -197,13 +273,14 @@ const DeleteRoomServiceModal = ({ id, serviceRoomName }) => {
             </button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton style={{ border: 'none' }}>
+                    {alert && <Alert type={alert.type} title={alert.title} />}
                     <Modal.Title>Xóa dịch vụ phòng </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn xóa dịch vụ phòng <strong>{serviceRoomName}</strong> này?
+                    Bạn có chắc chắn muốn xóa dịch vụ phòng <strong>{item?.serviceRoomName}</strong> này?
                 </Modal.Body>
                 <Modal.Footer style={{ border: 'none' }}>
-                    <Button variant="danger" onClick={handleClose}>
+                    <Button variant="danger" onClick={handleDelete}>
                         Đồng ý
                     </Button>
                     <Button

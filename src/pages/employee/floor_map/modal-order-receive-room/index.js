@@ -33,7 +33,7 @@ const ModalORR = ({ onClose }) => {
     }
     return (
         <>
-            <Modal className="custom-modal-width modal-dialog-centered" show={true} onHide={onClose}>
+            <Modal className="custom-modal-width1 modal-dialog-centered" show={true} onHide={onClose} style={{paddingRight: "143px"}}>
                 <div className="modal-content modal-fill" style={{ width: "auto" }}>
                     <Modal.Header closeButton>
                         <Modal.Title id="exampleModalLabel">Đặt/Nhận phòng nhanh</Modal.Title>

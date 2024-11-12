@@ -1,26 +1,62 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
 import { useForm } from 'react-hook-form';
 import { GiCancel } from "react-icons/gi";
+import { createTypeRoomService, deleteTypeRoomService, updateTypeRoomService } from '../../../../../../../../services/admin/service-management';
+import { Cookies } from "react-cookie";
+import Alert from '../../../../../../../../config/alert';
 
-const RoomServiceRoomFormModal = ({ idTypeServiceRoom }) => {
+const RoomServiceRoomFormModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
-    const { register, handleSubmit } = useForm(); // Khởi tạo useForm
+    const { register, handleSubmit, setValue } = useForm();
+    const [alert, setAlert] = useState(null);
+    const cookie = new Cookies();
+    const token = cookie.get("token");
 
-    const handleShow = () => {if(!show){setShow(true)}};
-    const handleClose = () => setShow(false);
+    useEffect(() => {
+        if (item) {
+            setValue("id", item.id);
+            setValue("serviceRoomName", item.serviceRoomName);
+        }
+    }, [item, setValue]);
 
-    const onSubmit = (data) => {
-        console.log(data); // Xử lý dữ liệu submit tại đây
-        handleClose(); // Đóng modal sau khi lưu
+    const handleShow = () => { if (!show) { setShow(true) } };
+    const handleClose = () => {
+        setShow(false);
+        setAlert(null);
+    }
+
+    const onSubmit = async (data) => {
+        if (!token) {
+            setAlert({ type: "error", title: "Bạn không có quyền hành động này" });
+        }
+        if (!data.serviceRoomName) {
+            setAlert({ type: "error", title: "Không được bỏ trống thông tin" });
+        }
+        console.log(data);
+
+        try {
+            const res = item ? await updateTypeRoomService(data.id, data, token) : await createTypeRoomService(data, token);
+            if (res) {
+                setAlert({ type: "success", title: item ? "Cập nhật thành công" : "Thêm thành công" });
+            }
+            if (item) {
+                refreshData();
+            }
+        } catch (error) {
+            setAlert({ type: "error", title: error.message });
+        } 
+        setTimeout(() => {
+            handleClose(); // Đóng modal sau khi thông báo hiển thị
+        }, 1000);
     };
 
     return (
         <>
             {(() => {
-                if (!idTypeServiceRoom) {
+                if (!item) {
                     return (
                         <small style={{ fontSize: '13px', cursor: 'pointer' }} id="type-service-room-form" onClick={handleShow}>
                             Thêm
@@ -43,7 +79,8 @@ const RoomServiceRoomFormModal = ({ idTypeServiceRoom }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        <h5>{!idTypeServiceRoom ? 'Thêm' : 'Cập nhật'} Loại Dịch Vụ phòng</h5>
+                        {alert && <Alert type={alert.type} title={alert.title} />}
+                        <h5>{!item ? 'Thêm' : 'Cập nhật'} Loại Dịch Vụ phòng</h5>
                     </Modal.Title>
                 </Modal.Header>
 
@@ -52,28 +89,28 @@ const RoomServiceRoomFormModal = ({ idTypeServiceRoom }) => {
                         <Card.Body>
                             <Row>
                                 <Col md={12}>
-                                    <Form onSubmit={handleSubmit(onSubmit)}> {/* Thêm onSubmit vào form */}
+                                    <Form onSubmit={handleSubmit(onSubmit)}>
                                         <Form.Group as={Row} controlId="formRoomName" className="mt-3">
                                             <Form.Label column sm={4}>
-                                                Mã loạii dịch vụ phòng
+                                                Mã loại dịch vụ phòng
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Mã loại dịch vụ phòng tự động" disabled
-                                                    name='id'
-                                                    value={idTypeServiceRoom}
+                                                    placeholder="Mã loại dịch vụ phòng tự động"
+                                                    disabled
+                                                    {...register('id')}
                                                 />
                                             </Col>
                                         </Form.Group>
-                                        <Form.Group as={Row} controlId="typeServiceRoomName" className="mt-3">
+                                        <Form.Group as={Row} controlId="serviceRoomName" className="mt-3">
                                             <Form.Label column sm={4}>
                                                 Tên gói dịch vụ
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    {...register('typeServiceRoomName', { required: true })} // Đăng ký trường với react-hook-form
+                                                    {...register('serviceRoomName', { required: true })}
                                                     placeholder="Nhập tên loại dịch vụ phòng..."
                                                 />
                                             </Col>
@@ -97,10 +134,7 @@ const RoomServiceRoomFormModal = ({ idTypeServiceRoom }) => {
                                 type='button'
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    const btnSubmit = document.getElementById('btnsubmit');
-                                    if(btnSubmit){
-                                        btnSubmit.click();
-                                    }
+                                    document.getElementById('btnsubmit').click();
                                 }}
                             >
                                 <FaSave size={14} />&nbsp;Lưu
@@ -118,12 +152,26 @@ const RoomServiceRoomFormModal = ({ idTypeServiceRoom }) => {
     );
 };
 
-const DeleteTypeServiceModal = ({ id, typeServiceRoomName }) => {
+const DeleteTypeServiceModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
-
+    const [alert, setAlert] = useState(null);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const cookie = new Cookies();
+    const token = cookie.get("token");
+    const handleDelete = async () => {
+            const res = await deleteTypeRoomService(item?.id, token);
+            refreshData();
+            if (res) {
+                setAlert({ type: "warning", title: res });
+                // Gọi refreshData để tải lại dữ liệu
+            }
 
+        // Đảm bảo rằng bạn cho thời gian để render thông báo trước khi đóng modal
+        setTimeout(() => {
+            handleClose();
+        }, 1000);
+    }
     return (
         <>
             <button className="btn btn-danger" onClick={handleShow}>
@@ -131,13 +179,14 @@ const DeleteTypeServiceModal = ({ id, typeServiceRoomName }) => {
             </button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton style={{ border: 'none' }}>
+                    {alert && <Alert type={alert.type} title={alert.title} />}
                     <Modal.Title>Xóa loại dịch vụ phòng </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn xóa loại dịch vụ <strong>{typeServiceRoomName}</strong> này?
+                    Bạn có chắc chắn muốn xóa loại dịch vụ <strong>{item?.serviceRoomName}</strong> này?
                 </Modal.Body>
                 <Modal.Footer style={{ border: 'none' }}>
-                    <Button variant="danger" onClick={handleClose}>
+                    <Button variant="danger" onClick={handleDelete}>
                         Đồng ý
                     </Button>
                     <Button
@@ -155,4 +204,4 @@ const DeleteTypeServiceModal = ({ id, typeServiceRoomName }) => {
     );
 }
 
-export { RoomServiceRoomFormModal, DeleteTypeServiceModal } ;
+export { RoomServiceRoomFormModal, DeleteTypeServiceModal };

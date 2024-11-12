@@ -100,7 +100,7 @@ const ServicesPageComponent = () => {
                                             <MdAdd />
                                             Gói dịch vụ
                                             <div className="d-none">
-                                                <PackedServiceFormModal />
+                                                <PackedServiceFormModal/>
                                             </div>
                                         </a>
                                     </li>

@@ -1,6 +1,5 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   CCloseButton,
   CSidebar,
@@ -8,21 +7,28 @@ import {
   CSidebarFooter,
   CSidebarHeader,
   CSidebarToggler,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+} from '@coreui/react';
+import CIcon from '@coreui/icons-react';
+import { AppSidebarNav } from './AppSidebarNav';
 
-import { AppSidebarNav } from './AppSidebarNav'
-
-import logo from '../../assets/brand/logono.png'
-import { sygnet } from '../../assets/brand/sygnet'
-
-// sidebar nav config
-import navigation from "../../_navemployee";
+import logo from '../../assets/brand/logono.png';
+import { sygnet } from '../../assets/brand/sygnet';
+import { createNavData } from '../../_navemployee';
 
 const AppSidebar = () => {
-  const dispatch = useDispatch()
-  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-  const sidebarShow = useSelector((state) => state.sidebarShow)
+  const dispatch = useDispatch();
+  const unfoldable = useSelector((state) => state.sidebarUnfoldable);
+  const sidebarShow = useSelector((state) => state.sidebarShow);
+  const [navigation, setNavigation] = useState([]); // State lưu trữ dữ liệu điều hướng
+
+  useEffect(() => {
+    const fetchNavData = async () => {
+      const navData = await createNavData(); // Lấy dữ liệu điều hướng
+      setNavigation(navData); // Cập nhật state khi dữ liệu đã có
+    };
+
+    fetchNavData();
+  }, []); // Chạy một lần khi component mount
 
   return (
     <CSidebar
@@ -32,7 +38,7 @@ const AppSidebar = () => {
       unfoldable={unfoldable}
       visible={sidebarShow}
       onVisibleChange={(visible) => {
-        dispatch({ type: 'set', sidebarShow: visible })
+        dispatch({ type: 'set', sidebarShow: visible });
       }}
     >
       <CSidebarHeader className="border-bottom">
@@ -46,14 +52,14 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
-      <AppSidebarNav items={navigation} />
+      <AppSidebarNav items={navigation} /> {/* Truyền navigation đã được cập nhật */}
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         />
       </CSidebarFooter>
     </CSidebar>
-  )
-}
+  );
+};
 
-export default React.memo(AppSidebar)
+export default React.memo(AppSidebar);
