@@ -23,12 +23,12 @@ function DeleteModelTypeRoom({ idTypeRoom }) {
                 },
                 token: Cookies.get('token'), // Thay thế bằng token nếu cần
             });
-            console.log(response);
             // Kiểm tra mã phản hồi từ API
-            if (response.code === 200) {
+            if (response && response.code === 200) {
                 setAlert({ type: "success", title: "Xóa loại phòng thành công!" });
                 navigate('/admin/room');
-            } 
+            }
+
         } catch (error) {
             if (error.response) {
                 const code = error.response.status;
@@ -44,7 +44,6 @@ function DeleteModelTypeRoom({ idTypeRoom }) {
             }
         }
     };
-    
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
