@@ -103,7 +103,7 @@ const Account = () => {
     return (
         <div className="account-client">
             {alert && <Alert type={alert.type} title={alert.title} />}
-            <div className="d-flex">
+            <div className="d-flex justify-content-between">
                 <input
                     type="text"
                     placeholder="Search..."

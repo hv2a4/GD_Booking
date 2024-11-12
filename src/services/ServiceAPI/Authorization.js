@@ -3,7 +3,7 @@ import axios from 'axios';
 const PUBLIC = 'http://localhost:8080';
 
 // Lấy JWT token từ localStorage (hoặc từ bất kỳ nơi nào bạn lưu trữ token)
-const getToken = () => {
+export const getToken = () => {
     return localStorage.getItem('token');  // 'token' là key mà bạn đã dùng để lưu JWT token
 };
 

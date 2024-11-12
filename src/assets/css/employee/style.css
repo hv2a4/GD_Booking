@@ -1822,3 +1822,7 @@ textarea {
 .past:hover {
     background-color: rgb(107, 104, 104);
 }
+
+.custom-modal-width1{
+    padding-right: 143px;
+}

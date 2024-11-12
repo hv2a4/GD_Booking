@@ -25,6 +25,7 @@
     "quill": "^2.0.2",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.5",
+    "react-cookie": "^7.2.2",
     "react-datepicker": "^7.5.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.53.1",
@@ -49,7 +50,8 @@
     "styled-components": "^6.1.13",
     "sweetalert2": "^11.14.5",
     "web-vitals": "^2.1.4",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

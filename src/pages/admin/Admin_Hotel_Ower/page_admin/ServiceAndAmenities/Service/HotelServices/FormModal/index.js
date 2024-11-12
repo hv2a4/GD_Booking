@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
@@ -6,65 +6,77 @@ import { GiCancel } from "react-icons/gi";
 import ImageListSlider from '../../../../RoomAndTypeRoom/Rom/ImagesList';
 import { useForm } from 'react-hook-form';
 import uploadImageToFirebase from '../../../../../../../../config/fireBase';
-import { updateServiceHotel } from '../../../../../../../../services/admin/service-management';
+import { createServiceHotel, deleteServiceHotel, updateServiceHotel } from '../../../../../../../../services/admin/service-management';
+import Alert from '../../../../../../../../config/alert';
+import { useNavigate } from 'react-router-dom';
+import { Cookies } from "react-cookie";
 
-const HotelServiceFormModal = ({ item }) => {
+const HotelServiceFormModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, setValue } = useForm();
     const [images, setImages] = useState();
-    const [serviceHotel, setServiceHotel] = useState(item);
+    const [serviceHotel, setServiceHotel] = useState(item || {});
+    const [alert, setAlert] = useState(null);
+    const cookie = new Cookies();
+    const token = cookie.get("token");
 
     useEffect(() => {
-        if (item) console.log(item.id); // Log only if item is defined
+        if (item) console.log(item.id);
+
+    }, [item]);
+
+    useEffect(() => {
+        if (item) setServiceHotel(item);
     }, [item]);
 
     const handleImagesChange = (file) => {
         setImages(file);
         console.log(file);
-        
-        
     };
 
-    const handleShow = () => setShow(true);
-    const handleClose = () => setShow(false);
+    const handleShow = () => { if (!show) { setShow(true) } };
+    const handleClose = () => {
+        setShow(false);
+        setAlert(null)
+    }
 
     const onSubmit = async () => {
+        const urlImage = images ? await uploadImageToFirebase(images) : serviceHotel.image;
+        const updatedServiceHotel = { ...serviceHotel, image: urlImage || "" };
+
         try {
-            const urlImage = await uploadImageToFirebase(images); // Wait for the image URL
-            const updatedServiceHotel = {
-                ...serviceHotel,
-                image: urlImage || ""
-            };
-            const res = await updateServiceHotel(updatedServiceHotel);
-            if(res){
-                console.log(res.message);
+            const response = item ? await updateServiceHotel(updatedServiceHotel, token) : await createServiceHotel(updatedServiceHotel, token);
+            if (item) {
+                refreshData();
             }
-            console.log(images);
-            handleClose();
+            if (response) setAlert({ type: "success", title: response.message });
         } catch (error) {
-            console.error("Error updating hotel service:", error);
+            setAlert({ type: "error", title: error.message })
+        } finally {
+            // Đảm bảo đóng modal chỉ sau khi thông báo hiển thị
+            setTimeout(() => {
+                handleClose();
+            }, 1000);
         }
     };
-    
 
     return (
         <>
-            {item ? (
-                <small
-                    className="btn btn-success me-2"
-                    style={{ fontSize: '13px', cursor: 'pointer' }}
-                    onClick={handleShow}
-                >
-                    <FaClipboardCheck />&nbsp;Cập nhật
-                </small>
-            ) : (
-                <small
-                    style={{ fontSize: '13px', cursor: 'pointer' }}
-                    onClick={handleShow}
-                >
-                    Thêm
-                </small>
-            )}
+            {(() => {
+                if (!item) {
+                    return (
+                        <small style={{ fontSize: '13px', cursor: 'pointer' }} id="hotel-service-form" onClick={handleShow}>
+                            Thêm
+                        </small>
+                    );
+                } else {
+                    return (
+                        <small className="btn btn-success me-2" style={{ fontSize: '13px', cursor: 'pointer' }} onClick={handleShow}>
+                            <FaClipboardCheck />&nbsp;Cập nhật
+                        </small>
+                    );
+                }
+            })()}
 
             <Modal
                 show={show}
@@ -74,15 +86,16 @@ const HotelServiceFormModal = ({ item }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
+                        {alert && <Alert type={alert.type} title={alert.title} />}
                         <h5>{item ? 'Cập nhật' : 'Thêm'} Dịch Vụ Khách Sạn</h5>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Card>
                         <Card.Body>
-                            <Row>
-                                <Col md={12}>
-                                    <Form onSubmit={handleSubmit(onSubmit)}>
+                            <Form onSubmit={handleSubmit(onSubmit)}>
+                                <Row>
+                                    <Col md={12}>
                                         <Form.Group as={Row} controlId="formRoomName" className="mt-3">
                                             <Form.Label column sm={4}>
                                                 Mã dịch vụ khách sạn
@@ -90,9 +103,10 @@ const HotelServiceFormModal = ({ item }) => {
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Mã dịch vụ khách sạn tự động" disabled
+                                                    placeholder="Mã dịch vụ khách sạn tự động"
+                                                    disabled
                                                     value={serviceHotel?.id || ''}
-                                                    onChange={(e) => setServiceHotel({...item, id: e.target.value})}
+                                                    onChange={(e) => setServiceHotel({ ...serviceHotel, id: e.target.value })}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -105,7 +119,7 @@ const HotelServiceFormModal = ({ item }) => {
                                                     type="text"
                                                     placeholder="Nhập tên dịch vụ khách sạn..."
                                                     value={serviceHotel?.serviceHotelName || ''}
-                                                    onChange={(e) => setServiceHotel({...item, serviceHotelName: e.target.value })}
+                                                    onChange={(e) => setServiceHotel({ ...serviceHotel, serviceHotelName: e.target.value })}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -120,54 +134,66 @@ const HotelServiceFormModal = ({ item }) => {
                                                     min="1" step="1"
                                                     placeholder="Nhập giá dịch vụ khách sạn..."
                                                     value={serviceHotel?.price || ''}
-                                                    onChange={(e) => setServiceHotel({...item, price: e.target.value })}
+                                                    onChange={(e) => setServiceHotel({ ...serviceHotel, price: e.target.value })}
                                                 />
                                             </Col>
                                         </Form.Group>
                                         <Row className='mt-3'>
-                                            <ImageListSlider onImagesChange={handleImagesChange} maxImages={1} img={serviceHotel?.image}/>
+                                            <ImageListSlider onImagesChange={handleImagesChange} maxImages={1} img={serviceHotel?.image} />
                                         </Row>
-                                        <Button variant="success" type="submit" className="mt-3 d-none" id='btnsubmit'>
-                                            <FaSave size={14} />&nbsp;Lưu
-                                        </Button>
-                                    </Form>
-                                </Col>
-                            </Row>
+                                    </Col>
+                                </Row>
+                            </Form>
                         </Card.Body>
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Row className="mt-3 justify-content-end">
-                        <Col sm="auto">
-                            <Button
-                                variant="success"
-                                type='button'
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    const btnSubmit = document.getElementById('btnsubmit');
-                                    if (btnSubmit) btnSubmit.click();
-                                }}
-                            >
-                                <FaSave size={14} />&nbsp;Lưu
-                            </Button>
-                        </Col>
-                        <Col sm="auto">
-                            <Button variant="dark" onClick={handleClose}>
-                                <ImCancelCircle size={14} />&nbsp;Bỏ qua
-                            </Button>
-                        </Col>
-                    </Row>
+                    <Button variant="success" type='button' onClick={handleSubmit(onSubmit)}>
+                        <FaSave size={14} />&nbsp;Lưu
+                    </Button>
+                    <Button variant="dark" onClick={handleClose}>
+                        <ImCancelCircle size={14} />&nbsp;Bỏ qua
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </>
     );
 };
 
-const DeleteHotelServiceModal = ({ id, serviceHotelName }) => {
+const DeleteHotelServiceModal = ({ item, onDeleteSuccess, refreshData }) => {
     const [show, setShow] = useState(false);
-
+    const [alert, setAlert] = useState(null);
+    const cookie = new Cookies();
+    const token = cookie.get("token");
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const handleDelete = async () => {
+        try {
+            const data = await deleteServiceHotel(item.id, token);
+            if (item) {
+                refreshData();
+            }
+            if (data && data.code === 200) {
+                setAlert({ type: "success", title: data.message });
+
+                // Gọi callback để cập nhật lại dữ liệu sau khi xóa
+                if (onDeleteSuccess) {
+                    onDeleteSuccess();
+                }
+            }
+        } catch (error) {
+            setAlert({ type: "error", title: error.message });
+        }
+        setTimeout(() => {
+            handleClose(); // Đóng modal sau khi thông báo hiển thị
+        }, 1000);
+    };
+
+    const handleSubmit = () => {
+        handleDelete();
+        handleClose();
+    }
 
     return (
         <>
@@ -175,29 +201,25 @@ const DeleteHotelServiceModal = ({ id, serviceHotelName }) => {
                 <GiCancel />&nbsp;Xóa
             </button>
             <Modal show={show} onHide={handleClose}>
+                {alert && <Alert type={alert.type} title={alert.title} />}
                 <Modal.Header closeButton style={{ border: 'none' }}>
-                    <Modal.Title>Xóa dịch vụ khách sạn </Modal.Title>
+                    <Modal.Title>Xóa dịch vụ khách sạn</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn xóa dịch vụ khách sạn <strong>{serviceHotelName}</strong> này?
+                    Bạn có chắc chắn muốn xóa dịch vụ khách sạn <strong>{item?.serviceHotelName}</strong> này?
                 </Modal.Body>
                 <Modal.Footer style={{ border: 'none' }}>
-                    <Button variant="danger" onClick={handleClose}>
+                    <Button variant="danger" onClick={handleSubmit}>
                         Đồng ý
                     </Button>
-                    <Button
-                        variant="dark" onClick={handleClose}
-                        style={{
-                            background: '#898C8D',      // Custom background color
-                            border: 'none'
-                        }}
-                    >
+                    <Button variant="dark" onClick={handleClose} style={{ background: '#898C8D', border: 'none' }}>
                         Bỏ qua
                     </Button>
                 </Modal.Footer>
             </Modal>
         </>
     );
-}
+};
+
 
 export { HotelServiceFormModal, DeleteHotelServiceModal };

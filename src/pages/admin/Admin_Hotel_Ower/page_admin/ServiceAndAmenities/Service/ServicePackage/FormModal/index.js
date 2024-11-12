@@ -1,26 +1,59 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
 import { useForm } from 'react-hook-form';
 import { GiCancel } from "react-icons/gi";
+import { createServicePackage, deleteServicePackage, updateServicePackage } from '../../../../../../../../services/admin/service-management';
+import Alert from '../../../../../../../../config/alert';
 
-const PackedServiceFormModal = ({ idPackedService }) => {
+const PackedServiceFormModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
-    const { register, handleSubmit } = useForm(); // Khởi tạo useForm
+    const { register, handleSubmit, setValue } = useForm(); // Khởi tạo useForm
+    const [alert, setAlert] = useState(null);
+    useEffect(() => {
+        if (item) {
+            setValue("id", item.id);
+            setValue("servicePackageName", item.servicePackageName);
+            setValue("price", item.price);
+        }
+    }, [item, setValue]);
+    const handleShow = () => { if (!show) { setShow(true) } };
+    const handleClose = () => {
+        setShow(false);
+        setAlert(null);
+    }
 
-    const handleShow = () => {if(!show){setShow(true)}};
-    const handleClose = () => setShow(false);
+    const onSubmit = async (data) => {
+        const servicePackage = { ...data, id: item?.id };  // Truyền id nếu là cập nhật
+        try {
+            const res = item
+                ? await updateServicePackage(servicePackage)  // Cập nhật
+                : await createServicePackage(data);  // Thêm mới
+            if (item) {
+                refreshData();
+            }
 
-    const onSubmit = (data) => {
-        console.log(data); // Xử lý dữ liệu submit tại đây
-        handleClose(); // Đóng modal sau khi lưu
+            if (res) {
+                setAlert({ type: res.status, title: res.message });
+                // Gọi refreshData để tải lại dữ liệu
+            }
+        } catch (error) {
+            setAlert({ type: 'error', title: error.message });
+        }
+        
+        // Đảm bảo rằng bạn cho thời gian để render thông báo trước khi đóng modal
+        setTimeout(() => {
+            handleClose(); // Đóng modal sau khi thông báo hiển thị
+        }, 1000); // Thời gian trễ (1 giây) để thông báo có thể render
     };
+
+
 
     return (
         <>
             {(() => {
-                if (!idPackedService) {
+                if (!item) {
                     return (
                         <small style={{ fontSize: '13px', cursor: 'pointer' }} id="packed-service-form" onClick={handleShow}>
                             Thêm
@@ -43,7 +76,8 @@ const PackedServiceFormModal = ({ idPackedService }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        <h5>{!idPackedService ? 'Thêm' : 'Cập nhật'} Gói Dịch Vụ</h5>
+                        {alert && <Alert type={alert.type} title={alert.title} />}
+                        <h5>{!item ? 'Thêm' : 'Cập nhật'} Gói Dịch Vụ</h5>
                     </Modal.Title>
                 </Modal.Header>
 
@@ -62,7 +96,6 @@ const PackedServiceFormModal = ({ idPackedService }) => {
                                                     type="text"
                                                     placeholder="Mã gói dịch vụ tự động" disabled
                                                     name='id'
-                                                    value={idPackedService}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -112,7 +145,7 @@ const PackedServiceFormModal = ({ idPackedService }) => {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     const btnSubmit = document.getElementById('btnsubmit');
-                                    if(btnSubmit){
+                                    if (btnSubmit) {
                                         btnSubmit.click();
                                     }
                                 }}
@@ -132,11 +165,31 @@ const PackedServiceFormModal = ({ idPackedService }) => {
     );
 };
 
-const DeletePackedServiceModal = ({ id, servicePackageName }) => {
+const DeletePackedServiceModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
-
+    const [alert, setAlert] = useState(null);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const handleDelete = async () => {
+        try {
+            const res = await deleteServicePackage(item?.id);
+            console.log(res);
+            
+                refreshData();
+            if (res) {
+                setAlert({ type: res.status, title: res.message });
+                // Gọi refreshData để tải lại dữ liệu
+            }
+        } catch (error) {
+            setAlert({ type: 'error', title: error.message });
+        }
+
+        // Đảm bảo rằng bạn cho thời gian để render thông báo trước khi đóng modal
+        setTimeout(() => {
+            handleClose();
+        }, 1000);
+    }
 
     return (
         <>
@@ -145,13 +198,14 @@ const DeletePackedServiceModal = ({ id, servicePackageName }) => {
             </button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton style={{ border: 'none' }}>
+                    {alert && <Alert type={alert.type} title={alert.title} />}
                     <Modal.Title>Xóa gói dịch vụ </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{servicePackageName}</strong> này?
+                    Bạn có chắc chắn muốn xóa gói dịch vụ <strong>{item?.servicePackageName}</strong> này?
                 </Modal.Body>
                 <Modal.Footer style={{ border: 'none' }}>
-                    <Button variant="danger" onClick={handleClose}>
+                    <Button variant="danger" onClick={handleDelete}>
                         Đồng ý
                     </Button>
                     <Button
@@ -169,4 +223,4 @@ const DeletePackedServiceModal = ({ id, servicePackageName }) => {
     );
 }
 
-export { PackedServiceFormModal, DeletePackedServiceModal } ;
+export { PackedServiceFormModal, DeletePackedServiceModal };
