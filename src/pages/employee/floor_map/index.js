@@ -35,6 +35,8 @@ const FloorMap = () => {
     const handleRoomByFloor = async () => {
         try {
             const data = await getRoomByFloorId(id);
+            console.log(data);
+            
             if (data) {
                 setRooms(data);
             } else {
