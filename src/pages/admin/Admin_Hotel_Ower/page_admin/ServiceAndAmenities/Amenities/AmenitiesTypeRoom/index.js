@@ -12,8 +12,7 @@ const AmenitiesTypeRoom = () => {
   const [dataAmenitiesTypeRoom, setAmenitiesTypeRoom] = useState([])
   const [editIndex, setEditIndex] = useState(null)
   const [formData, setFormData] = useState({
-    amenitiesTypeRoomName: '',
-    icon: '',
+    amenitiesTypeRoomName: ''
   })
   const [isRefreshTable, setIsRefreshTable] = useState(false)
  

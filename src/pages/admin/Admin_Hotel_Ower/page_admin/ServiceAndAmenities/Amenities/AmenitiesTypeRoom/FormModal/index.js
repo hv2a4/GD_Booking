@@ -4,12 +4,12 @@ import { FaClipboardCheck, FaSave } from 'react-icons/fa'
 import { ImCancelCircle } from 'react-icons/im'
 import { GiCancel } from 'react-icons/gi'
 import { useForm } from 'react-hook-form'
+import { Cookies } from "react-cookie";
 import axios from 'axios'
 
 const AmenitiesTypeRoomFormModal = ({
   idAmenitiesTypeRoom,
   amenitiesTypeRoomName,
-  icon,
   refreshTable,
 }) => {
   const [show, setShow] = useState(false)
@@ -17,47 +17,56 @@ const AmenitiesTypeRoomFormModal = ({
   const [formEdit, setFormEdit] = useState({
     id: '',
     amenitiesTypeRoomName: '',
-    icon: '',
   })
   const [data, setData] = useState([])
 
   const handleShow = () => setShow(true)
   const handleClose = () => setShow(false)
+  const cookie = new Cookies();
+  const token = cookie.get("token");
+
+  // const axiosConfig = {
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // };
 
   const handleEdit = async (id) => {
     try {
       const res = await axios.get(
         `http://localhost:8080/api/amenities-type-room/getById/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` } // Thêm token vào header
+        }
       )
-      // console.log(res.data);
       setFormEdit(res.data.data)
     } catch (error) {
       console.log(error)
     }
   }
+
   // Khi idAmenitiesTypeRoom có giá trị, gọi handleEdit để tải dữ liệu
   useEffect(() => {
     if (idAmenitiesTypeRoom) {
       handleEdit(idAmenitiesTypeRoom) // Gọi handleEdit nếu có id
     } else {
-      reset({ amenitiesTypeRoomName: '', icon: '' }) // Reset form nếu không có id
+      reset({ amenitiesTypeRoomName: ''}) // Reset form nếu không có id
     }
   }, [idAmenitiesTypeRoom, reset])
 
-  const validateForm = async (formData) => {
-    const { amenitiesTypeRoomName, icon } = formData
 
-    // Kiểm tra nếu tên tiện nghi loại phòng bị trống
+  const validateForm = async (formData) => {
+    const {amenitiesTypeRoomName} = formData
+
     if (!amenitiesTypeRoomName.trim()) {
       alert('Tên tiện nghi loại phòng không được để trống!')
       return false
     }
 
-    // Kiểm tra tên tiện nghi loại phòng có trùng với tên trong cơ sở dữ liệu không
     try {
-      const res = await axios.get(
-        `http://localhost:8080/api/amenities-type-room/check-exist?name=${amenitiesTypeRoomName}`
-      )
+      const res = await axios.get(`http://localhost:8080/api/amenities-type-room/check-exist?name=${amenitiesTypeRoomName}`, {
+        headers: { Authorization: `Bearer ${token}` } // Thêm token vào header
+      })
       if (res.data.exists) {
         alert('Tên tiện nghi loại phòng đã tồn tại!')
         return false
@@ -73,7 +82,7 @@ const AmenitiesTypeRoomFormModal = ({
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const { amenitiesTypeRoomName, icon } = formEdit
+    const { amenitiesTypeRoomName} = formEdit
 
     const isValid = await validateForm(formEdit)
     if (!isValid) return
@@ -82,7 +91,8 @@ const AmenitiesTypeRoomFormModal = ({
       try {
         const res = await axios.put(
           `http://localhost:8080/api/amenities-type-room/update/${idAmenitiesTypeRoom}`,
-          { amenitiesTypeRoomName, icon },
+          { amenitiesTypeRoomName },
+          { headers: { Authorization: `Bearer ${token}` } } // Thêm token vào header
         )
         console.log('Cập nhật thành công', res)
         handleClose()
@@ -96,7 +106,8 @@ const AmenitiesTypeRoomFormModal = ({
       try {
         const res = await axios.post(
           'http://localhost:8080/api/amenities-type-room/add',
-          { amenitiesTypeRoomName, icon },
+          { amenitiesTypeRoomName },
+          { headers: { Authorization: `Bearer ${token}` } } // Thêm token vào header
         )
         console.log('Thêm mới thành công', res)
         handleClose()
@@ -221,7 +232,7 @@ const AmenitiesTypeRoomFormModal = ({
                           name="amenitiesTypeRoomName"
                           value={formEdit.amenitiesTypeRoomName}
                           onChange={handleInputChange}
-                          {...register('amenitiesTypeRoomName', { required: true })}
+                          // {...register('amenitiesTypeRoomName', { required: true })}
                         />
                         {errors.amenitiesTypeRoomName && (
                           <p style={{ color: 'red' }}>{errors.amenitiesTypeRoomName.message}</p>
@@ -300,6 +311,8 @@ const DeleteAmenitiesTypeRoomModal = ({
 
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
+  const cookie = new Cookies();
+  const token = cookie.get("token");
 
   const handleDelete = async () => {
     if (!id) {
@@ -310,6 +323,7 @@ const DeleteAmenitiesTypeRoomModal = ({
     try {
       await axios.delete(
         `http://localhost:8080/api/amenities-type-room/delete/${id}`,
+        { headers: { Authorization: `Bearer ${cookie.get("token")}` } } // Thêm token vào header
       )
       console.log('Xóa thành công')
       refreshTable(true) // Gọi lại hàm refresh table sau khi xóa thành công

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, Col, Form, Row } from "react-bootstrap";
 import { AmenitiesHotelFormModal, DeleteAmenitiesHotelModal } from "./FormModal";
-
+import axios from 'axios'
 
 
 const AmenitiesHotel = () => {
@@ -12,7 +12,7 @@ const AmenitiesHotel = () => {
     const [formData, setFormData] = useState({
         amenitiesHotelName: '',
         icon: '',
-        id:''
+        // id:''
     })
     const [isRefreshTable, setIsRefreshTable] = useState(false)
 
@@ -31,6 +31,45 @@ const AmenitiesHotel = () => {
     //     { id: '2', amenitiesHotelName: 'b', icon: '', id_hotel: 1}
     // ];
 
+    // Hiện danh sách
+    const getDataAmenitiesHotel = async () => {
+        try {
+        const response = await axios.get(
+            'http://localhost:8080/api/amenitiesHotel/getAll',
+        )
+        setAmenitiesHotel(response.data) // Cập nhật dữ liệu
+        console.log('Lấy dữ liệu thành công')
+        } catch (error) {
+        console.log(error)
+        }
+    }
+
+    // Khi người dùng nhấn nút sửa, tải dữ liệu vào form
+    const handleEdit = (id) => {
+        const item = dataAmenitiesHotel.find((data) => data.id === id)
+        if (item) {
+        setFormData({
+            amenitiesTypeRoomName: item.amenitiesTypeRoomName,
+            icon: item.icon,
+        })
+        }
+    }
+
+    // console.log(isRefeshTable);
+    useEffect(() => {
+        if (isRefreshTable) {
+            getDataAmenitiesHotel(); // Gọi API để lấy dữ liệu khi isRefreshTable là true
+            setIsRefreshTable(false);
+        }else {
+            getDataAmenitiesHotel() // Gọi API để lấy dữ liệu khi component render lần đầu
+        }
+    }, [isRefreshTable])
+
+    const handleTakeCheckRefeshTable = useCallback((value) => {
+        console.log(value)
+        setIsRefreshTable(value)
+    }, [])
+
     return (
         <div className="table-responsive mt-3">
             <table className="table table-striped table-hover" style={{ cursor: 'pointer' }}>
@@ -40,10 +79,10 @@ const AmenitiesHotel = () => {
                             <input
                                 type="checkbox"
                                 onChange={() => {
-                                    const allSelected = selectedAmenitiesHotel.length === amenitiesHotels.length;
-                                    setSelectedAmenitiesHotel(allSelected ? [] : amenitiesHotels.map(amenitiesHotel => amenitiesHotel.id));
+                                    const allSelected = selectedAmenitiesHotel.length === dataAmenitiesHotel.length;
+                                    setSelectedAmenitiesHotel(allSelected ? [] : dataAmenitiesHotel.map(amenitiesHotel => amenitiesHotel.id));
                                 }}
-                                checked={selectedAmenitiesHotel.length === amenitiesHotels.length}
+                                checked={selectedAmenitiesHotel.length === dataAmenitiesHotel.length}
                             />
                         </th>
                         <th>Mã tiện nghi khách sạn</th>
@@ -52,7 +91,7 @@ const AmenitiesHotel = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {amenitiesHotels.map(({ id, amenitiesHotelName, icon}) => (
+                    {dataAmenitiesHotel.map(({ id, amenitiesHotelName, icon}) => (
                         <React.Fragment key={id}>
                             <tr onClick={(e) => {
                                 if (e.target.type !== "checkbox") {
@@ -93,8 +132,8 @@ const AmenitiesHotel = () => {
                                                                 <Col md={4}></Col>
                                                             </Row>
                                                             <div className="d-flex justify-content-end">
-                                                                <AmenitiesHotelFormModal idAmenitiesHotel={id} />
-                                                                <DeleteAmenitiesHotelModal id={id} amenitiesHotelName={amenitiesHotelName} />
+                                                                <AmenitiesHotelFormModal idAmenitiesHotel={id} refreshTable={handleTakeCheckRefeshTable}/>
+                                                                <DeleteAmenitiesHotelModal id={id} amenitiesHotelName={amenitiesHotelName} refreshTable={handleTakeCheckRefeshTable}/>
                                                             </div>
                                                         </div>
                                                     </div>
