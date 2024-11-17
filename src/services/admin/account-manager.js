@@ -25,4 +25,30 @@ const updateActiveAccount = async (id) => {
     return res;
 }
 
-export {getAllEmployee,updateActiveAccount,addEmployee};
+const getBookingAccount = async (id,token) => {
+    const res = await request({
+        method: "GET",
+        path: "api/booking/accountId/" + id,
+        token: token
+    });
+    return res;
+}
+
+const getBookingRoomInformation = async (id, token) => {
+    const res = await request({
+        method: "GET",
+        path: "api/booking-infomation/booking-room?bookingroom=" + id,
+        token: token
+    });
+    return res;
+}
+const getBookingRoomServiceRoom = async (id, token) => {
+    const res = await request({
+        method: "GET",
+        path: "api/booking-room-service-room/service?bookingRoom=" + id,
+        token: token
+    });
+    return res;
+}
+
+export {getAllEmployee,updateActiveAccount,addEmployee,getBookingAccount,getBookingRoomInformation,getBookingRoomServiceRoom};

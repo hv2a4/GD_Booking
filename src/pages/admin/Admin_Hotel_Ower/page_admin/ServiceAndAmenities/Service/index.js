@@ -78,7 +78,7 @@ const ServicesPageComponent = () => {
                         <div className="col-12 col-md-2 text-md-end">
                             <div className="btn-group">
                                 <button type="button" className="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <MdAdd />&nbsp;
+                                    <i className="fa fa-plus-circle me-2"></i>
                                     Thêm mới
                                 </button>
                                 <ul className="dropdown-menu">

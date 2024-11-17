@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import DatPhong from "../../list-reservation/modalDatPhong";
 import ModalNhanPhong from "../modalNhanPhong";
 import InsertCustomer from "../../list-reservation/modalInsertCustomer";
@@ -58,11 +58,7 @@ const ModalORR = ({ onClose }) => {
                                         <label className="cashier-info-label">Khách lưu trú</label>
                                         <div className="cashier-info-capacity">
                                             <button className="form-control d-flex align-items-center text-neutral justify-content-between" onClick={handleShowModalInsertCustomer}>
-                                                <span><i className="fa-regular fa-user"></i> 1</span>
-                                                <span className="mx-1">•</span>
-                                                <span><i className="fa fa-baby"></i> 0</span>
-                                                <span className="mx-1">•</span>
-                                                <span><i className="fa fa-id-card"></i> 1</span>
+                                                <span><i className="fa fa-user icon-mask icon-xs w-auto"></i> 1</span>
                                             </button>
                                         </div>
                                     </div>
@@ -105,7 +101,7 @@ const ModalORR = ({ onClose }) => {
                                         </td>
                                         <td>
                                             <button
-                                                className="btn btn-sm btn-icon-only btn-circle text-orange">
+                                                className="btn btn-sm btn-icon-only btn-circle text-danger">
                                                 <i className="fa fa-trash-alt"></i>
                                             </button>
                                         </td>
@@ -141,7 +137,7 @@ const ModalORR = ({ onClose }) => {
                                     <div className="col-md-6 text-end">
                                         <button
                                             className="form-control" style={{width: "auto"}}>
-                                            <strong className="text-orange">150,000</strong>
+                                            <strong className="text-primary">150,000</strong>
                                         </button>
                                     </div>
                                 </div>
@@ -164,7 +160,7 @@ const ModalORR = ({ onClose }) => {
                                         <span> Tiền thừa </span>
                                     </div>
                                     <div className="col-md-6 text-end">
-                                        <span className="font-regular text-orange">150,000</span>
+                                        <span className="font-regular text-primary">150,000</span>
                                     </div>
                                 </div>
                             </div>
@@ -174,8 +170,8 @@ const ModalORR = ({ onClose }) => {
                         <Link to="/employee/edit-room">
                         <button className="btn btn-light text-secondary">Thêm tùy chọn</button>
                         </Link>
-                        <button className="btn btn-outline-primary" onClick={handleShowModalNhanPhong}>Nhận phòng</button>
-                        <button className="btn btn-primary">Đặt trước</button>
+                        <Button variant="outline-success" onClick={handleShowModalNhanPhong}>Nhận phòng</Button>
+                        <Button variant="success">Đặt trước</Button>
                     </Modal.Footer>
                 </div>
                 {ShowInserRoom && <DatPhong onClose={handleCloseModalInserRoom} />}

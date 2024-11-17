@@ -1,6 +1,7 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import Layoutemployee from "../../../components/layout/employee";
 import PopupPayment from "./payment";
+import InsertCustomer from "../list-reservation/modalInsertCustomer";
 // import InsertCustomer from "../../../../../FE_HotelBooking/src/pages/employee/list-reservation/modalInsertCustomer";
 
 const EditRoom = () => {
@@ -36,13 +37,9 @@ const EditRoom = () => {
                                 </div>
                                 <div className="cashier-info-col col-md-3 col-12 mb-2">
                                     <label className="cashier-info-label">Khách lưu trú</label>
-                                    <div className="cashier-info-capacity">
+                                    <div className="cashier-info-capacity" onClick={handleShowModalInsertCustomer}>
                                         <button className="form-control d-flex align-items-center text-neutral justify-content-between" onClick={handleShowModalInsertCustomer}>
-                                            <span><i className="fa-regular fa-user"></i> 1</span>
-                                            <span className="mx-1">•</span>
-                                            <span><i className="fa fa-baby"></i> 0</span>
-                                            <span className="mx-1">•</span>
-                                            <span><i className="fa fa-id-card"></i> 1</span>
+                                            <span><i className="fa fa-user icon-mask icon-xs w-auto"></i> 0</span>
                                         </button>
                                     </div>
                                 </div>
@@ -58,7 +55,7 @@ const EditRoom = () => {
                         </div>
                     </div>
                 </div>
-                <div className="cashier-body row">
+                <div className="cashier-body row m-0">
                     <div className="col-12 col-md-4">
                         <div className="cashier-aside" style={{ height: "auto" }}>
                             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -228,13 +225,13 @@ const EditRoom = () => {
                                                     <a className="btn btn-sm btn-text-neutral btn-icon-only btn-circle mr-2">
                                                         <i className="fa fa-images icon-btn"></i>
                                                     </a>
-                                                    <div className="text-orange">
+                                                    <div className="text-success">
                                                         <span>Đang sử dụng: 1 ngày</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="cart-item-note">
-                                                <i className="fa-solid fa-pen icon-xs icon-mask mr-1"></i>
+                                                <i className="fa fa-pen icon-xs icon-mask mr-1"></i>
                                                 <span> Nhập ghi chú ... </span>
                                             </div>
                                         </div>
@@ -269,7 +266,7 @@ const EditRoom = () => {
                                         </div>
 
                                         <div className="cart-list">
-                                            <table className="table" style={{margin: "12px"}}>
+                                            <table className="table" style={{ margin: "12px" }}>
                                                 <thead className="cart-item cart-list-head px-3 font-semibold">
                                                     <tr className="row font-weight-bold align-items-center">
                                                         <th className="col-2 col-lg-1 text-start">STT</th>
@@ -350,18 +347,18 @@ const EditRoom = () => {
                                         <button type="button" className="btn btn-outline-neutral btn-icon-only" title="Hủy đặt phòng">
                                             <i className="fa fa-trash-alt icon-btn"></i>
                                         </button>
-                                        <button className="btn btn-outline-neutral btn-icon-only" title="Xem lịch sử đặt phòng">
-                                            <i className="fa fa-clock-rotate-left icon-btn"></i>
-                                        </button>
                                     </div>
-                                    <PopupPayment></PopupPayment>
+                                    <div className="d-flex align-items-center">
+                                        <button className="btn btn-outline-secondary ng-star-inserted mx-2" type="button">Lưu</button>
+                                        <PopupPayment></PopupPayment>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {/* {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} />} */}
+            {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} />}
         </Layoutemployee>
     )
 }

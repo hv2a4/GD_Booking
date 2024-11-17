@@ -65,9 +65,9 @@ function App() {
     console.log(path)
     let hasAccess = false;
 
-    // Determine access based on the path
+    // Kiểm tra quyền truy cập
     if (path.startsWith('/admin') || path.startsWith('/employee')) {
-      // Only allow access to /admin or /employee routes for authenticated users with specific roles
+      // Cho phép HotelOwner truy cập /admin và /employee
       hasAccess = userRole === 'HotelOwner' || (userRole === 'Staff' && path.startsWith('/employee'));
     }
 
@@ -98,6 +98,21 @@ function App() {
           <Route path="*" element={<PageNotFound />} />
         </Route>
 
+        {/* Routes cho Client */}
+        <Route path="/client" >
+          <Route path="home" element={<Home />} />
+          <Route path="booking" element={<Booking />} />
+          <Route path="testimonial" element={<Testimonial />} />
+          <Route path="about" element={<AboutUs />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="rooms" element={<RoomClient />} />
+          <Route path="services" element={<Services />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="booking-room" element={<PageBookRoom />} />
+          <Route path="invoice" element={<Invoice />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
+
         {/* Routes cho Employee */}
         <Route path="/employee" element={<ProtectedRoute element={<Outlet />} allowedRoles={['Staff']} />}>
           <Route path="home" element={<Homeemployee />} />
@@ -105,7 +120,6 @@ function App() {
           <Route path="list-booking-room" element={<ListReservation />} />
           <Route path="Floor/:id" element={<FloorMap />} />
         </Route>
-
         {/* Routes cho Admin */}
         <Route path="/admin" element={<ProtectedRoute element={<Outlet />} allowedRoles={['HotelOwner']} />}>
           <Route path="home" element={<HomeAdmin />} />
@@ -119,7 +133,11 @@ function App() {
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} />
           <Route path="amenities" element={<AmenitiesPage />} />
+          <Route path="reservation-report" element={<ReservationReport />} />
+          <Route path="room-class-report" element={<RoomClassReport />} />
+          <Route path="employee-report" element={<EmployeeReport />} />
         </Route>
+
 
         <Route path="account" element={<Login />} />
       </Route>

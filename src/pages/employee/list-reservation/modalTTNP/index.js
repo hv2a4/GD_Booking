@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 
-const TTNhanPhong = () => {
+const TTNhanPhong = ({ onHide }) => {
     const [showModalInsertCustomer, setShowModalInsertCustomer] = useState(false);
 
     const handleShowModalInsertCustomer = () => {
@@ -12,6 +12,10 @@ const TTNhanPhong = () => {
     }
     const handleCloseModalInsertCustomer = () => {
         setShowModalInsertCustomer(false);
+    }
+
+    const handleCloseTTNhanPhong = () => {
+        onHide();
     }
     return (
         <>
@@ -60,7 +64,7 @@ const TTNhanPhong = () => {
                     <div className="d-flex justify-content-end mt-5">
                         <button class="btn btn-outline-success" onClick={handleShowModalInsertCustomer}>
                             <i className="fa fa-plus-circle me-2"></i>
-                            <span translate="">Thêm người lưu trú</span>
+                            <span translate="">Thêm khách ở cùng</span>
                         </button>
                     </div>
                     <div className="table-responsive boxster mt-2">
@@ -86,7 +90,7 @@ const TTNhanPhong = () => {
                                             <i className="fa fa-pen"></i>
                                         </button>
                                         <button
-                                            className="btn btn-sm btn-icon-only btn-circle text-orange">
+                                            className="btn btn-sm btn-icon-only btn-circle text-danger">
                                             <i className="fa fa-trash-alt"></i>
                                         </button>
                                     </td>
@@ -102,7 +106,7 @@ const TTNhanPhong = () => {
                                             <i className="fa fa-pen"></i>
                                         </button>
                                         <button
-                                            className="btn btn-sm btn-icon-only btn-circle text-orange">
+                                            className="btn btn-sm btn-icon-only btn-circle text-danger">
                                             <i className="fa fa-trash-alt"></i>
                                         </button>
                                     </td>
@@ -110,8 +114,8 @@ const TTNhanPhong = () => {
                             </tbody>
                         </table>
                     </div>
-                    <div className="d-flex spacer spacer-lg justify-content-between w-100 align-items-start mt-3 ng-star-inserted">
-                        <div className="flex-fill">
+                    <div className="d-flex row spacer-lg justify-content-between w-100 align-items-start mt-3 ng-star-inserted">
+                        <div className="col-md-6">
                             <div className="form-row form-labels-50">
                                 <label className="col-form-label font-semibold text-nowrap">Ghi chú </label>
                                 <div className="col-form-control">
@@ -123,26 +127,7 @@ const TTNhanPhong = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="payment-suggest-money p-4 boxster">
-                            <div className="payment-form-row form-row">
-                                <div className="payment-form-label col-form-label">
-                                    <span className="font-semibold"> Khách cần trả </span>
-                                </div>
-                                <div className="payment-customer-pay payment-form-control col-form-control">
-                                    <button placement="left"
-                                        outsideclick="true"
-                                        containerclassName="min-width-320"
-                                        className="form-control form-control-line cell-change-price">
-                                        <strong className="text-orange">150,000</strong>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="payment-form-row form-row">
-                                <div className="payment-form-label col-form-label">
-                                    <span> Khách đã trả</span>
-                                </div>
-                                <div className="payment-form-control col-form-control payment-total-amount font-regular">0</div>
-                            </div>
+                        <div className="payment-suggest-money p-4 boxster col-md-6">
                             <div className="payment-form-row form-row mt-1">
                                 <div className="payment-form-label col-form-label">
                                     <span> Còn cần trả</span>
@@ -154,11 +139,8 @@ const TTNhanPhong = () => {
                             <div className="payment-form-row form-row ng-star-inserted">
                                 <div className="payment-form-label col-form-label">
                                     <span> Khách thanh toán </span>
-                                    <button className="btn btn-icon-only btn-circle btn-ligprimary">
-                                        <i className="fa fa-credit-card icon-btn"></i>
-                                    </button>
                                 </div>
-                                <div className="payment-form-control col-form-control text-orange">
+                                <div className="payment-form-control col-form-control text-primary">
                                     <input id="txt-payment"
                                         type="text"
                                         className="form-control"
@@ -169,7 +151,7 @@ const TTNhanPhong = () => {
                                 <div className="payment-form-label col-form-label">
                                     <span>Tiền thừa </span>
                                 </div>
-                                <div className="payment-form-control col-form-control text-orange">
+                                <div className="payment-form-control col-form-control text-primary">
                                     <div className="payment-form-control col-form-control payment-total-amount font-regular">
                                         <span> 150,000</span>
                                     </div>
@@ -180,9 +162,9 @@ const TTNhanPhong = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Link to="/employee/edit-room">
-                    <button className="btn btn-outline-primary">Sửa đặt phòng</button>
+                    <button className="btn btn-outline-success">Cập nhật đặt phòng</button>
                     </Link>
-                    <button className="btn btn-primary">Xong</button>
+                    <button className="btn btn-success" onClick={handleCloseTTNhanPhong}>Xong</button>
                 </Modal.Footer>
                 {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} />}
             </div>
