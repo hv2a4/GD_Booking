@@ -23,6 +23,12 @@ const RoomAndTypeRoom = () => {
     const selectedTypeRoomIdRef = useRef(''); // UseRef for non-rendering updates
     const [roomTypes, setRoomTypes] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
+    const [filteredDataRooms, setFilteredDataRooms] = useState([]);
+    const [rooms, setRooms] = useState([]);
+    const [query, setQuery] = useState("");
+    const [selectedRoomType, setSelectedRoomType] = useState(null);
+    const [selectedFloor, setSelectedFloor] = useState(null);
+    const [selectedStatusRoom, setSelectedStatusRoom] = useState(null);
     const location = useLocation();
 
     useEffect(() => {
@@ -33,26 +39,47 @@ const RoomAndTypeRoom = () => {
                 token: Cookies.get('token'), // Thay thế bằng token nếu cần
             });
 
-            if (response) {
-                setRoomTypes(response);
+            if (response && response.length > 0) {
+                // Duyệt qua từng phần tử trong response và lấy amenities riêng cho mỗi phần tử
+                const updatedRoomTypes = await Promise.all(response.map(async (typeRoom) => {
+                    const amenitiesResponse = await request({
+                        method: "GET",
+                        path: `/api/type-room/find-amenities-type-rom/${typeRoom.id}`,
+                        token: Cookies.get('token'), // Thay thế bằng token nếu cần
+                    });
+
+                    return {
+                        ...typeRoom,  // Giữ nguyên các thuộc tính của room
+                        amenities: amenitiesResponse  // Thêm thuộc tính amenitiesLabels riêng cho từng phòng
+                    };
+                }));
+
+                // Cập nhật lại state với mảng đã được cập nhật
+                setRoomTypes(updatedRoomTypes);
             }
         };
+
+        const fetchRooms = async () => {
+            const response = await request({
+                method: "GET",
+                path: "/api/room/getAll",
+                token: Cookies.get('token'), // Thay thế bằng token nếu cần
+            });
+            if (response) {
+                setRooms(response);
+            }
+        };
+        fetchRooms();
         fetchRoomTypes();
     }, [location]);
 
+
     useEffect(() => {
         setFilteredData(roomTypes);
+        setFilteredDataRooms(rooms);
     }, [roomTypes]);
 
 
-    const rooms = [
-        { id: 1, name: "Phòng A1", id_TypeRoom: 1, id_floor: 1, status: "Còn trống" },
-        { id: 2, name: "Phòng A2", id_TypeRoom: 2, id_floor: 2, status: "Đang sử dụng" },
-        { id: 3, name: "Phòng A3", id_TypeRoom: 3, id_floor: 3, status: "Còn trống" },
-        { id: 4, name: "Phòng A4", id_TypeRoom: 4, id_floor: 4, status: "Còn trống" },
-        { id: 5, name: "Phòng B1", id_TypeRoom: 5, id_floor: 5, status: "Còn trống" },
-        { id: 6, name: "Phòng C1", id_TypeRoom: 6, id_floor: 6, status: "Đang sửa chữa" },
-    ]
 
     const handleRoomSelection = (id, event) => {
         event.stopPropagation(); // Ngăn chặn sự kiện click tiếp tục
@@ -104,6 +131,41 @@ const RoomAndTypeRoom = () => {
         setFilteredData(searchResults);
     };
 
+    const handleFilterRooms = () => {
+        const searchResults = rooms.filter((item) => {
+            // Điều kiện lọc theo tên phòng/ID
+            const matchesQuery = query
+                ? item.roomName.toLowerCase().includes(query.toLowerCase()) ||
+                item.id.toString().includes(query)
+                : true;
+
+            // Điều kiện lọc theo loại phòng
+            const matchesRoomType = selectedRoomType
+                ? item.typeRoomDto.id === selectedRoomType.value
+                : true;
+
+            // Điều kiện lọc theo tầng 
+            const matchesFloor = selectedFloor
+                ? item.floorDto.id === selectedFloor.value
+                : true;
+
+            // Điều kiện lọc theo trạng thái phòng 
+            const matchesStatusRoom = selectedStatusRoom
+                ? item.statusRoomDto.id.toString() === selectedStatusRoom.toString()
+                : true;
+
+            // Kết hợp cả ba điều kiện
+            return matchesQuery && matchesRoomType && matchesFloor && matchesStatusRoom;
+        });
+
+        setFilteredDataRooms(searchResults);
+    };
+
+    useEffect(() => {
+        handleFilterRooms();
+    }, [query, selectedRoomType, selectedFloor, selectedStatusRoom]);
+
+
     return (
         <div className="container-fluid">
             <div className="card shadow-sm">
@@ -128,16 +190,21 @@ const RoomAndTypeRoom = () => {
                                     <Card.Body>
                                         <Row>
                                             <Col md={3}>
-                                                <SearchBox placeholder="Tìm kiếm phòng." />
+                                                <SearchBox
+                                                    onSearch={(value) => setQuery(value)}
+                                                    placeholder="Tìm kiếm phòng."
+                                                />
                                             </Col>
                                             <Col md={3}>
-                                                <RoomTypeSelector />
+                                                <RoomTypeSelector
+                                                    onChange={(value) => setSelectedRoomType(value)}
+                                                />
                                             </Col>
                                             <Col md={3}>
-                                                <FloorSelector />
+                                                <FloorSelector onFloorChange={(value) => setSelectedFloor(value)} />
                                             </Col>
                                             <Col md={3}>
-                                                <StatusSelector />
+                                                <StatusSelector onStatusChange={(value) => setSelectedStatusRoom(value)} />
                                             </Col>
                                         </Row>
                                     </Card.Body>
@@ -220,13 +287,14 @@ const RoomAndTypeRoom = () => {
                                         <th>Giá</th>
                                         <th>Giường</th>
                                         <th>Sức chứa</th>
+                                        <th>Tiện nghi</th>
                                         <th>Diện tích</th>
                                         <th>Hình ảnh</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredData.map(({ id, typeRoomName, price, typeBedDto, guestLimit, bedCount, acreage, typeRoomImageDto }) => (
+                                    {filteredData.map(({ id, typeRoomName, price, typeBedDto, guestLimit, bedCount, acreage, typeRoomImageDto, amenities }) => (
                                         <React.Fragment key={id}>
                                             <tr onClick={(e) => {
                                                 // Chỉ mở rộng thông tin nếu không nhấn vào checkbox
@@ -250,6 +318,12 @@ const RoomAndTypeRoom = () => {
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{price} VNĐ</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{bedCount + ' ' + typeBedDto.bedName}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{guestLimit + ' người'}</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>
+                                                    {(() => {
+                                                        const labels = amenities.map(item => item.label).join(', ');
+                                                        return labels;
+                                                    })()}
+                                                </td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{acreage} m2</td>
                                                 <td onClick={(e) => {
                                                     e.stopPropagation();
@@ -282,9 +356,14 @@ const RoomAndTypeRoom = () => {
                                                                                 {/* Cột chứa thông tin giá cả và địa chỉ */}
                                                                                 <Col md={6}>
                                                                                     <div style={{ overflowY: "auto", scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                                                                        <p><strong>Tiện nghi: </strong>
+                                                                                            {(() => {
+                                                                                                const labels = amenities.map(item => item.label).join(', ');
+                                                                                                return labels;
+                                                                                            })()}</p>
                                                                                         <p><strong>Diện tích:</strong> {acreage} m2</p>
                                                                                         <p><strong>Giá cả ngày:</strong> {price} VNĐ</p>
-                                                                                        <p><strong>Phụ thu quá giờ:</strong> Tính tiền mỗi giờ</p>
+
                                                                                     </div>
                                                                                 </Col>
 
@@ -292,7 +371,7 @@ const RoomAndTypeRoom = () => {
 
                                                                             {/* Các nút cập nhật và xóa */}
                                                                             <div className="d-flex justify-content-end">
-                                                                                <Add_Update_TypeRoom idTypeRoom={id} />
+                                                                                <Add_Update_TypeRoom idTypeRoom={id} amenities={amenities} />
                                                                                 <DeleteModelTypeRoom idTypeRoom={id} />
                                                                             </div>
                                                                         </div>
@@ -327,6 +406,7 @@ const RoomAndTypeRoom = () => {
                                                 aria-label="Chọn tất cả"
                                             />
                                         </th>
+                                        <th>Mã phòng</th>
                                         <th>Tên phòng</th>
                                         <th>Loại phòng</th>
                                         <th>Tầng</th>
@@ -334,7 +414,7 @@ const RoomAndTypeRoom = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {rooms.map(({ id, name, id_TypeRoom, id_floor, status }) => (
+                                    {filteredDataRooms.map(({ id, roomName, typeRoomDto, floorDto, statusRoomDto }) => (
                                         <React.Fragment key={id}>
                                             <tr>
                                                 <td>
@@ -344,10 +424,11 @@ const RoomAndTypeRoom = () => {
                                                         onChange={(e) => handleRoomSelection(id, e)}
                                                     />
                                                 </td>
-                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{name}</td>
-                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{id_TypeRoom}</td>
-                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{id_floor}</td>
-                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{status}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{id}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{roomName}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{typeRoomDto.typeRoomName}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{floorDto.floorName}</td>
+                                                <td onClick={() => toggleRowExpansion(id)} style={{ cursor: 'pointer' }}>{statusRoomDto.statusRoomName}</td>
                                             </tr>
                                             {expandedRowId === id && (
                                                 <tr>
@@ -367,7 +448,7 @@ const RoomAndTypeRoom = () => {
                                                                         className={`nav-link ${currentTab === 'bookingHistory' ? 'active' : ''}`}
                                                                         onClick={() => setCurrentTab('bookingHistory')}
                                                                     >
-                                                                        Lịch sử đặt phòng
+                                                                        Lịch đặt phòng
                                                                     </button>
                                                                 </li>
                                                             </ul>
@@ -379,17 +460,17 @@ const RoomAndTypeRoom = () => {
                                                                                 <h5 className="card-title">Thông tin phòng</h5>
                                                                                 <div className="row mb-3">
                                                                                     <div className="col-6">
-                                                                                        <p><strong>Tên phòng:</strong> {name}</p>
-                                                                                        <p><strong>Tầng:</strong> {id_floor}</p>
+                                                                                        <p><strong>Tên phòng:</strong> {roomName}</p>
+                                                                                        <p><strong>Tầng:</strong> {floorDto.floorName}</p>
                                                                                     </div>
                                                                                     <div className="col-6">
-                                                                                        <p><strong>Loại phòng:</strong> {id_TypeRoom}</p>
-                                                                                        <p><strong>Trạng thái:</strong> {status}</p>
+                                                                                        <p><strong>Loại phòng:</strong> {typeRoomDto.typeRoomName}</p>
+                                                                                        <p><strong>Trạng thái:</strong> {statusRoomDto.statusRoomName}</p>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="d-flex justify-content-end">
-                                                                                    <UpdateRoomModal />
-                                                                                    <DeleteModelRoom Name_Room={name} />
+                                                                                    <UpdateRoomModal idRoom={id} />
+                                                                                    <DeleteModelRoom idRoom={id} />
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -401,7 +482,7 @@ const RoomAndTypeRoom = () => {
                                                                         <table className="table table-striped mt-3">
                                                                             <thead className="table-primary">
                                                                                 <tr>
-                                                                                    <th scope="col">Mã phòng</th>
+                                                                                    <th scope="col">Mã đặt phòng</th>
                                                                                     <th scope="col">Check in</th>
                                                                                     <th scope="col">Check out</th>
                                                                                     <th scope="col">Khách hàng</th>

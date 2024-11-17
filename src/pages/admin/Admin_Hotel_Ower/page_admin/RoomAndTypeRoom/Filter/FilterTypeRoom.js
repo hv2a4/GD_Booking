@@ -1,54 +1,113 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Form, Row, Col } from 'react-bootstrap';
 import '../Filter/style/customCss.css';
 import { Add_Floor } from '../Rom/AddAndUpdate';
 import Select from 'react-select';
 import { RiAddCircleLine } from "react-icons/ri";
+import { request } from '../../../../../../config/configApi';
+import Cookies from 'js-cookie';
 
 // Component tìm kiếm chung
 function SearchBox({ placeholder, onSearch }) {
     return (
-            <Form.Group controlId="search">
-                <Form.Control
-                    type="text"
-                    placeholder={placeholder}
-                    onChange={(e) => onSearch(e.target.value)}
-                />
-            </Form.Group>
+        <Form.Group controlId="search">
+            <Form.Control
+                type="text"
+                placeholder={placeholder}
+                onChange={(e) => onSearch(e.target.value)}
+            />
+        </Form.Group>
     );
 };
 
 // Component chọn trạng thái với combobox
-function StatusSelector() {
-    const [status, setStatus] = useState('dangKinhDoanh');
+function StatusSelector({ onStatusChange }) {
+    const [status, setStatus] = useState('');
+    const [statusRooms, setStatusRooms] = useState([]); // Lưu trữ trạng thái phòng từ API
+
+
+    // Gọi fetchStatusRooms khi component mount
+    useEffect(() => {
+        const fetchStatusRooms = async () => {
+            try {
+                const response = await request({
+                    method: "GET",
+                    path: "/api/status-room/getAll",
+                    token: Cookies.get('token'), // Thay thế bằng token nếu cần
+                });
+
+                if (response && response.length > 0) {
+                    setStatusRooms(response);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách trạng thái phòng:", error);
+            }
+        };
+        fetchStatusRooms();
+    }, []);
+
+    // Xử lý thay đổi trạng thái
+    const handleStatusChange = (e) => {
+        const selectedStatus = e.target.value;
+        setStatus(selectedStatus);
+        if (onStatusChange) {
+            onStatusChange(selectedStatus); // Gọi callback từ props nếu có
+        }
+    };
 
     return (
         <Form>
             <Form.Select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={handleStatusChange}
             >
-                <option value="activeBusiness">Còn trống</option>
-                <option value="inactiveBusiness">Đang sử dụng</option>
-                <option value="getAll">Tất cả</option>
+                <option value="">Tất cả</option>
+                {statusRooms.map((roomStatus) => (
+                    <option key={roomStatus.id} value={roomStatus.id}>
+                        {roomStatus.statusRoomName}
+                    </option>
+                ))}
             </Form.Select>
         </Form>
     );
 }
 
+
 // Component chọn loại phòng với combobox có tìm kiếm
-function RoomTypeSelector() {
-    const [searchTerm, setSearchTerm] = useState(null);
+function RoomTypeSelector({ onChange }) {
+    const [selectedRoomType, setSelectedRoomType] = useState();
+    const [options, setOptions] = useState([]);
 
-    const roomTypes = [
-        'Phòng 01 giường đôi cho 2 người',
-        'Phòng 01 giường đôi và 1 giường đơn cho 3 người',
-        'Phòng 01 giường đơn',
-        'Phòng 02 giường đơn',
-        'Vip',
-    ];
+    useEffect(() => {
+        const fetchRoomTypes = async () => {
+            try {
+                const response = await request({
+                    method: "GET",
+                    path: "/api/type-room/getAll",
+                    token: Cookies.get("token"), // Thay thế bằng token nếu cần
+                });
 
-    const options = roomTypes.map(room => ({ value: room, label: room }));
+                if (response && response.length > 0) {
+                    const options = response.map(roomType => ({
+                        value: roomType.id,
+                        label: roomType.typeRoomName,
+                    }));
+                    setOptions(options);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách loại phòng:", error);
+            }
+        };
+
+        fetchRoomTypes();
+    }, []);
+
+    const handleChange = (selectedOption) => {
+        setSelectedRoomType(selectedOption);
+        if (onChange) {
+            onChange(selectedOption); // Gọi callback khi có giá trị được chọn
+        }
+    };
 
     return (
         <Form>
@@ -56,53 +115,56 @@ function RoomTypeSelector() {
                 <Select
                     options={options}
                     placeholder="Tìm kiếm loại phòng..."
-                    value={searchTerm}
-                    onChange={setSearchTerm}
+                    value={selectedRoomType}
+                    onChange={handleChange}
                     isClearable
                     isSearchable
                 />
             </Form.Group>
         </Form>
     );
-}
+};
+
 
 // Component chọn khu vực với combobox có tìm kiếm và nút thêm
-function FloorSelector() {
+function FloorSelector({ onFloorChange }) {
+    const [options, setOptions] = useState([]);
     const [selectedFloor, setSelectedFloor] = useState(null);
 
-    const floors = ['Tất cả', 'Tầng 2', 'Tầng 3', 'Tầng 4', 'Tầng 5'];
-    const options = [{
-        value: 'addNew',
-        label: (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <RiAddCircleLine size={20} />
-                <div className='ms-1'>Thêm tầng</div>
-            </div>
-        )
-    }, ...floors.map(floor => ({ value: floor, label: floor }))];
+    useEffect(() => {
+        const fetchFloors = async () => {
+            try {
+                const response = await request({
+                    method: "GET",
+                    path: "/api/floor/getAll",
+                    token: Cookies.get("token"), // Thay thế bằng token nếu cần
+                });
+
+                if (response && response.length > 0) {
+                    const options = response.map(floor => ({
+                        value: floor.id,
+                        label: floor.floorName,
+                    }));
+                    setOptions(options);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách tầng:", error);
+            }
+        };
+
+        fetchFloors();
+    }, []);
 
     const handleFloorChange = (selectedOption) => {
-        if (selectedOption) {
-            if (selectedOption.value === 'addNew') {
-                setSelectedFloor(null);
-                const addFloorBtn = document.getElementById('add-area');
-                if (addFloorBtn) {
-                    addFloorBtn.click();
-                }
-            } else {
-                setSelectedFloor(selectedOption);
-            }
-        } else {
-            setSelectedFloor(null); // Xử lý trường hợp giá trị null
+        setSelectedFloor(selectedOption || null);
+        if (onFloorChange) {
+            onFloorChange(selectedOption); // Gọi callback khi giá trị được thay đổi
         }
     };
 
     return (
         <Form>
-            <Form.Group controlId="searchArea">
-                <div className='d-none'>
-                    <Add_Floor className="add-area-btn" />
-                </div>
+            <Form.Group controlId="searchFloor">
                 <Select
                     options={options}
                     placeholder="Tìm kiếm tầng..."
@@ -115,6 +177,7 @@ function FloorSelector() {
         </Form>
     );
 }
+
 
 // Xuất các component chính
 export { SearchBox, StatusSelector, RoomTypeSelector, FloorSelector };
