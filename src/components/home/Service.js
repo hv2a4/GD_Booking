@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { getAllServiceHotel } from "../../services/client/home";
 import Alert from "../../config/alert";
+import { FaCoffee, FaParking, FaTaxi, FaTshirt, FaWalking } from "react-icons/fa";
 
 export default function Services() {
   const [services, setService] = useState([]);
@@ -22,6 +23,23 @@ export default function Services() {
       setAlert({ type: "error", title: error });
     }
   }
+
+  const getServiceIcon = (serviceName) => {
+    switch (serviceName) {
+      case "Giao Thức Ăn":
+        return <FaCoffee />;
+      case "Giặt Ủi":
+        return <FaTshirt />;
+      case "Tham Quan Có Hướng Dẫn":
+        return <FaWalking />;
+      case "Đỗ Xe":
+        return <FaParking />;
+      case "Dịch Vụ Xe Đưa Đón":
+        return <FaTaxi />;
+      default:
+        return null;
+    }
+  };
   return (
     <>
       <div className="container-xxl py-5">
@@ -35,12 +53,12 @@ export default function Services() {
             />
           </div>
           <div className="row g-4">
-            {(services.length > 6 ? services.slice(0,6):services).map((item, index) => (
+            {(services.length > 6 ? services.slice(0, 6) : services).map((item, index) => (
               <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                 <a className="service-item rounded text-orange" href="">
                   <div className="service-icon bg-transparent border rounded p-1">
                     <div className="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
-                      <i className={item?.icon}></i>
+                      {getServiceIcon(item?.serviceHotelName)}
                     </div>
                   </div>
                   <h5 className="mb-3">{item?.serviceHotelName}</h5>

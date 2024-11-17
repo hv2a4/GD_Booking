@@ -45,92 +45,86 @@ import Cookies from 'js-cookie';
 import { Outlet } from "react-router-dom";
 
 function App() {
-  
-  const getUserRole = () => { 
-    try {
-        const cookieToken = Cookies.get("token") ? Cookies.get("token") : null;
-        const decodedToken = jwt_decode(cookieToken); // Decode token
-        return decodedToken.role; // Return the roleName
-    } catch (error) {
-        console.error("Error decoding token:", error);
-        return null; // Return null if there's an error
-    }
-};
-  const cookieTokens =  Cookies.get("token")?Cookies.get("token"):null;
-  
-  const ProtectedRoute = ({ element }) => {
-    const token = Cookies.get("token") || null; // Lấy token từ cookie
-    const userRole = token ? getUserRole() : null; // Lấy vai trò nếu có token
-    const path = window.location.pathname; // Đường dẫn hiện tại
 
+  const getUserRole = () => {
+    try {
+      const cookieToken = Cookies.get("token") ? Cookies.get("token") : null;
+      const decodedToken = jwt_decode(cookieToken); // Decode token
+      return decodedToken.role; // Return the roleName
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null; // Return null if there's an error
+    }
+  };
+  const cookieTokens = Cookies.get("token") ? Cookies.get("token") : null;
+
+  const ProtectedRoute = ({ element }) => {
+    const token = Cookies.get("token") || null; // Get token from cookies
+    const userRole = token ? getUserRole() : null; // Get the user's role if token exists
+    const path = window.location.pathname; // Current path
+    console.log(path)
     let hasAccess = false;
 
-    // Kiểm tra quyền truy cập
-    if (path.startsWith('/client')) {
-        // Cho phép truy cập vào các trang /client nếu chưa có token hoặc vai trò là Customer hoặc HotelOwner
-        hasAccess = !token || userRole === 'Customer' || userRole === 'HotelOwner' || userRole === 'Staff';
-    } else if (path.startsWith('/admin') || path.startsWith('/employee')) {
-        // Cho phép HotelOwner truy cập /admin và /employee
-        hasAccess = userRole === 'HotelOwner' || (userRole === 'Staff' && path.startsWith('/employee'));
+    // Determine access based on the path
+    if (path.startsWith('/admin') || path.startsWith('/employee')) {
+      // Only allow access to /admin or /employee routes for authenticated users with specific roles
+      hasAccess = userRole === 'HotelOwner' || (userRole === 'Staff' && path.startsWith('/employee'));
     }
-
-    // Log để kiểm tra trạng thái truy cập
-    console.log(`User role: ${userRole}, Access granted: ${hasAccess}, Path: ${path}`);
 
     if (!hasAccess) {
-        return <Navigate to="/" />; // Chuyển hướng về trang chủ nếu không có quyền truy cập
+      return <Navigate to="/" />; // Redirect to home if access is not allowed
     }
 
-    return element; // Render component nếu có quyền truy cập
-};
-const router = createBrowserRouter(
-  createRoutesFromElements(
+    return element; // Render the component if access is allowed
+  };
+
+  const router = createBrowserRouter(
+    createRoutesFromElements(
       <Route path="/" >
-          <Route index element={<Navigate to="/client/home" />} />
-          
-          {/* Routes cho Client */}
-          <Route path="/client" element={<ProtectedRoute element={<Outlet />} allowedRoles={['Customer']} />}>
-              <Route path="home" element={<Home />} />
-              <Route path="booking" element={<Booking />} />
-              <Route path="testimonial" element={<Testimonial />} />
-              <Route path="about" element={<AboutUs />} />
-              <Route path="contact" element={<Contact />} />
-              <Route path="rooms" element={<RoomClient />} />
-              <Route path="services" element={<Services />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="booking-room" element={<PageBookRoom />} />
-              <Route path="invoice" element={<Invoice />} />
-              <Route path="*" element={<PageNotFound />} />
-          </Route>
+        <Route index element={<Navigate to="/client/home" />} />
 
-          {/* Routes cho Employee */}
-          <Route path="/employee" element={<ProtectedRoute element={<Outlet />} allowedRoles={['Staff']} />}>
-              <Route path="home" element={<Homeemployee />} />
-              <Route path="edit-room" element={<EditRoom />} />
-              <Route path="list-booking-room" element={<ListReservation />} />
-              <Route path="Floor/:id" element={<FloorMap />} />
-          </Route>
+        {/* Routes cho Client */}
+        <Route path="/client" >
+          <Route path="home" element={<Home />} />
+          <Route path="booking" element={<Booking />} />
+          <Route path="testimonial" element={<Testimonial />} />
+          <Route path="about" element={<AboutUs />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="rooms" element={<RoomClient />} />
+          <Route path="services" element={<Services />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="booking-room" element={<PageBookRoom />} />
+          <Route path="invoice" element={<Invoice />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
 
-          {/* Routes cho Admin */}
-          <Route path="/admin" element={<ProtectedRoute element={<Outlet />} allowedRoles={['HotelOwner']} />}>
-              <Route path="home" element={<HomeAdmin />} />
-              <Route path="room" element={<RoomAdmin />} />
-              <Route path="booking-manager" element={<BookingManger />} />
-              <Route path="room-pricing" element={<RoomPriceManager />} />
-              <Route path="invoice-room" element={<InvoiceManagement />} />
-              <Route path="account-client" element={<AccountClient />} />
-              <Route path="account-employee" element={<Accountemployee />} />
-              <Route path="hotel-info" element={<HotelInfo />} />
-              <Route path="revenue" element={<RevenueReport />} />
-              <Route path="service" element={<ServicesPage />} />
-              <Route path="amenities" element={<AmenitiesPage />} />
-          </Route>
+        {/* Routes cho Employee */}
+        <Route path="/employee" element={<ProtectedRoute element={<Outlet />} allowedRoles={['Staff']} />}>
+          <Route path="home" element={<Homeemployee />} />
+          <Route path="edit-room" element={<EditRoom />} />
+          <Route path="list-booking-room" element={<ListReservation />} />
+          <Route path="Floor/:id" element={<FloorMap />} />
+        </Route>
 
-          {/* Route cho Login */}
-          <Route path="account" element={<Login />} />
+        {/* Routes cho Admin */}
+        <Route path="/admin" element={<ProtectedRoute element={<Outlet />} allowedRoles={['HotelOwner']} />}>
+          <Route path="home" element={<HomeAdmin />} />
+          <Route path="room" element={<RoomAdmin />} />
+          <Route path="booking-manager" element={<BookingManger />} />
+          <Route path="room-pricing" element={<RoomPriceManager />} />
+          <Route path="invoice-room" element={<InvoiceManagement />} />
+          <Route path="account-client" element={<AccountClient />} />
+          <Route path="account-employee" element={<Accountemployee />} />
+          <Route path="hotel-info" element={<HotelInfo />} />
+          <Route path="revenue" element={<RevenueReport />} />
+          <Route path="service" element={<ServicesPage />} />
+          <Route path="amenities" element={<AmenitiesPage />} />
+        </Route>
+
+        <Route path="account" element={<Login />} />
       </Route>
-  )
-);
+    )
+  );
   return (
     <React.StrictMode>
       <RouterProvider router={router} />

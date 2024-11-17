@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { getByIdBooking } from '../../../../../../services/admin/crudServiceReservations';
 import { format, isValid } from 'date-fns';
-import jsPDF from 'jspdf';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function DetailRow({ label, value }) {
@@ -89,6 +88,16 @@ function DetailBooking({ object }) {
         paymentMethod: 'Phương thức thanh toán',
         paymentStatus: 'Trạng thái thanh toán',
     };
+
+    const renderGroup = (groupTitle, fields) => (
+        <div className="detail-group">
+            <h5>{groupTitle}</h5>
+            {fields.map((key) => (
+                <DetailRow key={key} label={labelMap[key]} value={bookingDetails[key]} />
+            ))}
+        </div>
+    );
+
     return (
         <>
             <Button variant="primary" size="sm" onClick={openModal}>
@@ -107,10 +116,17 @@ function DetailBooking({ object }) {
                         Object.keys(bookingDetails).length === 0 || Object.values(bookingDetails).every(value => !value) ? (
                             <p>Chưa có đơn đã đặt</p>
                         ) : (
-                            <div className="modal-detail">
-                                {Object.entries(bookingDetails).map(([key, value]) => (
-                                    <DetailRow key={key} label={labelMap[key]} value={value} />
-                                ))}
+                            <div className="modal-detail row">
+                                <div className='col-md-6 '>
+                                    {renderGroup("Thông tin khách hàng", ["customerName", "phone", "email"])}
+                                </div>
+                                <div className='col-md-6 ' style={{borderLeft: '1px solid #cccccc'}}>
+                                    {renderGroup("Thông tin thanh toán", ["totalAmount", "status", "paymentMethod", "paymentStatus"])}
+                                </div>
+                                <hr></hr>
+                                <div className='col-md-12 mt-2 '>
+                                    {renderGroup("Thông tin phòng", ["bookingId", "checkIn", "checkOut", "guestCount", "roomType", "roomNumber", "roomRate"])}
+                                </div>
                             </div>
                         )
                     )}
@@ -118,21 +134,27 @@ function DetailBooking({ object }) {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={closeModal}>
                         Đóng
-                    </Button> 
+                    </Button>
                 </Modal.Footer>
             </Modal>
 
             <style>{`
                 .modal-detail {
                     display: flex;
-                    flex-direction: column;
-                    gap: 10px;
+                }
+                .detail-group {
+                    padding-bottom: 10px;
+                    margin-bottom: 10px;
                 }
                 .detail-row {
                     display: flex;
                     justify-content: space-between;
                     padding: 8px 0;
-                    border-bottom: 1px solid #f0f0f0;
+                }
+                .detail-group h5 {
+                    font-weight: bold;
+                    color: #333;
+                    margin-bottom: 8px;
                 }
                 .detail-row:last-child {
                     border-bottom: none;

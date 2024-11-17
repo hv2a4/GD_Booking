@@ -1,24 +1,25 @@
+.room-detail-image {
+  max-width: 300px; /* Giới hạn chiều rộng của hình ảnh */
+  margin-right: 20px; /* Khoảng cách giữa hình ảnh và thông tin */
+}
 
-  .room-detail-image {
-    max-width: 300px; /* Giới hạn chiều rộng của hình ảnh */
-    margin-right: 20px; /* Khoảng cách giữa hình ảnh và thông tin */
-  }
-  
-  .room-detail-info {
-    flex-grow: 1; /* Cho phép phần thông tin chiếm không gian còn lại */
-    scrollbar-width: none;
-  }
-  
-  .room-detail-description {
-    margin-top: 20px; /* Khoảng cách cho mô tả */
-    word-wrap: break-word; /* Cho phép chữ tự xuống dòng */
-  }
-  
-  .room-detail-price {
-    font-weight: bold; /* Làm nổi bật giá phòng */
-    color: #007bff; /* Màu xanh giống màu primary */
-  }
-  /* RoomDetailModal.css */
+.room-detail-info {
+  flex-grow: 1; /* Cho phép phần thông tin chiếm không gian còn lại */
+  scrollbar-width: none;
+}
+
+.room-detail-description {
+  margin-top: 20px; /* Khoảng cách cho mô tả */
+  word-wrap: break-word; /* Cho phép chữ tự xuống dòng */
+}
+
+.room-detail-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #003366; /* Màu vàng gold */
+}
+
+/* RoomDetailModal.css */
 .room-detail-description {
   margin-top: 20px;
   word-wrap: break-word; /* Hoặc sử dụng overflow-wrap: break-word; */
@@ -36,4 +37,50 @@
   word-wrap: break-word; /* Hoặc overflow-wrap: break-word; */
   max-width: 100%; /* Đảm bảo phần tử cha có chiều rộng */
   /* Thêm các thuộc tính khác nếu cần */
+}
+
+.feedback-container {
+  max-height: 300px; /* Tối đa chiều cao cho phần đánh giá */
+  overflow-y: scroll; /* Cho phép cuộn dọc */
+  padding-right: 5px;
+}
+
+/* Ẩn thanh kéo trên tất cả các trình duyệt */
+.feedback-container::-webkit-scrollbar {
+  display: none; /* Dành cho Chrome, Safari */
+}
+
+.feedback-container {
+  -ms-overflow-style: none;  /* Dành cho Internet Explorer và Edge */
+  scrollbar-width: none;     /* Dành cho Firefox */
+}
+
+.room-thumbnail {
+  width: 30px;
+  height: 30px;
+  object-fit: cover; /* Giữ tỷ lệ hình ảnh */
+  border-radius: 5px; /* Bo góc nhẹ */
+}
+
+.feedback-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* Bo tròn hình ảnh */
+  overflow: hidden; /* Giữ hình ảnh không bị tràn */
+}
+
+.room-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Giữ tỷ lệ hình ảnh */
+}
+
+.feedback-username {
+  font-size: 0.5rem; /* Điều chỉnh kích thước tên người dùng */
+  font-weight: bold; /* In đậm tên người dùng */
+}
+
+.feedback-date {
+  font-size: 0.85rem; /* Kích thước nhỏ hơn cho ngày đánh giá */
+  color: #6c757d; /* Màu xám nhạt */
 }
