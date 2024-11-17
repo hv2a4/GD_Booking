@@ -119,7 +119,7 @@ const UpdateRoomModal = ({ idRoom }) => {
             });
 
             if (response) {
-                setAlert({ type: "success", title: "Thêm phòng thành công!" });
+                setAlert({ type: "success", title: "Cập nhật phòng thành công!" });
                 navigate('/admin/room');
                 handleClose();
             }

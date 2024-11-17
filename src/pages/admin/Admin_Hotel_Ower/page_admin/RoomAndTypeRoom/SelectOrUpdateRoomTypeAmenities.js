@@ -28,7 +28,7 @@ const SelectRoomTypeAmenities = ({
         if (onSelectionChange) {
             onSelectionChange(defaultSelectedOptions);
         }
-    }, [defaultSelectedOptions, options]);
+    }, []);
 
     // Xử lý thay đổi lựa chọn
     const handleChange = (selected) => {

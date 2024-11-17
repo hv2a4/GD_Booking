@@ -137,7 +137,9 @@ const Add_Update_TypeRoom = ({ idTypeRoom, amenities= [] }) => {
             setValue('amenities', 'true');
             clearErrors('amenities');
         } else {
-            setValue('amenities', null, { shouldValidate: true });
+            if (getValues('amenities') !== '') {
+                setValue('amenities', '', { shouldValidate: true });
+            }
         }
     };
 
