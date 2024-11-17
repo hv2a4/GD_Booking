@@ -66,10 +66,7 @@ function App() {
     let hasAccess = false;
 
     // Kiểm tra quyền truy cập
-    if (path.startsWith('/client')) {
-        // Cho phép truy cập vào các trang /client nếu chưa có token hoặc vai trò là Customer hoặc HotelOwner
-        hasAccess = !token || userRole === 'Customer' || userRole === 'HotelOwner' || userRole === 'Staff';
-    } else if (path.startsWith('/admin') || path.startsWith('/employee')) {
+    if (path.startsWith('/admin') || path.startsWith('/employee')) {
         // Cho phép HotelOwner truy cập /admin và /employee
         hasAccess = userRole === 'HotelOwner' || (userRole === 'Staff' && path.startsWith('/employee'));
     }
@@ -89,7 +86,7 @@ const router = createBrowserRouter(
           <Route index element={<Navigate to="/client/home" />} />
           
           {/* Routes cho Client */}
-          <Route path="/client" element={<ProtectedRoute element={<Outlet />} allowedRoles={['Customer']} />}>
+          <Route path="/client" >
               <Route path="home" element={<Home />} />
               <Route path="booking" element={<Booking />} />
               <Route path="testimonial" element={<Testimonial />} />
@@ -124,6 +121,9 @@ const router = createBrowserRouter(
               <Route path="revenue" element={<RevenueReport />} />
               <Route path="service" element={<ServicesPage />} />
               <Route path="amenities" element={<AmenitiesPage />} />
+              <Route path="reservation-report" element={<ReservationReport />} />
+              <Route path="room-class-report" element={<RoomClassReport />} />
+              <Route path="employee-report" element={<EmployeeReport />} />
           </Route>
 
           {/* Route cho Login */}

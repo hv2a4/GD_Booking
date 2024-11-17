@@ -52,7 +52,8 @@
     "styled-components": "^6.1.13",
     "sweetalert2": "^11.14.5",
     "web-vitals": "^2.1.4",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

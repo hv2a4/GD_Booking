@@ -7,7 +7,7 @@ const PopupPayment = () => {
     const handleShow = () => setShow(true);
     return (
         <>
-            <button className="btn btn-primary ng-star-inserted" type="button" onClick={handleShow}>Thanh toán</button>
+            <button className="btn btn-outline-success ng-star-inserted" type="button" onClick={handleShow}>Thanh toán</button>
             <Offcanvas show={show} onHide={handleClose} placement="end" style={{ width: "80%", maxWidth: "80%", height: "100%" }}>
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title id="offcanvasRightLabel">Thanh toán DP000008 - Lê Minh Khôi</Offcanvas.Title>
@@ -186,7 +186,7 @@ const PopupPayment = () => {
                                         </div>
                                         <div className="payment-footer">
                                             <div className="payment-actions">
-                                                <button type="button" className="btn btn-primary ng-star-inserted w-100"> Hoàn thành </button>
+                                                <button type="button" className="btn btn-outline-success ng-star-inserted w-100"> Hoàn thành </button>
                                             </div>
                                         </div>
                                     </div>

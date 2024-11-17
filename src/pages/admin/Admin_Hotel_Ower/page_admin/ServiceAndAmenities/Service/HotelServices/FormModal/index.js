@@ -41,11 +41,8 @@ const HotelServiceFormModal = ({ item, refreshData }) => {
 
     const onSubmit = async () => {
         try {
-            console.log("hh "+images);
             const urlImage = images ? await uploadImageToFirebase(images) : serviceHotel.image;
             const updatedServiceHotel = { ...serviceHotel, image: urlImage || "" };
-            console.log("ra gì đây "+urlImage);
-            
             
             const response = item ? await updateServiceHotel(updatedServiceHotel, token) : await createServiceHotel(updatedServiceHotel, token);
             if (item) {
