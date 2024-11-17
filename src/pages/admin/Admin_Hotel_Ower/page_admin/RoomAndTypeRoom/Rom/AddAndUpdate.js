@@ -5,8 +5,6 @@ import { RiAddCircleLine } from "react-icons/ri";
 import './modelCus.css';
 import { FaSave, FaClipboardCheck } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import ImageListSlider from './ImagesList';
 import { useForm } from 'react-hook-form';
 import Alert from "../../../../../../config/alert";
@@ -15,6 +13,8 @@ import { request } from '../../../../../../config/configApi';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { ClipLoader } from "react-spinners";
+import SelectRoomTypeAmenities from '../SelectOrUpdateRoomTypeAmenities';
+
 
 function Add_Floor() {
     const [show, setShow] = useState(false);
@@ -108,7 +108,7 @@ function Add_Floor() {
     );
 }
 
-const Add_Update_TypeRoom = ({ idTypeRoom }) => {
+const Add_Update_TypeRoom = ({ idTypeRoom, amenities= [] }) => {
     const [show, setShow] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const handleClose = () => {
@@ -121,15 +121,29 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
     };
     const [images, setImages] = useState([]);
     const [typeBeds, setTypeBeds] = useState([]);
-    const [typeRoom, setTypeRoom] = useState();
     const [alert, setAlert] = useState(null);
+    const [roomTypeAmenities, setRoomTypeAmenities] = useState([]);
+    const [selectedAmenities, setSelectedAmenities] = useState([]);
     const navigate = useNavigate();
 
     const handleImagesChange = (newImages) => {
         setImages(newImages);
     };
 
-    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm({
+    //Chọn tiện nghi loại phòng
+    const handleSelectionChange = (selectedOptions) => {
+        setSelectedAmenities(selectedOptions);
+        if (selectedOptions.length > 0) {
+            setValue('amenities', 'true');
+            clearErrors('amenities');
+        } else {
+            if (getValues('amenities') !== '') {
+                setValue('amenities', '', { shouldValidate: true });
+            }
+        }
+    };
+
+    const { register, handleSubmit, setValue, clearErrors, getValues, formState: { errors }, reset } = useForm({
         defaultValues:
         {
             typeRoomBed: '',
@@ -152,13 +166,13 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
         });
 
         if (response) {
-            setTypeRoom(response);
             setValue('typeRoomName', response?.typeRoomName || '');
             setValue('typeRoomPrice', response?.price || '');
             setValue('typeRoomBed', response?.typeBedDto.id || '');  // Chắc chắn rằng typeBedId có giá trị
             setValue('typeRoomNumberBed', response?.bedCount || '');
             setValue('acreage', response?.acreage || '');
             setValue('guestLimit', response?.guestLimit || 1);
+            setValue('amenities', 'true');
         }
     };
 
@@ -174,10 +188,31 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
                 setTypeBeds(response);
             }
         };
+        const fetchRoomTypesAmenities = async () => {
+            const response = await request({
+                method: "GET",
+                path: "/api/amenities-type-room/getAll",
+                token: Cookies.get('token'), // Thay thế bằng token nếu cần
+            });
+
+            if (response) {
+                const options = response.map((amenity) => ({
+                    value: amenity.id,
+                    label: amenity.amenitiesTypeRoomName,
+                }));
+                setRoomTypeAmenities(options);
+            }
+        };
+        fetchRoomTypesAmenities();
         fetchTypeBeds();
     }, []);
 
     const onSubmit = async (data) => {
+        const amenitiesTypeRooms = selectedAmenities.map((amenity) => ({
+            id: amenity.value,
+            amenitiesTypeRoomName: amenity.label,
+        }));
+
         const formData = {
             id: idTypeRoom,
             typeRoomName: data.typeRoomName,
@@ -186,12 +221,15 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
             bedCount: data.typeRoomNumberBed,
             acreage: data.acreage,
             guestLimit: data.guestLimit,
+            amenitiesTypeRooms: amenitiesTypeRooms,
             describes: '',
             imageNames: []  // Gửi mảng các URL hình ảnh đã upload
         };
-        if (idTypeRoom) {
-            setIsLoading(true);  // Bắt đầu quá trình tải
-            try {
+
+        setIsLoading(true);  // Bắt đầu quá trình tải
+
+        try {
+            if (idTypeRoom) {
                 // Gửi yêu cầu PUT đến API
                 const response = await request({
                     method: "PUT",
@@ -208,54 +246,42 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
                     navigate('/admin/room');
                     handleClose();
                 }
-            } catch (error) {
-                console.error("Error while adding type room: ", error);
-                setAlert({ type: "error", title: "Có lỗi xảy ra khi cập nhật loại phòng!" });
-            } finally {
-                setIsLoading(false);  // Kết thúc quá trình tải
-            }
-        } else {
-            if (images && images.length > 0) {
-                const imageNames = [];
-                setIsLoading(true);  // Bắt đầu quá trình tải
-
-                try {
-                    for (const image of images) {
-                        const uploadedImageUrl = await uploadImageToFirebase(image); // Chờ URL được trả về
-                        imageNames.push(uploadedImageUrl);  // Thêm URL vào mảng
-                    }
-
-                    formData.imageNames = imageNames;
-
-                    // Gửi yêu cầu POST đến API
-                    const response = await request({
-                        method: "POST",
-                        path: "/api/type-room/add",
-                        data: formData,
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        token: Cookies.get('token'),
-                    });
-
-                    if (response) {
-                        setAlert({ type: "success", title: "Thêm loại phòng thành công!" });
-                        navigate('/admin/room');
-                        handleClose();
-                    }
-                } catch (error) {
-                    console.error("Error while adding type room: ", error);
-                    setAlert({ type: "error", title: "Có lỗi xảy ra khi thêm loại phòng!" });
-                } finally {
-                    setIsLoading(false);  // Kết thúc quá trình tải
-                }
             } else {
-                setAlert({ type: "error", title: "Vui lòng chọn ít nhất một hình ảnh!" });
+                const imageNames = [];
+
+                // Lặp qua từng hình ảnh và upload chúng lên Firebase
+                for (const image of images) {
+                    const uploadedImageUrl = await uploadImageToFirebase(image); // Chờ URL được trả về
+                    imageNames.push(uploadedImageUrl);  // Thêm URL vào mảng
+                }
+
+                formData.imageNames = imageNames;
+
+                // Gửi yêu cầu POST đến API
+                const response = await request({
+                    method: "POST",
+                    path: "/api/type-room/add",
+                    data: formData,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    token: Cookies.get('token'),
+                });
+
+                if (response) {
+                    setAlert({ type: "success", title: "Thêm loại phòng thành công!" });
+                    setImages([]); // Xóa mảng images sau khi thêm loại phòng thành công
+                    navigate('/admin/room');
+                    handleClose();
+                }
             }
+        } catch (error) {
+            console.error("Error while adding type room: ", error);
+            setAlert({ type: "error", title: "Có lỗi xảy ra khi cập nhật/ thêm loại phòng!" });
+        } finally {
+            setIsLoading(false);  // Kết thúc quá trình tải
         }
     };
-
-
 
 
 
@@ -279,7 +305,6 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
                             e.stopPropagation();
                             setShow(true);
                             fetchTypeRoom();
-
                         }} >
                             <FaClipboardCheck />&nbsp;Cập nhật
                         </small>
@@ -298,8 +323,6 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
                     </Modal.Header>
                     <Modal.Body>
                         <form onSubmit={handleSubmit(onSubmit)}>
-                            {/* <Tabs defaultActiveKey="info" id="uncontrolled-tab-example" className="mb-3"> */}
-                            {/* <Tab eventKey="info" title="Thông tin"> */}
                             <Card style={{ border: 'none', boxShadow: 'none' }}>
                                 <Card.Body>
                                     <Row>
@@ -321,6 +344,7 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
                                                         {errors.typeRoomName?.message}
                                                     </Form.Control.Feedback>
                                                 </Col>
+
                                             </Form.Group>
                                             <Form.Group as={Row} className="mb-3">
                                                 <Col md={6}>
@@ -390,50 +414,41 @@ const Add_Update_TypeRoom = ({ idTypeRoom }) => {
                                                     </Form.Control.Feedback>
                                                 </Col>
                                             </Form.Group>
-                                        </Col>
-                                        <Col md={12}>
-                                            <Card>
-                                                <Card.Header style={{ fontSize: '0.9rem', background: '#ECECEE' }}>
-                                                    <h6>Sức chứa</h6>
-                                                </Card.Header>
-                                                <Card.Body>
-                                                    <Row>
-                                                        <Col md={8}>
-                                                            <Row>
-                                                                <Col md={12}>
-                                                                    <Form.Group as={Row} className="mt-3">
-                                                                        <Form.Label column sm={4} style={{ fontSize: '0.85rem' }}>
-                                                                            <strong>Tối đa</strong>
-                                                                        </Form.Label>
-                                                                        <Col sm={8}>
-                                                                            <Row>
-                                                                                <Col sm="auto">
-                                                                                    <Form.Control type="number" defaultValue={1} min={1}
-                                                                                        name="adultsMax"
-                                                                                        {...register("guestLimit", {
-                                                                                            required: 'Sức chứa là bắt buộc.',
-                                                                                            min: { value: 1, message: 'Sức chứa phải lớn hơn 0' }
-                                                                                        })}
-                                                                                        style={{ width: '60px', fontSize: '0.85rem', display: 'inline-block' }}
-                                                                                        isInvalid={!!errors.guestLimit}  // Thêm isInvalid
-                                                                                    />
-                                                                                    <Form.Control.Feedback type="invalid">
-                                                                                        {errors.guestLimit?.message}
-                                                                                    </Form.Control.Feedback>
-                                                                                </Col>
-                                                                                <Col sm="auto" style={{ padding: 0, marginRight: '8px' }}>
-                                                                                    người
-                                                                                </Col>
-                                                                            </Row>
-                                                                        </Col>
-                                                                    </Form.Group>
-                                                                </Col>
-                                                            </Row>
-                                                        </Col>
-                                                        <Col md={4}></Col>
-                                                    </Row>
-                                                </Card.Body>
-                                            </Card>
+                                            <Form.Group as={Row} className="mb-3">
+                                                <Col md={6}>
+                                                    <Form.Label>Sức chứa tối đa</Form.Label>
+                                                    <Form.Control type="number" defaultValue={1} min={1}
+                                                        name="adultsMax"
+                                                        {...register("guestLimit", {
+                                                            required: 'Sức chứa là bắt buộc.',
+                                                            min: { value: 1, message: 'Sức chứa phải lớn hơn 0' }
+                                                        })}
+
+                                                        isInvalid={!!errors.guestLimit}  // Thêm isInvalid
+                                                    />
+                                                    <Form.Control.Feedback type="invalid">
+                                                        {errors.guestLimit?.message}
+                                                    </Form.Control.Feedback>
+                                                </Col>
+                                                <Col md={6}>
+                                                    <Form.Label>Chọn tiện nghi</Form.Label>
+                                                    <SelectRoomTypeAmenities
+                                                        onSelectionChange={handleSelectionChange}
+                                                        options={roomTypeAmenities}
+                                                        defaultSelectedOptions={amenities ? amenities : []}
+                                                    />
+                                                    <Form.Control
+                                                        name="amenities"
+                                                        {...register("amenities", { required: 'Vui lòng chọn ít nhất 1 tiện nghi!' })}
+                                                        isInvalid={!!errors.amenities}
+                                                        style={{ display: 'none' }}
+                                                    >
+                                                    </Form.Control>
+                                                    <Form.Control.Feedback type="invalid">
+                                                        {errors.amenities?.message}
+                                                    </Form.Control.Feedback>
+                                                </Col>
+                                            </Form.Group>
                                         </Col>
                                     </Row>
                                 </Card.Body>
@@ -585,11 +600,11 @@ const Update_Images_TypeRoom = ({ typeRoomImage, typeRoomName, idTypeRoom }) => 
                         },
                         token: Cookies.get('token'),
                     });
-        
+
                     if (response.code === '200') {
                         navigate('/admin/room');
                         setAlert({ type: "success", title: "Cập nhật ảnh thành công!" });
-                    }else{
+                    } else {
                         setAlert({ type: "error", title: "Cập nhật ảnh thất bại!" });
                     }
                     setLoading(false);
@@ -639,7 +654,7 @@ const Update_Images_TypeRoom = ({ typeRoomImage, typeRoomName, idTypeRoom }) => 
             if (response.code === '200') {
                 navigate('/admin/room');
                 setAlert({ type: "success", title: "Xóa ảnh thành công!" });
-            }else{
+            } else {
                 setAlert({ type: "error", title: "Xóa ảnh thất bại!" });
             }
             try {
@@ -680,7 +695,7 @@ const Update_Images_TypeRoom = ({ typeRoomImage, typeRoomName, idTypeRoom }) => 
             if (response[0].code === '200') {
                 navigate('/admin/room');
                 setAlert({ type: "success", title: "Tải ảnh và lưu đường dẫn thành công!" });
-            }else{
+            } else {
                 setAlert({ type: "error", title: "Tải ảnh và lưu đường dẫn thất bại!" });
             }
             setLoading(false);
@@ -758,21 +773,21 @@ const Update_Images_TypeRoom = ({ typeRoomImage, typeRoomName, idTypeRoom }) => 
 
                 </Modal.Footer>
                 {loading && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    zIndex: 1000,
-                }}>
-                    <ClipLoader color="#3498db" loading={loading} size={50} />
-                </div>
-            )}
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        zIndex: 1000,
+                    }}>
+                        <ClipLoader color="#3498db" loading={loading} size={50} />
+                    </div>
+                )}
             </Modal>
         </>
     );
