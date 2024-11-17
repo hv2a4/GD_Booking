@@ -76,7 +76,7 @@ const AmenitiesPageComponent = () => {
                                     <li>
                                         <a className="dropdown-item" href="#" onClick={handlAddAmenitiesTypeRoomClick}>
                                             <MdAdd />
-                                            Tiện nhi Loại phòng
+                                            Tiện nghi loại phòng
                                             <div className="d-none">
                                                <AmenitiesTypeRoomFormModal />
                                             </div>
