@@ -133,11 +133,9 @@ const FloorMap = () => {
                     <div className="overlay-loading">
                         <div className="spinner-wrapper">
                             <Spinner animation="border" variant="primary" />
-                            <p>Đang tải...</p>
                         </div>
                     </div>
                 )}
-
                 <div className="reception-floors ng-star-inserted mt-3">
                     <div className="divider">
                         <div className="spacer max-w-100">
