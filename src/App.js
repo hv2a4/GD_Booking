@@ -59,29 +59,22 @@ function App() {
   const cookieTokens =  Cookies.get("token")?Cookies.get("token"):null;
   
   const ProtectedRoute = ({ element }) => {
-    const token = Cookies.get("token") || null; // Lấy token từ cookie
-    const userRole = token ? getUserRole() : null; // Lấy vai trò nếu có token
-    const path = window.location.pathname; // Đường dẫn hiện tại
-
+    const token = Cookies.get("token") || null; // Get token from cookies
+    const userRole = token ? getUserRole() : null; // Get the user's role if token exists
+    const path = window.location.pathname; // Current path
     let hasAccess = false;
 
-    // Kiểm tra quyền truy cập
-    if (path.startsWith('/client')) {
-        // Cho phép truy cập vào các trang /client nếu chưa có token hoặc vai trò là Customer hoặc HotelOwner
-        hasAccess = !token || userRole === 'Customer' || userRole === 'HotelOwner' || userRole === 'Staff';
-    } else if (path.startsWith('/admin') || path.startsWith('/employee')) {
-        // Cho phép HotelOwner truy cập /admin và /employee
+    // Determine access based on the path
+    if (path.startsWith('/admin') || path.startsWith('/employee')) {
+        // Only allow access to /admin or /employee routes for authenticated users with specific roles
         hasAccess = userRole === 'HotelOwner' || (userRole === 'Staff' && path.startsWith('/employee'));
     }
 
-    // Log để kiểm tra trạng thái truy cập
-    console.log(`User role: ${userRole}, Access granted: ${hasAccess}, Path: ${path}`);
-
     if (!hasAccess) {
-        return <Navigate to="/" />; // Chuyển hướng về trang chủ nếu không có quyền truy cập
+        return <Navigate to="/" />; // Redirect to home if access is not allowed
     }
 
-    return element; // Render component nếu có quyền truy cập
+    return element; // Render the component if access is allowed
 };
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -89,7 +82,7 @@ const router = createBrowserRouter(
           <Route index element={<Navigate to="/client/home" />} />
           
           {/* Routes cho Client */}
-          <Route path="/client" element={<ProtectedRoute element={<Outlet />} allowedRoles={['Customer']} />}>
+          <Route path="/client">
               <Route path="home" element={<Home />} />
               <Route path="booking" element={<Booking />} />
               <Route path="testimonial" element={<Testimonial />} />

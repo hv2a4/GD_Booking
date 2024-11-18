@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Form, InputGroup, Button, Dropdown, Row, Col } from 'react-bootstrap';
-
+import { request } from '../../config/configApi';
 export default function Book() {
   const [checkinDate, setCheckinDate] = useState(null);
   const [checkoutDate, setCheckoutDate] = useState(null);

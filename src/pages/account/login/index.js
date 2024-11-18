@@ -66,7 +66,7 @@ const AuthForm = () => {
             setLoading(false); // Kết thúc loading sau 2 giây giả lập
             toast.error("Đăng Nhập thất bại,email đã tồn tại");
           }
-          Cookies.set("token", data.token, { expires: 30 / (24 * 60) }); // 30 minutes
+          Cookies.set("token", data.token, { expires:  6 /24 }); // 30 minutes
           const tokens =  Cookies.get("token");
           const decodedTokenCookie = jwt_decode(tokens);
           
