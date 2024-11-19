@@ -125,7 +125,7 @@ function App() {
           <Route path="home" element={<HomeAdmin />} />
           <Route path="room" element={<RoomAdmin />} />
           <Route path="booking-manager" element={<BookingManger />} />
-          <Route path="room-pricing" element={<RoomPriceManager />} />
+          <Route path="discount" element={<RoomPriceManager />} />
           <Route path="invoice-room" element={<InvoiceManagement />} />
           <Route path="account-client" element={<AccountClient />} />
           <Route path="account-employee" element={<Accountemployee />} />
