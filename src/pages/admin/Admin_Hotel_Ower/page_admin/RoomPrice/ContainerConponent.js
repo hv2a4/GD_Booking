@@ -16,14 +16,6 @@ const DiscountManager = () => {
                     </Card.Body>
                 </Card>
                 <Card>
-                    <Card.Body>
-                        <Row>
-                            {/*chi nhanh toàn bộ hệ thống */}
-                            <BranchInfo />
-                        </Row>
-                    </Card.Body>
-                </Card>
-                <Card>
                     {/*Bảng hệ thống giảm giá*/}
                     <RoomRatesTable />
                 </Card>
