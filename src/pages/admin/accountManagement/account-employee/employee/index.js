@@ -41,7 +41,9 @@ const Account = () => {
     useEffect(() => {
         handleGetAllEmployee();
     }, []);
-
+    const refreshData = () => {
+        handleGetAllEmployee();
+    };
     const handleGetAllEmployee = async () => {
         try {
             const res = await getAllEmployee();
@@ -234,7 +236,7 @@ const Account = () => {
                 breakLinkClassName="page-link"
                 activeClassName="active"
             />
-            <AddEmployeeModal show={showModal} handleClose={handleClose} />
+            <AddEmployeeModal show={showModal} handleClose={handleClose} refreshData={refreshData}/>
         </div>
     );
 };
