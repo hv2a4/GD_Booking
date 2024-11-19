@@ -41,9 +41,14 @@ import ReservationReport from "./pages/admin/report-generation/reservation-repor
 import RoomClassReport from "./pages/admin/report-generation/room-class-report";
 import EmployeeReport from "./pages/admin/report-generation/employee-report";
 import AmenitiesPage from "./pages/admin/home/Amenities";
+// import LoginAdmin from "./pages/admin/login";
 import Cookies from 'js-cookie';
 import { Outlet } from "react-router-dom";
-
+import LoginAdmin from "./pages/admin/login";
+import ForgotPassword from "./pages/admin/ForgotPassword/ForgotPassword";
+import VerifyOTP from "./pages/admin/ForgotPassword/OTPCode";
+import ResetPassword from "./pages/admin/ForgotPassword/ResetPassword";
+import ChangePassword from "./pages/admin/ChangePassword";
 function App() {
 
   const getUserRole = () => {
@@ -98,20 +103,6 @@ function App() {
           <Route path="*" element={<PageNotFound />} />
         </Route>
 
-        {/* Routes cho Client */}
-        <Route path="/client" >
-          <Route path="home" element={<Home />} />
-          <Route path="booking" element={<Booking />} />
-          <Route path="testimonial" element={<Testimonial />} />
-          <Route path="about" element={<AboutUs />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="rooms" element={<RoomClient />} />
-          <Route path="services" element={<Services />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="booking-room" element={<PageBookRoom />} />
-          <Route path="invoice" element={<Invoice />} />
-          <Route path="*" element={<PageNotFound />} />
-        </Route>
 
         {/* Routes cho Employee */}
         <Route path="/employee" element={<ProtectedRoute element={<Outlet />} allowedRoles={['Staff']} />}>
@@ -120,6 +111,7 @@ function App() {
           <Route path="list-booking-room" element={<ListReservation />} />
           <Route path="Floor/:id" element={<FloorMap />} />
         </Route>
+        
         {/* Routes cho Admin */}
         <Route path="/admin" element={<ProtectedRoute element={<Outlet />} allowedRoles={['HotelOwner']} />}>
           <Route path="home" element={<HomeAdmin />} />
@@ -133,9 +125,11 @@ function App() {
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} />
           <Route path="amenities" element={<AmenitiesPage />} />
-          <Route path="reservation-report" element={<ReservationReport />} />
-          <Route path="room-class-report" element={<RoomClassReport />} />
-          <Route path="employee-report" element={<EmployeeReport />} />
+          <Route path="login" element={<LoginAdmin />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="otp-code" element={<VerifyOTP />} />
+          <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="change-password" element={<ChangePassword />} />
         </Route>
 
 
