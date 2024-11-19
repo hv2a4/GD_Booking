@@ -26,11 +26,11 @@ const getDataReservations = async () => {
     }
 }
 
-const getByIdBooking = async (id) => {
+const getByIdBooking = async (id,roomName) => {
     try {
         const res = await request({
             method: "GET",
-            path: `/api/reservations/selectBookingById?bookingId=${id}`,
+            path: `/api/reservations/selectBookingById?bookingId=${id}&roomName=${roomName}`,
             token: getCookie()
         });
         return res;
