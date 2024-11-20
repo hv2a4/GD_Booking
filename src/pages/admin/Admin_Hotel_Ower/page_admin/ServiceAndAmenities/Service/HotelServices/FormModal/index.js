@@ -14,7 +14,7 @@ import { Cookies } from "react-cookie";
 const HotelServiceFormModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
     const { register, handleSubmit, setValue } = useForm();
-    const [images, setImages] = useState();
+    const [images, setImages] = useState([]);
     const [serviceHotel, setServiceHotel] = useState(item || {});
     const [alert, setAlert] = useState(null);
     const cookie = new Cookies();
@@ -30,8 +30,7 @@ const HotelServiceFormModal = ({ item, refreshData }) => {
     }, [item]);
 
     const handleImagesChange = (file) => {
-        setImages(file);
-        console.log(file);
+        setImages(file[0]);
     };
 
     const handleShow = () => { if (!show) { setShow(true) } };
@@ -41,10 +40,10 @@ const HotelServiceFormModal = ({ item, refreshData }) => {
     }
 
     const onSubmit = async () => {
-        const urlImage = images ? await uploadImageToFirebase(images) : serviceHotel.image;
-        const updatedServiceHotel = { ...serviceHotel, image: urlImage || "" };
-
         try {
+            const urlImage = images ? await uploadImageToFirebase(images) : serviceHotel.image;
+            const updatedServiceHotel = { ...serviceHotel, image: urlImage || "" };
+            
             const response = item ? await updateServiceHotel(updatedServiceHotel, token) : await createServiceHotel(updatedServiceHotel, token);
             if (item) {
                 refreshData();

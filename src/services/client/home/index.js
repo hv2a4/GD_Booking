@@ -24,4 +24,34 @@ const getAllServiceHotel = async () => {
     return res;
 }
 
-export {getCountAbout,getTypeRoomTop3,getAllServiceHotel};
+const getDetailTypeRoom = async (id) => {
+    const res = await request({
+        method: "GET",
+        path: `api/type-room/detail-type-room?id=${id}`
+    });
+    return res;
+};
+
+const getListRoom = async (page, size) => {
+    try {
+        const res = await request({
+            method: "GET",
+            path: `api/room/list-room-filter?page=${page}&size=${size}`
+        });
+        return res;  // Trả về dữ liệu phòng từ API
+    } catch (error) {
+        console.error("Error fetching room data:", error);
+        throw error;  // Ném lỗi nếu có vấn đề xảy ra
+    }
+}
+
+
+const getDetailListTypeRoom = async (roomId) => {
+    const res = await request({
+        method: "GET",
+        path: `api/room/details?roomId=${roomId}`
+    });
+    return res;
+}
+
+export { getCountAbout, getTypeRoomTop3, getAllServiceHotel, getDetailTypeRoom, getListRoom, getDetailListTypeRoom };

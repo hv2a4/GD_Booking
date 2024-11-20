@@ -18,15 +18,15 @@ import { getAllEmployee, updateActiveAccount } from "../../../../../services/adm
 import ReactPaginate from "react-paginate";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Alert from "../../../../../config/alert";
-import { Card } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 
 const Account = () => {
     const [details, setDetails] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [activePage, setActivePage] = useState(0);
-    const [currentTab, setCurrentTab] = useState('info');
     const [user, setUser] = useState([]);
     const [alert, setAlert] = useState(null);
+    const [tabs, setTabs] = useState({});  // State to manage tabs for each item
     const itemsPerPage = 5;
 
     useEffect(() => {
@@ -41,7 +41,6 @@ const Account = () => {
         } catch (error) {
             setAlert({ type: 'error', title: 'Lỗi khi tải dữ liệu khách hàng' });
         }
-
     };
 
     const getBadge = (status) => {
@@ -84,8 +83,8 @@ const Account = () => {
         setSearchTerm(e.target.value);
         setActivePage(0);
     };
+
     const handleToggleDeleteStatus = async (id) => {
-        console.log(id);
         try {
             await updateActiveAccount(id);
             setUser((prevUsers) =>
@@ -100,7 +99,23 @@ const Account = () => {
         } catch (error) {
             setAlert({ type: 'error', title: 'Xảy ra lỗi khi cập nhật trạng thái' });
         }
+    };
 
+    const handleTabChange = (itemId, tabName) => {
+        setTabs((prevTabs) => ({
+            ...prevTabs,
+            [itemId]: tabName
+        }));
+    };
+
+    // Mặc định cho tất cả các item sẽ mở tab "Thông tin" khi lần đầu tiên render
+    const setDefaultTab = (itemId) => {
+        if (!tabs[itemId]) {
+            setTabs((prevTabs) => ({
+                ...prevTabs,
+                [itemId]: 'info'  // Mặc định mở tab 'info'
+            }));
+        }
     };
 
     return (
@@ -126,6 +141,7 @@ const Account = () => {
                 <CTableBody>
                     {currentItems.map((item) => (
                         <React.Fragment key={item.id}>
+                            {setDefaultTab(item.id)}  {/* Gọi để thiết lập mặc định */}
                             <CTableRow>
                                 <CTableDataCell>
                                     <CAvatar src={item.avatar} />
@@ -136,14 +152,13 @@ const Account = () => {
                                     <CBadge color={getBadge(item.isDelete ? "Active" : "Khóa")}>{item.isDelete ? "hoạt động" : "khóa"}</CBadge>
                                 </CTableDataCell>
                                 <CTableDataCell>
-                                    <CButton
-                                        color="primary"
-                                        variant="outline"
+                                    <Button
+                                        variant="outline-success"
                                         size="sm"
                                         onClick={() => toggleDetails(item.id)}
                                     >
-                                        {details.includes(item.id) ? 'Hide' : 'Show'}
-                                    </CButton>
+                                        {details.includes(item.id) ? 'Ẩn' : 'Hiện'}
+                                    </Button>
                                 </CTableDataCell>
                             </CTableRow>
                             <CTableRow>
@@ -153,25 +168,31 @@ const Account = () => {
                                             <CCardBody style={{ width: "auto" }}>
                                                 <ul className="nav nav-tabs" role="tablist">
                                                     <li className="nav-item">
-                                                        <button className={`nav-link ${currentTab === 'info' ? 'active' : ''}`} onClick={() => setCurrentTab('info')}>
+                                                        <button 
+                                                            className={`nav-link ${tabs[item.id] === 'info' ? 'active' : ''}`} 
+                                                            onClick={() => handleTabChange(item.id, 'info')}
+                                                        >
                                                             Thông tin
                                                         </button>
                                                     </li>
                                                     <li className="nav-item">
-                                                        <button className={`nav-link ${currentTab === 'bookingHistory' ? 'active' : ''}`} onClick={() => setCurrentTab('bookingHistory')}>
+                                                        <button 
+                                                            className={`nav-link ${tabs[item.id] === 'bookingHistory' ? 'active' : ''}`} 
+                                                            onClick={() => handleTabChange(item.id, 'bookingHistory')}
+                                                        >
                                                             Lịch sử đặt phòng
                                                         </button>
                                                     </li>
                                                 </ul>
                                                 <div className="tab-content">
-                                                    {currentTab === "info" && (
+                                                    {tabs[item.id] === "info" && (
                                                         <div className="tab-pane fade show active">
                                                             <CustomerInformation item={item} onToggleDeleteStatus={() => handleToggleDeleteStatus(item.id)} />
                                                         </div>
                                                     )}
-                                                    {currentTab === "bookingHistory" && (
+                                                    {tabs[item.id] === "bookingHistory" && (
                                                         <div className="tab-pane fade show active">
-                                                            <BookingHistory />
+                                                            <BookingHistory id={item.id} />
                                                         </div>
                                                     )}
                                                 </div>
@@ -201,7 +222,7 @@ const Account = () => {
                 nextLinkClassName="page-link"
                 breakClassName="page-item"
                 breakLinkClassName="page-link"
-                activeClassName="active"
+                activeClassName="active rounded"
             />
         </div>
     );

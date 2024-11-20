@@ -7,9 +7,9 @@ import { useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { GoogleLogin } from '@react-oauth/google';
 import { ClipLoader } from "react-spinners"; // Import spinner từ react-spinners
-import { ToastContainer, toast,Bounce } from 'react-toastify';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import request from '../../../config/configApi'; 
+import request from '../../../config/configApi';
 import { useForm } from 'react-hook-form';
 
 
@@ -18,11 +18,11 @@ const AuthForm = () => {
     const [loading, setLoading] = useState(false); // Trạng thái loading
     const [username, setUsername] = useState('');
     const [usernames, setUsernames] = useState('');
-    
+
     const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-   
+
     const handleSignUpClick = () => {
         setIsSignUp(true);
     };
@@ -39,9 +39,9 @@ const AuthForm = () => {
         getValues,
         formState: { errors },
         clearErrors,
-      } = useForm({
+    } = useForm({
         mode: "onBlur", // Xác thực khi mất tiêu điểm
-      });
+    });
     const navigate = useNavigate();
     const handleLoginSuccess = async (credentialResponse) => {
         const tokenGG = credentialResponse.credential;
@@ -66,7 +66,7 @@ const AuthForm = () => {
             setLoading(false); // Kết thúc loading sau 2 giây giả lập
             toast.error("Đăng Nhập thất bại,email đã tồn tại");
           }
-          Cookies.set("token", data.token, { expires:  6 /24 }); // 30 minutes
+          Cookies.set("token", data.token, { expires:  6 /24 }); 
           const tokens =  Cookies.get("token");
           const decodedTokenCookie = jwt_decode(tokens);
           
@@ -96,7 +96,7 @@ const AuthForm = () => {
           console.error("Error posting data to API:", error);
       }
     };
-    const  handleLoginRegister = async (event) => {
+    const handleLoginRegister = async (event) => {
         event.preventDefault();
         const isValid = await trigger(); // Trigger kiểm tra toàn bộ form
 
@@ -105,8 +105,8 @@ const AuthForm = () => {
             return;
         }
         setLoading(true);
-       
-        try{
+
+        try {
             const payload = {
                 username: username,
                 email: email,
@@ -115,7 +115,7 @@ const AuthForm = () => {
                 passwords: getValues("password"), // Ensure password.current is defined
             };
             console.log("Request payload:", payload); // Log payload for inspection
-            
+
             const response = await fetch('http://localhost:8080/api/account/register', {
                 method: 'POST',
                 headers: {
@@ -124,24 +124,24 @@ const AuthForm = () => {
                 body: JSON.stringify(payload),
             });
             const result = await response.json();
-            if(result.code == 201){
+            if (result.code == 201) {
                 setLoading(false); // Bắt đầu loading
                 toast.success("Đăng Ký thành công!");
                 setTimeout(() => {
                     reset();
-                },800);
-               
-            }else {
+                }, 800);
+
+            } else {
                 setLoading(false);
                 toast.error("Đăng Ký thất bại!")
-            } 
-        }catch(error){
+            }
+        } catch (error) {
             setLoading(false);
             console.log(error);
             console.error("Error posting data to API:", error);
         }
     }
-    const handleLoginSimple = async (event) =>{
+    const handleLoginSimple = async (event) => {
         event.preventDefault();
         console.log("đã zo thành công");
         setLoading(true);
@@ -156,50 +156,50 @@ const AuthForm = () => {
                     passwords: getValues("passwords")
                 }),
             });
-           
-    
+
+
             const result = await response.json();
 
-            
-            if(result.code == 200){
+
+            if (result.code == 200) {
                 setLoading(false); // Bắt đầu loading
                 console.log('User updated successfully:', result);
                 console.log(result.token);
-                Cookies.set("token", result.token, { expires:  6 /24 });
+                Cookies.set("token", result.token, { expires: 6 / 24 });
                 const decodedToken = jwt_decode(Cookies.get("token"));
                 console.log("Decoded Token:", decodedToken.role.roleName);
-                
-                if(decodedToken.role == 'Customer'){
-                  setLoading(false); // Kết thúc loading sau 2 giây giả lập
-                  toast.success("Đăng Nhập thành công!");
-                  setTimeout(() => {
-                      navigate('/client/home');
-                  }, 1500);
-                }else if(decodedToken.role == 'Staff'){
-                  setLoading(false); // Kết thúc loading sau 2 giây giả lập
-                  toast.success("Đăng Nhập thành công!");
-                  setTimeout(() => {
-                      navigate('/employee/home');
-                  }, 1500);
-                }else if(decodedToken.role =='HotelOwner'){
-                  setLoading(false); // Kết thúc loading sau 2 giây giả lập
-                  toast.success("Đăng Nhập thành công!");
-                  setTimeout(() => {
-                  navigate('/admin/home');
-                  }, 1500);
+
+                if (decodedToken.role == 'Customer') {
+                    setLoading(false); // Kết thúc loading sau 2 giây giả lập
+                    toast.success("Đăng Nhập thành công!");
+                    setTimeout(() => {
+                        navigate('/client/home');
+                    }, 1500);
+                } else if (decodedToken.role == 'Staff') {
+                    setLoading(false); // Kết thúc loading sau 2 giây giả lập
+                    toast.success("Đăng Nhập thành công!");
+                    setTimeout(() => {
+                        navigate('/employee/home');
+                    }, 1500);
+                } else if (decodedToken.role == 'HotelOwner') {
+                    setLoading(false); // Kết thúc loading sau 2 giây giả lập
+                    toast.success("Đăng Nhập thành công!");
+                    setTimeout(() => {
+                        navigate('/admin/home');
+                    }, 1500);
                 }
-            }else {
+            } else {
                 setLoading(false);
                 toast.error("Đăng Nhập thất bại!")
-            } 
+            }
         } catch (error) {
             console.error("Error posting data to API:", error);
         }
-        
+
     }
     return (
         <div className='login'>
-              <ToastContainer
+            <ToastContainer
                 position="top-right"
                 autoClose={5000}
                 hideProgressBar={false}
@@ -215,28 +215,30 @@ const AuthForm = () => {
             />
             <div className={`container ${isSignUp ? 'right-panel-active' : ''}`} id="container">
                 <div className="form-container sign-up-container">
-                    <form  style={{ background: '#ffd1a3' }}>
+                    <form style={{ background: '#ffd1a3' }}>
                         <h2 style={{ marginBottom: '20px' }}>Đăng Ký Tài Khoản</h2>
                         <div className="row g-3">
                             <div className="col-md-6">
                                 <input type="text" className="form-control" {...register("username", { required: "Tài Khoản không được rỗng" })}
-                                      placeholder="Tên tài khoản"  name="username" required 
-                                      onChange={(e) =>{setUsername(e.target.value)
+                                    placeholder="Tên tài khoản" name="username" required
+                                    onChange={(e) => {
+                                        setUsername(e.target.value)
                                         if (errors.username) {
                                             clearErrors("username");
-                                          }
+                                        }
                                     }} />
-                                 {errors.username && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }}>{errors.username.message}</small>}
+                                {errors.username && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }}>{errors.username.message}</small>}
                             </div>
-                           
+
                             <div className="col-md-6">
                                 <input type="text" className="form-control"   {...register("fullname", { required: "Họ Tên là bắt buộc" })}
-                                    placeholder="Họ và tên" name="fullname" required  onChange={(e) =>{setFullname(e.target.value)
+                                    placeholder="Họ và tên" name="fullname" required onChange={(e) => {
+                                        setFullname(e.target.value)
                                         if (errors.fullname) {
                                             clearErrors("fullname");
-                                          }
-                                    }}  />
-                                     {errors.fullname && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }}>{errors.fullname.message}</small>}
+                                        }
+                                    }} />
+                                {errors.fullname && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }}>{errors.fullname.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="email" className="form-control"  {...register("email", {
@@ -246,12 +248,13 @@ const AuthForm = () => {
                                         message: "Email không hợp lệ",
                                     },
                                 })}
-                                     placeholder="Email" name="email" required  onChange={(e) =>{ setEmail(e.target.value)
+                                    placeholder="Email" name="email" required onChange={(e) => {
+                                        setEmail(e.target.value)
                                         if (errors.email) {
                                             clearErrors("email");
-                                          }
+                                        }
                                     }} />
-                                     {errors.email && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }}>{errors.email.message}</small>}
+                                {errors.email && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }}>{errors.email.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="text"  {...register("phone", {
@@ -266,7 +269,7 @@ const AuthForm = () => {
                                             clearErrors("phone");
                                         }
                                     }} />
-                                   {errors.phone && <small className="text-orange"  style={{ textAlign: 'left', display: 'block' }} >{errors.phone.message}</small>}
+                                {errors.phone && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }} >{errors.phone.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input
@@ -274,7 +277,7 @@ const AuthForm = () => {
                                     className="form-control"
                                     placeholder="Mật khẩu"
                                     name="password"
-                                    
+
                                     {...register("password", {
                                         required: "Mật khẩu là bắt buộc",
                                         validate: {
@@ -283,35 +286,35 @@ const AuthForm = () => {
                                     })}
                                     required
                                 />
-                                    {errors.password && <small style={{ textAlign: 'left', display: 'block' }} className="text-orange">{errors.password.message}</small>}
+                                {errors.password && <small style={{ textAlign: 'left', display: 'block' }} className="text-orange">{errors.password.message}</small>}
                             </div>
                             <div className="col-md-6">
-                                <input type="password"  className="form-control" placeholder="Xác nhận mật khẩu" name="confirmPassword" 
-                                  {...register("configPassword", {
-                                    required: "Xác nhận mật khẩu là bắt buộc",
-                                    validate: (value) =>
-                                        value === getValues("password") || "Mật khẩu và xác nhận mật khẩu không khớp",
-                                })} />
-                                {errors.configPassword && 
+                                <input type="password" className="form-control" placeholder="Xác nhận mật khẩu" name="confirmPassword"
+                                    {...register("configPassword", {
+                                        required: "Xác nhận mật khẩu là bắt buộc",
+                                        validate: (value) =>
+                                            value === getValues("password") || "Mật khẩu và xác nhận mật khẩu không khớp",
+                                    })} />
+                                {errors.configPassword &&
                                     <small className="text-orange" style={{ textAlign: 'left', display: 'block' }} >{errors.configPassword.message}</small>
                                 }
                             </div>
                         </div>
-                        <button type="submit"  onClick={handleLoginRegister} className="btn btn-primary mt-3" style={{ width: '100%' }} >Đăng ký</button>
+                        <button type="submit" onClick={handleLoginRegister} className="btn btn-primary mt-3" style={{ width: '100%' }} >Đăng ký</button>
                     </form>
                 </div>
 
                 <div className="form-container sign-in-container">
-                    <form  style={{ background: '#ffd1a3' }}>
+                    <form style={{ background: '#ffd1a3' }}>
                         <h1>Đăng Nhập Tài Khoản</h1>
                         <div className="row g-3" style={{ width: '80%' }}>
                             <div className="col-md-12">
-                                <input type="text" className="form-control" placeholder="Tài Khoản" name="fullname" required onChange={(e) => setUsernames(e.target.value)}  />
+                                <input type="text" className="form-control" placeholder="Tài Khoản" name="fullname" required onChange={(e) => setUsernames(e.target.value)} />
                             </div>
                             <div className="col-md-12">
-                                <input type="password" className="form-control" placeholder="Mật Khẩu" name="passwords"  
-                                {...register("passwords")} // Đăng ký input mà không cần kiểm tra lỗi
-                              required />
+                                <input type="password" className="form-control" placeholder="Mật Khẩu" name="passwords"
+                                    {...register("passwords")} // Đăng ký input mà không cần kiểm tra lỗi
+                                    required />
                             </div>
                             <a href="#">Quên mật khẩu?</a>
                             <button type="submit" className="btn btn-primary mt-3" onClick={handleLoginSimple} style={{ width: '100%' }} >Đăng nhập</button>
@@ -321,7 +324,7 @@ const AuthForm = () => {
                                     <i className="bi bi-facebook me-2"></i>Facebook
                                 </a>
                                 <a className="btn d-flex align-items-center" style={{ width: '100%', background: '#ffff' }} href="#" role="button">
-                                    <i className="bi bi-google me-2"></i><GoogleLogin onSuccess={handleLoginSuccess}/>
+                                    <i className="bi bi-google me-2"></i><GoogleLogin onSuccess={handleLoginSuccess} />
                                 </a>
                             </div>
                         </div>
@@ -362,7 +365,7 @@ const AuthForm = () => {
                 </div>
             )}
         </div>
-        
+
     );
 };
 const overlayStyle = {

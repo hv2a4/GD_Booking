@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    CBadge,
     CButton,
 } from "@coreui/react";
 import { Col, Row, Form } from "react-bootstrap";
@@ -25,8 +26,9 @@ const CustomerInformation = ({ item, onToggleDeleteStatus }) => {
                     </div>
                 </Col>
                 <Col xs={12} md={4}>
-                    <div className="form-check form-switch d-flex border-bottom-invoice ps-0 mb-3 mt-3">
-                        <label className="form-check-label me-5">Trạng thái:</label>
+                    <div className="form-check form-switch d-flex align-items-center border-bottom-invoice ps-0 mb-3 mt-3">
+                        <label className="form-check-label me-3">Trạng thái:</label>
+                        <CBadge color="danger" className="me-5">Khóa</CBadge>
                         <input
                             className="form-check-input"
                             type="checkbox"
@@ -35,6 +37,7 @@ const CustomerInformation = ({ item, onToggleDeleteStatus }) => {
                             checked={item.isDelete}
                             onChange={onToggleDeleteStatus}
                         />
+                        <CBadge color="success" className="ms-2">Hoạt động</CBadge>
                     </div>
                     <div className="border-bottom-invoice d-flex align-items-center" style={{ marginTop: "-19px" }}>
                         <p className="mb-0 me-2">Vai trò: <strong>Khách hàng</strong></p>

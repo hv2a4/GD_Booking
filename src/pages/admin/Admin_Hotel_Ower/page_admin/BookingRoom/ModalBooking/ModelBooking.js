@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Col, Form, Row, Table, Toast } from "react-bootstrap";
+import { Button, Card, Col, Form, Modal, Row, Table, Toast } from "react-bootstrap";
 import '../styles/disible.css';
 import { getDataReservations, updateStatusBooking } from "../../../../../../services/admin/crudServiceReservations";
 import Alert from "../../../../../../config/alert";
@@ -18,6 +18,36 @@ const DatePicker = ({ label, id, value, onChange }) => {
     );
 };
 
+function MessageCancel() {
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+    return (
+        <>
+            <Button variant="primary" onClick={handleShow}>
+                Launch demo modal
+            </Button>
+
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Modal heading</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleClose}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
+    );
+}
+
 const SearchBooking = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -26,6 +56,9 @@ const SearchBooking = () => {
     const [activeRow, setActiveRow] = useState(null);
     const [dataReservations, setDataReservations] = useState([]);
     const [alert, setAlert] = useState(null);
+    const [showCancelModal, setShowCancelModal] = useState(false); // State for cancel modal
+    const [bookingToCancel, setBookingToCancel] = useState(null); // Store the booking to cancel
+    const [disabledBookingIds, setDisabledBookingIds] = useState([]);
 
     const handleTableOpenAndClose = (rowId) => {
         if (activeRow === rowId) {
@@ -34,6 +67,31 @@ const SearchBooking = () => {
             setActiveRow(rowId); // Mở thông tin chi tiết cho dòng hiện tại
         }
     }
+
+    const handleCancelBooking = (booking) => {
+        setBookingToCancel(booking); // Store the booking to cancel
+        setShowCancelModal(true); // Show the confirmation modal
+    };
+
+    const handleConfirmCancel = async () => {
+        try {
+            if (bookingToCancel) {
+                await updateStatusBooking(bookingToCancel.bookingId); // Cancel the booking
+                setAlert({ type: 'success', title: 'Hủy đặt phòng thành công' });
+                setDisabledBookingIds([...disabledBookingIds, bookingToCancel.bookingId]); // Disable the cancel button
+                handleGetReservations(); // Refresh the reservation data
+            }
+            setShowCancelModal(false); // Close the modal
+        } catch (error) {
+            setAlert({ type: 'error', title: 'Lỗi khi hủy đặt phòng' });
+            setShowCancelModal(false); // Close the modal on error as well
+        }
+    };
+
+    const handleCloseCancelModal = () => {
+        setShowCancelModal(false); // Close the modal without confirming
+    };
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -170,7 +228,8 @@ const SearchBooking = () => {
                                                 <DetailBooking object={booking} />
                                                 <button
                                                     className="btn btn-danger"
-                                                    onClick={() => handleUpdateBookingStatus(booking.bookingId)}
+                                                    onClick={() => handleCancelBooking(booking)} // Show the modal on click
+                                                    disabled={booking.statusBookingName === 'Hoàn thành' || disabledBookingIds.includes(booking.bookingId)}  // Disable if status is "Hoàn thành" or already canceled
                                                 >
                                                     Hủy
                                                 </button>
@@ -183,40 +242,23 @@ const SearchBooking = () => {
                     </Row>
                 </Card.Body>
             </Card>
-
-            {/* Toast cho ô nhập thứ 2 */}
-            <Toast
-                show={showToast}
-                onClose={() => setShowToast(false)}
-                style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', zIndex: 999999999 }}
-            >
-                <Toast.Header>
-                    <strong className="me-auto">Chọn khoảng thời gian</strong>
-                </Toast.Header>
-                <Toast.Body>
-                    <Row>
-                        <Col md={6}>
-                            <DatePicker
-                                label="Từ ngày"
-                                id="startDate"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                            />
-                        </Col>
-                        <Col md={6}>
-                            <DatePicker
-                                label="Đến ngày"
-                                id="endDate"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                            />
-                        </Col>
-                    </Row>
-                    <button className="btn btn-primary mt-3" onClick={handleSaveDateRange}>
-                        Lưu
-                    </button>
-                </Toast.Body>
-            </Toast>
+            {/* Cancel Confirmation Modal */}
+            <Modal show={showCancelModal} onHide={handleCloseCancelModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Hủy Đặt Phòng</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Bạn có chắc chắn muốn hủy đặt phòng này?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseCancelModal}>
+                        Không
+                    </Button>
+                    <Button variant="danger" onClick={handleConfirmCancel}>
+                        Hủy Đặt Phòng
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 };

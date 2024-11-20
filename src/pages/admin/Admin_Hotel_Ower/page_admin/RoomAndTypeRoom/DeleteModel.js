@@ -23,19 +23,19 @@ function DeleteModelTypeRoom({ idTypeRoom }) {
                 },
                 token: Cookies.get('token'), // Thay thế bằng token nếu cần
             });
-            console.log(response);
             // Kiểm tra mã phản hồi từ API
-            if (response.code === 200) {
+            if (response && response.code === 200) {
                 setAlert({ type: "success", title: "Xóa loại phòng thành công!" });
                 navigate('/admin/room');
-            } 
+            }
+
         } catch (error) {
             if (error.response) {
                 const code = error.response.status;
                 if (code === 404) {
                     setAlert({ type: "error", title: "Loại phòng không tồn tại." });
                 } else if (code === 409) {
-                    setAlert({ type: "error", title: "Không thể xóa loại phòng này vì đang được tham chiếu." });
+                    setAlert({ type: "error", title: "Không thể xóa loại phòng này vì đang được sử dụng." });
                 } else {
                     setAlert({ type: "error", title: "Có lỗi xảy ra, vui lòng thử lại sau." });
                 }
@@ -44,7 +44,6 @@ function DeleteModelTypeRoom({ idTypeRoom }) {
             }
         }
     };
-    
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -82,14 +81,53 @@ function DeleteModelTypeRoom({ idTypeRoom }) {
 }
 
 // Second modal component
-function DeleteModelRoom({ Name_Room }) {
+function DeleteModelRoom({ idRoom }) {
     const [show, setShow] = useState(false);
+    const [alert, setAlert] = useState(null);
+    const [loading, setLoading] = useState(false); // To track loading state
+    const navigate = useNavigate();
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
+    const handleDelete = async () => {
+        try {
+            setLoading(true); // Start loading
+            const response = await request({
+                method: "DELETE",
+                path: `/api/room/delete/${idRoom}`, // Make sure the API path is correct
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                token: Cookies.get('token'), // Use token if needed
+            });
+
+            if (response && response.code === '200') {
+                setAlert({ type: "success", title: "Xóa phòng thành công!" });
+                navigate('/admin/room'); // Redirect after deletion
+            }
+
+        } catch (error) {
+            if (error.response) {
+                const code = error.response.status;
+                if (code === '404') {
+                    setAlert({ type: "error", title: "Phòng không tồn tại." });
+                } else if (code === '409') {
+                    setAlert({ type: "error", title: "Không thể xóa phòng này vì đang được sử dụng." });
+                } else {
+                    setAlert({ type: "error", title: "Có lỗi xảy ra, vui lòng thử lại sau." });
+                }
+            } else {
+                setAlert({ type: "error", title: "Lỗi kết nối đến server: " + error.message });
+            }
+        } finally {
+            setLoading(false); // End loading
+        }
+    };
+
     return (
         <>
+            {alert && <Alert type={alert.type} title={alert.title} />}
             <button className="btn btn-danger" onClick={handleShow}>
                 <GiCancel />&nbsp;Xóa
             </button>
@@ -98,16 +136,16 @@ function DeleteModelRoom({ Name_Room }) {
                     <Modal.Title>Xóa phòng</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn xóa phòng <strong>{Name_Room}</strong> Các lịch đặt và hóa đơn gắn với Phòng <strong>{Name_Room}</strong> vẫn được giữ nguyên và bạn không thể tiếp tục đặt lịch cho phòng này
+                    Bạn có chắc chắn muốn xóa phòng <strong>{idRoom}</strong> này?
                 </Modal.Body>
                 <Modal.Footer style={{ border: 'none' }}>
-                    <Button variant="danger" onClick={handleClose}>
-                        Đồng ý
+                    <Button variant="danger" onClick={handleDelete} disabled={loading}>
+                        {loading ? 'Đang xóa...' : 'Đồng ý'}
                     </Button>
                     <Button
                         variant="dark" onClick={handleClose}
                         style={{
-                            background: '#898C8D',      // Custom background color
+                            background: '#898C8D', // Custom background color
                             border: 'none'
                         }}
                     >
@@ -117,6 +155,7 @@ function DeleteModelRoom({ Name_Room }) {
             </Modal>
         </>
     );
+
 }
 
 export { DeleteModelRoom, DeleteModelTypeRoom };

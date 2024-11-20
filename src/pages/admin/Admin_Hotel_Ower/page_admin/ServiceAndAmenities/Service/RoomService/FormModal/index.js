@@ -31,7 +31,7 @@ const RoomServiceFormModal = ({ item, refreshData }) => {
 
 
     const handleImagesChange = (newImages) => {
-        setImages(newImages);
+        setImages(newImages[0]);
     };
 
     const handleTypeRoomService = async () => {

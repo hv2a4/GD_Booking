@@ -148,12 +148,12 @@ const Account = () => {
                                 </CTableDataCell>
                                 <CTableDataCell>
                                     <Button
-                                        variant="outline-primary"
+                                        variant="outline-success"
                                         size="sm"
                                         onClick={() => toggleDetails(item.id)}
                                         style={{ borderRadius: '5px' }}
                                     >
-                                        {details.includes(item.id) ? 'Hide' : 'Show'}
+                                        {details.includes(item.id) ? 'Ẩn' : 'Hiện'}
                                     </Button>
                                 </CTableDataCell>
                             </CTableRow>
@@ -182,9 +182,17 @@ const Account = () => {
                                                         </div>
                                                     </Col>
                                                     <Col xs={12} md={4}>
-                                                        <div className="form-check form-switch d-flex border-bottom-invoice ps-0 mb-3 mt-3">
-                                                            <label className="form-check-label me-5">Trạng thái:</label>
-                                                            <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked={item.isDelete} onChange={() => handleToggleStatus(item.id)} />
+                                                        <div className="form-check form-switch d-flex align-items-center border-bottom-invoice ps-0 mb-3 mt-3">
+                                                            <label className="form-check-label me-3">Trạng thái:</label>
+                                                            <CBadge color="danger" className="me-5">Khóa</CBadge>
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                role="switch"
+                                                                id="flexSwitchCheckChecked"
+                                                                checked={item.isDelete} onChange={() => handleToggleStatus(item.id)}
+                                                            />
+                                                            <CBadge color="success" className="ms-2">Hoạt động</CBadge>
                                                         </div>
                                                         <div className="border-bottom-invoice d-flex align-items-center" style={{ marginTop: "-19px" }}>
                                                             <p className="mb-0 me-2">Vai trò: <strong>{item.roleDto.roleName}</strong></p>

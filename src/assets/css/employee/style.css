@@ -749,7 +749,6 @@
 }
 
 .nav-pills>li>.nav-link {
-    border-radius: 50px !important;
     padding: 8px 16px;
     margin-right: 8px;
     border: none;
@@ -1245,6 +1244,11 @@ h2,
     background-color: #1f7845;
     color: #fff;
 }
+.reception-item-over-repair {
+    border-color: transparent;
+    background-color: #d64f4f;
+    color: #fff;
+}
 
 .reception-item-over-checked-out [class*=btn-text-] {
     color: #fff;
@@ -1293,6 +1297,9 @@ h2,
 .badge-light-neutral {
     color: #525d6a !important;
     background-color: #f0f1f3;
+}
+.badge-light-blue {
+    background-color: #e7ecf3;;
 }
 
 .popover-body {
@@ -1715,10 +1722,6 @@ textarea {
     color: #ccc;
 }
 
-.tab-content>.tab-pane {
-    max-height: 470px;
-}
-
 /* home*/
 
 .header {
@@ -1825,4 +1828,30 @@ textarea {
 
 .custom-modal-width1{
     padding-right: 143px;
+}
+
+.nav-tabs{
+    margin-right: 5px;
+}
+.overlay-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.spinner-wrapper {
+    text-align: center;
+    color: #ffffff; /* Màu chữ cho text */
+}
+
+.spinner-wrapper p {
+    margin-top: 10px;
+    font-size: 16px;
 }

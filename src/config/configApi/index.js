@@ -19,7 +19,7 @@ const request = async ({ method = "GET", path = "", data = {}, headers = {}, tok
     });
     return res.data;
   } catch (error) {
-    const errorMessage = error?.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại.";
+    const errorMessage = error?.response?.data?.message || "Tải dữ liệu thất bại. Vui lòng thử lại.";
     Swal.fire({
       icon: "error",
       text: errorMessage,

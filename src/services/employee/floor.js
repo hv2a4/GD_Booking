@@ -8,4 +8,13 @@ const getAllFloor = async () => {
     return res;
 }
 
-export {getAllFloor}
+const getBookingRoomByRoom = async (roomId, statusId, token) => {
+    const res = await request({
+        method: "GET",
+        path: `api/booking-room/room?roomId=${roomId}&statusId=${statusId}`,
+        token: token
+    });
+    return res;
+}
+
+export {getAllFloor, getBookingRoomByRoom}
