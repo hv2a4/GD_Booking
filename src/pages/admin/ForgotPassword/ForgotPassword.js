@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom";
-import "./forgotpassword.css";
+// import "./forgotpassword.css";
 import { toast } from "react-toastify";
 import { Button, TextField } from "@mui/material";
 import email_icon from '../../../assets/images/email.png'

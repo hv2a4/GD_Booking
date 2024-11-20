@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "./otpcode.css";
+// import "./otpcode.css";
 import { Button } from "@mui/material";
 import otp_icon from '../../../assets/images/otp.png';
 

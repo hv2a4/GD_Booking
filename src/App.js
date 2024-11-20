@@ -125,15 +125,16 @@ function App() {
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} />
           <Route path="amenities" element={<AmenitiesPage />} />
-          <Route path="login" element={<LoginAdmin />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
-          <Route path="otp-code" element={<VerifyOTP />} />
-          <Route path="reset-password" element={<ResetPassword />} />
-          <Route path="change-password" element={<ChangePassword />} />
+          
+        
         </Route>
 
-
         <Route path="account" element={<Login />} />
+        <Route path="login" element={<LoginAdmin />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="otp-code" element={<VerifyOTP />} />
+        <Route path="reset-password" element={<ResetPassword />} />
+        <Route path="change-password" element={<ChangePassword />} />
       </Route>
     )
   );

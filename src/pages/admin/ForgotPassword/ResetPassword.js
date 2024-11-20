@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Button, TextField } from '@mui/material'
 import password_icon from '../../../assets/images/password.png'
-import './resetpassword.css';
+// import './resetpassword.css';
 const ResetPassword = () => {
   return (
     <div className="container">

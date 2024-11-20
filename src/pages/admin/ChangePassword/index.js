@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import { Button, TextField } from '@mui/material'
 import person_icon from '../../../assets/images/person.png'
 import password_icon from '../../../assets/images/password.png'
-import './index.css'
+// import './index.css'
 
 const ChangePassword = () => {
   return (

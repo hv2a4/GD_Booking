@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './index.css';
+// import './index.css';
 import user_icon from '../../../assets/images/person.png';
 import password_icon from '../../../assets/images/password.png';
 import { useNavigate } from 'react-router-dom';
