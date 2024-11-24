@@ -1,24 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Col, Form, Row } from "react-bootstrap";
 import { AmenitiesHotelFormModal, DeleteAmenitiesHotelModal } from "./FormModal";
-import axios from 'axios'
-
+import { request } from "../../../../../../../config/configApi";
+import Cookies from 'js-cookie';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const AmenitiesHotel = () => {
     const [selectedAmenitiesHotel, setSelectedAmenitiesHotel] = useState([]);
-    const [expandedRow, setExpandedRow] = useState(null);
-    const [dataAmenitiesHotel, setAmenitiesHotel] = useState([]);
-    const [editIndex, setEditIndex] = useState(null)
-    const [formData, setFormData] = useState({
-        amenitiesHotelName: '',
-        icon: '',
-        // id:''
-    })
-    const [isRefreshTable, setIsRefreshTable] = useState(false)
-
-    const handleRowClick = (id) => {
-        setExpandedRow(expandedRow === id ? null : id);
-    };
+    const [amenitiesHotels, setAmenitiesHotels] = useState([]);
+    const location = useLocation();
 
     const toggleAmenitiesHotelSelection = (id) => {
         setSelectedAmenitiesHotel(prev =>
@@ -26,49 +15,20 @@ const AmenitiesHotel = () => {
         );
     };
 
-    // const amenitiesHotels = [
-    //     { id: '1', amenitiesHotelName: 'a', icon: '', id_hotel: 1},
-    //     { id: '2', amenitiesHotelName: 'b', icon: '', id_hotel: 1}
-    // ];
-
-    // Hiện danh sách
-    const getDataAmenitiesHotel = async () => {
-        try {
-        const response = await axios.get(
-            'http://localhost:8080/api/amenitiesHotel/getAll',
-        )
-        setAmenitiesHotel(response.data) // Cập nhật dữ liệu
-        console.log('Lấy dữ liệu thành công')
-        } catch (error) {
-        console.log(error)
-        }
-    }
-
-    // Khi người dùng nhấn nút sửa, tải dữ liệu vào form
-    const handleEdit = (id) => {
-        const item = dataAmenitiesHotel.find((data) => data.id === id)
-        if (item) {
-        setFormData({
-            amenitiesTypeRoomName: item.amenitiesTypeRoomName,
-            icon: item.icon,
-        })
-        }
-    }
-
-    // console.log(isRefeshTable);
     useEffect(() => {
-        if (isRefreshTable) {
-            getDataAmenitiesHotel(); // Gọi API để lấy dữ liệu khi isRefreshTable là true
-            setIsRefreshTable(false);
-        }else {
-            getDataAmenitiesHotel() // Gọi API để lấy dữ liệu khi component render lần đầu
-        }
-    }, [isRefreshTable])
+        const fetchAmenitiesHotels = async () => {
+            const response = await request({
+                method: "GET",
+                path: "/api/amenitiesHotel/getAll",
+                token: Cookies.get('token'), // Thay thế bằng token nếu cần
+            });
 
-    const handleTakeCheckRefeshTable = useCallback((value) => {
-        console.log(value)
-        setIsRefreshTable(value)
-    }, [])
+            if (response && response.length > 0) {
+                setAmenitiesHotels(response);
+            };
+        };
+        fetchAmenitiesHotels();
+    }, [location]);
 
     return (
         <div className="table-responsive mt-3">
@@ -79,25 +39,21 @@ const AmenitiesHotel = () => {
                             <input
                                 type="checkbox"
                                 onChange={() => {
-                                    const allSelected = selectedAmenitiesHotel.length === dataAmenitiesHotel.length;
-                                    setSelectedAmenitiesHotel(allSelected ? [] : dataAmenitiesHotel.map(amenitiesHotel => amenitiesHotel.id));
+                                    const allSelected = selectedAmenitiesHotel.length === amenitiesHotels.length;
+                                    setSelectedAmenitiesHotel(allSelected ? [] : amenitiesHotels.map(amenitiesHotel => amenitiesHotel.id));
                                 }}
-                                checked={selectedAmenitiesHotel.length === dataAmenitiesHotel.length}
+                                checked={selectedAmenitiesHotel.length === amenitiesHotels.length}
                             />
                         </th>
                         <th>Mã tiện nghi khách sạn</th>
                         <th>Tên tiện nghi khách sạn</th>
-                        <th>Icon</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {dataAmenitiesHotel.map(({ id, amenitiesHotelName, icon}) => (
+                    {amenitiesHotels.map(({ id, amenitiesHotelName }) => (
                         <React.Fragment key={id}>
-                            <tr onClick={(e) => {
-                                if (e.target.type !== "checkbox") {
-                                    handleRowClick(id);
-                                }
-                            }}>
+                            <tr>
                                 <td>
                                     <input
                                         type="checkbox"
@@ -110,39 +66,11 @@ const AmenitiesHotel = () => {
                                 </td>
                                 <td>{id}</td>
                                 <td>{amenitiesHotelName}</td>
-                                <td dangerouslySetInnerHTML={{ __html: icon }}></td>
+                                <td className="text-end">
+                                    <AmenitiesHotelFormModal idAmenitiesHotel={id} />
+                                    <DeleteAmenitiesHotelModal id={id} />
+                                </td>
                             </tr>
-
-                            {/* Hàng chi tiết mở rộng */}
-                            {expandedRow === id && (
-                                <tr>
-                                    <td colSpan="10">
-                                        <Card>
-                                            <Card.Body>
-                                                <Row>
-                                                    <div className="container-fluid">
-                                                        <div className="tab-pane fade show active mt-5" style={{ minHeight: 'auto' }}>
-                                                            <Row className="mb-4 align-items-start">
-                                                            <Col md={4}></Col>
-                                                                <Col md={4}>
-                                                                    <p><strong>Mã tiện nghi khách sạn: </strong>{id}</p>
-                                                                    <p><strong>Tên tiện nghi khách sạn: </strong> {amenitiesHotelName}</p>
-                                                                    <p><strong>Icon:</strong> <span dangerouslySetInnerHTML={{ __html: icon }}></span></p>
-                                                                </Col>
-                                                                <Col md={4}></Col>
-                                                            </Row>
-                                                            <div className="d-flex justify-content-end">
-                                                                <AmenitiesHotelFormModal idAmenitiesHotel={id} refreshTable={handleTakeCheckRefeshTable}/>
-                                                                <DeleteAmenitiesHotelModal id={id} amenitiesHotelName={amenitiesHotelName} refreshTable={handleTakeCheckRefeshTable}/>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </Row>
-                                            </Card.Body>
-                                        </Card>
-                                    </td>
-                                </tr>
-                            )}
                         </React.Fragment>
                     ))}
                 </tbody>
