@@ -1,137 +1,103 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Modal, Button, Card, Row, Col, Form } from 'react-bootstrap';
 import { FaClipboardCheck, FaSave } from 'react-icons/fa';
 import { ImCancelCircle } from 'react-icons/im';
 import { GiCancel } from "react-icons/gi";
 import { useForm } from 'react-hook-form';
 import { Cookies } from "react-cookie";
-import axios from 'axios'
+import { request } from '../../../../../../../../config/configApi';
+import { useNavigate } from 'react-router-dom';
+import Alert from '../../../../../../../../config/alert';
 
-const AmenitiesHotelFormModal = ({ idAmenitiesHotel, amenitiesHotelName, icon, refreshTable }) => {
-    const [show, setShow] = useState(false)
-    const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm() // Khởi tạo useForm
-    const [formEdit, setFormEdit] = useState({
-        id: '',
-        amenitiesHotelName: '',
-        icon:''
-    })
+const AmenitiesHotelFormModal = ({ idAmenitiesHotel }) => {
+    const [show, setShow] = useState(false);
+    const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm(); // Khởi tạo useForm
     const cookie = new Cookies();
     const token = cookie.get("token");
+    const [alert, setAlert] = useState(null);
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleShow = () => setShow(true);
-    const handleClose = () => setShow(false);
-    
-    const handleEdit = async (id) => {
+    const handleShow = () => {
+        setShow(true);
+        setAlert(null);
+    };
+    const handleClose = () => {
+        setShow(false);
+        reset();
+    };
+
+    const fetchAmenitiesHotel = async () => {
+        const response = await request({
+            method: "GET",
+            path: `/api/amenitiesHotel/getById/${idAmenitiesHotel}`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            token: token, // Thay thế bằng token nếu cần
+        });
+
+        if (response) {
+            setValue('amenitiesHotelName', response.data?.amenitiesHotelName || '');
+        }
+    };
+
+    const onSubmit = async (data) => {
+        // Xử lý gửi dữ liệu ở đây
+        const formData = {
+            id: idAmenitiesHotel || '',
+            amenitiesHotelName: data.amenitiesHotelName,
+        };
+
+        setIsLoading(true);  // Bắt đầu quá trình tải
+
         try {
-          const res = await axios.get(
-            `http://localhost:8080/api/amenitiesHotel/getById/${id}`,
-            {
-              headers: { Authorization: `Bearer ${token}` } // Thêm token vào header
+            if (idAmenitiesHotel) {
+                // Gửi yêu cầu PUT đến API
+                const response = await request({
+                    method: "PUT",
+                    path: "/api/amenitiesHotel/update",
+                    data: formData,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    token: token,
+                });
+
+                if (response && response.code === 200) {
+                    setAlert({ type: "success", title: "Cập nhật tiện nghi khách sạn thành công!" });
+                    console.log('cập nhật tiện nghi khách sạn thành công!')
+                    navigate('/admin/amenities');
+                    handleClose();
+                }
+            } else {
+                // Gửi yêu cầu POST đến API
+                const response = await request({
+                    method: "POST",
+                    path: "/api/amenitiesHotel/add",
+                    data: formData,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    token: token,
+                });
+
+                if (response && response.code === 200) {
+                    setAlert({ type: "success", title: "Thêm tiện nghi khách sạn thành công!" });
+                    navigate('/admin/amenities');
+                    handleClose();
+                }
             }
-          )
-          setFormEdit(res.data.data)
         } catch (error) {
-          console.log(error)
+            console.error("Error while adding type room: ", error);
+        } finally {
+            setIsLoading(false);  // Kết thúc quá trình tải
         }
-}
-    // {errors.amenitiesTypeRoomName && (
-    //     <p style={{ color: 'red' }}>{errors.amenitiesTypeRoomName.message}</p>
-    //   )}
-    useEffect(() => {
-        if (idAmenitiesHotel) {
-          handleEdit(idAmenitiesHotel) // Gọi handleEdit nếu có id
-        } else {
-          reset({ amenitiesHotelName: ''}) // Reset form nếu không có id
-        }
-      }, [idAmenitiesHotel, reset])
-
-    // bắt lỗi
-    const validateForm = async (formData) => {
-        const { amenitiesHotelName} = formData
-    
-        if (!amenitiesHotelName.trim()) {
-          alert('Tên tiện nghi khách sạn không được để trống!')
-          return false
-        }
-    
-        try {
-          const res = await axios.get(`http://localhost:8080/api/amenitiesHotel/check-exist?name=${amenitiesHotelName}`, {
-            headers: { Authorization: `Bearer ${token}` } // Thêm token vào header
-          })
-          if (res.data.exists) {
-            alert('Tên tiện nghi khách sạn đã tồn tại!')
-            return false
-          }
-        } catch (error) {
-          console.error('Lỗi kiểm tra tên:', error)
-          alert('Đã xảy ra lỗi khi kiểm tra tên!')
-          return false
-        }
-    
-        return true
-      }
-
-      const onSubmit = async (e) => {
-        e.preventDefault();
-        const { amenitiesHotelName} = formEdit
-    
-        const isValid = await validateForm(formEdit)
-        if (!isValid) return
-    
-        if (idAmenitiesHotel) {
-          try {
-            const res = await axios.put(
-              `http://localhost:8080/api/amenitiesHotel/update/${idAmenitiesHotel}`,
-              { amenitiesHotelName},
-              { headers: { Authorization: `Bearer ${token}` } } // Thêm token vào header
-            )
-            console.log('Cập nhật thành công', res)
-            handleClose()
-            alert('Đã cập nhật thành công!')
-            refreshTable(true)
-          } catch (error) {
-            console.log(error)
-            alert('Đã xảy ra lỗi khi cập nhật!')
-          }
-        } else {
-          try {
-            const res = await axios.post(
-              'http://localhost:8080/api/amenitiesHotel/add',
-              { amenitiesHotelName },
-              { headers: { Authorization: `Bearer ${token}` } } // Thêm token vào header
-            )
-            console.log('Thêm mới thành công', res)
-            handleClose()
-            alert('Đã thêm thành công!')
-            window.location.reload()
-            resetForm()
-          } catch (error) {
-            console.log(error)
-            alert('Đã xảy ra lỗi khi thêm!')
-          }
-        }
-    }
-
-    //Hàm xử lí thay đổi dữ liệu
-    const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setFormEdit((pre) => ({
-        ...pre,
-        [name]: value,
-        }))
-    }
-
-    //Hàm resetForm
-    const resetForm = () => {
-        setFormEdit({
-        id: '',
-        amenitiesHotelName: '',
-        icon: '',
-        })
-    }
+    };
 
     return (
         <>
+            {alert && <Alert type={alert.type} title={alert.title} />}
             {(() => {
                 if (!idAmenitiesHotel) {
                     return (
@@ -143,30 +109,17 @@ const AmenitiesHotelFormModal = ({ idAmenitiesHotel, amenitiesHotelName, icon, r
                             Thêm
                         </small>
                     );
-                } 
-                // else {
-                //     return (
-                //         <small className="btn btn-success me-2" style={{ fontSize: '13px', cursor: 'pointer' }} onClick={handleShow}>
-                //             <FaClipboardCheck />&nbsp;Cập nhật
-                //         </small>
-                //     );
-                // }
+                } else {
+                    return (
+                        <small className="btn btn-success me-2" style={{ fontSize: '13px', cursor: 'pointer' }} onClick={() => {
+                            handleShow();
+                            fetchAmenitiesHotel();
+                        }}>
+                            <FaClipboardCheck />&nbsp;Cập nhật
+                        </small>
+                    );
+                }
             })()}
-
-            <small
-                className={idAmenitiesHotel ? 'btn btn-success me-2' : ''}
-                style={{ fontSize: '13px', cursor: 'pointer' }}
-                onClick={handleShow}
-            >
-                {idAmenitiesHotel ? (
-                    <>
-                        <FaClipboardCheck />
-                        &nbsp;Cập nhật
-                    </>
-                ) : (
-                    'Thêm'
-                )}
-            </small>
 
             <Modal
                 show={show}
@@ -185,20 +138,22 @@ const AmenitiesHotelFormModal = ({ idAmenitiesHotel, amenitiesHotelName, icon, r
                         <Card.Body>
                             <Row>
                                 <Col md={12}>
-                                    <Form onSubmit={onSubmit}> {/* Thêm onSubmit vào form */}
-                                        {/* <Form.Group as={Row} controlId="idAmenitiesHotel" className="mt-3">
+                                    <Form onSubmit={handleSubmit(onSubmit)}>
+                                        <Form.Group as={Row} controlId="idAmenitiesHotel" className="mt-3">
                                             <Form.Label column sm={4}>
                                                 Mã tiện nghi Khách sạn
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Mã tiện nghi khách sạn tự động" disabled
-                                                    name='id'
-                                                    value={idAmenitiesHotel}
+                                                    placeholder="Mã tiện nghi khách sạn tự động"
+                                                    disabled
+                                                    name="id"
+                                                    value={idAmenitiesHotel || ''}
+                                                    {...register('idAmenitiesHotel')}
                                                 />
                                             </Col>
-                                        </Form.Group> */}
+                                        </Form.Group>
                                         <Form.Group as={Row} controlId="amenitiesHotelName" className="mt-3">
                                             <Form.Label column sm={4}>
                                                 Tên tiện nghi khách sạn
@@ -207,29 +162,16 @@ const AmenitiesHotelFormModal = ({ idAmenitiesHotel, amenitiesHotelName, icon, r
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Nhập tên tiện nghi khách sạn..."
-                                                    name='amenitiesHotelName'
-                                                    value={formEdit.amenitiesHotelName}
-                                                    onChange={handleInputChange}
-                                                    
+                                                    name="amenitiesHotelName"
+                                                    className='mb-2'
+                                                    {...register('amenitiesHotelName', { required: 'Tên tiện nghi không được để trống' })}
+                                                    isInvalid={errors.amenitiesHotelName}
                                                 />
+                                                {errors.amenitiesHotelName && (
+                                                    <span className="text-danger">{errors.amenitiesHotelName.message}</span>
+                                                )}
                                             </Col>
                                         </Form.Group>
-
-                                        {/* <Form.Group as={Row} controlId="icon" className="mt-3">
-                                            <Form.Label column sm={4}>
-                                                Icon
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Control
-                                                    type="text"
-                                                    {...register('icon', { required: true })} // Đăng ký trường với react-hook-form
-                                                    placeholder="Nhập icon..."
-                                                />
-                                            </Col>
-                                        </Form.Group> */}
-                                        <Button variant="success" type="submit" className="mt-3 d-none" id='btnsubmit'>
-                                            <FaSave size={14} />&nbsp;Lưu
-                                        </Button>
                                     </Form>
                                 </Col>
                             </Row>
@@ -240,17 +182,7 @@ const AmenitiesHotelFormModal = ({ idAmenitiesHotel, amenitiesHotelName, icon, r
                 <Modal.Footer>
                     <Row className="mt-3 justify-content-end">
                         <Col sm="auto">
-                            <Button
-                                variant="success"
-                                type='button'
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    const btnSubmit = document.getElementById('btnsubmit');
-                                    if(btnSubmit){
-                                        btnSubmit.click();
-                                    }
-                                }}
-                            >
+                            <Button variant="success" type="submit" onClick={handleSubmit(onSubmit)}>
                                 <FaSave size={14} />&nbsp;Lưu
                             </Button>
                         </Col>
@@ -266,8 +198,10 @@ const AmenitiesHotelFormModal = ({ idAmenitiesHotel, amenitiesHotelName, icon, r
     );
 };
 
-const DeleteAmenitiesHotelModal = ({ id, amenitiesHotelName, icon, refreshTable }) => {
+const DeleteAmenitiesHotelModal = ({ id }) => {
     const [show, setShow] = useState(false);
+    const [alert, setAlert] = useState(null);
+    const navigate = useNavigate();
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -276,36 +210,37 @@ const DeleteAmenitiesHotelModal = ({ id, amenitiesHotelName, icon, refreshTable 
     const token = cookie.get("token");
 
     const handleDelete = async () => {
-        if (!id) {
-          alert("Không thể thực hiện xóa vì không có ID.");
-          return;
-        }
-        
         try {
-          await axios.delete(
-            `http://localhost:8080/api/amenitiesHotel/delete/${id}`,
-            { headers: { Authorization: `Bearer ${cookie.get("token")}` } } // Thêm token vào header
-          )
-          console.log('Xóa thành công')
-          refreshTable(true) // Gọi lại hàm refresh table sau khi xóa thành công
-          alert('Đã xóa thành công!') // Hiển thị thông báo xóa thành công
-          handleClose() // Đóng modal sau khi xóa thành công
+            const response = await request({
+                method: "DELETE",
+                path: `/api/amenitiesHotel/delete/${id}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                token: token, // Thay thế bằng token nếu cần
+            });
+            // Kiểm tra mã phản hồi từ API
+            if (response && response.code === 200) {
+                setAlert({ type: "success", title: "Xóa tiện nghi khách sạn thành công!" });
+                navigate('/admin/amenities');
+            }
+
         } catch (error) {
-          console.error('Đã xảy ra lỗi khi xóa:', error)
-          alert('Đã xảy ra lỗi khi xóa!') // Thông báo lỗi nếu có
+            setAlert({ type: "error", title: "Lỗi kết nối đến server: " + error.message });
         }
-      }
+    }
     return (
         <>
-            <button className="btn btn-danger" onClick={handleShow}>
+            {alert && <Alert type={alert.type} title={alert.title} />}
+            <button className="btn btn-danger" onClick={handleShow} style={{ fontSize: '13px' }}>
                 <GiCancel />&nbsp;Xóa
             </button>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton style={{ border: 'none' }}>
-                    <Modal.Title>Xóa tiện nghi loại phòng </Modal.Title>
+                    <Modal.Title>Xóa tiện nghi khách sạn </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn xóa tiện nghi loại phòng <strong>{amenitiesHotelName}</strong> này?
+                    Bạn có chắc chắn muốn xóa tiện nghi khách sạn <strong>{id}</strong> này?
                 </Modal.Body>
                 <Modal.Footer style={{ border: 'none' }}>
                     <Button variant="danger" onClick={handleDelete}>

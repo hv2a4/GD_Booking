@@ -123,7 +123,7 @@ function App() {
           <Route path="account-employee" element={<Accountemployee />} />
           <Route path="hotel-info" element={<HotelInfo />} />
           <Route path="revenue" element={<RevenueReport />} />
-          <Route path="service" element={<ServicesPage />} />
+          <Route path="service" element={<ServicesPage />} /> 
           <Route path="amenities" element={<AmenitiesPage />} />
           
         

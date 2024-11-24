@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, Col, Form, Row } from "react-bootstrap";
 import { request } from '../../../../../config/configApi';
 import Cookies from 'js-cookie';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { formatCurrency } from "../../../../../config/formatPrice";
 
 
 const RoomAndTypeRoom = () => {
@@ -315,7 +316,7 @@ const RoomAndTypeRoom = () => {
                                                 </td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{id}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{typeRoomName}</td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{price} VNĐ</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{formatCurrency(price)} VNĐ</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{bedCount + ' ' + typeBedDto.bedName}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{guestLimit + ' người'}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>
@@ -362,7 +363,7 @@ const RoomAndTypeRoom = () => {
                                                                                                 return labels;
                                                                                             })()}</p>
                                                                                         <p><strong>Diện tích:</strong> {acreage} m2</p>
-                                                                                        <p><strong>Giá cả ngày:</strong> {price} VNĐ</p>
+                                                                                        <p><strong>Giá:</strong> {formatCurrency(price)} VNĐ</p>
 
                                                                                     </div>
                                                                                 </Col>
@@ -433,67 +434,25 @@ const RoomAndTypeRoom = () => {
                                             {expandedRowId === id && (
                                                 <tr>
                                                     <td colSpan="8">
-                                                        <div>
-                                                            <ul className="nav nav-tabs" role="tablist">
-                                                                <li className="nav-item">
-                                                                    <button
-                                                                        className={`nav-link ${currentTab === 'info' ? 'active' : ''}`}
-                                                                        onClick={() => setCurrentTab('info')}
-                                                                    >
-                                                                        Thông tin
-                                                                    </button>
-                                                                </li>
-                                                                <li className="nav-item">
-                                                                    <button
-                                                                        className={`nav-link ${currentTab === 'bookingHistory' ? 'active' : ''}`}
-                                                                        onClick={() => setCurrentTab('bookingHistory')}
-                                                                    >
-                                                                        Lịch đặt phòng
-                                                                    </button>
-                                                                </li>
-                                                            </ul>
-                                                            <div className="tab-content">
-                                                                {currentTab === 'info' && (
-                                                                    <div className="tab-pane fade show active">
-                                                                        <div className="card mb-3 mt-4" style={{ border: 'none' }}>
-                                                                            <div className="card-body">
-                                                                                <h5 className="card-title">Thông tin phòng</h5>
-                                                                                <div className="row mb-3">
-                                                                                    <div className="col-6">
-                                                                                        <p><strong>Tên phòng:</strong> {roomName}</p>
-                                                                                        <p><strong>Tầng:</strong> {floorDto.floorName}</p>
-                                                                                    </div>
-                                                                                    <div className="col-6">
-                                                                                        <p><strong>Loại phòng:</strong> {typeRoomDto.typeRoomName}</p>
-                                                                                        <p><strong>Trạng thái:</strong> {statusRoomDto.statusRoomName}</p>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div className="d-flex justify-content-end">
-                                                                                    <UpdateRoomModal idRoom={id} />
-                                                                                    <DeleteModelRoom idRoom={id} />
-                                                                                </div>
-                                                                            </div>
+                                                        <div className="tab-pane fade show active">
+                                                            <div className="card mb-3 mt-4" style={{ border: 'none' }}>
+                                                                <div className="card-body">
+                                                                    <h5 className="card-title">Thông tin phòng</h5>
+                                                                    <div className="row mb-3">
+                                                                        <div className="col-6">
+                                                                            <p><strong>Tên phòng:</strong> {roomName}</p>
+                                                                            <p><strong>Tầng:</strong> {floorDto.floorName}</p>
+                                                                        </div>
+                                                                        <div className="col-6">
+                                                                            <p><strong>Loại phòng:</strong> {typeRoomDto.typeRoomName}</p>
+                                                                            <p><strong>Trạng thái:</strong> {statusRoomDto.statusRoomName}</p>
                                                                         </div>
                                                                     </div>
-                                                                )}
-
-                                                                {currentTab === 'bookingHistory' && (
-                                                                    <div className="tab-pane fade show active" style={{ minHeight: 'auto' }}>
-                                                                        <table className="table table-striped mt-3">
-                                                                            <thead className="table-primary">
-                                                                                <tr>
-                                                                                    <th scope="col">Mã đặt phòng</th>
-                                                                                    <th scope="col">Check in</th>
-                                                                                    <th scope="col">Check out</th>
-                                                                                    <th scope="col">Khách hàng</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-
-                                                                            </tbody>
-                                                                        </table>
+                                                                    <div className="d-flex justify-content-end">
+                                                                        <UpdateRoomModal idRoom={id} />
+                                                                        <DeleteModelRoom idRoom={id} />
                                                                     </div>
-                                                                )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </td>

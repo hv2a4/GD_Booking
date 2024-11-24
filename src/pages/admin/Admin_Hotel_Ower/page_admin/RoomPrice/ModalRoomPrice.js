@@ -17,9 +17,13 @@ const AddRoomPriceModal = () => {
     const [show, setShow] = useState(false);
     const [roomTypes, setRoomTypes] = useState([]);
 
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
-    const handleClose = () => setShow(false);
+    const handleClose = () =>{
+        setShow(false);
+        reset();
+
+    };
     const handleShow = () => setShow(true);
 
     useEffect(() => {
@@ -208,15 +212,74 @@ const AddRoomPriceModal = () => {
 
 const EditRoomPriceModal = ({ id }) => {
     const [show, setShow] = useState(false);
+    const [roomTypes, setRoomTypes] = useState([]);
+    const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm();
 
-    const handleClose = () => setShow(false);
+    const handleClose = () => {
+        setShow(false);
+        reset(); // Reset form khi đóng modal
+    };
     const handleShow = () => setShow(true);
+
+    // Lấy dữ liệu loại phòng
+    useEffect(() => {
+        const fetchRoomTypes = async () => {
+            const response = await request({
+                method: "GET",
+                path: "/api/type-room/getAll",
+                token: Cookies.get("token"),
+            });
+            if (response) setRoomTypes(response);
+        };
+
+        fetchRoomTypes();
+    }, []);
+
+    // Lấy dữ liệu giảm giá chi tiết
+    useEffect(() => {
+        if (show) {
+            const fetchDiscountDetails = async () => {
+                const response = await request({
+                    method: "GET",
+                    path: `/api/discount/${id}`,
+                    token: Cookies.get("token"),
+                });
+
+                if (response) {
+                    setValue("discountName", response.discountName);
+                    setValue("percent", response.percent);
+                    setValue("startDate", response.startDate.split("T")[0]); // Chỉ lấy ngày
+                    setValue("endDate", response.endDate.split("T")[0]); // Chỉ lấy ngày
+                    setValue("roomTypeId", response.roomTypeId);
+                }
+            };
+
+            fetchDiscountDetails();
+        }
+    }, [show, id, setValue]);
+
+    // Xử lý cập nhật giảm giá
+    const onSubmit = async (data) => {
+        const response = await request({
+            method: "PUT",
+            path: `/api/discount/update/${id}`,
+            token: Cookies.get("token"),
+            data,
+        });
+
+        if (response) {
+            alert("Cập nhật thành công!");
+            handleClose();
+        } else {
+            alert("Cập nhật thất bại!");
+        }
+    };
 
     return (
         <>
             <p
                 className="nav-link text-orange mb-0"
-                style={{ fontSize: '0.9rem', cursor: 'pointer' }}
+                style={{ fontSize: "0.9rem", cursor: "pointer" }}
                 onClick={handleShow}
             >
                 {'Cập nhật giảm giá'}
@@ -228,34 +291,120 @@ const EditRoomPriceModal = ({ id }) => {
                 <Modal.Body>
                     <Card>
                         <Card.Body>
+                            <Form onSubmit={handleSubmit(onSubmit)}>
+                                <Row>
+                                    <Col md={6} className="mb-3">
+                                        <Form.Group as={Row}>
+                                            <Form.Label column sm={4}>
+                                                Tên giảm giá
+                                            </Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control
+                                                    type="text"
+                                                    {...register("discountName", { required: "Tên giảm giá không được để trống" })}
+                                                />
+                                                {errors.discountName && (
+                                                    <small className="text-danger">
+                                                        {errors.discountName.message}
+                                                    </small>
+                                                )}
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6} className="mb-3">
+                                        <Form.Group as={Row}>
+                                            <Form.Label column sm={4}>Phần trăm</Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control
+                                                    type="number"
+                                                    {...register("percent", {
+                                                        required: "Phần trăm giảm không được để trống",
+                                                        min: { value: 1, message: "Phần trăm phải lớn hơn 0" },
+                                                        max: { value: 100, message: "Phần trăm không được vượt quá 100" },
+                                                    })}
+                                                />
+                                                {errors.percent && (
+                                                    <small className="text-danger">
+                                                        {errors.percent.message}
+                                                    </small>
+                                                )}
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6} className="mb-3">
+                                        <Form.Group as={Row}>
+                                            <Form.Label column sm={4}>Ngày bắt đầu</Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control
+                                                    type="date"
+                                                    {...register("startDate", { required: "Vui lòng chọn ngày bắt đầu" })}
+                                                />
+                                                {errors.startDate && (
+                                                    <small className="text-danger">
+                                                        {errors.startDate.message}
+                                                    </small>
+                                                )}
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6} className="mb-3">
+                                        <Form.Group as={Row}>
+                                            <Form.Label column sm={4}>Ngày kết thúc</Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control
+                                                    type="date"
+                                                    {...register("endDate", { required: "Vui lòng chọn ngày kết thúc" })}
+                                                />
+                                                {errors.endDate && (
+                                                    <small className="text-danger">
+                                                        {errors.endDate.message}
+                                                    </small>
+                                                )}
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6} className="mb-3">
+                                        <Form.Group as={Row}>
+                                            <Form.Label column sm={4}>Loại phòng</Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control as="select" {...register("roomTypeId", { required: "Vui lòng chọn loại phòng" })}>
+                                                    <option value="">--Chọn loại phòng--</option>
+                                                    {roomTypes.map((type) => (
+                                                        <option key={type.id} value={type.id}>
+                                                            {type.typeRoomName}
+                                                        </option>
+                                                    ))}
+                                                </Form.Control>
+                                                {errors.roomTypeId && (
+                                                    <small className="text-danger">
+                                                        {errors.roomTypeId.message}
+                                                    </small>
+                                                )}
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                                <Button variant="success" type="submit">
+                                    <FaSave size={14} /> Lưu
+                                </Button>
+                            </Form>
                         </Card.Body>
                     </Card>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button
-                        variant="success"
-                        style={{
-                            padding: '0.75rem 1.5rem',
-                            fontSize: '1rem',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        <FaSave size={14} />&nbsp; Lưu
-                    </Button>
-                    <Button
                         variant="dark"
                         style={{
-                            background: '#898C8D',
-                            padding: '0.75rem 1.5rem',
-                            fontSize: '1rem',
-                            fontWeight: 'bold',
-                            border: 'none'
+                            background: "#898C8D",
+                            padding: "0.75rem 1.5rem",
+                            fontSize: "1rem",
+                            fontWeight: "bold",
+                            border: "none",
                         }}
                         onClick={handleClose}
                     >
-                        <ImCancelCircle size={14} />&nbsp; Bỏ qua
+                        <ImCancelCircle size={14} /> Bỏ qua
                     </Button>
-                    <DeleteListPriceModal />
                 </Modal.Footer>
             </Modal>
         </>

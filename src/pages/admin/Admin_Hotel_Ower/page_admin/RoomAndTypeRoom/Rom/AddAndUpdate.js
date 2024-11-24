@@ -118,6 +118,7 @@ const Add_Update_TypeRoom = ({ idTypeRoom, amenities= [] }) => {
     const handleOpen = (e) => {
         e.stopPropagation();
         setShow(true);
+        setAlert(null);
     };
     const [images, setImages] = useState([]);
     const [typeBeds, setTypeBeds] = useState([]);
@@ -277,7 +278,6 @@ const Add_Update_TypeRoom = ({ idTypeRoom, amenities= [] }) => {
             }
         } catch (error) {
             console.error("Error while adding type room: ", error);
-            setAlert({ type: "error", title: "Có lỗi xảy ra khi cập nhật/ thêm loại phòng!" });
         } finally {
             setIsLoading(false);  // Kết thúc quá trình tải
         }
@@ -293,7 +293,9 @@ const Add_Update_TypeRoom = ({ idTypeRoom, amenities= [] }) => {
                     return (
                         <small
                             style={{ fontSize: '13px' }}
-                            onClick={handleOpen}
+                            onClick={() => {
+                                handleOpen();
+                            }}
                             id='add-type-room'
                         >
                             Thêm loại phòng
@@ -305,6 +307,7 @@ const Add_Update_TypeRoom = ({ idTypeRoom, amenities= [] }) => {
                             e.stopPropagation();
                             setShow(true);
                             fetchTypeRoom();
+                            setAlert(null);
                         }} >
                             <FaClipboardCheck />&nbsp;Cập nhật
                         </small>

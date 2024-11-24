@@ -33,7 +33,8 @@ const UpdateRoomModal = ({ idRoom }) => {
     const handleShow = () => {
         if (!show) { // Chỉ mở modal nếu nó đang đóng
             setShow(true);
-        }
+        }  
+        setAlert(null);
     };
 
     // Hàm để đóng modal
@@ -50,6 +51,7 @@ const UpdateRoomModal = ({ idRoom }) => {
             });
 
             if (response && response.length > 0) {
+                
                 setRoomTypes(response);
             }
         };
@@ -72,8 +74,16 @@ const UpdateRoomModal = ({ idRoom }) => {
             });
 
             if (response && response.length > 0) {
-                setSatusRooms(response);
+                const filteredStatusRooms = response.filter(
+                    (statusRoom) => {
+                        const name = statusRoom.statusRoomName?.toLowerCase(); // Chuyển statusRoomName về chữ thường
+                        return name === 'phòng trống' || name === 'bảo trì';
+                    }
+                );
+            
+                setSatusRooms(filteredStatusRooms);
             }
+            
         };
         const fetchRoom = async () => {
             const response = await request({
@@ -126,7 +136,6 @@ const UpdateRoomModal = ({ idRoom }) => {
 
         } catch (error) {
             console.error("Error while adding room: ", error);
-            setAlert({ type: "error", title: "Có lỗi xảy ra khi thêm phòng!" });
         } finally {
             setIsLoading(false);  // Kết thúc quá trình tải
         }
@@ -360,8 +369,16 @@ const AddRoomModal = () => {
             });
 
             if (response && response.length > 0) {
-                setSatusRooms(response);
+                const filteredStatusRooms = response.filter(
+                    (statusRoom) => {
+                        const name = statusRoom.statusRoomName?.toLowerCase(); // Chuyển statusRoomName về chữ thường
+                        return name === 'phòng trống' || name === 'bảo trì';
+                    }
+                );
+            
+                setSatusRooms(filteredStatusRooms);
             }
+            
         };
         fetchStatusRooms();
         fetchFloors();
@@ -458,7 +475,7 @@ const AddRoomModal = () => {
                                         Tầng
                                     </Form.Label>
                                     <Col sm={8}>
-                                        <Form.Control
+                                        <Form.Select
                                             as="select"
                                             {...register('floor', { required: 'Vui lòng chọn tầng' })}
                                         >
@@ -468,7 +485,7 @@ const AddRoomModal = () => {
                                                     {floor.floorName}
                                                 </option>
                                             ))}
-                                        </Form.Control>
+                                        </Form.Select>
                                         {errors.floor && <span className="text-danger">{errors.floor.message}</span>}
                                     </Col>
                                 </Form.Group>
@@ -478,7 +495,7 @@ const AddRoomModal = () => {
                                         Loại phòng
                                     </Form.Label>
                                     <Col sm={8}>
-                                        <Form.Control
+                                        <Form.Select
                                             as="select"
                                             {...register('roomType', { required: 'Vui lòng chọn loại phòng' })}
                                         >
@@ -488,7 +505,7 @@ const AddRoomModal = () => {
                                                     {roomType.typeRoomName}
                                                 </option>
                                             ))}
-                                        </Form.Control>
+                                        </Form.Select>
                                         {errors.roomType && <span className="text-danger">{errors.roomType.message}</span>}
                                     </Col>
                                 </Form.Group>
@@ -498,7 +515,7 @@ const AddRoomModal = () => {
                                         Trạng thái
                                     </Form.Label>
                                     <Col sm={8}>
-                                        <Form.Control
+                                        <Form.Select
                                             as="select"
                                             {...register('status', { required: 'Vui lòng chọn trạng thái' })}
                                         >
@@ -508,7 +525,7 @@ const AddRoomModal = () => {
                                                     {statusRoom.statusRoomName}
                                                 </option>
                                             ))}
-                                        </Form.Control>
+                                        </Form.Select>
                                         {errors.status && <span className="text-danger">{errors.status.message}</span>}
                                     </Col>
                                 </Form.Group>

@@ -14,7 +14,7 @@
 }
 
 /* Form elements */
-.form-label {
+/* .form-label {
     font-size: 1rem;
     font-weight: 500;
     margin-bottom: 8px;
@@ -29,7 +29,7 @@
 
 .form-control:focus {
     border-color: #007bff;
-}
+} */
 
 /* Required Fields */
 .required {
