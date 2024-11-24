@@ -96,7 +96,7 @@ function App() {
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<Contact />} />
           <Route path="rooms" element={<RoomClient />} />
-          <Route path="services" element={<Services />} />
+          {/* <Route path="services" element={<Services />} /> */}
           <Route path="profile" element={<Profile />} />
           <Route path="booking-room" element={<PageBookRoom />} />
           <Route path="invoice" element={<Invoice />} />
@@ -111,7 +111,7 @@ function App() {
           <Route path="list-booking-room" element={<ListReservation />} />
           <Route path="Floor/:id" element={<FloorMap />} />
         </Route>
-        
+
         {/* Routes cho Admin */}
         <Route path="/admin" element={<ProtectedRoute element={<Outlet />} allowedRoles={['HotelOwner']} />}>
           <Route path="home" element={<HomeAdmin />} />
@@ -125,8 +125,6 @@ function App() {
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} />
           <Route path="amenities" element={<AmenitiesPage />} />
-          
-        
         </Route>
 
         <Route path="account" element={<Login />} />

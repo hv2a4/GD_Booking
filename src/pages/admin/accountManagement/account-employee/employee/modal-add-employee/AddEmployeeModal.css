@@ -56,7 +56,7 @@
 
 .input-group input, .input-group select {
     width: 100%;
-    padding: 8px;
+    /* padding: 8px; */
     border: 1px solid #ccc;
     border-radius: 4px;
 }

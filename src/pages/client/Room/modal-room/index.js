@@ -1,36 +1,14 @@
 import React from 'react';
 import { Modal, Button, Image, ListGroup, Row, Col, Carousel, Card } from 'react-bootstrap';
 import './style.css'; // Import CSS file
-import { FaStar, FaRegStar, FaWifi, FaRegSnowflake, FaTv, FaTshirt, FaConciergeBell, FaCoffee, FaTaxi } from 'react-icons/fa'; // For star icons
+import { FaStar, FaRegStar } from 'react-icons/fa'; // For star icons
 
-const RoomDetailModal = ({ show, onClose, room }) => {
+const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
   // Helper function to render star ratings
   const renderStars = (stars) => {
     return [...Array(5)].map((_, i) => (
       i < stars ? <FaStar key={i} className="text-warning" /> : <FaRegStar key={i} className="text-muted" />
     ));
-  };
-  const getAmenityIcon = (amenityName) => {
-    switch (amenityName) {
-      case "WiFi":
-        return <FaWifi style={{ color: '#FEA116' }} />;
-      case "Điều Hoà":
-        return <FaRegSnowflake style={{ color: '#FEA116' }} />;
-      case "TV":
-        return <FaTv style={{ color: '#FEA116' }} />;
-      case "Mini Bar":
-        return <FaTshirt style={{ color: '#FEA116' }} />;
-      case "Dịch Vụ Phòng":
-        return <FaConciergeBell style={{ color: '#FEA116' }} />;
-      case "Bữa sáng miễn phí":
-        return <FaCoffee style={{ color: '#FEA116' }} />;
-      case "Giặt ủi":
-        return <FaTshirt style={{ color: '#FEA116' }} />;
-      case "Đưa Đón":
-        return <FaTaxi style={{ color: '#FEA116' }} />;
-      default:
-        return <span>No icon</span>;
-    }
   };
 
   return (
@@ -65,6 +43,7 @@ const RoomDetailModal = ({ show, onClose, room }) => {
               <p><strong>Tên loại phòng:</strong> {room.typeRoomName}</p>
               <p><strong>Số khách tiêu chuẩn:</strong> {room.guestLimit} người</p>
               <p><strong>Giường:</strong> {room.bedName}</p>
+              <p><strong>Số giường:</strong> {avgStart.bedCount} giường</p>
               <p><strong>Diện tích:</strong> {room.acreage} m²</p>
 
               <strong>Tiện nghi:</strong>
@@ -89,12 +68,20 @@ const RoomDetailModal = ({ show, onClose, room }) => {
           </Col>
         </Row>
 
+        <div className="room-price-container">
+          <span><strong>Giá phòng</strong></span>
+          <span className="room-detail-price">
+            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}
+          </span>
+        </div>
+
+
         {/* Phần đánh giá */}
         <div className="room-feedback mt-4">
           <h5>Đánh giá của khách hàng</h5>
           <p>
-            <strong>Đánh giá trung bình:</strong> {room.averageFeedBack}{' '}
-            {renderStars(Math.round(room.averageFeedBack))}
+            <strong>Đánh giá trung bình:</strong> {avgStart.averageStars}{' '}
+            {renderStars(Math.round(avgStart.averageStars))}
           </p>
           {room.feedBack?.length > 0 ? (
             <div className="feedback-container">
@@ -106,7 +93,7 @@ const RoomDetailModal = ({ show, onClose, room }) => {
                         <div className="me-3 feedback-avatar">
                           <img
                             src={room.image}
-                            alt={`Ảnh của ${room.typeRoomName}`}
+                            alt={`Ảnh của ${room.accountName}`}
                             className="room-avatar"
                           />
                         </div>
@@ -134,12 +121,6 @@ const RoomDetailModal = ({ show, onClose, room }) => {
           )}
         </div>
 
-        <div className="d-flex justify-content-between align-items-center mt-3">
-          <span><strong>Giá phòng</strong></span>
-          <span className="room-detail-price">
-            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}
-          </span>
-        </div>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>

@@ -12,6 +12,7 @@ export default function Rooms() {
   const [roomItem, setRoomItem] = useState([]);
   const [typeRoom, setTypeRoom] = useState([]);
   const [alert, setAlert] = useState(null);
+  const [avg, setAvg] = useState({});
   const navigate = useNavigate();
   useEffect(() => {
     handleTypeRoom();
@@ -55,7 +56,8 @@ export default function Rooms() {
 
   const getDataDetail = async (id) => {
     try {
-      const res = await getDetailTypeRoom(id);
+      setAvg(id);
+      const res = await getDetailTypeRoom(id.roomTypeId);
 
       if (Array.isArray(res) && res.length > 0) {
         setRoomItem(res[0]); // Assuming you want to show details of the first item in the list
@@ -135,7 +137,7 @@ export default function Rooms() {
                   <div className="d-flex justify-content-between">
                     <Button
                       className="btn btn-sm btn-primary rounded py-2 px-4"
-                      onClick={() => getDataDetail(item.roomTypeId)}
+                      onClick={() => getDataDetail(item)}
                     >
                       Chi tiết
                     </Button>
@@ -147,7 +149,7 @@ export default function Rooms() {
           ))}
         </div>
       </div>
-      <RoomDetailModal show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
+      <RoomDetailModal show={showModal} onClose={() => setShowModal(false)} room={roomItem} avgStart={avg}/>
     </div>
   );
 }
