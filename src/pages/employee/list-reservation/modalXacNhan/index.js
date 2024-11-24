@@ -1,18 +1,74 @@
-import React, { useState } from "react";
-import TTNhanPhong from "../modalTTNP";
-import { Modal, Button, Table, Form, Row, Col } from 'react-bootstrap';
+import React, { useEffect, useState } from "react";
+import { Modal, Button, Table } from "react-bootstrap";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Alert from "../../../../config/alert";
+import { updateStatusBooking } from "../../../../services/employee/booking-manager";
+import { useLocation } from "react-router-dom";
 
-const XacNhan = () => {
+const ConfirmBookingModal = ({ bookingRoom }) => {
     const [showModal1, setShowModal1] = useState(false);
-    const [showModal2, setShowModal2] = useState(false);
+    const [alert, setAlert] = useState(null);
+    const location = useLocation();
+    const [dates, setDates] = useState({
+        startAt: null,
+        endAt: null,
+    });
 
-    const handleCloseModal1 = () => setShowModal1(false);
     const handleShowModal1 = () => setShowModal1(true);
+    const handleCloseModal1 = () => setShowModal1(false);
 
-    const handleCloseModal2 = () => setShowModal2(false);
-    const handleShowModal2 = () => {
-        setShowModal1(false);
-        setShowModal2(true);
+    // Đặt mặc định `startAt` và `endAt` từ bookingRoom dòng đầu tiên
+    useEffect(() => {
+        setTimeout(() => setAlert(null), 500);
+        if (bookingRoom && bookingRoom.length > 0) {
+            setDates({
+                startAt: new Date(bookingRoom[0]?.booking?.startAt),
+                endAt: new Date(bookingRoom[0]?.booking?.endAt),
+            });
+        }
+    }, [bookingRoom,alert,location]);
+
+    // Xử lý khi thay đổi ngày
+    const handleChange = (field, value) => {
+        const now = new Date();
+        if (value < now) {
+            setAlert({ type: "error", title: "Ngày không được nhỏ hơn hiện tại!" });
+            return;
+        }
+        if (field === "endAt" && value < dates.startAt) {
+            setAlert({ type: "error", title: "Ngày trả không được nhỏ hơn ngày nhận!" });
+            return;
+        }
+        if (field === "startAt" && dates.endAt && value > dates.endAt) {
+            setAlert({ type: "error", title: "Ngày nhận không được lớn hơn ngày trả!" });
+            return;
+        }
+
+        setDates((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+
+    // Xử lý khi bấm nút "Xác nhận"
+    const handleUpdateBooking = async () => {
+        const newBooking = {
+            startDate: dates.startAt.toISOString(),
+            endDate: dates.endAt.toISOString()
+        }
+        const idBooking = bookingRoom[0].booking.id;
+        try {
+            const data = await updateStatusBooking(idBooking, 4, newBooking);
+            console.log(data);
+            
+            setAlert({ type: data.status, title: data.message });
+            handleCloseModal1();
+        } catch (error) {
+            setAlert({ type: "error", title: error.message });
+        }
+
     };
 
     return (
@@ -21,97 +77,89 @@ const XacNhan = () => {
                 variant="success"
                 onClick={handleShowModal1}
                 style={{
-                    fontSize: '12px',
-                    width: '127px',
-                    height: '36px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#02963d',
-                    color: 'white'
+                    fontSize: "12px",
+                    width: "127px",
+                    height: "36px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#02963d",
+                    color: "white",
                 }}
             >
                 Xác nhận
             </Button>
-
-            <Modal show={showModal1} onHide={handleCloseModal1} backdrop="static" centered>
+            <Modal show={showModal1} onHide={handleCloseModal1} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Xác nhận đặt phòng</Modal.Title>
+                    {alert && <Alert type={alert.type} title={alert.title} />}
+                    <Modal.Title>Xác nhận đặt phòng - DP000017</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="modal-table-data">
-                        <Row className="mb-4">
-                            <Col className="d-flex align-items-center">
-                                <i className="fa fa-user icon-mask icon-xs w-auto"></i>
-                                <span className="text-orange font-bold" style={{ marginLeft: "10px" }}>e</span>
-                                <span> - 092094892</span>
-                            </Col>
-                        </Row>
-                        <div className="table-responsive">
-                            <table className="table table-striped table-borderless table-fill">
-                                <thead>
-                                    <tr>
-                                        <th><input type="checkbox" /></th>
-                                        <th>Hạng phòng</th>
-                                        <th>Phòng</th>
-                                        <th>Nhận</th>
-                                        <th>Trả</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td className="text-center">
-                                            <input type="checkbox" />
-                                        </td>
-                                        <td>Phòng đơn 2 giường</td>
-                                        <td>
-                                            <select className="form-select"
-                                                style={{ lineHeight: "1" }}
-                                                aria-label="Default select example">
-                                                <option></option>
-                                                <option value="1">P.309</option>
-                                                <option value="2">P.302</option>
-                                                <option value="3">P.310</option>
-                                            </select>
-                                        </td>
-                                        <td><input type="datetime-local" value="2024-09-20T01:29" /></td>
-                                        <td><input type="datetime-local" value="2024-09-21T02:29" /></td>
-                                    </tr>
-                                    <tr>
-                                        <td className="text-center">
-                                            <input type="checkbox" />
-                                        </td>
-                                        <td>Phòng đơn 2 giường</td>
-                                        <td>
-                                            <select className="form-select"
-                                                style={{ lineHeight: "1" }}
-                                                aria-label="Default select example">
-                                                <option></option>
-                                                <option value="1">P.309</option>
-                                                <option value="2">P.302</option>
-                                                <option value="3">P.310</option>
-                                            </select>
-                                        </td>
-                                        <td><input type="datetime-local" value="2024-09-20T01:29" /></td>
-                                        <td><input type="datetime-local" value="2024-09-21T02:29" /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div>
+                        <p>
+                            <i className="bi bi-person-circle"></i> {bookingRoom[0]?.booking?.accountDto?.fullname} - {bookingRoom[0]?.booking?.accountDto?.phone}
+                        </p>
                     </div>
+                    <Table>
+                        <thead>
+                            <tr style={{ backgroundColor: "#eaf4eb" }}>
+                                <th style={{ width: "40%" }}>Loại phòng</th>
+                                <th style={{ width: "20%" }}>Phòng</th>
+                                <th style={{ width: "20%" }}>Nhận</th>
+                                <th style={{ width: "20%" }}>Trả</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {bookingRoom.map((data, index) => (
+                                <tr key={data.id}>
+                                    <td style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
+                                        {data.room?.typeRoomDto?.typeRoomName} - {data.room?.typeRoomDto?.typeBedDto.bedName}
+                                    </td>
+                                    <td>{data.room?.roomName}</td>
+                                    {index === 0 && ( // Chỉ hiện ô nhập ngày cho dòng đầu tiên
+                                        <>
+                                            <td>
+                                                <DatePicker
+                                                    selected={dates.startAt}
+                                                    className="custom-date-picker"
+                                                    onChange={(date) => handleChange("startAt", date)}
+                                                    showTimeSelect
+                                                    timeFormat="HH:mm"
+                                                    timeIntervals={15}
+                                                    timeCaption="Time"
+                                                    dateFormat="dd/MM/yyyy, HH:mm"
+                                                />
+                                            </td>
+                                            <td>
+                                                <DatePicker
+                                                    selected={dates.endAt}
+                                                    className="custom-date-picker"
+                                                    onChange={(date) => handleChange("endAt", date)}
+                                                    showTimeSelect
+                                                    timeFormat="HH:mm"
+                                                    timeIntervals={15}
+                                                    timeCaption="Time"
+                                                    dateFormat="dd/MM/yyyy, HH:mm"
+                                                />
+                                            </td>
+                                        </>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                    <p className="text-muted mt-3">
+                        Sau khi xác nhận, các phòng sẽ chuyển về trạng thái đặt trước
+                    </p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="success" onClick={handleShowModal2}>
+                    <Button variant="success" onClick={handleUpdateBooking}>
                         Xác nhận
                     </Button>
                 </Modal.Footer>
-            </Modal>
-
-            <Modal show={showModal2} onHide={handleCloseModal2} backdrop="static" centered>
-                <TTNhanPhong onHide={handleCloseModal2} />
             </Modal>
         </>
     );
 };
 
-export default XacNhan;
+export default ConfirmBookingModal;

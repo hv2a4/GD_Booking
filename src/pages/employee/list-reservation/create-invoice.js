@@ -3,7 +3,7 @@ import { Button } from "react-bootstrap";
 
 const CreateInvoice = () => {
     return (
-        <div className="table-responsive" style={{ minHeight: "470px" }}>
+        <div className="table-responsive">
             <table className="table">
                 <thead>
                     <tr>

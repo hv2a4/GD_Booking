@@ -128,7 +128,6 @@ const Account = () => {
                         <CTableHeaderCell>Ảnh</CTableHeaderCell>
                         <CTableHeaderCell>Họ tên</CTableHeaderCell>
                         <CTableHeaderCell>Số điện thoại</CTableHeaderCell>
-                        <CTableHeaderCell>Vai trò</CTableHeaderCell>
                         <CTableHeaderCell>Trạng thái</CTableHeaderCell>
                         <CTableHeaderCell>Hành động</CTableHeaderCell>
                     </CTableRow>
@@ -142,7 +141,6 @@ const Account = () => {
                                 </CTableDataCell>
                                 <CTableDataCell>{item.fullname}</CTableDataCell>
                                 <CTableDataCell>{item.phone}</CTableDataCell>
-                                <CTableDataCell>{item.roleDto.roleName}</CTableDataCell>
                                 <CTableDataCell>
                                     <CBadge color={getBadge(item.isDelete ? "Active" : "Khóa")}>
                                         {item.isDelete ? "hoạt động" : "khóa"}
@@ -186,7 +184,7 @@ const Account = () => {
                                                     <Col xs={12} md={4}>
                                                         <div className="form-check form-switch d-flex align-items-center border-bottom-invoice ps-0 mb-3 mt-3">
                                                             <label className="form-check-label me-3">Trạng thái:</label>
-                                                            <CBadge color="danger" className="me-5">Khóa</CBadge>
+                                                                <div color="danger" className="me-5"></div>
                                                             <input
                                                                 className="form-check-input"
                                                                 type="checkbox"
@@ -194,10 +192,7 @@ const Account = () => {
                                                                 id="flexSwitchCheckChecked"
                                                                 checked={item.isDelete} onChange={() => handleToggleStatus(item.id)}
                                                             />
-                                                            <CBadge color="success" className="ms-2">Hoạt động</CBadge>
-                                                        </div>
-                                                        <div className="border-bottom-invoice d-flex align-items-center" style={{ marginTop: "-19px" }}>
-                                                            <p className="mb-0 me-2">Vai trò: <strong>{item.roleDto.roleName}</strong></p>
+                                                            {item.isDelete ? (<CBadge color="success" className="ms-2">Hoạt động</CBadge>) : (<CBadge color="danger" className="me-5">Khóa</CBadge>)}
                                                         </div>
                                                         <div className="border-bottom-invoice">
                                                             <p>Giới tính: <strong>{item.gender ? "Nam" : "Nữ"}</strong></p>
@@ -236,7 +231,7 @@ const Account = () => {
                 breakLinkClassName="page-link"
                 activeClassName="active"
             />
-            <AddEmployeeModal show={showModal} handleClose={handleClose} refreshData={refreshData}/>
+            <AddEmployeeModal show={showModal} handleClose={handleClose} refreshData={refreshData} />
         </div>
     );
 };
