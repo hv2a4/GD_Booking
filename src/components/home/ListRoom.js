@@ -18,6 +18,8 @@ import "../../assets/css/custom/Sticky.css";
 import "../../assets/css/custom/Filter.css";
 import BookingFillter from "../../pages/account/Filter/FilterBooking";
 import { getFilterBooking } from "../../services/client/home";
+import { Cookies } from 'react-cookie';
+import Swal from 'sweetalert2';
 const amenityIcons = {
     "WiFi": <FaWifi style={{ color: "#FEA116" }} />,
     "Điều Hoà": <FaRegSnowflake style={{ color: "#FEA116" }} />,
@@ -130,6 +132,23 @@ export default function ListRoom() {
 
     // Hàm xử lý đặt phòng
     const handleBooking = () => {
+        const cookies = new Cookies(); // Tạo một instance của Cookies
+        const token = cookies.get('token'); // Lấy cookie theo tên "token"
+
+        if (!token) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yêu cầu đăng nhập',
+                text: 'Bạn cần đăng nhập để thực hiện chức năng đặt phòng.',
+                confirmButtonText: 'Đăng nhập ngay'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate("/account"); // Điều hướng tới trang đăng nhập
+                }
+            });
+            return; // Dừng hàm tại đây nếu chưa đăng nhập
+        }
+
         if (selectedRooms.length > 0) {
             const roomDetails = selectedRooms.map((room) => ({
                 roomId: room.roomId,
@@ -142,7 +161,7 @@ export default function ListRoom() {
             console.log(`Bạn đã đặt thành công ${selectedRooms.length} phòng.`);
 
             // Dữ liệu tạm thời để lưu vào state và sessionStorage
-            const updateFilterBooking = { startDate: dates.checkin ,endDate: dates.checkout};
+            const updateFilterBooking = { startDate: dates.checkin, endDate: dates.checkout };
 
             // Lưu danh sách roomId vào sessionStorage
             saveArrayToSession("bookedRooms", roomDetails);

@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import LayoutClient from '../../../components/layout/cilent';
 import './custom.css';
 import { decodeToken } from '../../../services/client/Booking/BookingService';
-import { getDataListTypeRoom, bookingRoom } from './Service';
 import { useNavigate } from 'react-router-dom';
+import { bookingRoom, getDataListTypeRoom } from './Service';
 import Swal from 'sweetalert2';
-
 const PageBookRoom = () => {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
@@ -40,12 +39,27 @@ const PageBookRoom = () => {
 
     const handleBookingRooms = async () => {
         try {
-            // Kiểm tra roomIdss và xử lý dựa trên kiểu dữ liệu
+            // Lấy giá trị phone hiện tại
+            const currentPhone = phone ? phone.trim() : "";
+
+            if (!currentPhone) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Thông báo',
+                    text: 'Bạn chưa nhập số điện thoại. Vui lòng cập nhật thông tin trước khi đặt phòng.',
+                    confirmButtonText: 'Cập nhật ngay',
+                }).then(() => {
+                    navigate('/client/profile'); // Chuyển hướng đến trang cập nhật số điện thoại
+                });
+                return; // Dừng hàm nếu không có số điện thoại hợp lệ
+            }
+
+            // Xử lý roomIdss
             let roomIdArray = [];
             if (Array.isArray(roomIdss)) {
-                roomIdArray = [...roomIdss]; // Sao chép giá trị nếu là mảng
+                roomIdArray = [...roomIdss]; // Sao chép nếu là mảng
             } else {
-                const roomIdNumber = parseInt(roomIdss); // Chuyển sang số
+                const roomIdNumber = parseInt(roomIdss); // Chuyển kiểu dữ liệu
                 if (!isNaN(roomIdNumber)) {
                     roomIdArray.push(roomIdNumber); // Thêm vào mảng nếu hợp lệ
                 } else {
@@ -53,19 +67,28 @@ const PageBookRoom = () => {
                 }
             }
 
-            // Tạo payload
+            // Tạo payload để gửi đi
             const payload = {
                 userName: token.username + "",
                 startDate: rooms.startDate,
                 endDate: rooms.endDate,
-                roomId: roomIdArray, // roomId là mảng
+                roomId: roomIdArray,
                 discountName: ""
             };
 
             console.log("Payload trước khi gửi:", payload);
+
+            // Gọi API đặt phòng
             await bookingRoom(payload, navigate);
+
         } catch (error) {
             console.error("Đặt phòng thất bại:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Đã xảy ra lỗi khi đặt phòng. Vui lòng thử lại.',
+                confirmButtonText: 'Đóng',
+            });
         }
     };
 
@@ -76,6 +99,12 @@ const PageBookRoom = () => {
         console.log("Token đã được giả mã: ", decode);
         setToken(decode);
     }, []);
+
+    useEffect(() => {
+        if (token && token.phone) {
+            setPhone(token.phone.trim());
+        }
+    }, [token]);
 
     useEffect(() => {
         const fetchBookedRooms = async () => {
@@ -156,6 +185,7 @@ const PageBookRoom = () => {
                                                 type="text"
                                                 className="custom-form-control"
                                                 name="txt_fullname"
+                                                disabled
                                             />
                                         </div>
                                     </div>
@@ -170,6 +200,7 @@ const PageBookRoom = () => {
                                                 type="email"
                                                 className="custom-form-control"
                                                 name="txt_email"
+                                                disabled
                                             />
                                         </div>
                                         <div className="col-lg-6 col-md-6">
@@ -182,6 +213,7 @@ const PageBookRoom = () => {
                                                 type="text"
                                                 className="custom-form-control"
                                                 name="txt_phone"
+                                                disabled
                                             />
                                         </div>
                                     </div>
