@@ -293,8 +293,8 @@ const Add_Update_TypeRoom = ({ idTypeRoom, amenities= [] }) => {
                     return (
                         <small
                             style={{ fontSize: '13px' }}
-                            onClick={() => {
-                                handleOpen();
+                            onClick={(e) => {
+                                handleOpen(e);
                             }}
                             id='add-type-room'
                         >

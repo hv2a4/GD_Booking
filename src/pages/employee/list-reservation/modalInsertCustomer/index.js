@@ -14,8 +14,6 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom }) => {
     const [alert, setAlert] = useState(null);
 
     useEffect(() => {
-        console.log(item);
-        
         if (item && item.customerInformationDto?.birthday) {
             setValue("ngaysinh", new Date(item.customerInformationDto.birthday));
             setValue("phong", item.bookingRoomDto.room.id);
@@ -52,12 +50,17 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom }) => {
 
     const onSubmit = async (data) => {
         // Validate dữ liệu đầu vào
+        
+        if (!data.sodienthoai === 10) {
+            setAlert({ type: "error", title: "Số điện thoại không đúng đinh dạng"});
+            return;
+        }
+
         const errors = validateForm(data, images1, images2);
         if (Object.keys(errors).length > 0) {
             setAlert({ type: "error", title: "Vui lòng kiểm tra lại thông tin.", details: errors });
             return;
         }
-
         // Xử lý nếu dữ liệu hợp lệ
         let id = [];
         if (!item) {
@@ -75,6 +78,8 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom }) => {
             imgFirstCard,
             imgLastCard
         };
+        console.log(newCustomer);
+        
 
         try {
             const customerData = item ? "" : await addCustomer(newCustomer, id[0]?.id);
