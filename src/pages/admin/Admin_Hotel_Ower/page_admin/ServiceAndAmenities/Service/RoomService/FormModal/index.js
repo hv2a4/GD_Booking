@@ -13,7 +13,7 @@ import Alert from '../../../../../../../../config/alert';
 const RoomServiceFormModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
     const { register, handleSubmit, setValue } = useForm(); // Khởi tạo useForm
-    const [images, setImages] = useState();
+    const [images, setImages] = useState([]);
     const [typeRoomService, setTypeRoomService] = useState([]);
     const [alert, setAlert] = useState(null);
     const cookie = new Cookies();
@@ -27,6 +27,7 @@ const RoomServiceFormModal = ({ item, refreshData }) => {
             setValue("typeServiceRoom", item?.typeServiceRoomDto?.id);
         }
         handleTypeRoomService();
+        setTimeout(() => setAlert(null), 500);
     }, [item, setValue]);
 
 
@@ -59,7 +60,12 @@ const RoomServiceFormModal = ({ item, refreshData }) => {
 
     const onSubmit = async (data) => {
         console.log(images);
-        const urlImage = images ? await uploadImageToFirebase(images) : item.imageName;
+        
+        if(images.length <= 0){
+            setAlert({ type: "error", title: "Vui lòng chọn ảnh" });
+            return;
+        }
+        const urlImage = images ? await uploadImageToFirebase(images) : "";
 
         const service = { ...data, imageName: urlImage || "" }
         console.log(service);

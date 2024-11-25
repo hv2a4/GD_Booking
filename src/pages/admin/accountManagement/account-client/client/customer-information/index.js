@@ -10,7 +10,7 @@ const CustomerInformation = ({ item, onToggleDeleteStatus }) => {
             <Row className="mt-3">
                 <Col xs={12} md={4}>
                     <div className="border-bottom-invoice">
-                        <p>Mã nhân viên: <strong>{item.id}</strong></p>
+                        <p>Mã khách hàng: <strong>{item.id}</strong></p>
                     </div>
                     <div className="border-bottom-invoice">
                         <p>Họ tên: <strong>{item.fullname}</strong></p>

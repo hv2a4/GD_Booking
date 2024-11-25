@@ -14,33 +14,41 @@ const ModalDetailFloor = ({ onClose, item }) => {
     useEffect(() => {
         if (item && token) {
             console.log(item);
-            
+
             handleDetail(item?.id, item?.statusRoomDto?.id, token);
-            handleCustomerInfo(item?.id,token);
+            handleCustomerInfo(item?.id, token);
         }
 
     }, [item])
 
     const handleCustomerInfo = async (id, token) => {
         try {
-            const data = await getBookingRoomInformation(id,token);
-                setCustomer(data);
-                console.log(data);
+            const data = await getBookingRoomInformation(id, token);
+            setCustomer(data);
+            console.log(data);
         } catch (error) {
-            
+
         }
     }
-
     const handleDetail = async (roomId, statusId, token) => {
         try {
             const data = await getBookingRoomByRoom(roomId, statusId, token);
-            setBookingRoom(data[0]);
-            console.log(data[0]);
-        } catch (error) {
-            console.log(error);
 
+            if (data && data.length > 0) {
+                // Sắp xếp danh sách booking theo thời gian tạo tăng dần (cũ nhất trước, mới nhất ở cuối)
+                const latestBooking = data.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).pop();
+
+                setBookingRoom(latestBooking); // Chỉ lưu booking mới nhất (cuối cùng)
+                console.log(latestBooking); // Kiểm tra booking mới nhất
+            } else {
+                setBookingRoom(null); // Không có booking
+                console.log("Không có booking nào.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết booking:", error);
         }
-    }
+    };
+
     const formatDateTime = (date) => {
         if (!date || isNaN(new Date(date))) {
             console.error('Giá trị thời gian không hợp lệ:', date);
@@ -50,16 +58,16 @@ const ModalDetailFloor = ({ onClose, item }) => {
     };
     const calculateDuration = (checkIn, checkOut) => {
         if (!checkIn || !checkOut) return 'N/A';
-    
+
         const start = new Date(checkIn);
         const end = new Date(checkOut);
-    
+
         if (isNaN(start) || isNaN(end)) return 'N/A';
-    
+
         const diffMs = end - start; // Khoảng thời gian thuê tính bằng milliseconds
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); // Số ngày
         const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // Số giờ còn lại
-    
+
         if (diffDays > 0) {
             return `${diffDays} ngày ${diffHours} giờ`;
         } else if (diffHours > 0) {
@@ -69,8 +77,8 @@ const ModalDetailFloor = ({ onClose, item }) => {
             return `${diffMinutes} phút`;
         }
     };
-    
-    
+
+
     return (
         <Modal className="custom-modal-width modal-noneBg" show={true} onHide={onClose} centered>
             <Modal.Header closeButton>
@@ -100,15 +108,20 @@ const ModalDetailFloor = ({ onClose, item }) => {
                     <div className="row mb-3">
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Nhận phòng</Form.Label>
-                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.checkIn)}</div>
+                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.booking?.startAt)}</div>
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Trả phòng</Form.Label>
-                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.checkOut)}</div>
+                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.booking?.endAt)}</div>
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Thời gian thuê</Form.Label>
-                            <div className="font-weight-medium">{calculateDuration(bookingRoom?.checkIn, bookingRoom?.checkOut)}</div>
+                            <div className="font-weight-medium">
+                                {calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)}
+                                {bookingRoom?.booking?.endAt && new Date() > new Date(bookingRoom?.booking?.endAt) && (
+                                    <span className="text-danger"> (Đã quá hạn trả)</span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

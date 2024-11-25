@@ -9,11 +9,11 @@ export const navList = [
     path: "/client/about",
     text: "Giới thiệu",
   },
-  {
-    id: 3,
-    path: "/client/services",
-    text: "Dịch vụ",
-  },
+  // {
+  //   id: 3,
+  //   path: "/client/services",
+  //   text: "Dịch vụ",
+  // },
   {
     id: 4,
     path: "/client/rooms",

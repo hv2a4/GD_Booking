@@ -1,25 +1,21 @@
 import React from 'react';
-import { Modal, Button, Image, ListGroup, Row, Col, Carousel } from 'react-bootstrap';
-import './style.css'; // Import CSS file
+import { Modal, Button, Image, Row, Col, Carousel } from 'react-bootstrap';
+import './detail.css'; // Import CSS file
 
 const RoomDetail = ({ show, onClose, room }) => {
     const images = room?.imageNames || [];
-
+    const amenitiesList = room?.amenities || [];
     const priceFormatted = room.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price) : "Chưa có giá";
-    const finalPriceFormatted = room.finalPrice > 0 ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.finalPrice) : null;
-    const discountPercent = room.percent > 0 ? `Giảm ${room.percent}%` : null;
 
     return (
         <Modal show={show} onHide={onClose} centered className="room-detail-modal" size="lg">
             <Modal.Header closeButton>
-                <Modal.Title>
-                    <h2>Chi tiết {room.typeRoomName}</h2>
-                </Modal.Title>
+                <Modal.Title><h2>Chi tiết {room.typeRoomName}</h2></Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <Row>
-                    {/* Image Section */}
+                    {/* Hình ảnh phòng */}
                     <Col xs={12} md={6}>
                         <Carousel>
                             {images.length > 0 ? images.map((img, index) => (
@@ -30,39 +26,40 @@ const RoomDetail = ({ show, onClose, room }) => {
                         </Carousel>
                     </Col>
 
-                    {/* Room Info Section */}
+                    {/* Thông tin phòng */}
                     <Col xs={12} md={6}>
                         <div className="room-detail-info">
                             <p><strong>Tên loại phòng:</strong> {room.typeRoomName}</p>
                             <p><strong>Số khách tiêu chuẩn:</strong> {room.guestLimit} người</p>
                             <p><strong>Giường:</strong> {room.bedName}</p>
+                            <p><strong>Số giường:</strong> {room.bedCount} giường</p>
                             <p><strong>Diện tích:</strong> {room.acreage} m²</p>
 
                             <strong>Tiện nghi:</strong>
-                            <Row>
-                                {room.amenities?.map((amenity, index) => (
-                                    <Col xs={4} key={index}>
-                                        <ListGroup.Item>{amenity}</ListGroup.Item>
-                                    </Col>
+                            <div className="amenities-list">
+                                {amenitiesList.map((item, index) => (
+                                    <div className="amenities-item" key={index}>
+                                        <span className="amenities-badge">{item}</span>
+                                    </div>
                                 ))}
-                            </Row>
-                            <p className="room-detail-description">{room.describes || 'Chưa có mô tả'}</p>
+                            </div>
+
+                            {/* Mô tả phòng */}
+                            <div className="room-detail-description">
+                                {!(room.describes && room.describes.trim())
+                                    ? <p className="no-description">Chưa có mô tả</p>
+                                    : <p className="no-description">{room.describes}</p>
+                                }
+                            </div>
                         </div>
+
                     </Col>
                 </Row>
 
-                {/* Price Section */}
+                {/* Giá phòng */}
                 <div className="d-flex flex-column align-items-start mt-3">
                     <span><strong>Giá phòng:</strong></span>
-                    {room.finalPrice > 0 ? (
-                        <div className="room-detail-price-container">
-                            <span className="price-original">{priceFormatted}</span>
-                            <span className="discount-percent">{discountPercent}</span>
-                            <span className="price-final">{finalPriceFormatted}</span>
-                        </div>
-                    ) : (
-                        <span className="price-no-discount">{priceFormatted}</span>
-                    )}
+                    <span className="price-final mt-2">{priceFormatted}</span>
                 </div>
             </Modal.Body>
 
@@ -73,6 +70,7 @@ const RoomDetail = ({ show, onClose, room }) => {
                 </Button>
             </Modal.Footer>
         </Modal>
+
     );
 }
 

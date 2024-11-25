@@ -90,7 +90,7 @@ const App = () => {
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<Contact />} />
           <Route path="rooms" element={<RoomClient />} />
-          <Route path="services" element={<Services />} />
+          {/* <Route path="services" element={<Services />} /> */}
           <Route path="profile" element={<Profile />} />
           <Route path="booking-room" element={<PageBookRoom />} />
           <Route path="invoice" element={<Invoice />} />
@@ -105,8 +105,13 @@ const App = () => {
           <Route path="Floor/:id" element={<FloorMap />} />
         </Route>
 
+<<<<<<< HEAD
         {/* Routes for Admin */}
         <Route path="/admin" element={<ProtectedRoute element={<Outlet />} />}>
+=======
+        {/* Routes cho Admin */}
+        <Route path="/admin" element={<ProtectedRoute element={<Outlet />} allowedRoles={['HotelOwner']} />}>
+>>>>>>> 76d8a0270c15c3997d2bcba9b988b5889cca2089
           <Route path="home" element={<HomeAdmin />} />
           <Route path="room" element={<RoomAdmin />} />
           <Route path="booking-manager" element={<BookingManger />} />
@@ -115,10 +120,8 @@ const App = () => {
           <Route path="account-employee" element={<Accountemployee />} />
           <Route path="hotel-info" element={<HotelInfo />} />
           <Route path="revenue" element={<RevenueReport />} />
-          <Route path="service" element={<ServicesPage />} />
+          <Route path="service" element={<ServicesPage />} /> 
           <Route path="amenities" element={<AmenitiesPage />} />
-          
-        
         </Route>
         <Route path="login" element={<LoginAdmin />} />
         <Route path="account" element={<Login />} />

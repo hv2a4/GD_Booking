@@ -11,6 +11,8 @@ const ImageListSlider = ({ onImagesChange, maxImages }) => {
         }
 
         const file = e.target.files[0];
+        console.log(file);
+        
         if (file) {
             const updatedImages = [...images, file]; // Lưu trữ File thay vì URL
             setImages(updatedImages);

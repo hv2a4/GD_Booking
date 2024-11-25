@@ -4,6 +4,8 @@ import { BsSearch } from "react-icons/bs";
 import { AddRoomPriceModal, ListPriceModal } from "./ModalRoomPrice";
 import './Style/BranchInfo.css';
 import './Style/RoomRatesTable.css';
+import { request } from "../../../../../config/configApi";
+import Cookies from 'js-cookie';
 
 const RoomPriceSearchAndAdd = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -39,7 +41,15 @@ const RoomRatesTable = () => {
     const [discounts, setDiscounts] = useState([]);
     useEffect(() => {
         const fetchDiscountData = async () => {
-           
+            const response = await request({
+                method: "GET",
+                path: '/api/discount/getAll',
+                token: Cookies.get("token"),
+            });
+            if(response){
+                setDiscounts(response);
+                console.log(response);
+            }
         };
         fetchDiscountData();
     }, []);
@@ -59,7 +69,12 @@ const RoomRatesTable = () => {
                 {/* Dòng 1 */}
                 {discounts.map((item, index) => (
                     <tr >
-                        <td></td>
+                        <td>{item.index}</td>
+                        <td>{item.discountName}</td>
+                        <td>{item.percent} %</td>
+                        <td>{item.startDate.substring(0, 10)}</td>
+                        <td>{item.endDate.substring(0, 10)}</td>
+                        <td>{item.typeRoomDto.typeRoomName}</td>
                     </tr>
                 ))}
             </tbody>

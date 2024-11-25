@@ -1,27 +1,61 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layoutemployee from "../../../components/layout/employee";
 import DatPhong from "./modalDatPhong";
-import XacNhan from "./modalXacNhan";
 import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Link } from "react-router-dom";
-import ModalNhanPhong from "../floor_map/modalNhanPhong";
-import { Button, Dropdown } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import Confirm from "./table-confirm";
 import CheckedOut from "./table-checked-out";
 import Reserved from "./table-reserved";
 import InUse from "./table-in-use";
 import OverTime from "./table-overtime";
 import CreateInvoice from "./create-invoice";
+import { format } from "date-fns";
+import { Cookies } from "react-cookie";
+import { getAllBooking } from "../../../services/employee/order-room-manager";
+import { useLocation } from 'react-router-dom';
 
 const ListReservation = () => {
-    const [date, setDate] = useState(null);
-
-    const handleDateChange = (selectedDate) => {
-        setDate(selectedDate);
-    };
+    const [filterType, setFilterType] = useState(null);
+    const [startDate, setStartDate] = useState();
+    const [endDate, setEndDate] = useState();
     const [ShowInserRoom, setShowInsertRoom] = useState(false);
+    const [bookings, setBookings] = useState([]);
+    const [filteredBookings, setFilteredBookings] = useState([]);
+    const cookie = new Cookies();
+    const token = cookie.get("token");
+    const location = useLocation();
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+    const searchBookings = (bookings, searchTerm) => {
+        if (!searchTerm) return bookings; // Nếu không có từ khóa tìm kiếm, trả về tất cả các bookings
+
+        return bookings.filter((booking) => {
+            const customerName = booking.accountDto?.fullname?.toLowerCase() || '';
+            const bookingCode = booking.id?.toString().toLowerCase() || '';
+
+            return customerName.includes(searchTerm.toLowerCase()) || bookingCode.includes(searchTerm.toLowerCase());
+        });
+    };
+
+    // Áp dụng filterBookings và searchBookings
+    const filteredAndSearchedBookings = searchBookings(bookings, searchTerm);
+
+    useEffect(() => {
+        handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
+
+    }, [filterType, startDate, endDate, location]);
+
+    const handleStartDateChange = (selectedDate) => {
+        setStartDate(selectedDate);
+    };
+    const handleEndDateChange = (selectedDate) => {
+        setEndDate(selectedDate);
+    };
 
     const handleShowModalInserRoom = () => {
         setShowInsertRoom(true);
@@ -29,23 +63,91 @@ const ListReservation = () => {
     const handleCloseModalInserRoom = () => {
         setShowInsertRoom(false);
     };
+
+    const handleFilterChange = (e) => {
+        setFilterType(e.target.value);
+    };
+
+    const handleReload = () => {
+        handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
+    }
+
+    const handleBooking = async (filterType, startDate, endDate, token) => {
+        const data = await getAllBooking(filterType, startDate, endDate, token);
+        if (data) {
+            setBookings(data);
+            setFilteredBookings(filteredAndSearchedBookings);
+        }
+    }
+
+    const formatDateTime = (date) => {
+        if (!date || isNaN(new Date(date))) {
+            return null;
+        }
+        return format(new Date(date), 'yyyy-MM-dd');
+    };
+    const filterBookings = (bookings) => {
+        return bookings.filter((booking) => {
+            // Kiểm tra nếu tất cả các phòng đều có checkIn === null
+            const allCheckInNull = booking.bookingRooms?.every(room => room.checkIn === null) ?? false;
+
+            // Giữ lại nếu có ít nhất một phòng có checkIn khác null
+            return !allCheckInNull;
+        });
+    };
+
+
     return (
         <Layoutemployee>
             <div className="container-fluid">
+                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                    <div className="product-search">
+                        <div className="form-control-wrapper">
+                            <div className="form-control autocomplete">
+                                <input
+                                    type="text"
+                                    className="input-unstyled"
+                                    placeholder="Tìm theo mã, tên khách hàng"
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                />
+                            </div>
+                            <div className="form-control-prefix">
+                                <i className="fa fa-search icon-mask" style={{ marginLeft: "10px" }}></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div className="toolbar-item justify-content-end mb-3 d-flex align-items-center" style={{ flexWrap: "wrap" }}>
                     <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
-                        <select className="form-select" aria-label="Default select example">
+                        <select
+                            className="form-select"
+                            value={filterType}
+                            onChange={handleFilterChange}
+                            aria-label="Default select example"
+                        >
                             <option value="">Chọn thời gian</option>
                             <option value="1">Ngày</option>
                             <option value="2">Tuần</option>
                             <option value="3">Tháng</option>
                         </select>
                     </div>
+                    <div className="date-picker-container mb-2 me-2" style={{ flex: "0 1 auto" }}>
+                        <DatePicker
+                            id="date-picker"
+                            selected={startDate}
+                            placeholderText="Chọn ngày bắt đầu"
+                            onChange={handleStartDateChange}
+                            className="custom-date-picker"
+                            style={{ minHeight: "44px" }}
+                        />
+                    </div>
                     <div className="date-picker-container mb-2" style={{ flex: "0 1 auto" }}>
                         <DatePicker
                             id="date-picker"
-                            selected={date}
-                            onChange={handleDateChange}
+                            selected={endDate}
+                            placeholderText="Chọn ngày kết thúc"
+                            onChange={handleEndDateChange}
                             className="custom-date-picker"
                             style={{ minHeight: "44px" }}
                         />
@@ -91,41 +193,32 @@ const ListReservation = () => {
                 <div class="tab-content" id="nav-tabContent">
                     <div className="tab-pane fade show active" id="pills-choxacnhan"
                         role="tabpanel" aria-labelledby="pills-choxacnhan-tab">
-                        <Confirm />
+                        <Confirm item={filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 2)} />
                     </div>
                     <div className="tab-pane fade" id="pills-datra" role="tabpanel"
                         aria-labelledby="pills-datra-tab">
-                        <CheckedOut />
+                        <CheckedOut item={filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 8)} />
                     </div>
                     <div className="tab-pane fade" id="pills-dattruoc" role="tabpanel"
                         aria-labelledby="pills-dattruoc-tab">
-                        <Reserved />
+                        <Reserved item={filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 4)} />
                     </div>
                     <div className="tab-pane fade" id="pills-dangsudung" role="tabpanel"
                         aria-labelledby="pills-dangsudung-tab">
-                        <InUse />
+                        <InUse item={filteredBookings} />
                     </div>
                     <div className="tab-pane fade" id="pills-quagio" role="tabpanel"
                         aria-labelledby="pills-quagio-tab">
-                        <OverTime />
+                        <OverTime item={filteredAndSearchedBookings.filter(
+                            (e) => e.statusBookingDto?.id === 4 && new Date(e.endAt) < new Date()
+                        )} />
                     </div>
                     <div className="tab-pane fade" id="pills-chotaohoadon"
                         role="tabpanel" aria-labelledby="pills-chotaohoadon-tab">
                         <CreateInvoice />
                     </div>
                 </div>
-                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                    <div className="product-search">
-                        <div className="form-control-wrapper">
-                            <div className="form-control autocomplete">
-                                <input type="text" className="input-unstyled ng-pristine ng-valid ng-touched" id="cart-product-search-id" placeholder="Tìm theo mã, tên khách hàng" />
-                            </div>
-                            <div className="form-control-prefix">
-                                <i className="fa fa-search icon-mask" style={{ marginLeft: "10px" }}></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div className="tab-content" id="pills-tabContent">
 
@@ -133,7 +226,7 @@ const ListReservation = () => {
                 <div className="d-flex spacer pb-4 pt-4 flex-center-between ng-star-inserted">
                     <div className="spacer align-items-center">
                         <span>Tổng <strong className="text-success">1</strong> đặt phòng</span>
-                        <button className="btn btn-sm btn-outline-success">
+                        <button className="btn btn-sm btn-outline-success" onClick={handleReload}>
                             <i className="fa fa-rotate icon-btn"></i>
                             <span>Tải lại</span>
                         </button>

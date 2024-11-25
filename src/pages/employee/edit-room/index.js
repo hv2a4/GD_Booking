@@ -206,7 +206,7 @@ const EditRoom = () => {
                                             </div>
                                         </div>
                                         <div className="group-room-footer">
-                                            <div className="text-orange fw-bolder">Tổng cộng: 800,000</div>
+                                            <div className="text-success text-right fw-bolder">Tổng cộng: 800,000</div>
                                         </div>
                                     </div>
                                 </div>
@@ -295,9 +295,9 @@ const EditRoom = () => {
                                                             </div>
                                                         </td>
                                                         <td className="col-5 col-lg-3 d-flex justify-content-center">
-                                                            <button className="form-control w-auto">600,000</button>
+                                                            <span className="w-auto">600,000</span>
                                                         </td>
-                                                        <td className="col-5 col-lg-2 d-flex justify-content-center font-semibold">600,000</td>
+                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">600,000</td>
                                                         <td className="col-auto"></td>
                                                     </tr>
                                                     <tr className="cart-item row align-items-center">
@@ -317,9 +317,9 @@ const EditRoom = () => {
                                                             </div>
                                                         </td>
                                                         <td className="col-5 col-lg-3 d-flex justify-content-center">
-                                                            <button className="form-control w-auto">3,000,000</button>
+                                                            <span className="w-auto">600,000</span>
                                                         </td>
-                                                        <td className="col-5 col-lg-2 d-flex justify-content-center font-semibold">3,000,000</td>
+                                                        <td className="col-5 col-lg-2 d-flex fw-bolder text-danger justify-content-center font-semibold">3,000,000</td>
                                                         <td className="col-auto">
                                                             <button className="btn btn-sm btn-text-neutral btn-icon-only btn-circle">
                                                                 <i className="fas fa-ellipsis icon-btn"></i>

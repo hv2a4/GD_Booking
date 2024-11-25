@@ -54,4 +54,12 @@ const getDetailListTypeRoom = async (roomId) => {
     return res;
 }
 
-export { getCountAbout, getTypeRoomTop3, getAllServiceHotel, getDetailTypeRoom, getListRoom, getDetailListTypeRoom };
+const getFilterBooking = async (startDate, endDate, guestLimit, page, size) => {
+    const res = await request({
+        method: 'GET',
+        path: `/api/type-room/find-type-room?startDate=${startDate}&endDate=${endDate}&guestLimit=${guestLimit}&page=${page}&size=${size}`,
+    });
+    return res;
+};
+
+export { getCountAbout, getTypeRoomTop3, getAllServiceHotel, getDetailTypeRoom, getListRoom, getDetailListTypeRoom, getFilterBooking };

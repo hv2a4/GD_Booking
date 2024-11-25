@@ -3,17 +3,22 @@
   bottom: 20px;
   left: 20px;
   right: 20px;
-  background-color: #282c34; /* Màu nền tối hiện đại */
-  padding: 20px;
-  border-radius: 15px;
+  background-color: #282c34;
+  padding: 10px; /* Giảm padding của khung sticky */
+  border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  color: #f8f9fa; /* Màu chữ sáng */
+  color: #f8f9fa;
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  max-height: 50vh; /* Đảm bảo sticky-bar không vượt quá 80% chiều cao màn hình */
-  overflow-y: auto; /* Thêm thanh cuộn dọc nếu nội dung vượt quá chiều cao */
+  gap: 8px; /* Giảm khoảng cách giữa các phần tử */
+}
+
+.sticky-bar h5 {
+  margin-bottom: 12px; /* Giảm khoảng cách dưới của tiêu đề */
+  font-size: 1rem; /* Giảm kích thước chữ tiêu đề */
+  font-weight: bold;
+  color: #ffa500;
 }
 
 .sticky-bar ul {
@@ -21,109 +26,163 @@
   padding: 0;
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* Giảm khoảng cách giữa các phần tử trong danh sách */
+}
+
+.sticky-bar ul li {
+  background-color: #343a40;
+  color: #ffa500;
+  padding: 8px; /* Giảm padding của mỗi item */
+  border-radius: 8px;
+  display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 200px; /* Chiều cao cố định của danh sách phòng */
-  overflow-y: auto; /* Thêm thanh cuộn dọc cho danh sách phòng */
-  scrollbar-width: thin; /* Định dạng thanh cuộn (Firefox) */
-  scrollbar-color: #ffa500 #282c34; /* Màu thanh cuộn (Firefox) */
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 30%;
+  min-width: 150px; /* Giảm kích thước tối thiểu của mỗi item */
+  max-width: 30%;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.sticky-bar ul::-webkit-scrollbar {
-  width: 8px; /* Độ rộng thanh cuộn (Chrome, Safari) */
+.sticky-bar ul li span {
+  font-size: 0.85rem; /* Giảm kích thước chữ của các phần tử bên trong item */
+  display: block;
+  margin-bottom: 4px; /* Giảm khoảng cách dưới của mỗi span */
 }
 
-.sticky-bar ul::-webkit-scrollbar-track {
-  background: #282c34; /* Màu nền thanh cuộn */
+.sticky-bar ul li .room-type {
+  font-weight: bold;
+  color: #f1c40f;
 }
 
-.sticky-bar ul::-webkit-scrollbar-thumb {
-  background-color: #ffa500; /* Màu thanh cuộn */
-  border-radius: 8px; /* Bo góc thanh cuộn */
+.sticky-bar ul li .room-info {
+  font-weight: normal;
+  color: #ecf0f1;
+}
+
+.sticky-bar ul li .room-price {
+  font-weight: bold;
+  color: #e67e22;
+  font-size: 0.9rem; /* Giảm kích thước chữ của giá */
+}
+
+/* Màu sắc khi nhấn vào nút xóa */
+.sticky-bar ul li button:active {
+  background-color: #c0392b;
+}
+
+/* Màu sắc khi hover qua mục trong danh sách */
+.sticky-bar ul li:hover {
+  background-color: #444a52; /* Màu nền khi hover */
+}
+
+/* Màu sắc khi nhấn vào mục trong danh sách */
+.sticky-bar ul li:active {
+  background-color: #555b63; /* Màu nền khi nhấn */
+}
+
+/* Màu sắc khi nút xóa được chọn */
+.sticky-bar ul li button:focus {
+  outline: 2px solid #e74c3c; /* Thêm đường viền khi nút được chọn */
+}
+
+/* Màu sắc của tổng tiền khi nhấn */
+.sticky-bar .total-price:active {
+  background-color: #444a52;
+}
+
+/* Màu sắc khi người dùng hover qua tổng tiền */
+.sticky-bar .total-price:hover {
+  background-color: #444a52;
+}
+
+/* Màu sắc khi người dùng hover qua nút phân trang */
+.sticky-bar .pagination-controls button:hover {
+  background-color: #c0392b;
+}
+
+/* Màu sắc khi người dùng nhấn vào nút phân trang */
+.sticky-bar .pagination-controls button:active {
+  background-color: #e74c3c;
+}
+
+/* Thay đổi màu sắc khi nút phân trang bị vô hiệu hóa */
+.sticky-bar .pagination-controls button:disabled {
+  background-color: #7f8c8d;
+  cursor: not-allowed;
+}
+
+/* Màu sắc khi hover qua nút thêm */
+.sticky-bar button:hover {
+  background-color: #e6910c;
+}
+
+/* Màu sắc khi nút thêm được nhấn */
+.sticky-bar button:active {
+  background-color: #feaa16;
 }
 
 .sticky-bar .total-price {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.3rem;
+  font-size: 1rem; /* Giảm kích thước chữ của tổng tiền */
   font-weight: bold;
   color: #ffa500;
-  padding: 10px 15px;
+  padding: 6px 10px; /* Giảm padding */
+  background-color: #343a40;
   border-radius: 8px;
-  background-color: #343a40; /* Nền tối tương phản */
 }
 
 .sticky-bar button {
-  padding: 12px 20px;
-  font-size: 1rem;
+  padding: 6px 12px; /* Giảm padding */
+  font-size: 0.9rem; /* Giảm kích thước chữ */
   font-weight: bold;
   text-transform: uppercase;
   border: none;
   border-radius: 8px;
-  background-color: #feaa16; /* Tông cam */
+  background-color: #feaa16;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
+  align-self: flex-end;
 }
 
 .sticky-bar button:hover {
-  background-color: #e6910c; /* Tông cam đậm hơn */
+  background-color: #e6910c;
 }
 
-.sticky-bar ul li {
-  background-color: #343a40; /* Nền tối tương phản */
-  color: #ffa500; /* Màu cam nổi bật */
-  padding: 15px;
-  border-radius: 10px;
+.sticky-bar .pagination-controls {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* Tạo bóng nhẹ */
-  transition: transform 0.3s, box-shadow 0.3s; /* Hiệu ứng hover */
+  justify-content: center;
+  gap: 8px; /* Giảm khoảng cách giữa các nút phân trang */
+  margin-top: 8px; /* Giảm khoảng cách trên */
 }
 
-.sticky-bar ul li:hover {
-  transform: translateY(-5px); /* Nâng lên khi hover */
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35); /* Bóng đậm hơn khi hover */
-}
-
-.sticky-bar ul li span {
-  display: flex;
-  flex-direction: column; /* Xếp thông tin theo cột */
-  gap: 5px;
-}
-
-.sticky-bar ul li span .room-type {
-  font-size: 1.1rem;
-  font-weight: bold; /* Chữ đậm */
-  color: #f1c40f; /* Màu vàng nổi bật */
-}
-
-.sticky-bar ul li span .room-info {
-  font-size: 0.95rem;
-  font-weight: 400;
-  color: #ecf0f1; /* Màu chữ sáng */
-}
-
-.sticky-bar ul li span .room-price {
-  font-size: 1.05rem;
-  font-weight: bold; /* Chữ đậm cho giá */
-  color: #e67e22; /* Màu xanh lá nổi bật */
-}
-
-.sticky-bar ul li button {
-  padding: 10px 15px;
-  font-size: 0.9rem;
-  font-weight: bold;
+.sticky-bar .pagination-controls button {
+  padding: 4px 12px; /* Giảm padding của nút phân trang */
+  background-color: #e74c3c;
+  color: white;
   border: none;
   border-radius: 5px;
-  background-color: #e74c3c; /* Màu đỏ cho nút xóa */
-  color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.sticky-bar ul li button:hover {
-  background-color: #c0392b; /* Màu đỏ đậm hơn khi hover */
+.sticky-bar .pagination-controls button:hover {
+  background-color: #c0392b;
 }
+
+.sticky-bar .pagination-controls button:disabled {
+  background-color: #7f8c8d;
+  cursor: not-allowed;
+}
+
+.sticky-bar .pagination-controls span {
+  font-size: 0.9rem; /* Giảm kích thước chữ của trang */
+  color: #fff;
+}
+

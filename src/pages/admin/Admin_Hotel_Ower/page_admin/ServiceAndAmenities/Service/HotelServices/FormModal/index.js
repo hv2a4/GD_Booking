@@ -40,8 +40,14 @@ const HotelServiceFormModal = ({ item, refreshData }) => {
     }
 
     const onSubmit = async () => {
+        if (images.length <= 0) {
+            setAlert({ type: "error", title: "Ảnh không được để trống" });
+            return;
+        }
         try {
             const urlImage = images ? await uploadImageToFirebase(images) : serviceHotel.image;
+            console.log(urlImage);
+            
             const updatedServiceHotel = { ...serviceHotel, image: urlImage || "" };
             
             const response = item ? await updateServiceHotel(updatedServiceHotel, token) : await createServiceHotel(updatedServiceHotel, token);

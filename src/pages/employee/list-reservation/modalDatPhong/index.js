@@ -4,6 +4,7 @@ import { getAllRoom } from "../../../../services/employee/room";
 import { formatCurrency } from "../../../../config/formatPrice";
 import Alert from "../../../../config/alert";
 import { format } from "date-fns";
+import { addBookingOffline } from "../../../../services/employee/orderRoom";
 
 const DatPhong = ({ onClose }) => {
     const [checkInDate, setCheckInDate] = useState("");
@@ -18,7 +19,7 @@ const DatPhong = ({ onClose }) => {
     // Mỗi khi checkInDate hoặc checkOutDate thay đổi, sẽ gọi lại handleRooms
     useEffect(() => {
         handleRooms(currentPage);
-    }, [checkInDate, checkOutDate, currentPage,guestLimit]);  // Theo dõi sự thay đổi của checkInDate và checkOutDate
+    }, [checkInDate, checkOutDate, currentPage, guestLimit]);  // Theo dõi sự thay đổi của checkInDate và checkOutDate
 
     const formatDateTime = (date) => {
         if (!date || isNaN(new Date(date))) {
@@ -68,6 +69,8 @@ const DatPhong = ({ onClose }) => {
             checkOutDate,
         };
 
+
+
         // Thêm phòng vào danh sách nếu chưa có
         setSelectedRooms((prev) => {
             if (!prev.some((r) => r.roomId === room.id)) {
@@ -85,10 +88,10 @@ const DatPhong = ({ onClose }) => {
     const handleCheckInDateChange = (e) => {
         const selectedDate = new Date(e.target.value);
         const currentDate = new Date();
-    
+
         // Đặt giờ, phút, giây của currentDate về 0 để chỉ so sánh ngày
         currentDate.setHours(0, 0, 0, 0);
-    
+
         // Kiểm tra ngày nhận phòng không được chọn là ngày quá khứ
         if (selectedDate < currentDate) {
             setAlert({ type: "error", title: "Ngày nhận phòng không được là ngày quá khứ!" });
@@ -96,9 +99,9 @@ const DatPhong = ({ onClose }) => {
             setCheckInDate("");
             return;
         }
-    
+
         setCheckInDate(e.target.value);
-    
+
         // Kiểm tra ngày trả phòng phải lớn hơn ngày nhận phòng ít nhất 1 ngày
         if (checkOutDate && new Date(checkOutDate) <= selectedDate) {
             setAlert({ type: "error", title: "Ngày trả phòng phải lớn hơn ngày nhận phòng ít nhất 1 ngày!" });
@@ -106,7 +109,7 @@ const DatPhong = ({ onClose }) => {
             setCheckOutDate("");
         }
     };
-    
+
     const handleCheckOutDateChange = (e) => {
         const selectedDate = new Date(e.target.value);
 
@@ -123,6 +126,25 @@ const DatPhong = ({ onClose }) => {
     // Tính tổng giá
     const totalPrice = selectedRooms.reduce((total, room) => total + room.price, 0);
 
+    const handleBooking = async () => {
+        const idRoom = selectedRooms.map((e) => e.roomId);
+        const orderData = {
+            userName: "khachHang03",
+            startDate: checkInDate,
+            endDate: checkOutDate,
+            roomId: idRoom
+        }
+        try {
+            const response = await addBookingOffline(orderData);
+            if (response.status === "success") {
+                setAlert({ type: 'success', title: response.message });
+            }
+        } catch (error) {
+            setAlert({ type: 'error', title: 'Đặt phòng thất bại. Vui lòng thử lại!' });
+            setTimeout(() => setAlert(null), 3000);
+        }
+    };
+
     return (
         <Modal show={true} onHide={onClose} className="modal-noneBg modal-dialog-centered" centered>
             <Modal.Header closeButton>
@@ -137,7 +159,7 @@ const DatPhong = ({ onClose }) => {
                         <Form.Group controlId="checkInDate">
                             <Form.Label>Nhận phòng</Form.Label>
                             <Form.Control
-                                type="datetime-local"
+                                type="date"
                                 value={checkInDate}
                                 onChange={handleCheckInDateChange}
                             />
@@ -147,7 +169,7 @@ const DatPhong = ({ onClose }) => {
                         <Form.Group controlId="checkOutDate">
                             <Form.Label>Trả phòng</Form.Label>
                             <Form.Control
-                                type="datetime-local"
+                                type="date"
                                 value={checkOutDate}
                                 onChange={handleCheckOutDateChange}
                             />
@@ -260,7 +282,7 @@ const DatPhong = ({ onClose }) => {
                 </div>
                 <div className="w-100 mt-3 d-flex justify-content-between align-items-center">
                     <div className="fw-bolder fs-5">Tổng giá: {formatCurrency(totalPrice)} VND</div>
-                    <Button variant="success" className="ml-auto">Đặt phòng</Button>
+                    <Button variant="success" className="ml-auto" onClick={handleBooking}>Đặt phòng</Button>
                 </div>
             </Modal.Footer>
         </Modal>
