@@ -48,7 +48,6 @@ const AuthForm = () => {
         // Gửi token lên API
         setLoading(true); // Bắt đầu loading
         try {
-<<<<<<< HEAD
           const response = await fetch('http://localhost:8080/api/account/getTokenGG', {
               method: 'POST',
               headers: {
@@ -96,55 +95,6 @@ const AuthForm = () => {
       } catch (error) {
           console.error("Error posting data to API:", error);
       }
-=======
-            const response = await fetch('http://localhost:8080/api/account/getTokenGG', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: tokenGG, // Gửi email hoặc thông tin khác
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json(); // Phân tích phản hồi JSON
-            if (data.token == null) {
-                setLoading(false); // Kết thúc loading sau 2 giây giả lập
-                toast.error("Đăng Nhập thất bại,email đã tồn tại");
-            }
-            Cookies.set("token", data.token, { expires: 6 / 24 });
-            const tokens = Cookies.get("token");
-            const decodedTokenCookie = jwt_decode(tokens);
-
-            const decodedToken = jwt_decode(data.token);
-            console.log("Decoded Token:", decodedToken.role.roleName);
-
-            if (decodedToken.role == 'Customer') {
-                setLoading(false); // Kết thúc loading sau 2 giây giả lập
-                toast.success("Đăng Nhập thành công!");
-                setTimeout(() => {
-                    navigate('/client/home');
-                }, 1500);
-            } else if (decodedToken.role == 'Staff') {
-                setLoading(false); // Kết thúc loading sau 2 giây giả lập
-                toast.success("Đăng Nhập thành công!");
-                setTimeout(() => {
-                    navigate('/employee/home');
-                }, 1500);
-            } else if (decodedToken.role == 'HotelOwner') {
-                setLoading(false); // Kết thúc loading sau 2 giây giả lập
-                toast.success("Đăng Nhập thành công!");
-                setTimeout(() => {
-                    navigate('/admin/home');
-                }, 1500);
-            }
-        } catch (error) {
-            console.error("Error posting data to API:", error);
-        }
->>>>>>> 76d8a0270c15c3997d2bcba9b988b5889cca2089
     };
     const handleLoginRegister = async (event) => {
         event.preventDefault();
