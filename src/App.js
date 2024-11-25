@@ -105,13 +105,8 @@ const App = () => {
           <Route path="Floor/:id" element={<FloorMap />} />
         </Route>
 
-<<<<<<< HEAD
         {/* Routes for Admin */}
         <Route path="/admin" element={<ProtectedRoute element={<Outlet />} />}>
-=======
-        {/* Routes cho Admin */}
-        <Route path="/admin" element={<ProtectedRoute element={<Outlet />} allowedRoles={['HotelOwner']} />}>
->>>>>>> 76d8a0270c15c3997d2bcba9b988b5889cca2089
           <Route path="home" element={<HomeAdmin />} />
           <Route path="room" element={<RoomAdmin />} />
           <Route path="booking-manager" element={<BookingManger />} />
