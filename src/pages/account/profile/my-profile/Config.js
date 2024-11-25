@@ -10,4 +10,4 @@ const firebaseConfig = {
   appId: "1:369775366834:web:3062b759c0a71362722fab"
 };
 const app = initializeApp(firebaseConfig);
-export  const imageDb=getStorage(app);
+export const imageDb = getStorage(app);

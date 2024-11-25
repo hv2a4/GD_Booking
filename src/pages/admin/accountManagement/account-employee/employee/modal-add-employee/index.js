@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import './AddEmployeeModal.css';
 import { addEmployee } from '../../../../../../services/admin/account-manager';
 import uploadImageToFirebase from '../../../../../../config/fireBase';
 import Alert from '../../../../../../config/alert';
 
-const AddEmployeeModal = ({ show, handleClose }) => {
+const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [alert, setAlert] = useState(null);
@@ -45,23 +45,52 @@ const AddEmployeeModal = ({ show, handleClose }) => {
 
     const handleSubmit = async () => {
         try {
-            const response = await addEmployee({ 
-                ...employeeData, 
-                avatar: imageFile ? await uploadImageToFirebase(imageFile) : '' 
-            });
+            if (imageFile) {
+                // Bắt đầu tải ảnh lên Firebase
+                const img = await uploadImageToFirebase(imageFile);
+                if (!img) {
+                    setAlert({ type: "error", title: "Không thể tải ảnh lên. Vui lòng thử lại." });
+                    return;
+                }
     
-            if (response && response.username) { // Kiểm tra nếu đối tượng response có username (hoặc bất kỳ thuộc tính nào để xác nhận thành công)
-                setAlert({ type: "success", title: `Thêm nhân viên ${response.fullname} thành công!` });
-                handleClose();
-                window.location.reload();
+                // Gửi dữ liệu nhân viên sau khi có URL ảnh
+                const response = await addEmployee({
+                    ...employeeData,
+                    avatar: img,
+                });
+    
+                if (response && response.errors) {
+                    // Xử lý danh sách lỗi từ API
+                    const errorMessages = response.errors.map((err) => `${err.field}: ${err.message}`).join('\n');
+                    setAlert({ type: "error", title: errorMessages});
+                } else if (response && response.username) {
+                    // Thành công
+                    setAlert({ type: "success", title: `Thêm nhân viên ${response.fullname} thành công!` });
+                    handleClose();
+                    refreshData();
+                } else {
+                    // Lỗi không xác định
+                    setAlert({ type: "error", title: "Có lỗi xảy ra khi thêm nhân viên." });
+                }
             } else {
-                setAlert({ type: "error", title: "Có lỗi xảy ra khi thêm nhân viên." });
+                setAlert({ type: "error", title: "Vui lòng chọn ảnh trước khi lưu." });
             }
         } catch (error) {
-            console.error(error);
-            setAlert({ type: "error", title: "Lỗi khi thêm nhân viên" });
+            console.error("Error:", error);
+    
+            if (error.response && error.response.data && error.response.data.errors) {
+                const errorMessages = error.response.data.errors
+                    .map((err) => `${err.field}: ${err.message}`)
+                    .join('\n');
+                setAlert({ type: "error", title: errorMessages });
+            } else {
+                setAlert({ type: "error", title: "Lỗi khi thêm nhân viên." });
+            }
+        } finally {
+            setTimeout(() => setAlert(null), 500); // Ẩn thông báo sau 5 giây
         }
     };
+    
     
 
     return (

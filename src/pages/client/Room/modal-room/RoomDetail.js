@@ -6,6 +6,8 @@ const RoomDetail = ({ show, onClose, room }) => {
     const images = room?.imageNames || [];
 
     const priceFormatted = room.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price) : "Chưa có giá";
+    const finalPriceFormatted = room.finalPrice > 0 ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.finalPrice) : null;
+    const discountPercent = room.percent > 0 ? `Giảm ${room.percent}%` : null;
 
     return (
         <Modal show={show} onHide={onClose} centered className="room-detail-modal" size="lg">
@@ -14,6 +16,7 @@ const RoomDetail = ({ show, onClose, room }) => {
                     <h2>Chi tiết {room.typeRoomName}</h2>
                 </Modal.Title>
             </Modal.Header>
+
             <Modal.Body>
                 <Row>
                     {/* Image Section */}
@@ -26,6 +29,7 @@ const RoomDetail = ({ show, onClose, room }) => {
                             )) : <div>No images available</div>}
                         </Carousel>
                     </Col>
+
                     {/* Room Info Section */}
                     <Col xs={12} md={6}>
                         <div className="room-detail-info">
@@ -34,11 +38,11 @@ const RoomDetail = ({ show, onClose, room }) => {
                             <p><strong>Giường:</strong> {room.bedName}</p>
                             <p><strong>Diện tích:</strong> {room.acreage} m²</p>
 
-                            <strong>Tiện nghi:</strong> <br/>
+                            <strong>Tiện nghi:</strong>
                             <Row>
                                 {room.amenities?.map((amenity, index) => (
-                                    <Col xs={4} style={{width: "auto", borderRight: "1px solid #d4c6c6"}}>
-                                        <ListGroup.Item key={index}>{amenity}</ListGroup.Item>
+                                    <Col xs={4} key={index}>
+                                        <ListGroup.Item>{amenity}</ListGroup.Item>
                                     </Col>
                                 ))}
                             </Row>
@@ -46,12 +50,24 @@ const RoomDetail = ({ show, onClose, room }) => {
                         </div>
                     </Col>
                 </Row>
-                <div className="d-flex justify-content-between align-items-center mt-3">
-                    <span><strong>Giá phòng</strong></span>
-                    <span className="room-detail-price">{priceFormatted}</span>
+
+                {/* Price Section */}
+                <div className="d-flex flex-column align-items-start mt-3">
+                    <span><strong>Giá phòng:</strong></span>
+                    {room.finalPrice > 0 ? (
+                        <div className="room-detail-price-container">
+                            <span className="price-original">{priceFormatted}</span>
+                            <span className="discount-percent">{discountPercent}</span>
+                            <span className="price-final">{finalPriceFormatted}</span>
+                        </div>
+                    ) : (
+                        <span className="price-no-discount">{priceFormatted}</span>
+                    )}
                 </div>
             </Modal.Body>
-            <Modal.Footer>
+
+            {/* Footer */}
+            <Modal.Footer className="ms-auto">
                 <Button variant="secondary" onClick={onClose}>
                     Đóng
                 </Button>
@@ -59,6 +75,5 @@ const RoomDetail = ({ show, onClose, room }) => {
         </Modal>
     );
 }
-
 
 export default RoomDetail;

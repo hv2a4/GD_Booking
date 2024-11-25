@@ -17,10 +17,10 @@ const updateStatusRoom = async (room,token) => {
     return res;
 }
 
-const getAllRoom = async (page = 0, size = 2) => {
+const getAllRoom = async (startDate, endDate, guestLimit = 1, page = 0, size = 2) => {
     const res = await request({
         method: "GET",
-        path: `api/room?page=${page}&size=${size}`
+        path: `/api/room?page=${page}&size=${size}&startDate=${startDate}&endDate=${endDate}&guestLimit=${guestLimit}`
     });
     return res;
 }

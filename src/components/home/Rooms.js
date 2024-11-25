@@ -5,13 +5,14 @@ import { getDetailTypeRoom, getTypeRoomTop3 } from "../../services/client/home";
 import Alert from "../../config/alert";
 import { Button } from "react-bootstrap";
 import { FaWifi, FaTv, FaRegSnowflake, FaTshirt, FaConciergeBell, FaCoffee, FaTaxi } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function Rooms() {
   const [showModal, setShowModal] = useState(false);
   const [roomItem, setRoomItem] = useState([]);
   const [typeRoom, setTypeRoom] = useState([]);
   const [alert, setAlert] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     handleTypeRoom();
   }, []);
@@ -69,6 +70,10 @@ export default function Rooms() {
       setAlert({ type: "error", title: error.message });
     }
   };
+
+  const handleHref = () => {
+    navigate("/client/rooms");
+  }
 
   return (
     <div className="container-xxl py-5">
@@ -134,7 +139,7 @@ export default function Rooms() {
                     >
                       Chi tiết
                     </Button>
-                    <a href="/client/rooms" className="btn btn-sm btn-primary rounded py-2 px-4"> Xem thêm</a>
+                    <Button className="btn btn-sm btn-primary rounded py-2 px-4" onClick={handleHref}> Xem thêm</Button>
                   </div>
                 </div>
               </div>

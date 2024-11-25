@@ -39,9 +39,12 @@ import ReservationReport from "./pages/admin/report-generation/reservation-repor
 import RoomClassReport from "./pages/admin/report-generation/room-class-report";
 import EmployeeReport from "./pages/admin/report-generation/employee-report";
 import AmenitiesPage from "./pages/admin/home/Amenities";
+// import LoginAdmin from "./pages/admin/login";
 import Cookies from 'js-cookie';
 import { Outlet } from "react-router-dom";
-
+import LoginAdmin from "./pages/admin/login";
+import ForgotPassword from "./pages/admin/ForgotPassword/ForgotPassword";
+import ChangePassword from "./pages/admin/ChangePassword";
 const App = () => {
   const getUserRole = () => {
     try {
@@ -114,12 +117,14 @@ const App = () => {
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} />
           <Route path="amenities" element={<AmenitiesPage />} />
-          <Route path="reservation-report" element={<ReservationReport />} />
-          <Route path="room-class-report" element={<RoomClassReport />} />
-          <Route path="employee-report" element={<EmployeeReport />} />
+          
+        
         </Route>
-
+        <Route path="login" element={<LoginAdmin />} />
         <Route path="account" element={<Login />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        
+        <Route path="change-password" element={<ChangePassword />} />
       </Route>
     )
   );

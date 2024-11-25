@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { getDetailListTypeRoom, getListRoom } from "../../services/client/home";
 import Alert from "../../config/alert";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import {
     FaWifi,
     FaTv,
@@ -13,6 +13,7 @@ import {
     FaTaxi,
 } from "react-icons/fa";
 import RoomDetail from "../../pages/client/Room/modal-room/RoomDetail";
+import { useNavigate } from "react-router-dom";
 import "../../assets/css/custom/Sticky.css";
 const amenityIcons = {
     "WiFi": <FaWifi style={{ color: "#FEA116" }} />,
@@ -34,6 +35,8 @@ export default function ListRoom() {
     const [totalPages, setTotalPages] = useState(1); // Total pages state
     const pageSize = 9;
     const [selectedRooms, setSelectedRooms] = useState([]);
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     // Fetch rooms based on current page
     useEffect(() => {
@@ -87,19 +90,54 @@ export default function ListRoom() {
         setSelectedRooms((prev) => prev.filter((room) => room.roomId !== roomId));
     };
 
-    const handleBooking = () => {
-        // Thực hiện logic đặt phòng
-        if (selectedRooms.length > 0) {
-            // Gửi danh sách phòng đã chọn đến API
-            console.log("Đang đặt phòng:", selectedRooms);
-            console.log(`Bạn đã đặt thành công ${selectedRooms.length} phòng.`);
-            // Reset danh sách phòng sau khi đặt
-            setSelectedRooms([]);
-        } else {
-            console.log("Vui lòng chọn phòng trước khi đặt!");
-        }
+    const saveArrayToSession = (key, array) => {
+        const jsonString = JSON.stringify(array); // Chuyển mảng thành chuỗi JSON
+        sessionStorage.setItem(key, jsonString); // Lưu vào sessionStorage
     };
 
+    // Hàm tính tổng tiền sau khi giảm giá
+    const calculateTotalPrice = () => {
+        return selectedRooms.reduce((total, room) => {
+            const price = room.finalPrice > 0 ? room.finalPrice : room.price;
+            return total + price;
+        }, 0);
+    };
+
+    // Hàm xử lý đặt phòng
+    const handleBooking = () => {
+        if (selectedRooms.length > 0) {
+            const roomDetails = selectedRooms.map((room) => ({
+                roomId: room.roomId,
+                price: room.price,
+                finalPrice: room.finalPrice,
+            }));
+
+            console.log("Đang đặt phòng:", roomDetails);
+            console.log(`Bạn đã đặt thành công ${selectedRooms.length} phòng.`);
+
+            // Lưu danh sách roomId vào sessionStorage
+            saveArrayToSession("bookedRooms", roomDetails);
+
+            //Bất đầu tải trang
+            setLoading(true);
+
+            // Điều hướng tới trang đặt phòng
+            setTimeout(() => {
+                navigate("/client/booking-room");
+            }, 1000);
+
+
+            //Dừng tải lại trang
+            setLoading(false);
+
+            // Reset danh sách phòng
+            setSelectedRooms([]);
+            return roomDetails;
+        } else {
+            console.log("Vui lòng chọn phòng trước khi đặt!");
+            return null;
+        }
+    };
 
     // Show alert if there's an error
     const renderAlert = alert && <Alert type={alert.type} title={alert.title} />;
@@ -118,10 +156,35 @@ export default function ListRoom() {
                                 <div className="room-item shadow rounded overflow-hidden">
                                     <div className="position-relative">
                                         <img className="img-fluid w-100" src={item?.imageList?.[0]} alt={item?.typeRoomName || "Room Image"} />
-                                        <small className="position-absolute start-0 top-100 translate-middle-y bg-orange text-white rounded py-1 px-3 ms-4">
-                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}
-                                        </small>
+
+                                        {/* Hiển thị giá gốc và giá giảm nếu có */}
+                                        <div className="d-flex align-items-center position-absolute start-0 top-100 translate-middle-y ms-4">
+                                            {item?.percent && item?.finalPrice !== 0 ? (
+                                                <>
+                                                    {/* Giá gốc gạch chân */}
+                                                    <small className="bg-warning text-white rounded py-1 px-3" style={{ textDecoration: 'line-through', marginRight: '8px' }}>
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}
+                                                    </small>
+                                                    {/* Giá giảm */}
+                                                    <small className="bg-danger text-white rounded py-1 px-3">
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.finalPrice)}
+                                                    </small>
+                                                </>
+                                            ) : (
+                                                <small className="bg-warning text-white rounded py-1 px-3">
+                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}
+                                                </small>
+                                            )}
+                                        </div>
+
+                                        {/* Thêm phần giảm giá */}
+                                        {item?.percent && item?.finalPrice !== 0 && (
+                                            <small className="position-absolute end-0 top-0 translate-middle-y bg-danger text-white rounded py-1 px-3 me-4 mt-4">
+                                                -{item?.percent}% Giảm
+                                            </small>
+                                        )}
                                     </div>
+
                                     <div className="p-4 mt-2">
                                         <div className="d-flex justify-content-between mb-3">
                                             <h5 className="mb-0">{item?.typeRoomName} ({item?.roomName})</h5>
@@ -219,42 +282,68 @@ export default function ListRoom() {
                     <h5>Phòng đã chọn:</h5>
                     <ul>
                         {selectedRooms.map((room) => (
-                            <li
-                                key={room.roomId}
-                                className="d-flex justify-content-between align-items-center"
-                            >
+                            <li key={room.roomId}>
                                 <span>
-                                    {room.typeRoomName} - Số phòng: {room.roomName}
+                                    <span className="room-type">{room.typeRoomName}</span>
+                                    <span className="room-info">Số phòng: {room.roomName}</span>
+                                    <span className="room-price">
+                                        Giá:{" "}
+                                        {room.finalPrice > 0
+                                            ? room.finalPrice.toLocaleString("vi-VN", {
+                                                style: "currency",
+                                                currency: "VND",
+                                            })
+                                            : room.price.toLocaleString("vi-VN", {
+                                                style: "currency",
+                                                currency: "VND",
+                                            })}
+                                    </span>
+                                    {room.finalPrice > 0 && (
+                                        <span className="room-discount">
+                                            <strong>Giảm giá:</strong> {room.percent}% ({room.price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} → {room.finalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })})
+                                        </span>
+                                    )}
                                 </span>
                                 <Button
                                     variant="danger"
                                     size="sm"
                                     onClick={() => handleRemoveRoom(room.roomId)}
-                                    className="ms-2"
-                                    style={{
-                                        backgroundColor: "#FEA116",
-                                        border: "none",
-                                    }}
                                 >
                                     Xóa
                                 </Button>
                             </li>
                         ))}
                     </ul>
+                    {/* Hiển thị tổng tiền */}
+                    <div>
+                        <strong>Tổng tiền: </strong>
+                        {calculateTotalPrice().toLocaleString("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                        })}
+                    </div>
+
                     {/* Nút Đặt phòng */}
                     <Button
                         onClick={handleBooking}
-                        className="mt-3 align-self-end"
+                        className="align-self-end"
                         style={{
-                            backgroundColor: "#FEA116",
-                            border: "none",
+                            backgroundColor: "#feaa16",
+                            color: "white",
                             fontWeight: "bold",
                         }}
                     >
-                        Đặt phòng
+                        {loading ? (
+                            <>
+                                Đang đặt phòng... <Spinner animation="border" size="sm" />
+                            </>
+                        ) : (
+                            "Đặt phòng"
+                        )}
                     </Button>
                 </div>
             )}
+
             <RoomDetail show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
         </div>
     );

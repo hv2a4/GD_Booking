@@ -43,8 +43,8 @@ const _nav = [
       },
       {
         component: CNavItem,
-        name: 'Thiết lập giá',
-        to: '/admin/room-pricing',
+        name: 'Giảm giá',
+        to: '/admin/discount',
       },
     ],
   },
