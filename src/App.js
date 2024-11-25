@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   RouterProvider,
   Route,
@@ -13,7 +13,6 @@ import {
   Contact,
   PageNotFound,
   RoomClient,
-  Services,
   // Team,
   Testimonial,
 } from "./pages/client/index";
@@ -37,10 +36,7 @@ import PageBookRoom from "./pages/client/booking-room";
 import Invoice from "./pages/client/invoice";
 import RevenueReport from "./pages/admin/report-generation/revenue";
 import ServicesPage from "./pages/admin/home/Services";
-import ReservationReport from "./pages/admin/report-generation/reservation-report";
-import RoomClassReport from "./pages/admin/report-generation/room-class-report";
-import EmployeeReport from "./pages/admin/report-generation/employee-report";
-import AmenitiesPage from "./pages/admin/home/Amenities";
+
 // import LoginAdmin from "./pages/admin/login";
 import Cookies from 'js-cookie';
 import { Outlet } from "react-router-dom";
@@ -61,7 +57,7 @@ function App() {
       return null; // Return null if there's an error
     }
   };
-  const cookieTokens = Cookies.get("token") ? Cookies.get("token") : null;
+ 
 
   const ProtectedRoute = ({ element }) => {
     const token = Cookies.get("token") || null; // Get token from cookies
@@ -124,7 +120,6 @@ function App() {
           <Route path="hotel-info" element={<HotelInfo />} />
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} /> 
-          <Route path="amenities" element={<AmenitiesPage />} />
         </Route>
 
         <Route path="account" element={<Login />} />
