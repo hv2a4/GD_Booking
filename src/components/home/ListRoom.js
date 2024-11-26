@@ -174,6 +174,7 @@ export default function ListRoom() {
             // Điều hướng tới trang đặt phòng
             setTimeout(() => {
                 navigate("/client/booking-room");
+                window.scrollTo(0, 0);
             }, 1000);
 
 

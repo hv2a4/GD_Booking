@@ -49,6 +49,7 @@ import ForgotPassword from "./pages/admin/ForgotPassword/ForgotPassword";
 import VerifyOTP from "./pages/admin/ForgotPassword/OTPCode";
 import ResetPassword from "./pages/admin/ForgotPassword/ResetPassword";
 import ChangePassword from "./pages/admin/ChangePassword";
+import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
 function App() {
 
   const getUserRole = () => {
@@ -91,8 +92,8 @@ function App() {
         {/* Routes cho Client */}
         <Route path="/client" >
           <Route path="home" element={<Home />} />
-          <Route path="booking" element={<Booking />} />
-          <Route path="testimonial" element={<Testimonial />} />
+          {/* <Route path="booking" element={<Booking />} /> */}
+          {/* <Route path="testimonial" element={<Testimonial />} /> */}
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<Contact />} />
           <Route path="rooms" element={<RoomClient />} />
@@ -129,7 +130,7 @@ function App() {
 
         <Route path="account" element={<Login />} />
         <Route path="login" element={<LoginAdmin />} />
-        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="forgot-password" element={<ForgotPasswordEmail />} />
         <Route path="otp-code" element={<VerifyOTP />} />
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="change-password" element={<ChangePassword />} />
