@@ -61,8 +61,6 @@ const ConfirmBookingModal = ({ bookingRoom }) => {
         const idBooking = bookingRoom[0].booking.id;
         try {
             const data = await updateStatusBooking(idBooking, 4, newBooking);
-            console.log(data);
-            
             setAlert({ type: data.status, title: data.message });
             handleCloseModal1();
         } catch (error) {

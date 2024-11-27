@@ -64,7 +64,7 @@ export default function BookingFilter() {
                                 <div className="row g-2">
                                     <div className="col-md-3">
                                         <label htmlFor="checkin" className="form-label">Nhận phòng</label>
-                                        <div className="input-group flex-nowrap">
+                                        <div className="input-group flex-nowrap" style={{height: '44px'}}>
                                             <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkinDate}
@@ -79,7 +79,7 @@ export default function BookingFilter() {
                                     <div className="col-md-3">
                                         <label htmlFor="checkout" className="form-label">Trả phòng</label>
                                         <div className="input-group flex-nowrap">
-                                            <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                                            <span className="input-group-text" style={{height: '44px'}}><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkoutDate}
                                                 onChange={date => setCheckoutDate(date)}

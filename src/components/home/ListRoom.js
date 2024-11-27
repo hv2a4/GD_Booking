@@ -106,6 +106,23 @@ export default function ListRoom() {
     };
 
     const handleSelectRoom = (room) => {
+        const cookies = new Cookies(); // Tạo một instance của Cookies
+        const token = cookies.get('token'); // Lấy cookie theo tên "token"
+
+        if (!token) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yêu cầu đăng nhập',
+                text: 'Bạn cần đăng nhập để thực hiện chức năng đặt phòng.',
+                confirmButtonText: 'Đăng nhập ngay'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate("/account"); // Điều hướng tới trang đăng nhập
+                }
+            });
+            return; // Dừng hàm tại đây nếu chưa đăng nhập
+        }
+
         setSelectedRooms((prev) => {
             if (prev.some((r) => r.roomId === room.roomId)) {
                 return prev.filter((r) => r.roomId !== room.roomId);
@@ -132,23 +149,6 @@ export default function ListRoom() {
 
     // Hàm xử lý đặt phòng
     const handleBooking = () => {
-        const cookies = new Cookies(); // Tạo một instance của Cookies
-        const token = cookies.get('token'); // Lấy cookie theo tên "token"
-
-        if (!token) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Yêu cầu đăng nhập',
-                text: 'Bạn cần đăng nhập để thực hiện chức năng đặt phòng.',
-                confirmButtonText: 'Đăng nhập ngay'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    navigate("/account"); // Điều hướng tới trang đăng nhập
-                }
-            });
-            return; // Dừng hàm tại đây nếu chưa đăng nhập
-        }
-
         if (selectedRooms.length > 0) {
             const roomDetails = selectedRooms.map((room) => ({
                 roomId: room.roomId,
@@ -174,6 +174,7 @@ export default function ListRoom() {
             // Điều hướng tới trang đặt phòng
             setTimeout(() => {
                 navigate("/client/booking-room");
+                window.scrollTo(0, 0);
             }, 1000);
 
 
@@ -233,7 +234,7 @@ export default function ListRoom() {
                             <div className="col-lg-4 col-md-6 col-sm-12 wow fadeInUp" data-wow-delay="0.1s" key={key}>
                                 <div className="room-item shadow rounded overflow-hidden">
                                     <div className="position-relative">
-                                        <img className="img-fluid w-100" src={item?.imageList?.[0]} alt={item?.typeRoomName || "Room Image"} />
+                                        <img className="img-fluid w-100" style={{ height: '271px' }} src={item?.imageList?.[0]} alt={item?.typeRoomName || "Room Image"} />
                                         <div className="d-flex align-items-center position-absolute start-0 top-100 translate-middle-y ms-4">
                                             <small className="bg-warning text-white rounded py-1 px-3">
                                                 {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}

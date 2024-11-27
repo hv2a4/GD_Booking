@@ -16,6 +16,13 @@ const PageBookRoom = () => {
     const [totalPrice, setTotalPrice] = useState(0);
     const [roomIdss, setRoomId] = useState([]);
     const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3; // Số phòng hiển thị trên mỗi trang
+
+    // State to store payment method and discount code
+    const [paymentMethod, setPaymentMethod] = useState('');
+
+
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -164,12 +171,22 @@ const PageBookRoom = () => {
         setTotalPrice(total);
     }, [selectedRooms]);
 
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentRooms = selectedRooms.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(selectedRooms.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
     return (
         <LayoutClient>
             <div className="page-box-content page-hotel">
                 <div className="container">
                     <div className="row">
-                        <div className="col-md-8">
+                        <div className="col-md-7">
                             <h3 className="booking-title">Thông tin đặt phòng</h3>
                             <div className="box-content mb-5">
                                 <form id="form-hotel-booking" className="create-booking" onSubmit={handleSubmit} noValidate>
@@ -219,72 +236,158 @@ const PageBookRoom = () => {
                                     </div>
 
                                     {/* Danh sách phòng đã chọn */}
-                                    <div className="form-row">
-                                        <div className="col-lg-12 col-md-12">
-                                            <label htmlFor="selected_rooms" className="custom-form-label">Danh sách phòng đã chọn</label>
-                                            <div className="box-selected-rooms">
-                                                <ul id="selected_rooms" className="list-group">
-                                                    {selectedRooms.map((room, index) => (
-                                                        <li
-                                                            key={index}
-                                                            className="room-items"
+                                    <ul id="selected_rooms" className="list-group">
+                                        {currentRooms.map((room, index) => (
+                                            <li
+                                                key={index}
+                                                className="room-items"
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    marginBottom: '10px',
+                                                    padding: '10px',
+                                                    border: '1px solid #ddd',
+                                                    borderRadius: '8px'
+                                                }}
+                                            >
+                                                {/* Hình ảnh phòng */}
+                                                <div style={{ flex: '1', maxWidth: '100px', marginRight: '15px' }}>
+                                                    <img
+                                                        src={room.listImageName[0]} // Lấy tấm hình đầu tiên từ danh sách
+                                                        alt={`${room.roomName}`}
+                                                        style={{ width: '100%', borderRadius: '5px', height: '65px' }}
+                                                    />
+                                                </div>
+                                                {/* Thông tin phòng */}
+                                                <div style={{ flex: '2' }}>
+                                                    <span
+                                                        className="room-name"
+                                                        style={{ fontWeight: 'bold', fontSize: '1.1em', color: '#333' }}
+                                                    >
+                                                        {`${room.roomName}: ${room.typeRoomName}`}
+                                                    </span>
+                                                    <div
+                                                        className="room-price"
+                                                        style={{
+                                                            marginTop: '5px',
+                                                            fontSize: '1.1em',
+                                                            fontWeight: 'bold',
+                                                            color: '#feaf39',
+                                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+                                                        }}
+                                                    >
+                                                        {`Giá: ${room.price.toLocaleString()} VND/ngày`}
+                                                    </div>
+                                                    <div
+                                                        className="guest-limit"
+                                                        style={{ marginTop: '5px' }}
+                                                    >
+                                                        <span
+                                                            className="badge"
                                                             style={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                marginBottom: '10px',
-                                                                padding: '10px',
-                                                                border: '1px solid #ddd',
-                                                                borderRadius: '8px'
+                                                                backgroundColor: '#feaf39',
+                                                                color: '#fff',
+                                                                padding: '5px 10px',
+                                                                borderRadius: '15px'
                                                             }}
                                                         >
-                                                            {/* Hình ảnh phòng */}
-                                                            <div style={{ flex: '1', maxWidth: '100px', marginRight: '15px' }}>
-                                                                <img
-                                                                    src={room.listImageName[0]} // Lấy tấm hình đầu tiên từ danh sách
-                                                                    alt={`${room.roomName}`}
-                                                                    style={{ width: '100%', borderRadius: '5px' }}
-                                                                />
-                                                            </div>
-                                                            {/* Thông tin phòng */}
-                                                            <div style={{ flex: '2' }}>
-                                                                <span
-                                                                    className="room-name"
-                                                                    style={{ fontWeight: 'bold', fontSize: '1.1em', color: '#333' }}
-                                                                >
-                                                                    {`${room.roomName}: ${room.typeRoomName}`}
-                                                                </span>
-                                                                <div
-                                                                    className="room-price"
-                                                                    style={{
-                                                                        marginTop: '5px',
-                                                                        fontSize: '1.1em',
-                                                                        fontWeight: 'bold',
-                                                                        color: '#feaf39',
-                                                                        textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-                                                                    }}
-                                                                >
-                                                                    {`Giá: ${room.price.toLocaleString()} VND/ngày`}
-                                                                </div>
-                                                                <div
-                                                                    className="guest-limit"
-                                                                    style={{ marginTop: '5px' }}
-                                                                >
-                                                                    <span
-                                                                        className="badge"
-                                                                        style={{
-                                                                            backgroundColor: '#feaf39',
-                                                                            color: '#fff',
-                                                                            padding: '5px 10px',
-                                                                            borderRadius: '15px'
-                                                                        }}
-                                                                    >
-                                                                        {`Tối đa ${room.guestLimit} người`}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    ))}
-                                                </ul>
+                                                            {`Tối đa ${room.guestLimit} người`}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                    <div className="pagination">
+                                        {Array.from({ length: totalPages }, (_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => handlePageChange(index + 1)}
+                                                className={`pagination-btn ${currentPage === index + 1 ? 'active' : ''}`}
+                                                style={{
+                                                    padding: '10px 15px',
+                                                    margin: '0 5px',
+                                                    backgroundColor: currentPage === index + 1 ? '#feaf39' : '#f1f1f1',
+                                                    color: currentPage === index + 1 ? '#fff' : '#333',
+                                                    border: '1px solid #ddd',
+                                                    borderRadius: '5px',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <div className="row mt-2">
+                                        {/* Phần mã giảm giá */}
+                                        <div className="col-12">
+                                            <div className="discount-code-section" style={{ padding: '15px', borderRadius: '8px' }}>
+                                                <h4>Chọn mã giảm giá</h4>
+                                                <select
+                                                    className="form-select"
+                                                    style={{
+                                                        fontSize: '1rem',
+                                                        padding: '10px',
+                                                        borderRadius: '5px',
+                                                        border: '1px solid #ddd',
+                                                    }}
+                                                >
+                                                    <option value="">Chọn mã giảm giá</option>
+                                                    <option value="discount10">Giảm 10%</option>
+                                                    <option value="discount20">Giảm 20%</option>
+                                                    <option value="discount30">Giảm 30%</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Phần phương thức thanh toán */}
+                                        <div className="col-12 mt-2">
+                                            <div className="payment-methods" style={{ padding: '15px', borderRadius: '8px' }}>
+                                                <h4>Chọn phương thức thanh toán</h4>
+                                                <div className="payment-options d-flex justify-content-between mt-3">
+                                                    {/* Phương thức thanh toán trả sau */}
+                                                    <div
+                                                        className="payment-option card"
+                                                        style={{
+                                                            padding: '8px',
+                                                            borderRadius: '8px',
+                                                            border: '1px solid #ddd',
+                                                            textAlign: 'center',
+                                                            width: '48%',
+                                                            backgroundColor: paymentMethod === 'postpaid' ? '#FFCC00' : 'transparent',
+                                                            color: paymentMethod === 'postpaid' ? 'white' : '#333',
+                                                            boxShadow: paymentMethod === 'postpaid' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.3s ease',
+                                                        }}
+                                                        onClick={() => setPaymentMethod('postpaid')}
+                                                    >
+                                                        <div className="payment-icon" style={{ fontSize: '1.5em' }}>🛏️</div>
+                                                        <p className="payment-label" style={{ fontWeight: 'bold', marginTop: '5px' }}>Thanh toán khi trả phòng</p>
+                                                    </div>
+
+                                                    {/* Phương thức thanh toán Online */}
+                                                    <div
+                                                        className="payment-option card"
+                                                        style={{
+                                                            padding: '8px',
+                                                            borderRadius: '8px',
+                                                            border: '1px solid #ddd',
+                                                            textAlign: 'center',
+                                                            width: '48%',
+                                                            backgroundColor: paymentMethod === 'online' ? '#FFCC00' : 'transparent',
+                                                            color: paymentMethod === 'online' ? 'white' : '#333',
+                                                            boxShadow: paymentMethod === 'online' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.3s ease',
+                                                        }}
+                                                        onClick={() => setPaymentMethod('online')}
+                                                    >
+                                                        <div className="payment-icon" style={{ fontSize: '1.5em' }}>💳</div>
+                                                        <p className="payment-label" style={{ fontWeight: 'bold', marginTop: '5px' }}>Thanh toán Online (VNPay)</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -296,7 +399,7 @@ const PageBookRoom = () => {
                                 </form>
                             </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-5">
                             <h3 className='booking-title'>Xác thực thông tin</h3>
                             <div className="hotel-page-sidebar" style={{ background: '#f9f9f9', borderRadius: '10px', padding: '20px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }}>
                                 <div className="box-summary">

@@ -15,8 +15,8 @@ const Profile = () => {
         toast.success("Đăng Xuất thành công!");
         setTimeout(() => {
             Cookies.remove('token'); // Nếu bạn dùng `js-cookie` để quản lý cookie
-        // Chuyển hướng về trang đăng nhập
-        navigate('/client/home');
+            // Chuyển hướng về trang đăng nhập
+            navigate('/client/home');
         }, 1200);
     };
 
@@ -34,17 +34,10 @@ const Profile = () => {
                                             tin cá nhân</a>
                                     </li>
                                     <li className="nav-item mb-2">
-                                        <a href="#tab-recently-viewed" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Xem gần
-                                            đây</a>
+                                        <a href="#tab-recently-viewed" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Lịch sử đặt phòng</a>
                                     </li>
                                     <li className="nav-item mb-2">
-                                        <a href="#tab-favourites" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Yêu thích</a>
-                                    </li>
-                                    <li className="nav-item mb-2">
-                                        <a href="#tab-history-booking" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Lịch sử đơn hàng</a>
-                                    </li>
-                                    <li className="nav-item mb-2">
-                                        <a href="#" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Hỗ trợ và Trợ giúp</a>
+                                        <a href="#tab-favourites" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Đổi mật khẩu</a>
                                     </li>
                                 </ul>
                                 <ul className="nav flex-column">
@@ -64,9 +57,6 @@ const Profile = () => {
                                 </div>
                                 <div className="tab-pane fade" id="tab-favourites" role="tabpanel">
                                     <Favourite />
-                                </div>
-                                <div className="tab-pane fade" id="tab-history-booking" role="tabpanel">
-                                    <HistoryBooking />
                                 </div>
                             </div>
                         </div>

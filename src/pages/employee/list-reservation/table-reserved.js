@@ -63,13 +63,15 @@ const Reserved = ({ item }) => {
                     {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
                         getCurrentPageItems().map((booking, index) => {
                             const roomNames = booking.bookingRooms
+                                .filter(room => !room.checkIn)
                                 .map(room => room.room?.roomName.replace("Phòng ", ""))
+                                .filter(Boolean)
                                 .join(", ");
+
                             const totalPrice = booking.bookingRooms?.reduce(
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
-
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -83,7 +85,7 @@ const Reserved = ({ item }) => {
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
                                     <td className="d-flex">
-                                        <NhanPhong bookingRoom={booking.bookingRooms}/>
+                                        <NhanPhong bookingRooms={booking.bookingRooms} />
                                         <div className="dropdown-center d-flex align-item-center">
                                             <button
                                                 style={{ backgroundColor: "transparent", border: "none" }}
