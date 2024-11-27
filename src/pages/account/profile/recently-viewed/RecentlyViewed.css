@@ -95,15 +95,13 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.modal-header {
+.modal-headers {
     background-color: #FEA116;
     color: white;
 }
 
-.modal-footer {
+.modal-footers {
     display: flex;
     justify-content: flex-end;
 }
-
-
 

@@ -116,7 +116,7 @@ const RecentlyViewed = () => {
                         >
                             <div className="modal-dialog modal-lg">
                                 <div className="modal-content">
-                                    <div className="modal-header">
+                                    <div className="modal-headers modal-header">
                                         <h5 className="modal-title" id={`detailModalLabel-${booking.id}`}>
                                             Chi Tiết Phòng
                                         </h5>
@@ -155,7 +155,7 @@ const RecentlyViewed = () => {
                                             <p><strong>Đánh giá:</strong> {Array(booking.rating).fill("⭐").join("")}</p>
                                         </div>
                                     </div>
-                                    <div className="modal-footer">
+                                    <div className="modal-footers modal-footer">
                                         <button
                                             type="button"
                                             className="btn btn-secondary"
@@ -172,7 +172,7 @@ const RecentlyViewed = () => {
                         <div className="modal fade" id={`reviewModal-${booking.id}`} tabIndex="-1" aria-labelledby={`reviewModalLabel-${booking.id}`} aria-hidden="true">
                             <div className="modal-dialog">
                                 <div className="modal-content">
-                                    <div className="modal-header">
+                                    <div className="modal-headers modal-header">
                                         <h5 className="modal-title" id={`reviewModalLabel-${booking.id}`}>Đánh Giá Phòng</h5>
                                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
@@ -215,7 +215,7 @@ const RecentlyViewed = () => {
                                             ></textarea>
                                         </div>
                                     </div>
-                                    <div className="modal-footer">
+                                    <div className="modal-footers modal-footer">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                         <button type="button" className="btn btn-primary">Gửi đánh giá</button>
                                     </div>
