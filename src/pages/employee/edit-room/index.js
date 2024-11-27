@@ -23,7 +23,8 @@ const EditRoom = () => {
     const [typeServiceRoom, setTypeServiceRoom] = useState([]);
     const [activeTab, setActiveTab] = useState("all");
     const [isImageLoaded, setIsImageLoaded] = useState(false);
-    const [selectedService, setSelectedService] = useState([]);
+    const [selectedManualService, setSelectedManualService] = useState([]);
+    const [selectedApiService, setSelectedApiService] = useState([]);
     const [searchValue, setSearchValue] = useState("");
     const [totalRoomPrice, setTotalRoomPrice] = useState(0);
 
@@ -32,7 +33,6 @@ const EditRoom = () => {
     };
     useEffect(() => {
         hanhdleBooking();
-        handleServiceBooking();
     }, [encodedIdBooking]);
 
     const hanhdleBooking = async () => {
@@ -43,6 +43,15 @@ const EditRoom = () => {
                 const booking = await getBookingId(bookingRoom.booking.id);
                 setBookingRoom(bookingRoom);
                 setBooking(booking);
+                if (bookingRoom?.id) {
+                    try {
+                        const data = await serviceRoomBookingRoom(bookingRoom?.id);
+                        setSelectedApiService(data);
+                        console.log("Services from API:", data);
+                    } catch (error) {
+                        setAlert({ type: "error", title: "Lỗi tải dữ liệu dịch vụ" });
+                    }
+                }
                 const totalPriceRoom = booking.bookingRooms.map((e) => e.room?.typeRoomDto?.price || 0);
                 const totalRoomPrice = totalPriceRoom.reduce((sum, price) => sum + price, 0);
                 setTotalRoomPrice(totalRoomPrice);
@@ -58,15 +67,10 @@ const EditRoom = () => {
         }
     }
 
-    const handleServiceBooking = async () => {
-        if (bookingRoom?.id) {
-            try {
-                const data = await serviceRoomBookingRoom(1);
-                setSelectedService(data);
-            } catch (error) {
-                setAlert({ type: "error", title: "Lỗi tải dữ liệu dịch vụ" });
-            }
-        }
+    const handleSelectService = (service) => {
+        setSelectedManualService((prevSelectedServices) => [...prevSelectedServices, service]);
+        console.log(service);
+
     };
 
     const renderServiceItem = (service) => (
@@ -76,7 +80,7 @@ const EditRoom = () => {
             onClick={() => handleSelectService(service)}
             style={{
                 cursor: "pointer",
-                border: selectedService?.id === service.id ? "2px solid #02963d" : "1px solid #ddd",
+                border: "1px solid #ddd",
                 borderRadius: "8px",
                 padding: "8px",
             }}
@@ -185,7 +189,7 @@ const EditRoom = () => {
     };
 
     const calculateUsageDuration = (checkIn) => {
-        if (!checkIn) return 'N/A';
+        if (!checkIn) return '0 giờ';
 
         const start = new Date(checkIn);
         const now = new Date();
@@ -201,14 +205,6 @@ const EditRoom = () => {
         } else {
             return `${diffHours} giờ`;
         }
-    };
-
-
-    const handleSelectService = (service) => {
-        setSelectedService((prevSelectedServices) => [...prevSelectedServices, service]);
-        console.log(selectedService);
-
-        console.log("Selected service:", service);
     };
     const handleShowModalInsertCustomer = () => {
         setShowModalInsertCustomer(true);
@@ -493,11 +489,44 @@ const EditRoom = () => {
                                                         <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">600,000</td>
                                                         <td className="col-auto"></td>
                                                     </tr>
-                                                    {/* {selectedService && selectedService.length > 0 ? (
-                                                        selectedService.map((item, index) => {
+                                                    {/* {selectedManualService && selectedManualService.length > 0 ? (
+                                                        selectedManualService.map((item, index) => {
                                                             return (
                                                                 <tr className="cart-item row align-items-center" key={index}>
-                                                                    <td className="col-2 col-lg-1 text-start">1</td>
+                                                                    <td className="col-2 col-lg-1 text-start">{index + 2 + selectedManualService.length}</td>
+                                                                    <td className="col-5 col-lg-3">
+                                                                        <h6 className="cart-item-name mb-0">{item.serviceRoomName} ({item.typeServiceRoomDto.duration})</h6>
+                                                                    </td>
+                                                                    <td className="col-4 col-lg-2 text-center">
+                                                                        <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
+                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle down">
+                                                                                <i className="fa fa-minus-circle icon-btn"></i>
+                                                                            </button>
+                                                                            <input type="text" className="form-control mx-1 text-center" value="1" style={{ maxWidth: "50px" }} />
+                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle up">
+                                                                                <i className="fa fa-plus-circle icon-btn"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="col-5 col-lg-3 d-flex justify-content-center">
+                                                                        <span className="w-auto">{formatCurrency(item.price)}</span>
+                                                                    </td>
+                                                                    <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.price * item.quantity)}</td>
+                                                                    <td className="col-auto">
+                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                                                            <i className="fa fa-trash-alt"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            )
+                                                        })
+
+                                                    ) : ""} */}
+                                                    {selectedApiService && selectedApiService.length > 0 ? (
+                                                        selectedApiService.map((item, index) => {
+                                                            return (
+                                                                <tr className="cart-item row align-items-center" key={index}>
+                                                                    <td className="col-2 col-lg-1 text-start">{index + 2 + selectedManualService.length}</td>
                                                                     <td className="col-5 col-lg-3">
                                                                         <h6 className="cart-item-name mb-0">{item.serviceRoomDto.serviceRoomName} ({item.serviceRoomDto.typeServiceRoomDto.duration})</h6>
                                                                     </td>
@@ -525,8 +554,7 @@ const EditRoom = () => {
                                                             )
                                                         })
 
-                                                    ) : ""} */}
-
+                                                    ) : ""}
                                                 </tbody>
                                             </table>
                                         </div>

@@ -9,4 +9,4 @@ const serviceRoomBookingRoom = async (idBookingRoom) => {
     return res;
 }
 
-export {serviceRoomBookingRoom};
+export {serviceRoomBookingRoom}
