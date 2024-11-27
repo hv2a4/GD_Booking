@@ -255,7 +255,7 @@ const PageBookRoom = () => {
                                                     <img
                                                         src={room.listImageName[0]} // Lấy tấm hình đầu tiên từ danh sách
                                                         alt={`${room.roomName}`}
-                                                        style={{ width: '100%', borderRadius: '5px' }}
+                                                        style={{ width: '100%', borderRadius: '5px', height: '65px' }}
                                                     />
                                                 </div>
                                                 {/* Thông tin phòng */}

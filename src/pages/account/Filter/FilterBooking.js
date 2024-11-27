@@ -71,7 +71,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                     <div className="col-md-3">
                                         <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                                         <div className="input-group flex-nowrap">
-                                            <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                                            <span className="input-group-text" style={{height: '44px'}}><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkinDate}
                                                 onChange={date => setCheckinDate(date)}
@@ -85,7 +85,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                     <div className="col-md-3">
                                         <label htmlFor="checkout" className="form-label">Trả phòng</label>
                                         <div className="input-group flex-nowrap">
-                                            <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                                            <span className="input-group-text" style={{height: '44px'}}><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkoutDate}
                                                 onChange={date => setCheckoutDate(date)}
@@ -100,7 +100,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                         <Form.Group controlId="guests">
                                             <Form.Label>Số khách</Form.Label>
                                             <InputGroup className="flex-nowrap">
-                                                <InputGroup.Text>
+                                                <InputGroup.Text style={{height: '44px'}}>
                                                     <i className="bi bi-person"></i>
                                                 </InputGroup.Text>
                                                 <Form.Control

@@ -13,43 +13,43 @@ export default function Book() {
   const [guestSummary, setGuestSummary] = useState('1 Người lớn, 0 Trẻ em');
 
   useEffect(() => {
-      const today = new Date();
-      setCheckinDate(today);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      setCheckoutDate(tomorrow);
-      
+    const today = new Date();
+    setCheckinDate(today);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    setCheckoutDate(tomorrow);
+
   }, []);
 
   // Hàm định dạng ngày về yyyy-MM-dd
   const formatDateToYYYYMMDD = (date) => {
-      if (!date) return '';
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   // Hàm toggle dropdown
   const toggleGuestDropdown = () => {
-      setGuestDropdownVisible(!guestDropdownVisible);
+    setGuestDropdownVisible(!guestDropdownVisible);
   };
 
   // Hàm thay đổi số lượng khách
   const changeCount = (type, value) => {
-      if (type === 'adult') {
-          setAdultCount(prevCount => Math.max(1, prevCount + value)); // Giới hạn tối thiểu là 1 người lớn
-      } else if (type === 'children') {
-          setChildrenCount(prevCount => Math.max(0, prevCount + value)); // Giới hạn tối thiểu là 0
-      } else if (type === 'room') {
-          setRoomCount(prevCount => Math.max(1, prevCount + value)); // Giới hạn tối thiểu là 1 phòng
-      }
+    if (type === 'adult') {
+      setAdultCount(prevCount => Math.max(1, prevCount + value)); // Giới hạn tối thiểu là 1 người lớn
+    } else if (type === 'children') {
+      setChildrenCount(prevCount => Math.max(0, prevCount + value)); // Giới hạn tối thiểu là 0
+    } else if (type === 'room') {
+      setRoomCount(prevCount => Math.max(1, prevCount + value)); // Giới hạn tối thiểu là 1 phòng
+    }
   };
 
   // Áp dụng lựa chọn và cập nhật summary
   const applyGuestSelection = () => {
-      setGuestSummary(`${adultCount} Người lớn, ${childrenCount} Trẻ em`);
-      setGuestDropdownVisible(false);
+    setGuestSummary(`${adultCount} Người lớn, ${childrenCount} Trẻ em`);
+    setGuestDropdownVisible(false);
   };
   return (
     <>
@@ -65,7 +65,7 @@ export default function Book() {
                   <div className="col-md-3">
                     <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                     <div className="input-group flex-nowrap">
-                      <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkinDate}
                         onChange={date => setCheckinDate(date)}
@@ -79,7 +79,7 @@ export default function Book() {
                   <div className="col-md-3">
                     <label htmlFor="checkout" className="form-label">Trả phòng</label>
                     <div className="input-group flex-nowrap">
-                      <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus" ></i></span>
                       <DatePicker
                         selected={checkoutDate}
                         onChange={date => setCheckoutDate(date)}
@@ -91,83 +91,83 @@ export default function Book() {
                     </div>
                   </div>
                   <Col md={6} className="position-relative">
-                        <Form.Group controlId="guests">
-                            <Form.Label>Số khách</Form.Label>
-                            <InputGroup className="flex-nowrap">
-                                <InputGroup.Text>
-                                    <i className="bi bi-person"></i>
-                                </InputGroup.Text>
-                                <Form.Control
-                                    type="text"
-                                    placeholder={guestSummary}
-                                    readOnly
-                                    onClick={toggleGuestDropdown}
-                                />
-                            </InputGroup>
-                        </Form.Group>
+                    <Form.Group controlId="guests">
+                      <Form.Label>Số khách</Form.Label>
+                      <InputGroup className="flex-nowrap">
+                        <InputGroup.Text style={{ height: '44px' }}>
+                          <i className="bi bi-person"></i>
+                        </InputGroup.Text>
+                        <Form.Control
+                          type="text"
+                          placeholder={guestSummary}
+                          readOnly
+                          onClick={toggleGuestDropdown}
+                        />
+                      </InputGroup>
+                    </Form.Group>
 
-                        {guestDropdownVisible && (
-                            <Dropdown.Menu
-                                show
-                                align="end"
-                                className="p-3 border rounded shadow-sm guest-dropdown"
-                                style={{ position: 'absolute', top: '100%', zIndex: 1 }}
-                            >
-                                <Dropdown.Item as="div" className="guest-option">
-                                    <Row className="d-flex justify-content-between align-items-center mb-2">
-                                        <Col>Người lớn</Col>
-                                        <Col className="d-flex justify-content-end">
-                                            <Button
-                                                variant="outline-secondary"
-                                                size="sm"
-                                                onClick={() => changeCount('adult', -1)}
-                                            >
-                                                -
-                                            </Button>
-                                            <span className="mx-2">{adultCount}</span>
-                                            <Button
-                                                variant="outline-secondary"
-                                                size="sm"
-                                                onClick={() => changeCount('adult', 1)}
-                                            >
-                                                +
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </Dropdown.Item>
+                    {guestDropdownVisible && (
+                      <Dropdown.Menu
+                        show
+                        align="end"
+                        className="p-3 border rounded shadow-sm guest-dropdown"
+                        style={{ position: 'absolute', top: '100%', zIndex: 1 }}
+                      >
+                        <Dropdown.Item as="div" className="guest-option">
+                          <Row className="d-flex justify-content-between align-items-center mb-2">
+                            <Col>Người lớn</Col>
+                            <Col className="d-flex justify-content-end">
+                              <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => changeCount('adult', -1)}
+                              >
+                                -
+                              </Button>
+                              <span className="mx-2">{adultCount}</span>
+                              <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => changeCount('adult', 1)}
+                              >
+                                +
+                              </Button>
+                            </Col>
+                          </Row>
+                        </Dropdown.Item>
 
-                                <Dropdown.Item as="div" className="guest-option">
-                                    <Row className="d-flex justify-content-between align-items-center mb-2">
-                                        <Col>Trẻ em</Col>
-                                        <Col className="d-flex justify-content-end">
-                                            <Button
-                                                variant="outline-secondary"
-                                                size="sm"
-                                                onClick={() => changeCount('children', -1)}
-                                            >
-                                                -
-                                            </Button>
-                                            <span className="mx-2">{childrenCount}</span>
-                                            <Button
-                                                variant="outline-secondary"
-                                                size="sm"
-                                                onClick={() => changeCount('children', 1)}
-                                            >
-                                                +
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </Dropdown.Item>
+                        <Dropdown.Item as="div" className="guest-option">
+                          <Row className="d-flex justify-content-between align-items-center mb-2">
+                            <Col>Trẻ em</Col>
+                            <Col className="d-flex justify-content-end">
+                              <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => changeCount('children', -1)}
+                              >
+                                -
+                              </Button>
+                              <span className="mx-2">{childrenCount}</span>
+                              <Button
+                                variant="outline-secondary"
+                                size="sm"
+                                onClick={() => changeCount('children', 1)}
+                              >
+                                +
+                              </Button>
+                            </Col>
+                          </Row>
+                        </Dropdown.Item>
 
-                                <Button variant="primary" onClick={applyGuestSelection} className="w-100">
-                                    Xong
-                                </Button>
-                            </Dropdown.Menu>
-                        )}
-                    </Col>
+                        <Button variant="primary" onClick={applyGuestSelection} className="w-100">
+                          Xong
+                        </Button>
+                      </Dropdown.Menu>
+                    )}
+                  </Col>
                 </div>
               </div>
-              <div className="col-md-2" style={{marginTop: "40px"}}>
+              <div className="col-md-2" style={{ marginTop: "40px" }}>
                 <button className="btn btn-primary w-100">Submit</button>
               </div>
             </div>

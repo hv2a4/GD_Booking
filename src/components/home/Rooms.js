@@ -88,7 +88,7 @@ export default function Rooms() {
             <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s" key={key}>
               <div className="room-item shadow rounded overflow-hidden">
                 <div className="position-relative">
-                  <img className="img-fluid" src={item?.imageId[0]?.imageName} alt={item?.typeRoomName || "Room Image"} />
+                  <img className="img-fluid" src={item?.imageId[0]?.imageName} alt={item?.typeRoomName || "Room Image"} style={{ height: '272px' }} />
                   <small className="position-absolute start-0 top-100 translate-middle-y bg-orange text-white rounded py-1 px-3 ms-4">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item?.price)}
                   </small>
@@ -150,7 +150,7 @@ export default function Rooms() {
           ))}
         </div>
       </div>
-      <RoomDetailModal show={showModal} onClose={() => setShowModal(false)} room={roomItem} avgStart={avg}/>
+      <RoomDetailModal show={showModal} onClose={() => setShowModal(false)} room={roomItem} avgStart={avg} />
     </div>
   );
 }
