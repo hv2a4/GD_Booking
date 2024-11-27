@@ -22,43 +22,7 @@
 
 
 /* Phân trang */
-.pagination {
-    display: flex;
-    justify-content: center;
-    list-style: none; /* Loại bỏ dấu chấm hoặc các ký tự mặc định của list */
-    padding: 0;
-    margin: 0;
-}
 
-.pagination .page-item {
-    margin: 0 5px; /* Khoảng cách giữa các trang */
-}
-
-.pagination .page-link {
-    display: block;
-    padding: 8px 12px;
-    font-size: 1rem;
-    text-decoration: none;
-    color: #FEA116; /* Màu chữ của các liên kết */
-    background-color: transparent;
-    border: 2px solid #FEA116;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-/* Đổi màu khi hover */
-.pagination .page-link:hover {
-    background-color: #FEA116; /* Màu nền khi hover */
-    color: white; /* Màu chữ khi hover */
-}
-
-/* Màu nền và viền cho trang đang được chọn */
-.pagination .page-item.active .page-link {
-    background-color: #FEA116;
-    color: white;
-    border:1px so #FEA116;
-}
 
 .star {
     font-size: 30px; /* Kích thước sao */

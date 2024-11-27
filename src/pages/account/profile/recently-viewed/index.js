@@ -233,8 +233,8 @@ const RecentlyViewed = () => {
                     breakLabel={"..."}
                     pageCount={Math.ceil(mockBookings.length / roomsPerPage)}
                     onPageChange={handlePageClick}
-                    containerClassName={"pagination"}
-                    activeClassName={"active"}
+                    containerClassName={"pagination justify-content-center"} // Sử dụng Bootstrap class
+                    activeClassName={"active"} // Bootstrap đã có style cho active
                     pageClassName="page-item"
                     pageLinkClassName="page-link"
                     previousClassName="page-item"
@@ -243,6 +243,7 @@ const RecentlyViewed = () => {
                     nextLinkClassName="page-link"
                 />
             </div>
+
         </div>
     );
 };
