@@ -4,6 +4,7 @@ import './custom.css';
 import { decodeToken } from '../../../services/client/Booking/BookingService';
 import { useNavigate } from 'react-router-dom';
 import { bookingRoom, getDataListTypeRoom } from './Service';
+import { useLocation } from "react-router-dom";
 import Swal from 'sweetalert2';
 const PageBookRoom = () => {
     const [fullName, setFullName] = useState('');
@@ -135,7 +136,6 @@ const PageBookRoom = () => {
 
         fetchBookedRooms();
     }, []); // Chạy chỉ một lần khi component mount
-
     useEffect(() => {
         const bookingDataJSON = sessionStorage.getItem('booking'); // Lấy dữ liệu từ sessionStorage
 
