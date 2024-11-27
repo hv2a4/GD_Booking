@@ -19,13 +19,16 @@ const request = async ({ method = "GET", path = "", data = {}, headers = {}, tok
     });
     return res.data;
   } catch (error) {
-    const errorMessage = error?.response?.data?.message || "Tải dữ liệu thất bại. Vui lòng thử lại.";
+    const errorData = error?.response?.data;
+    const errorMessages = errorData?.errors || [errorData?.message || "Đã xảy ra lỗi."];
+
     Swal.fire({
       icon: "error",
-      text: errorMessage,
+      title: "Lỗi xác thực dữ liệu!",
+      html: `<ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`,
       toast: true,
       position: "top-end",
-      timer: 3000,
+      timer: 5000,
       timerProgressBar: true,
       showConfirmButton: false,
     });

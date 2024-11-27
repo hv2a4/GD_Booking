@@ -125,6 +125,9 @@ function App() {
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} /> 
           <Route path="amenities" element={<AmenitiesPage />} />
+          <Route path="reservation-report" element={<ReservationReport />} />
+          <Route path="room-class-report" element={<RoomClassReport />} />
+          <Route path="employee-report" element={<EmployeeReport />} />
         </Route>
 
         <Route path="account" element={<Login />} />

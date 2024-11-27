@@ -6,6 +6,7 @@ import { Cookies } from "react-cookie";
 import { getBookingRoomInformation } from "../../../../services/admin/account-manager";
 import { format } from "date-fns";
 import { formatCurrency } from "../../../../config/formatPrice";
+import NhanPhong from "../modalNhanPhong";
 const ModalDetailFloor = ({ onClose, item }) => {
     const [bookingRoom, setBookingRoom] = useState({});
     const [customer, setCustomer] = useState([]);
@@ -13,19 +14,16 @@ const ModalDetailFloor = ({ onClose, item }) => {
     const token = cookie.get("token");
     useEffect(() => {
         if (item && token) {
-            console.log(item);
-
             handleDetail(item?.id, item?.statusRoomDto?.id, token);
             handleCustomerInfo(item?.id, token);
         }
 
     }, [item])
-
+    
     const handleCustomerInfo = async (id, token) => {
         try {
             const data = await getBookingRoomInformation(id, token);
             setCustomer(data);
-            console.log(data);
         } catch (error) {
 
         }
@@ -166,9 +164,17 @@ const ModalDetailFloor = ({ onClose, item }) => {
                 <Link to="/employee/edit-room">
                     <Button variant="outline-success">Cập nhật đặt phòng</Button>
                 </Link>
-                <Link to="/employee/edit-room">
-                    <Button variant="success">Trả phòng</Button>
-                </Link>
+                {item?.statusRoomDto?.id === 2 ? (
+                    <Link to="/employee/edit-room">
+                        <Button variant="success">Trả phòng</Button>
+                    </Link>
+                ) : (
+                    <NhanPhong
+                        bookingRooms={bookingRoom}
+                        onClose={onClose} // Truyền callback để đóng modal chi tiết 
+                    />
+                )}
+
             </Modal.Footer>
         </Modal>
     );

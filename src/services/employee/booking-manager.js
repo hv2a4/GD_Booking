@@ -1,5 +1,12 @@
 import { request } from "../../config/configApi";
 
+const getBookingId = async (id) => {
+    const res = request({
+        method: "GET",
+        path: `api/booking/getById/${id}`
+    });
+    return res;
+}
 const updateStatusBooking = async (idBooking, idStatus, newBooking) => {
     const res = request({
         method: "PUT",
@@ -34,4 +41,4 @@ const getBookingRoomIds = async (idBookingRoom) => {
     return res;
 }
 
-export {updateStatusBooking,updateStatusCheckInBooking,getBookingRoomInformation,getBookingRoomIds};
+export {updateStatusBooking,updateStatusCheckInBooking,getBookingRoomInformation,getBookingRoomIds,getBookingId};
