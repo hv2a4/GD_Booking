@@ -30,11 +30,13 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         }
         const roomId = checkBoxSelected.map((e) => e.roomId);
         const RoomIdsString = roomId.join(',');
-        const occupiedRoom = filteredBookingRoom?.room?.some((d) => {
-            // Ensure we're comparing the ID as a number
-            const roomStatus = d.statusRoomDto?.id;
-            return roomId.includes(d.id) && Number(roomStatus) === 2;
+        const occupiedRoom = filteredBookingRoom?.some((d) => {
+            const roomStatus = d.room.statusRoomDto?.id;
+            return Number(roomStatus) === 2;
         });
+        console.log(occupiedRoom);
+        console.log(filteredBookingRoom);
+        
         if (occupiedRoom) {
             setAlert({ type: "error", title: "Phòng này đang có người" });
             return;
