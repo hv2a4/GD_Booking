@@ -10,7 +10,7 @@ import DatePicker from "react-datepicker";
 import { Link } from "react-router-dom";
 import Alert from "../../../config/alert";
 import { getAllService } from "../../../services/employee/type-room-service";
-// import InsertCustomer from "../../../../../FE_HotelBooking/src/pages/employee/list-reservation/modalInsertCustomer";
+import { serviceRoomBookingRoom } from "../../../services/employee/service";
 
 const EditRoom = () => {
     const encodedIdBooking = useGetParams("idBookingRoom");
@@ -31,9 +31,8 @@ const EditRoom = () => {
         setSearchValue(e.target.value);
     };
     useEffect(() => {
-        // console.log(totalPriceRoom);
-
         hanhdleBooking();
+        handleServiceBooking();
     }, [encodedIdBooking]);
 
     const hanhdleBooking = async () => {
@@ -58,6 +57,17 @@ const EditRoom = () => {
             setLoading(false);
         }
     }
+
+    const handleServiceBooking = async () => {
+        if (bookingRoom?.id) {
+            try {
+                const data = await serviceRoomBookingRoom(1);
+                setSelectedService(data);
+            } catch (error) {
+                setAlert({ type: "error", title: "Lỗi tải dữ liệu dịch vụ" });
+            }
+        }
+    };
 
     const renderServiceItem = (service) => (
         <div
@@ -176,26 +186,28 @@ const EditRoom = () => {
 
     const calculateUsageDuration = (checkIn) => {
         if (!checkIn) return 'N/A';
-    
+
         const start = new Date(checkIn);
         const now = new Date();
-    
+
         if (isNaN(start) || now < start) return 'N/A';
-    
+
         const diffMs = now - start;
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
         const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // Số giờ còn lại
-    
+
         if (diffDays > 0) {
             return `${diffDays} ngày ${diffHours} giờ`;
         } else {
             return `${diffHours} giờ`;
         }
     };
-    
+
 
     const handleSelectService = (service) => {
-        setSelectedService(service);
+        setSelectedService((prevSelectedServices) => [...prevSelectedServices, service]);
+        console.log(selectedService);
+
         console.log("Selected service:", service);
     };
     const handleShowModalInsertCustomer = () => {
@@ -481,28 +493,40 @@ const EditRoom = () => {
                                                         <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">600,000</td>
                                                         <td className="col-auto"></td>
                                                     </tr>
-                                                    <tr className="cart-item row align-items-center">
-                                                        <td className="col-2 col-lg-1 text-start">1</td>
-                                                        <td className="col-5 col-lg-3">
-                                                            <h6 className="cart-item-name mb-0">Phòng 01 giường đơn (Ngày)</h6>
-                                                        </td>
-                                                        <td className="col-4 col-lg-2 text-center">
-                                                            <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
-                                                                <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle down">
-                                                                    <i className="fa fa-minus-circle icon-btn"></i>
-                                                                </button>
-                                                                <input type="text" className="form-control mx-1 text-center" value="1" style={{ maxWidth: "50px" }} />
-                                                                <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle up">
-                                                                    <i className="fa fa-plus-circle icon-btn"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                        <td className="col-5 col-lg-3 d-flex justify-content-center">
-                                                            <span className="w-auto">600,000</span>
-                                                        </td>
-                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">600,000</td>
-                                                        <td className="col-auto"></td>
-                                                    </tr>
+                                                    {/* {selectedService && selectedService.length > 0 ? (
+                                                        selectedService.map((item, index) => {
+                                                            return (
+                                                                <tr className="cart-item row align-items-center" key={index}>
+                                                                    <td className="col-2 col-lg-1 text-start">1</td>
+                                                                    <td className="col-5 col-lg-3">
+                                                                        <h6 className="cart-item-name mb-0">{item.serviceRoomDto.serviceRoomName} ({item.serviceRoomDto.typeServiceRoomDto.duration})</h6>
+                                                                    </td>
+                                                                    <td className="col-4 col-lg-2 text-center">
+                                                                        <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
+                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle down">
+                                                                                <i className="fa fa-minus-circle icon-btn"></i>
+                                                                            </button>
+                                                                            <input type="text" className="form-control mx-1 text-center" value="1" style={{ maxWidth: "50px" }} />
+                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle up">
+                                                                                <i className="fa fa-plus-circle icon-btn"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="col-5 col-lg-3 d-flex justify-content-center">
+                                                                        <span className="w-auto">{formatCurrency(item.serviceRoomDto.price)}</span>
+                                                                    </td>
+                                                                    <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.serviceRoomDto.price * item.quantity)}</td>
+                                                                    <td className="col-auto">
+                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                                                            <i className="fa fa-trash-alt"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            )
+                                                        })
+
+                                                    ) : ""} */}
+
                                                 </tbody>
                                             </table>
                                         </div>
