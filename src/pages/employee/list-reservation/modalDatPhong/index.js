@@ -5,60 +5,69 @@ import { formatCurrency } from "../../../../config/formatPrice";
 import Alert from "../../../../config/alert";
 import { format } from "date-fns";
 import { addBookingOffline } from "../../../../services/employee/orderRoom";
+import OrderRoom from "./list-order-room";
 
 const DatPhong = ({ onClose }) => {
-    const [checkInDate, setCheckInDate] = useState("");
-    const [checkOutDate, setCheckOutDate] = useState("");
+    const getDefaultDates = () => {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        return {
+            checkInDate: today.toISOString().split("T")[0], // Định dạng yyyy-MM-dd
+            checkOutDate: tomorrow.toISOString().split("T")[0],
+        };
+    };
+
+    const { checkInDate: defaultCheckInDate, checkOutDate: defaultCheckOutDate } = getDefaultDates();
+    const [checkInDate, setCheckInDate] = useState(defaultCheckInDate);
+    const [checkOutDate, setCheckOutDate] = useState(defaultCheckOutDate);
     const [rooms, setRooms] = useState([]); // Danh sách phòng
     const [selectedRooms, setSelectedRooms] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState();
+    const [searchTerm, setSearchTerm] = useState("");
     const [guestLimit, setGuestLimit] = useState(1);
     const [alert, setAlert] = useState(null);
+    const size = 2;
 
     // Mỗi khi checkInDate hoặc checkOutDate thay đổi, sẽ gọi lại handleRooms
     useEffect(() => {
         handleRooms(currentPage);
     }, [checkInDate, checkOutDate, currentPage, guestLimit]);  // Theo dõi sự thay đổi của checkInDate và checkOutDate
 
-    const formatDateTime = (date) => {
-        if (!date || isNaN(new Date(date))) {
-            console.error('Giá trị thời gian không hợp lệ:', date);
-            return 'Invalid date';
-        }
-        return format(new Date(date), 'yyyy-MM-dd');
-    };
+    const handleRooms = async (page = 0) => {
+        setCurrentPage(page); // Đặt lại currentPage khi tìm kiếm hoặc lọc mới
+        const startDate = checkInDate || defaultCheckInDate;
+        const endDate = checkOutDate || defaultCheckOutDate;
 
-    const handleRooms = async (page) => {
-        const date = new Date();
-        const end = new Date(date);
-        end.setDate(date.getDate() + 1);
-        const startDate = checkInDate ? formatDateTime(checkInDate) : formatDateTime(date);  // Nếu checkInDate có giá trị thì dùng, nếu không thì dùng ngày hiện tại
-        const endDate = checkOutDate ? formatDateTime(checkOutDate) : formatDateTime(end);  // Tương tự với endDate, mặc định là ngày nhận phòng nếu không có endDate
-
-        const data = await getAllRoom(startDate, endDate, guestLimit, page); // Giới hạn khách là 1, có thể thay đổi tùy yêu cầu
+        const data = await getAllRoom(startDate, endDate, guestLimit, page, size);
         if (data) {
             setRooms(data.content);
             setTotalPages(data.totalPages);
         }
     };
 
-    // Hàm chuyển trang
+
+    // Tìm kiếm và lọc phòng
+    const filteredRooms = rooms.filter((room) =>
+        room.roomName.toLowerCase().includes(searchTerm.toLowerCase())
+        || room.typeRoomDto.typeRoomName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        handleRooms(0); // Reset về trang đầu tiên khi tìm kiếm
+    };
+
     const handlePageChange = (direction) => {
         const newPage = currentPage + direction;
         if (newPage >= 0 && newPage < totalPages) {
-            setCurrentPage(newPage);
+            handleRooms(newPage); // Gọi lại danh sách phòng khi chuyển trang
         }
     };
 
     // Hàm chọn phòng
     const handleSelectRoom = (room) => {
-        if (!checkInDate || !checkOutDate) {
-            setAlert({ type: "error", title: "Vui lòng chọn ngày nhận và trả phòng trước!" });
-            setTimeout(() => setAlert(null), 500)
-            return;
-        }
-
         const roomData = {
             roomId: room.id,
             roomName: room.roomName,
@@ -69,6 +78,7 @@ const DatPhong = ({ onClose }) => {
             checkOutDate,
         };
 
+        console.log(roomData);
 
 
         // Thêm phòng vào danh sách nếu chưa có
@@ -80,10 +90,7 @@ const DatPhong = ({ onClose }) => {
         });
     };
 
-    // Hàm xóa phòng khỏi danh sách đã chọn
-    const handleRemoveRoom = (roomId) => {
-        setSelectedRooms((prev) => prev.filter((room) => room.roomId !== roomId));
-    };
+
     // Kiểm tra ngày chọn
     const handleCheckInDateChange = (e) => {
         const selectedDate = new Date(e.target.value);
@@ -144,6 +151,9 @@ const DatPhong = ({ onClose }) => {
             setTimeout(() => setAlert(null), 3000);
         }
     };
+    const handleRemoveRoom = (roomId) => {
+        setSelectedRooms((prev) => prev.filter((room) => room.roomId !== roomId));
+    };
 
     return (
         <Modal show={true} onHide={onClose} className="modal-noneBg modal-dialog-centered" centered>
@@ -152,7 +162,7 @@ const DatPhong = ({ onClose }) => {
                 <Modal.Title className="fw-bolder">Chọn phòng</Modal.Title>
             </Modal.Header>
 
-            <Modal.Body style={{ overflow: "auto", scrollbarWidth: "none" }}>
+            <Modal.Body style={{ overflow: "auto" }}>
                 {/* Form chọn ngày */}
                 <div className="row text-start mb-3">
                     <div className="col-12 col-md-5 mb-3">
@@ -186,7 +196,22 @@ const DatPhong = ({ onClose }) => {
                         </Form.Group>
                     </div>
                 </div>
-
+                <div className="product-search mt-3">
+                    <div className="form-control-wrapper">
+                        <div className="form-control autocomplete">
+                            <input
+                                type="text"
+                                className="input-unstyled"
+                                placeholder="Tìm theo tên phòng"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                            />
+                        </div>
+                        <div className="form-control-prefix">
+                            <i className="fa fa-search icon-mask" style={{ marginLeft: "10px" }}></i>
+                        </div>
+                    </div>
+                </div>
                 {/* Danh sách phòng */}
                 <Table className="table-borderless table-responsive">
                     <thead>
@@ -197,7 +222,7 @@ const DatPhong = ({ onClose }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {rooms.map((item, index) => (
+                        {filteredRooms.map((item, index) => (
                             <tr key={index}>
                                 <td>
                                     <div>
@@ -241,45 +266,18 @@ const DatPhong = ({ onClose }) => {
                         Tiếp theo
                     </Button>
                 </div>
+                <div className="mt-2">
+                    {selectedRooms.length > 0 && (
+                        <OrderRoom
+                            selectedRooms={selectedRooms}
+                            remove={(roomId) => handleRemoveRoom(roomId)} // Truyền hàm handleRemoveRoom vào
+                        />
+                    )}
+                </div>
             </Modal.Body>
 
             <Modal.Footer className="justify-content-between align-items-start flex-column">
-                <div style={{ maxHeight: "150px", overflowY: "auto", width: "100%" }}>
-                    {selectedRooms.length > 0 && (
-                        <Table striped bordered hover responsive>
-                            <thead>
-                                <tr>
-                                    <th>Tên phòng</th>
-                                    <th>Loại phòng</th>
-                                    <th>Nhận phòng</th>
-                                    <th>Trả phòng</th>
-                                    <th>Giá</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {selectedRooms.map((room) => (
-                                    <tr key={room.roomId}>
-                                        <td>{room.roomName}</td>
-                                        <td>{room.typeRoomName}</td>
-                                        <td>{room.checkInDate}</td>
-                                        <td>{room.checkOutDate}</td>
-                                        <td>{formatCurrency(room.price)} VND</td>
-                                        <td>
-                                            <Button
-                                                variant="danger"
-                                                size="sm"
-                                                onClick={() => handleRemoveRoom(room.roomId)}
-                                            >
-                                                Xóa
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    )}
-                </div>
+
                 <div className="w-100 mt-3 d-flex justify-content-between align-items-center">
                     <div className="fw-bolder fs-5">Tổng giá: {formatCurrency(totalPrice)} VND</div>
                     <Button variant="success" className="ml-auto" onClick={handleBooking}>Đặt phòng</Button>

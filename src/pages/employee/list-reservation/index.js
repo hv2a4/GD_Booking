@@ -47,8 +47,7 @@ const ListReservation = () => {
 
     useEffect(() => {
         handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
-
-    }, [filterType, startDate, endDate, location]);
+    }, [filterType, startDate, endDate, location,filteredBookings]);
 
     const handleStartDateChange = (selectedDate) => {
         setStartDate(selectedDate);
@@ -76,7 +75,7 @@ const ListReservation = () => {
         const data = await getAllBooking(filterType, startDate, endDate, token);
         if (data) {
             setBookings(data);
-            setFilteredBookings(filteredAndSearchedBookings);
+            setFilteredBookings(filterBookings(filteredAndSearchedBookings));
         }
     }
 

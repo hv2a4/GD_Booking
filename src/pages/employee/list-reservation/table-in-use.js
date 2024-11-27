@@ -63,12 +63,15 @@ const InUse = ({ item }) => {
                     {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
                         getCurrentPageItems().map((booking, index) => {
                             const roomNames = booking.bookingRooms
+                                .filter(room => room.checkIn)
                                 .map(room => room.room?.roomName.replace("Phòng ", ""))
+                                .filter(Boolean)
                                 .join(", ");
                             const totalPrice = booking.bookingRooms?.reduce(
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
+                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
 
                             return (
                                 <tr key={index} className="tr-center">
@@ -83,7 +86,7 @@ const InUse = ({ item }) => {
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
                                     <td className="d-flex">
-                                        <Link to="/employee/edit-room">
+                                        <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
                                             <button className="btn-tt"
                                                 style={{
                                                     fontSize: '12px',

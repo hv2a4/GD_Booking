@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import InsertCustomer from "../modalInsertCustomer";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 import { getBookingRoomIds, getBookingRoomInformation } from "../../../../services/employee/booking-manager";
 import Alert from "../../../../config/alert";
 import { formatDate, formatDateTime } from "../../../../config/formatPrice";
+import InsertCustomer from "../modalInsertCustomer";
+import AlertComfirm from "../../../../config/alert/comfirm";
+import { deleteCustomer } from "../../../../services/employee/customer";
 
 const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     const [showModalInsertCustomer, setShowModalInsertCustomer] = useState(false);
@@ -19,23 +21,45 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     useEffect(() => {
         handleCustomer();
         handleBookingRoom();
+    }, [bookingRoomIds]);
 
-
-    }, [bookingRoomIds, customerInformation]);
     const handleShowModalInsertCustomer = () => {
         setShowModalInsertCustomer(true);
     }
+
     const handleShowModalUpdateCustomer = (item) => {
-        console.log(item);
-        
         setIsSelect(item);
         setShowModalUpdateCustomer(true);
     }
+ 
+
     const handleCloseModalInsertCustomer = () => {
         setShowModalInsertCustomer(false);
         setShowModalUpdateCustomer(false);
     }
-
+    const handleDeleteCustomer = async (item) => {
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa khách hàng này không?",
+            confirmButtonText: "Xóa",
+            cancelButtonText: "Hủy",
+        });
+        if (confirmation) {
+            try {
+                const response = await deleteCustomer(item.customerInformationDto.id, item.bookingRoomDto.id); 
+                if (response) {
+                    setAlert({ type: "success", title: "Xóa thành công!" });
+                    handleCustomer();
+                } else {
+                    setAlert({ type: "error", title: "Xóa thất bại!" });
+                }
+            } catch (error) {
+                setAlert({ type: "error", title: "Đã xảy ra lỗi khi xóa!" });
+            }
+        }
+    };
+    
     const handleCloseTTNhanPhong = () => {
         onHide();
     }
@@ -135,7 +159,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
                                                 <button className="btn btn-sm btn-icon-only btn-circle text-neutral" onClick={() => handleShowModalUpdateCustomer(item)}>
                                                     <i className="fa fa-pen"></i>
                                                 </button>
-                                                <button className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                                <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleDeleteCustomer(item)}>
                                                     <i className="fa fa-trash-alt"></i>
                                                 </button>
                                             </td>
@@ -218,7 +242,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
                     </Link>
                     <button className="btn btn-success" onClick={handleCloseTTNhanPhong}>Xong</button>
                 </Modal.Footer>
-                {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} bookingRoom={bookingRoom} rooms={bookingRoom.map((e) => e.room)} />}
+                {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} bookingRoom={bookingRoom} rooms={bookingRoom.map((e) => e.room)} fetchData={handleCustomer}/>}
                 {showModalUpdateCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} item={isSelect} bookingRoom={bookingRoom} rooms={bookingRoom.map((e) => e.room)} />}
             </div>
         </>

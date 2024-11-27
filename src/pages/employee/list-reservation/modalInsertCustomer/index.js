@@ -2,23 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Modal, Row, Form } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import { useForm, Controller } from 'react-hook-form';
-import { addCustomer } from '../../../../services/employee/customer';
+import { addCustomer, updateCustomer } from '../../../../services/employee/customer';
 import uploadImageToFirebase from '../../../../config/fireBase';
 import ImageUploader from './fileImage';
 import Alert from '../../../../config/alert';
 
-const InsertCustomer = ({ onClose, item, rooms, bookingRoom }) => {
+const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
     const { register, handleSubmit, control, setValue } = useForm();
     const [images1, setImages1] = useState(null);
     const [images2, setImages2] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [alert, setAlert] = useState(null);
 
     useEffect(() => {
         if (item && item.customerInformationDto?.birthday) {
+            setValue("id", item.customerInformationDto.id);
             setValue("ngaysinh", new Date(item.customerInformationDto.birthday));
             setValue("phong", item.bookingRoomDto.room.id);
             setValue("hovaten", item.customerInformationDto.fullname);
-            setValue("gioitinh", item.customerInformationDto.gender);
+            setValue("gioitinh", item.customerInformationDto.gender ? "true" : "false");
             setValue("sodienthoai", item.customerInformationDto.phone);
             setValue("lydoluutru", item.customerInformationDto.cccd);
             setImages1(item.customerInformationDto.imgFirstCard);
@@ -31,34 +33,30 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom }) => {
         const file = e.target.files[0];
         if (file) setImage(file);
     };
-
-    const handleDelete = (setImage) => {
-        setImage(null);
-    };
     const validateForm = (data, images1, images2) => {
         const errors = {};
         if (!data.hovaten) errors.hovaten = "Họ và tên không được để trống.";
-        if (!data.sodienthoai) errors.sodienthoai = "Số điện thoại không được để trống.";
-        if (!data.gioitinh) errors.gioitinh = "Vui lòng chọn giới tính.";
+        if (!data.sodienthoai.match(/^(\+84|0)\d{9}$/)) errors.sodienthoai = "Số điện thoại không hợp lệ.";
         if (!data.ngaysinh) errors.ngaysinh = "Ngày sinh không được để trống.";
         if (!images1) errors.images1 = "Vui lòng tải lên ảnh mặt trước CCCD.";
         if (!images2) errors.images2 = "Vui lòng tải lên ảnh mặt sau CCCD.";
-
         return errors;
-    };
+      };
 
 
     const onSubmit = async (data) => {
         // Validate dữ liệu đầu vào
-        
+        setIsLoading(true);
         if (!data.sodienthoai === 10) {
-            setAlert({ type: "error", title: "Số điện thoại không đúng đinh dạng"});
+            setAlert({ type: "error", title: "Số điện thoại không đúng định dạng" });
+            setIsLoading(false);
             return;
         }
 
         const errors = validateForm(data, images1, images2);
         if (Object.keys(errors).length > 0) {
             setAlert({ type: "error", title: "Vui lòng kiểm tra lại thông tin.", details: errors });
+            setIsLoading(false);
             return;
         }
         // Xử lý nếu dữ liệu hợp lệ
@@ -73,24 +71,25 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom }) => {
             cccd: data.lydoluutru,
             fullname: data.hovaten,
             phone: data.sodienthoai,
-            gender: data.gioitinh,
+            gender: data.gioitinh === "true",
             birthday: data.ngaysinh.toISOString(),
-            imgFirstCard,
-            imgLastCard
+            imgFirstCard: imgFirstCard,
+            imgLastCard: imgLastCard
         };
         console.log(newCustomer);
         
-
         try {
-            const customerData = item ? "" : await addCustomer(newCustomer, id[0]?.id);
+            const customerData = item ? await updateCustomer(item.customerInformationDto.id,newCustomer) : await addCustomer(newCustomer, id[0]?.id);
             if (customerData?.errors) {
                 setAlert({ type: "error", title: "Đã xảy ra lỗi khi thêm khách hàng.", details: customerData.errors });
             } else {
-                setAlert({ type: "success", title: "Thêm khách thành công!" });
+                setAlert({ type: "success", title: `${item ? "Cập nhật" : "Thêm"} khách thành công! `});
+                fetchData();
             }
         } catch (error) {
             setAlert({ type: "error", title: "Lỗi khi thêm khách hàng.", details: error.message });
         }
+        setIsLoading(false);
 
         onClose();
     };
@@ -225,15 +224,23 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom }) => {
                 <Modal.Footer>
                     <Button
                         type="submit"
-                        className="btn btn-success"
+                        variant='outline-success'
                         onClick={handleSubmit(onSubmit)}
                     >
-                        Lưu
+                        {isLoading ? (
+                            <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Đang lưu...
+                            </>
+                        ) : (
+                            "Lưu"
+                        )}
                     </Button>
                 </Modal.Footer>
             </div>
         </Modal>
     );
 };
+
 
 export default InsertCustomer;

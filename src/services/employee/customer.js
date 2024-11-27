@@ -9,4 +9,22 @@ const addCustomer = async (data, idBookingRoom) => {
     return res;
 }
 
-export {addCustomer};
+const updateCustomer = async (id, data) => {
+    const res = await request({
+        method: "PUT",
+        path: `api/customer-info/update/${id}`,
+        data: data
+    });
+    console.log(res);
+    
+    return res;
+}
+const deleteCustomer = async (idCustomer, idBookingRoom) => {
+    const res = await request({
+        method: "DELETE",
+        path:`/api/booking-infomation?idCustomer=${idCustomer}&idBookingRoom=${idBookingRoom}`
+    });
+    return res;
+}
+
+export {addCustomer,updateCustomer,deleteCustomer};
