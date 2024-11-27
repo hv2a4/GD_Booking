@@ -75,6 +75,7 @@ export default function Rooms() {
 
   const handleHref = () => {
     navigate("/client/rooms");
+    window.scrollTo(0, 0);
   }
 
   return (
