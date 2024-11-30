@@ -50,6 +50,7 @@ import VerifyOTP from "./pages/admin/ForgotPassword/OTPCode";
 import ResetPassword from "./pages/admin/ForgotPassword/ResetPassword";
 import ChangePassword from "./pages/admin/ChangePassword";
 import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
+import FloorPage from "./pages/admin/home/Floor";
 function App() {
 
   const getUserRole = () => {
@@ -129,6 +130,7 @@ function App() {
           <Route path="reservation-report" element={<ReservationReport />} />
           <Route path="room-class-report" element={<RoomClassReport />} />
           <Route path="employee-report" element={<EmployeeReport />} />
+          <Route path="floor" element={<FloorPage />} />
         </Route>
 
         <Route path="account" element={<Login />} />
