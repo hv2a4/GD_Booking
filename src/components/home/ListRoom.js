@@ -13,7 +13,7 @@ import {
     FaTaxi,
 } from "react-icons/fa";
 import RoomDetail from "../../pages/client/Room/modal-room/RoomDetail";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../../assets/css/custom/Sticky.css";
 import "../../assets/css/custom/Filter.css";
 import BookingFillter from "../../pages/account/Filter/FilterBooking";
@@ -49,7 +49,7 @@ export default function ListRoom() {
     // Định nghĩa state phân trang
     const roomsPerPage = 3; // Số lượng phòng trên mỗi trang
     const [currentPageIndex, setCurrentPageIndex] = useState(1); // Trang hiện tại
-
+    const location = useLocation();
     // Tính toán tổng số trang
     const totalPageCount = Math.ceil(selectedRooms.length / roomsPerPage);
 
@@ -83,7 +83,6 @@ export default function ListRoom() {
             fetchRooms();
         }
     }, [currentPage, dataFilterBook]); // Khi currentPage hoặc dataFilterBook thay đổi, sẽ gọi lại API tương ứng
-
 
     // Fetch room details
     const getDataDetail = async (id) => {
@@ -192,13 +191,28 @@ export default function ListRoom() {
 
     // Hàm xử lý lọc
     const handleDataFilter = (startDate, endDate, guestLimit) => {
-        console.log(`${startDate}, ${endDate}, ${guestLimit}`);
-        setDataFilterBook({ startDate, endDate, guestLimit });
-        setCurrentPage(1); // Khi lọc lại, reset về trang 1
-        setDates({ checkin: startDate, checkout: endDate })
-        filterBooking(startDate, endDate, guestLimit, 1, pageSize); // Gọi lại API lọc
+        console.log("handleDataFilter nhận giá trị:", startDate, endDate, guestLimit);
 
+        setDataFilterBook({ startDate, endDate, guestLimit });
+        setCurrentPage(1); // Reset về trang đầu
+        setDates({ checkin: startDate, checkout: endDate });
+        filterBooking(startDate, endDate, guestLimit, 1, pageSize); // Gọi API
     };
+
+    useEffect(() => {
+        if (location.state) {
+            const { checkIn, checkOut, guest } = location.state;
+
+            if (checkIn && checkOut && guest) {
+                console.log("Dữ liệu hợp lệ từ location.state:", { checkIn, checkOut, guest });
+                handleDataFilter(checkIn, checkOut, guest);
+            } else {
+                console.error("Dữ liệu từ location.state không đầy đủ!");
+            }
+        } else {
+            console.log("Không có location.state.");
+        }
+    }, [location.state]);
 
 
     const filterBooking = async (startDate, endDate, guestLimit, page, size) => {
@@ -237,7 +251,7 @@ export default function ListRoom() {
                                         <img className="img-fluid w-100" style={{ height: '271px' }} src={item?.imageList?.[0]} alt={item?.typeRoomName || "Room Image"} />
                                         <div className="d-flex align-items-center position-absolute start-0 top-100 translate-middle-y ms-4">
                                             <small className="bg-warning text-white rounded py-1 px-3">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}
+                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}/ <strong>Ngày</strong>
                                             </small>
                                         </div>
                                     </div>

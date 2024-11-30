@@ -23,45 +23,54 @@ const getDataListTypeRoom = async (roomIds) => {
 
 const bookingRoom = async (bookingData, navigate) => {
     try {
-        // Hiển thị trạng thái đang xử lý
-        Swal.fire({
-            title: 'Đang xử lý...',
-            text: 'Vui lòng chờ trong giây lát.',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        const isCarhPayment = bookingData.methodPayment === 1;
 
-        // Gửi yêu cầu đến server
+        if (isCarhPayment) {
+            Swal.fire({
+                title: 'Đang xử lý...',
+                text: 'Vui lòng chờ trong giây lát.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+
         const res = await request({
             method: "POST",
             path: `/api/booking/sendBooking`,
             data: bookingData
         });
 
-        console.log("Phản hồi từ server: ", res);
+        if (isCarhPayment) Swal.close();
 
-        // Kiểm tra phản hồi
-        if (!res || res.status !== 'success') {
-            throw new Error(res?.message || "Phản hồi không hợp lệ từ server.");
+        if (!res || typeof res !== 'object') {
+            throw new Error("Phản hồi từ server không hợp lệ.");
         }
 
-        // Thông báo thành công và chờ người dùng nhấn "OK"
-        await Swal.fire({
-            title: 'Đặt phòng thành công!',
-            text: `${res.message || 'Chúc bạn có kỳ nghỉ vui vẻ!'}`,
-            icon: 'success',
-            confirmButtonText: 'OK'
-        });
+        if (res.status !== 'success') {
+            throw new Error(res.message || "Phản hồi không hợp lệ từ server.");
+        }
+        if (res.vnPayURL) {
 
-        // Chuyển hướng sau khi người dùng nhấn "OK"
-        navigate('/client/home');
-        return res;
+            const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            await delay(2000);
+
+            window.location.href = res.vnPayURL;
+        } else {
+            await Swal.fire({
+                title: 'Đặt phòng thành công!',
+                text: `${res.message || 'Chúc bạn có kỳ nghỉ vui vẻ!'}`,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+
+            navigate('/client/home');
+        }
+
     } catch (error) {
         console.error("Đặt phòng thất bại: ", error.message || error);
-
-        // Thông báo lỗi với SweetAlert2
+        console.log("Dữ liệu đặt phòng: ", bookingData);
         await Swal.fire({
             title: 'Đặt phòng thất bại!',
             text: error.message || 'Đã xảy ra lỗi không xác định.',
@@ -69,7 +78,6 @@ const bookingRoom = async (bookingData, navigate) => {
             confirmButtonText: 'OK'
         });
 
-        // Ném lỗi để xử lý ở nơi gọi
         throw error;
     }
 };

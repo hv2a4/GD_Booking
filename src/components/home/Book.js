@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Form, InputGroup, Button, Dropdown, Row, Col } from 'react-bootstrap';
 
-export default function Book() {
+import { useNavigate } from 'react-router-dom';
+
+export default function Booking() {
   const [checkinDate, setCheckinDate] = useState(null);
   const [checkoutDate, setCheckoutDate] = useState(null);
   const [guestDropdownVisible, setGuestDropdownVisible] = useState(false);
   const [adultCount, setAdultCount] = useState(1);
-  const [childrenCount, setChildrenCount] = useState(0);
-  const [roomCount, setRoomCount] = useState(1);
-  const [guestSummary, setGuestSummary] = useState('1 Người lớn, 0 Trẻ em');
+  const [guestSummary, setGuestSummary] = useState("1 khách");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const today = new Date();
@@ -18,15 +20,14 @@ export default function Book() {
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
     setCheckoutDate(tomorrow);
-
   }, []);
 
-  // Hàm định dạng ngày về yyyy-MM-dd
+  // Format ngày về yyyy-MM-dd
   const formatDateToYYYYMMDD = (date) => {
-    if (!date) return '';
+    if (!date) return "";
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -35,21 +36,59 @@ export default function Book() {
     setGuestDropdownVisible(!guestDropdownVisible);
   };
 
-  // Hàm thay đổi số lượng khách
+  // Thay đổi số người lớn
   const changeCount = (type, value) => {
-    if (type === 'adult') {
-      setAdultCount(prevCount => Math.max(1, prevCount + value)); // Giới hạn tối thiểu là 1 người lớn
-    } else if (type === 'children') {
-      setChildrenCount(prevCount => Math.max(0, prevCount + value)); // Giới hạn tối thiểu là 0
-    } else if (type === 'room') {
-      setRoomCount(prevCount => Math.max(1, prevCount + value)); // Giới hạn tối thiểu là 1 phòng
+    if (type === "adult") {
+      setAdultCount((prevCount) => Math.max(1, prevCount + value)); // Tối thiểu 1 người lớn
     }
   };
 
   // Áp dụng lựa chọn và cập nhật summary
   const applyGuestSelection = () => {
-    setGuestSummary(`${adultCount} Người lớn, ${childrenCount} Trẻ em`);
+    setGuestSummary(`${adultCount} khách`);
     setGuestDropdownVisible(false);
+  };
+
+  const handleSubmit = () => {
+    // Sử dụng giá trị từ state hoặc fallback vào giá trị mặc định trong useEffect
+    const filterData = {
+      checkIn: formatDateToYYYYMMDD(checkinDate || new Date()), // Nếu chưa có ngày nhận phòng, lấy ngày hiện tại
+      checkOut: formatDateToYYYYMMDD(
+        checkoutDate ||
+        (() => {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1); // Ngày mai
+          return tomorrow;
+        })()
+      ),
+      guest: adultCount,
+    };
+    
+    navigate("/client/rooms", { state: filterData }); // Gửi filter qua state
+  };
+
+
+  // Xử lý khi thay đổi ngày nhận phòng
+  const handleCheckinChange = (date) => {
+    setCheckinDate(date);
+
+    // Nếu ngày trả phòng không hợp lệ, tự động điều chỉnh
+    if (checkoutDate && date >= checkoutDate) {
+      const correctedDate = new Date(date);
+      correctedDate.setDate(correctedDate.getDate() + 1); // Ngày trả phòng phải ít nhất 1 ngày sau ngày nhận phòng
+      setCheckoutDate(correctedDate);
+    }
+  };
+
+  // Xử lý khi thay đổi ngày trả phòng
+  const handleCheckoutChange = (date) => {
+    if (checkinDate && date <= checkinDate) {
+      const correctedDate = new Date(checkinDate);
+      correctedDate.setDate(correctedDate.getDate() + 1); // Tự động sửa ngày trả phòng
+      setCheckoutDate(correctedDate);
+    } else {
+      setCheckoutDate(date);
+    }
   };
   return (
     <>
@@ -68,9 +107,9 @@ export default function Book() {
                       <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkinDate}
-                        onChange={date => setCheckinDate(date)}
+                        onChange={handleCheckinChange}
                         className="form-control mt-0"
-                        placeholderText="Chọn ngày"
+                        placeholderText="Chọn ngày nhận khách"
                         dateFormat="dd/MM/yyyy"
                         minDate={new Date()}
                       />
@@ -79,10 +118,10 @@ export default function Book() {
                   <div className="col-md-3">
                     <label htmlFor="checkout" className="form-label">Trả phòng</label>
                     <div className="input-group flex-nowrap">
-                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus" ></i></span>
+                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkoutDate}
-                        onChange={date => setCheckoutDate(date)}
+                        onChange={handleCheckoutChange}
                         className="form-control mt-0"
                         placeholderText="Chọn ngày"
                         dateFormat="dd/MM/yyyy"
@@ -115,7 +154,7 @@ export default function Book() {
                       >
                         <Dropdown.Item as="div" className="guest-option">
                           <Row className="d-flex justify-content-between align-items-center mb-2">
-                            <Col>Người lớn</Col>
+                            <Col>Số lượng người ở</Col>
                             <Col className="d-flex justify-content-end">
                               <Button
                                 variant="outline-secondary"
@@ -136,29 +175,6 @@ export default function Book() {
                           </Row>
                         </Dropdown.Item>
 
-                        <Dropdown.Item as="div" className="guest-option">
-                          <Row className="d-flex justify-content-between align-items-center mb-2">
-                            <Col>Trẻ em</Col>
-                            <Col className="d-flex justify-content-end">
-                              <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                onClick={() => changeCount('children', -1)}
-                              >
-                                -
-                              </Button>
-                              <span className="mx-2">{childrenCount}</span>
-                              <Button
-                                variant="outline-secondary"
-                                size="sm"
-                                onClick={() => changeCount('children', 1)}
-                              >
-                                +
-                              </Button>
-                            </Col>
-                          </Row>
-                        </Dropdown.Item>
-
                         <Button variant="primary" onClick={applyGuestSelection} className="w-100">
                           Xong
                         </Button>
@@ -168,7 +184,7 @@ export default function Book() {
                 </div>
               </div>
               <div className="col-md-2" style={{ marginTop: "40px" }}>
-                <button className="btn btn-primary w-100">Submit</button>
+                <button className="btn btn-primary w-100" onClick={handleSubmit} style={{ height: '44px' }}>Tìm</button>
               </div>
             </div>
           </div>

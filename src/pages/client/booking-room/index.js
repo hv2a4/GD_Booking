@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LayoutClient from '../../../components/layout/cilent';
 import './custom.css';
 import { decodeToken } from '../../../services/client/Booking/BookingService';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { bookingRoom, getDataListTypeRoom } from './Service';
 import Swal from 'sweetalert2';
 const PageBookRoom = () => {
@@ -17,10 +17,9 @@ const PageBookRoom = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3; // Số phòng hiển thị trên mỗi trang
-
     // State to store payment method and discount code
     const [paymentMethod, setPaymentMethod] = useState('');
-
+    const location = useLocation();
 
 
     const handleSubmit = (event) => {
@@ -55,10 +54,21 @@ const PageBookRoom = () => {
                     title: 'Thông báo',
                     text: 'Bạn chưa nhập số điện thoại. Vui lòng cập nhật thông tin trước khi đặt phòng.',
                     confirmButtonText: 'Cập nhật ngay',
+                    allowOutsideClick: false
                 }).then(() => {
                     navigate('/client/profile'); // Chuyển hướng đến trang cập nhật số điện thoại
                 });
                 return; // Dừng hàm nếu không có số điện thoại hợp lệ
+            }
+
+            if (!paymentMethod) {
+                await Swal.fire({
+                    title: 'Phương thức thanh toán chưa được chọn!',
+                    text: 'Vui lòng chọn phương thức thanh toán để tiếp tục.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+                return; // Dừng thực hiện nếu chưa chọn phương thức thanh toán
             }
 
             // Xử lý roomIdss
@@ -73,14 +83,52 @@ const PageBookRoom = () => {
                     console.error("roomIdss không hợp lệ:", roomIdss);
                 }
             }
+            const PAYMENT_METHODS = {
+                POSTPAID: 1,
+                ONLINE: 2,
+            };
 
+            const PaymentMethodId = paymentMethod === 'postpaid' ? PAYMENT_METHODS.POSTPAID : PAYMENT_METHODS.ONLINE;
+            if (PaymentMethodId === PAYMENT_METHODS.ONLINE) {
+                const result = await Swal.fire({
+                    title: 'Chuyển đến cổng thanh toán VNPay',
+                    text: 'Bạn sẽ được chuyển đến VNPay để hoàn tất thanh toán.',
+                    icon: 'info',
+                    confirmButtonText: 'Tiếp tục',
+                    cancelButtonText: 'Hủy',
+                    showCancelButton: true,
+                    allowOutsideClick: false
+                });
+
+                // Người dùng hủy thanh toán
+                if (!result.isConfirmed) {
+                    console.log("Người dùng đã hủy thanh toán qua VNPay.");
+                    return;
+                }
+            } else {
+                const result = await Swal.fire({
+                    title: 'Xác nhận đặt phòng',
+                    text: 'Bạn đã chọn thanh toán tại quầy lễ tân. Nhấn "Tiếp tục" để xác nhận đặt phòng.',
+                    icon: 'info',
+                    confirmButtonText: 'Tiếp tục',
+                    cancelButtonText: 'Hủy',
+                    showCancelButton: true,
+                    allowOutsideClick: false
+                });
+
+                // Người dùng hủy thanh toán
+                if (!result.isConfirmed) {
+                    return;
+                }
+            }
             // Tạo payload để gửi đi
             const payload = {
                 userName: token.username + "",
                 startDate: rooms.startDate,
                 endDate: rooms.endDate,
                 roomId: roomIdArray,
-                discountName: ""
+                discountName: "",
+                methodPayment: parseInt(PaymentMethodId)
             };
 
             console.log("Payload trước khi gửi:", payload);
@@ -88,17 +136,42 @@ const PageBookRoom = () => {
             // Gọi API đặt phòng
             await bookingRoom(payload, navigate);
 
+
         } catch (error) {
             console.error("Đặt phòng thất bại:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi',
-                text: 'Đã xảy ra lỗi khi đặt phòng. Vui lòng thử lại.',
-                confirmButtonText: 'Đóng',
-            });
         }
     };
 
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const status = queryParams.get("status");
+        const message = queryParams.get("message");
+        const decodedMessage = decodeURIComponent(message || "");
+        if (status === 'success' && message === 'Bạn đã đặt phòng thành công vui lòng vào email để xem chi tiết') {
+
+            console.log("Dữ liệu:", decodedMessage);
+            console.log("Trạng thái: ", status);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Đặt phòng thành công!',
+                text: decodedMessage,
+                confirmButtonText: 'OK',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/client/home');
+                }
+            });
+        }
+        if (status === 'error' && message === 'Thanh toán thất bại, đơn đặt phòng của bạn đã bị hủy') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Đặt phòng không thành công!',
+                text: decodedMessage,
+                confirmButtonText: 'OK',
+            })
+        }
+    }, [location.search, navigate]);
 
     useEffect(() => {
         // Giải mã token và lưu vào state
@@ -181,6 +254,38 @@ const PageBookRoom = () => {
         setCurrentPage(pageNumber);
     };
 
+    useEffect(() => {
+        // Kiểm tra dữ liệu trong sessionStorage
+        const bookedRooms = sessionStorage.getItem("bookedRooms");
+        const booking = sessionStorage.getItem("booking");
+        if (!bookedRooms && !booking) {
+            // Nếu không có dữ liệu, chuyển hướng người dùng
+            navigate("/client/rooms");
+        } else {
+            navigate("/client/booking-room");
+        }
+    }, [navigate]);
+
+    const handleCancel = () => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Hủy đặt phòng?',
+            text: 'Bạn có chắc chắn muốn hủy đặt phòng không? Dữ liệu sẽ bị xóa.',
+            showCancelButton: true,
+            confirmButtonColor: '#ffc107', // Màu nút xác nhận (phù hợp màu chủ đạo)
+            cancelButtonColor: '#d33', // Màu nút Hủy
+            confirmButtonText: 'Hủy đặt phòng',
+            cancelButtonText: 'Quay lại',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Xóa toàn bộ dữ liệu trong sessionStorage
+                sessionStorage.clear();
+                // Điều hướng về trang phòng
+                navigate("/client/rooms");
+            }
+        });
+    }
+
     return (
         <LayoutClient>
             <div className="page-box-content page-hotel">
@@ -190,6 +295,26 @@ const PageBookRoom = () => {
                             <h3 className="booking-title">Thông tin đặt phòng</h3>
                             <div className="box-content mb-5">
                                 <form id="form-hotel-booking" className="create-booking" onSubmit={handleSubmit} noValidate>
+                                    <div className="d-flex justify-content-start align-items-center mb-3">
+                                        <button
+                                            type="button"
+                                            className="btn-sm d-flex align-items-center btn-back"
+                                            onClick={() => window.history.back()}
+                                            style={{
+                                                borderRadius: "50%",
+                                                justifyContent: "center",
+                                                background: "#ffc107", // Màu nền theo chủ đạo
+                                                border: "none",
+                                                width: "40px",
+                                                height: "40px",
+                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Thêm chút bóng
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            <i className="bi bi-arrow-left text-white" style={{ fontSize: "18px" }}></i>
+                                        </button>
+                                    </div>
+
                                     {/* Thông tin khách hàng */}
                                     <div className="form-row">
                                         <div className="col-lg-12 col-md-12">
@@ -394,8 +519,29 @@ const PageBookRoom = () => {
 
                                     {/* Nút Submit */}
                                     <div className="box-submit mt-4">
-                                        <button type="button" className="custom-submit-btn" onClick={handleBookingRooms}>Xác nhận</button>
+                                        {/* Phần Nút Quay lại */}
+                                        <div className="back-button">
+                                            <button
+                                                type="button"
+                                                className="custom-back-btn"
+                                                onClick={handleCancel} // Quay lại trang trước
+                                            >
+                                                Hủy
+                                            </button>
+                                        </div>
+
+                                        {/* Phần Nút Xác nhận */}
+                                        <div className="submit-button">
+                                            <button
+                                                type="button"
+                                                className="custom-submit-btn"
+                                                onClick={handleBookingRooms}
+                                            >
+                                                Xác nhận
+                                            </button>
+                                        </div>
                                     </div>
+
                                 </form>
                             </div>
                         </div>
