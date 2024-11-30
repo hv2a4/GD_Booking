@@ -22,6 +22,9 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
         handleCustomer();
         handleBookingRoom();
     }, [bookingRoomIds]);
+    useEffect(() => {
+        handleCustomer();
+    }, [customerInformation]);
 
     const handleShowModalInsertCustomer = () => {
         setShowModalInsertCustomer(true);
