@@ -45,10 +45,12 @@ const ListReservation = () => {
     // Áp dụng filterBookings và searchBookings
     const filteredAndSearchedBookings = searchBookings(bookings, searchTerm);
 
+    // useEffect(() => {
+    //     handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
+    // }, [filterType, startDate, endDate, location]);
     useEffect(() => {
         handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
-
-    }, [filterType, startDate, endDate, location]);
+    }, [filteredBookings])
 
     const handleStartDateChange = (selectedDate) => {
         setStartDate(selectedDate);
@@ -76,7 +78,7 @@ const ListReservation = () => {
         const data = await getAllBooking(filterType, startDate, endDate, token);
         if (data) {
             setBookings(data);
-            setFilteredBookings(filteredAndSearchedBookings);
+            setFilteredBookings(filterBookings(filteredAndSearchedBookings));
         }
     }
 
@@ -95,7 +97,53 @@ const ListReservation = () => {
             return !allCheckInNull;
         });
     };
+    const renderTabContent = (tab) => {
+        let bookingsForTab = [];
+        switch (tab) {
+            case "choxacnhan":
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 2);
+                break;
+            case "datra":
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 8);
+                break;
+            case "dattruoc":
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 4);
+                break;
+            case "dangsudung":
+                bookingsForTab = filteredBookings;
+                break;
+            case "quagio":
+                bookingsForTab = filteredAndSearchedBookings.filter(
+                    (e) => e.statusBookingDto?.id === 4 && new Date(e.endAt) < new Date()
+                );
+                break;
+            case "chotaohoadon":
+                return <CreateInvoice />;
+            default:
+                return <p>Không có dữ liệu</p>;
+        }
 
+        return renderComponentForTab(tab, bookingsForTab);
+    };
+
+    const renderComponentForTab = (tab, bookingsForTab) => {
+        switch (tab) {
+            case "choxacnhan":
+                return <Confirm item={bookingsForTab} />;
+            case "datra":
+                return <CheckedOut item={bookingsForTab} />;
+            case "dattruoc":
+                return <Reserved item={bookingsForTab} />;
+            case "dangsudung":
+                return <InUse item={bookingsForTab} />;
+            case "quagio":
+                return <OverTime item={bookingsForTab} />;
+            default:
+                return null;
+        }
+    };
+    
+    
 
     return (
         <Layoutemployee>
@@ -186,36 +234,34 @@ const ListReservation = () => {
                         <button class="nav-link" id="pills-chotaohoadon-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-chotaohoadon" type="button"
                             role="tab" aria-controls="pills-chotaohoadon"
-                            aria-selected="false">Chờ tạo hoá đơn</button>
+                            aria-selected="false">Đã hủy</button>
 
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
                     <div className="tab-pane fade show active" id="pills-choxacnhan"
                         role="tabpanel" aria-labelledby="pills-choxacnhan-tab">
-                        <Confirm item={filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 2)} />
+                        {renderTabContent("choxacnhan")}
                     </div>
                     <div className="tab-pane fade" id="pills-datra" role="tabpanel"
                         aria-labelledby="pills-datra-tab">
-                        <CheckedOut item={filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 8)} />
+                        {renderTabContent("datra")}
                     </div>
                     <div className="tab-pane fade" id="pills-dattruoc" role="tabpanel"
                         aria-labelledby="pills-dattruoc-tab">
-                        <Reserved item={filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 4)} />
+                        {renderTabContent("dattruoc")}
                     </div>
                     <div className="tab-pane fade" id="pills-dangsudung" role="tabpanel"
                         aria-labelledby="pills-dangsudung-tab">
-                        <InUse item={filteredBookings} />
+                        {renderTabContent("dangsudung")}
                     </div>
                     <div className="tab-pane fade" id="pills-quagio" role="tabpanel"
                         aria-labelledby="pills-quagio-tab">
-                        <OverTime item={filteredAndSearchedBookings.filter(
-                            (e) => e.statusBookingDto?.id === 4 && new Date(e.endAt) < new Date()
-                        )} />
+                        {renderTabContent("quagio")}
                     </div>
                     <div className="tab-pane fade" id="pills-chotaohoadon"
                         role="tabpanel" aria-labelledby="pills-chotaohoadon-tab">
-                        <CreateInvoice />
+                        {renderTabContent("chotaohoadon")}
                     </div>
                 </div>
 
@@ -225,7 +271,7 @@ const ListReservation = () => {
                 </div>
                 <div className="d-flex spacer pb-4 pt-4 flex-center-between ng-star-inserted">
                     <div className="spacer align-items-center">
-                        <span>Tổng <strong className="text-success">1</strong> đặt phòng</span>
+                        <span>Tổng <strong className="text-success">{filteredAndSearchedBookings.length}</strong> đặt phòng</span>
                         <button className="btn btn-sm btn-outline-success" onClick={handleReload}>
                             <i className="fa fa-rotate icon-btn"></i>
                             <span>Tải lại</span>
@@ -236,6 +282,7 @@ const ListReservation = () => {
             {ShowInserRoom && <DatPhong onClose={handleCloseModalInserRoom} />}
         </Layoutemployee>
     )
+    
 }
 
 export default ListReservation;

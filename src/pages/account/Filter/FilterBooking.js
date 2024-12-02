@@ -57,6 +57,29 @@ export default function BookingFillter({ onFilter, onSendDates }) {
         onFilter(formatDateToYYYYMMDD(checkinDate), formatDateToYYYYMMDD(checkoutDate), adultCount);
     };
 
+    // Xử lý khi thay đổi ngày nhận phòng
+    const handleCheckinChange = (date) => {
+        setCheckinDate(date);
+
+        // Nếu ngày trả phòng không hợp lệ, tự động điều chỉnh
+        if (checkoutDate && date >= checkoutDate) {
+            const correctedDate = new Date(date);
+            correctedDate.setDate(correctedDate.getDate() + 1); // Ngày trả phòng phải ít nhất 1 ngày sau ngày nhận phòng
+            setCheckoutDate(correctedDate);
+        }
+    };
+
+    // Xử lý khi thay đổi ngày trả phòng
+    const handleCheckoutChange = (date) => {
+        if (checkinDate && date <= checkinDate) {
+            const correctedDate = new Date(checkinDate);
+            correctedDate.setDate(correctedDate.getDate() + 1); // Tự động sửa ngày trả phòng
+            setCheckoutDate(correctedDate);
+        } else {
+            setCheckoutDate(date);
+        }
+    };
+
     return (
         <>
             <div
@@ -71,10 +94,10 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                     <div className="col-md-3">
                                         <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                                         <div className="input-group flex-nowrap">
-                                            <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                                            <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkinDate}
-                                                onChange={date => setCheckinDate(date)}
+                                                onChange={handleCheckinChange}
                                                 className="form-control mt-0"
                                                 placeholderText="Chọn ngày nhận khách"
                                                 dateFormat="dd/MM/yyyy"
@@ -85,10 +108,10 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                     <div className="col-md-3">
                                         <label htmlFor="checkout" className="form-label">Trả phòng</label>
                                         <div className="input-group flex-nowrap">
-                                            <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                                            <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkoutDate}
-                                                onChange={date => setCheckoutDate(date)}
+                                                onChange={handleCheckoutChange}
                                                 className="form-control mt-0"
                                                 placeholderText="Chọn ngày"
                                                 dateFormat="dd/MM/yyyy"
@@ -100,7 +123,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                         <Form.Group controlId="guests">
                                             <Form.Label>Số khách</Form.Label>
                                             <InputGroup className="flex-nowrap">
-                                                <InputGroup.Text>
+                                                <InputGroup.Text style={{ height: '44px' }}>
                                                     <i className="bi bi-person"></i>
                                                 </InputGroup.Text>
                                                 <Form.Control
@@ -151,7 +174,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                 </div>
                             </div>
                             <div className="col-md-2" style={{ marginTop: "40px" }}>
-                                <button className="btn btn-primary w-100" onClick={handleSubmit}>Tìm</button>
+                                <button className="btn btn-primary w-100" onClick={handleSubmit} style={{ height: '44px' }}>Tìm</button>
                             </div>
                         </div>
                     </div>

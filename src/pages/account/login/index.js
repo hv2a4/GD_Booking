@@ -9,9 +9,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { ClipLoader } from "react-spinners"; // Import spinner từ react-spinners
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import request from '../../../config/configApi';
 import { useForm } from 'react-hook-form';
-
 
 const AuthForm = () => {
     const [isSignUp, setIsSignUp] = useState(true);
@@ -197,6 +195,10 @@ const AuthForm = () => {
         }
 
     }
+
+    const handleOnclickForgot = () => {
+        navigate("/forgot-password");
+    }
     return (
         <div className='login'>
             <ToastContainer
@@ -316,7 +318,23 @@ const AuthForm = () => {
                                     {...register("passwords")} // Đăng ký input mà không cần kiểm tra lỗi
                                     required />
                             </div>
-                            <a href="#">Quên mật khẩu?</a>
+                            <button
+
+                                onClick={handleOnclickForgot}
+                                style={{
+                                    display: 'inline-block',
+                                    margin: '10px 0',
+                                    fontSize: '13px',
+                                    color: '#007bff',
+                                    textDecoration: 'none',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    transition: 'color 0.3s'
+                                }}
+                            >
+                                Quên mật khẩu?
+                            </button>
                             <button type="submit" className="btn btn-primary mt-3" onClick={handleLoginSimple} style={{ width: '100%' }} >Đăng nhập</button>
                             <span>Hoặc sử dụng tài khoản của bạn</span>
                             <div className="d-flex gap-2 mt-3">

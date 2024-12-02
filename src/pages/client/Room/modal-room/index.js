@@ -71,7 +71,7 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
         <div className="room-price-container">
           <span><strong>Giá phòng</strong></span>
           <span className="room-detail-price">
-            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}
+            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}/Ngày
           </span>
         </div>
 
@@ -95,6 +95,7 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
                             src={room.image}
                             alt={`Ảnh của ${room.accountName}`}
                             className="room-avatar"
+                            style={{ width: '25%', borderRadius: '50%' }}
                           />
                         </div>
                         <div>

@@ -45,7 +45,14 @@ import { Outlet } from "react-router-dom";
 import LoginAdmin from "./pages/admin/login";
 import ForgotPassword from "./pages/admin/ForgotPassword/ForgotPassword";
 import ChangePassword from "./pages/admin/ChangePassword";
+<<<<<<< HEAD
 const App = () => {
+=======
+import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
+import FloorPage from "./pages/admin/home/Floor";
+function App() {
+
+>>>>>>> 43c144fcf9ab6417f822bbfbb34353eeaf3eedf7
   const getUserRole = () => {
     try {
       const cookieToken = Cookies.get("token") || null;
@@ -85,8 +92,8 @@ const App = () => {
         {/* Routes for Client */}
         <Route path="/client" >
           <Route path="home" element={<Home />} />
-          <Route path="booking" element={<Booking />} />
-          <Route path="testimonial" element={<Testimonial />} />
+          {/* <Route path="booking" element={<Booking />} /> */}
+          {/* <Route path="testimonial" element={<Testimonial />} /> */}
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<Contact />} />
           <Route path="rooms" element={<RoomClient />} />
@@ -117,11 +124,21 @@ const App = () => {
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} /> 
           <Route path="amenities" element={<AmenitiesPage />} />
+          <Route path="reservation-report" element={<ReservationReport />} />
+          <Route path="room-class-report" element={<RoomClassReport />} />
+          <Route path="employee-report" element={<EmployeeReport />} />
+          <Route path="floor" element={<FloorPage />} />
         </Route>
         <Route path="login" element={<LoginAdmin />} />
+<<<<<<< HEAD
         <Route path="account" element={<Login />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         
+=======
+        <Route path="forgot-password" element={<ForgotPasswordEmail />} />
+        <Route path="otp-code" element={<VerifyOTP />} />
+        <Route path="reset-password" element={<ResetPassword />} />
+>>>>>>> 43c144fcf9ab6417f822bbfbb34353eeaf3eedf7
         <Route path="change-password" element={<ChangePassword />} />
       </Route>
     )

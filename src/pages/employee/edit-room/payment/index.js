@@ -1,203 +1,274 @@
-import React,{ useState }  from "react";
-import Offcanvas from 'react-bootstrap/Offcanvas';
-const PopupPayment = () => {
-    const [show, setShow] = useState(false);
+import React, { useEffect, useState } from "react";
+import { Modal, Button } from "react-bootstrap";
+import { formatCurrency } from "../../../../config/formatPrice";
+import { getBookingRoomServiceRoom } from "../../../../services/admin/account-manager";
+import Cookies from 'js-cookie';
+import { jwtDecode as jwt_decode } from "jwt-decode";
 
+const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} } }) => {
+    const [show, setShow] = useState(false);
+    const [bookingRooms, setBookingRooms] = useState([]);
+    const [services, setServices] = useState([]);
+    const [dateTime, setDateTime] = useState(new Date().toISOString().slice(0, 16));
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const cookieToken = Cookies.get("token") ? Cookies.get("token") : null;
+    const decodedToken = jwt_decode(cookieToken);
+    useEffect(() => {
+        if (bookings?.bookingRooms) {
+            setBookingRooms(bookings.bookingRooms);
+            console.log(bookings);
+
+            handleService();
+        }
+    }, [bookings]);
+
+    const handleService = async () => {
+        const idBookingRoom = bookingRooms.map((e) => e.id);
+        const data = await getBookingRoomServiceRoom(idBookingRoom);
+        setServices(data);
+    }
+
+    const calculateDuration = (checkIn, checkOut) => {
+        if (!checkIn || !checkOut) return 0;
+
+        const start = new Date(checkIn);
+        const end = new Date(checkOut);
+
+        if (isNaN(start) || isNaN(end)) return 0;
+
+        const diffMs = end - start;
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        return diffDays > 0 ? diffDays : 0;
+    };
+    const calculateTotal = () => {
+        // Tính tổng tiền phòng
+        const totalRoomCost = bookingRooms.reduce((acc, item) => {
+            const duration = calculateDuration(item.checkIn, new Date());
+            const roomCost = item.room?.typeRoomDto?.price * duration || 0;
+            return acc + roomCost;
+        }, 0);
+
+        // Tính tổng tiền dịch vụ
+        const totalServiceCost = services.reduce((acc, item) => {
+            const serviceCost = item.price * item.quantity || 0;
+            return acc + serviceCost;
+        }, 0);
+
+        // Tổng cộng tiền phòng và dịch vụ
+        return totalRoomCost + totalServiceCost;
+    };
+
+    const tatolRoom = () => {
+        const totalRoomCost = bookingRooms.reduce((acc, item) => {
+            const duration = calculateDuration(item.checkIn, new Date());
+            const roomCost = item.room?.typeRoomDto?.price * duration || 0;
+            return acc + roomCost;
+        }, 0);
+        return totalRoomCost;
+    }
+
+
+    if (!bookings?.bookingRooms?.length) {
+        return <div className="overlay-loading">
+            <div className="spinner-border text-success" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+        </div>;
+    }
+
     return (
         <>
-            <button className="btn btn-outline-success ng-star-inserted" type="button" onClick={handleShow}>Thanh toán</button>
-            <Offcanvas show={show} onHide={handleClose} placement="end" style={{ width: "80%", maxWidth: "80%", height: "100%" }}>
-                <Offcanvas.Header closeButton>
-                    <Offcanvas.Title id="offcanvasRightLabel">Thanh toán DP000008 - Lê Minh Khôi</Offcanvas.Title>
-                </Offcanvas.Header>
-                <Offcanvas.Body className="offcanvas-body">
-                    <div className="popup-payment-body popup-float-body ng-star-inserted container-fluid">
+            <button
+                className="btn btn-outline-success"
+                type="button"
+                onClick={handleShow}
+            >
+                Thanh toán
+            </button>
+            <Modal
+                show={show}
+                onHide={handleClose}
+                size="xl"
+                centered
+                scrollable
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Thanh toán hóa đơn {bookings.id} - {bookings?.accountDto?.fullname}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="container-fluid">
                         <div className="row">
                             <div className="col-12 col-lg-8">
-                                <div className="popup-payment-cart">
-                                    <div className="payment-cart ng-star-inserted">
-                                        <div className="payment-cart-grid">
-                                            <div className="popup-payment-section ng-star-inserted">
-                                                <div className="spacer mb-2 ng-star-inserted">
-                                                    <h4 className="mb-0">Tiền phòng</h4>
-                                                </div>
-                                                <div className="payment-cart-table">
-                                                    <table className="table table-neutral table-fixed-head table-vertical-top">
-                                                        <thead>
-                                                            <tr className="text-nowrap">
-                                                                <th className="cell-order text-center"> STT </th>
-                                                                <th> Hạng mục </th>
-                                                                <th className="cell-quantity-order text-center"> Số lượng </th>
-                                                                <th className="cell-price-type text-right"> Đơn giá </th>
-                                                                <th className="cell-price text-right"> Thành tiền </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr className="ng-star-inserted">
-                                                                <td className="cell-order text-nowrap text-center ng-star-inserted">1.</td>
-                                                                <td>
-                                                                    <label className="d-inline p-0 m-0">
-                                                                        <div className="spacer">
-                                                                            <h4 className="mb-0">
-                                                                                <span>Phòng 01 giường đôi và 1 giường đơn cho 3 người (15 Thg9 - 14 Thg10)</span>
-                                                                            </h4>
-                                                                            <div className="spacer">
-                                                                                <span className="tag tag-light-neutral ng-star-inserted"> P.402</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </label>
+                                <div className="row">
+                                    <div className="col-lg-12 mb-4">
+                                        <h5>Tiền phòng</h5>
+                                        <table className="table">
+                                            <thead>
+                                                <tr>
+                                                    <th className="text-center">STT</th>
+                                                    <th>Hạng mục</th>
+                                                    <th className="text-center">Số lượng</th>
+                                                    <th className="text-end">Đơn giá</th>
+                                                    <th className="text-end">Thành tiền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {bookingRooms && bookingRooms.length > 0 ? (
+                                                    bookingRooms.map((item, index) => {
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td className="text-center">{index + 1}</td>
+                                                                <td className="fw-semibold">
+                                                                    {item.room?.typeRoomDto?.typeRoomName} - {item.room?.typeRoomDto?.typeBedDto?.bedName}
+                                                                    <br />
+                                                                    <small className="text-muted">{item.room?.roomName}</small>
                                                                 </td>
-                                                                <td className="cell-quantity-order text-center"> 1 <span className="ng-star-inserted"> Tháng </span></td>
-                                                                <td className="cell-price-type text-right"> 29,000,000</td>
-                                                                <td className="cell-price text-right">
-                                                                    <h4 className="mb-0"> 29,000,000 </h4>
-                                                                </td>
+                                                                <td className="text-center">{calculateDuration(item.checkIn, new Date())} ngày</td>
+                                                                <td className="text-end">{formatCurrency(item.room?.typeRoomDto?.price)}</td>
+                                                                <td className="text-end">{formatCurrency(item.room?.typeRoomDto?.price * calculateDuration(item.checkIn, new Date()))}</td>
                                                             </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            <div className="popup-payment-section ng-star-inserted">
-                                                <div className="spacer mb-2 ng-star-inserted">
-                                                    <h4 className="mb-0">Sản phẩm/Dịch vụ/Phụ thu</h4>
-                                                </div>
-                                                <div className="payment-cart-table">
-                                                    <table className="table table-neutral table-fixed-head table-vertical-top">
-                                                        <thead>
-                                                            <tr className="text-nowrap">
-                                                                <th className="cell-order text-center"> STT </th>
-                                                                <th> Hạng mục </th>
-                                                                <th className="cell-quantity-order text-center"> Số lượng </th>
-                                                                <th className="cell-price-type text-right"> Đơn giá </th>
-                                                                <th className="cell-price text-right"> Thành tiền </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr className="ng-star-inserted">
-                                                                <td className="cell-order text-nowrap text-center ng-star-inserted">1.</td>
-                                                                <td>
-                                                                    <label className="d-inline p-0 m-0">
-                                                                        <div className="spacer">
-                                                                            <h4 className="mb-0">
-                                                                                <span>Thuê ô tô</span>
-                                                                            </h4>
-                                                                            <div className="spacer">
-                                                                                <span className="tag tag-light-neutral ng-star-inserted"> P.402</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </label>
+                                                        )
+                                                    })
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div className="col-lg-12 mb-4">
+                                        <h5>Dịch vụ</h5>
+                                        <table className="table">
+                                            <thead>
+                                                <tr>
+                                                    <th className="text-center">STT</th>
+                                                    <th>Tên dịch vụ</th>
+                                                    <th className="text-center">Số lượng</th>
+                                                    <th className="text-end">Đơn giá</th>
+                                                    <th className="text-end">Thành tiền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {services && services.length > 0 ? (
+                                                    services.map((item, index) => {
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td className="text-center">{index + 1}</td>
+                                                                <td className="fw-semibold">{item.serviceRoomDto?.serviceRoomName} ({item.serviceRoomDto?.typeServiceRoomDto?.duration})
+                                                                    <br />
+                                                                    <small className="text-muted">{item.bookingRoomDto?.room?.roomName}</small>
                                                                 </td>
-                                                                <td className="cell-quantity-order text-center">1</td>
-                                                                <td className="cell-price-type text-right"> 29,000,000</td>
-                                                                <td className="cell-price text-right">
-                                                                    <h4 className="mb-0"> 29,000,000 </h4>
-                                                                </td>
+                                                                <td className="text-center">{item.quantity}</td>
+                                                                <td className="text-end">{formatCurrency(item.price)}</td>
+                                                                <td className="text-end">{formatCurrency(item.price * item.quantity)}</td>
                                                             </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan="5" className="text-center">Không có dịch vụ nào</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
-
                             <div className="col-12 col-lg-4">
-                                <div className="popup-payment-right">
-                                    <div className="payment-container">
-                                        <div className="payment-body">
-                                            <div className="row">
-                                                <div className="col-6 mb-3">
-                                                    <label className="mb-1 font-sm">Nhân viên tạo HĐ</label>
-                                                    <select className="form-select" aria-label="Default select example">
-                                                        <option selected>Chưa xác định</option>
-                                                        <option value="1">Nhân viên 1</option>
-                                                        <option value="2">Nhân viên 2</option>
-                                                        <option value="3">Nhân viên 3</option>
-                                                    </select>
-                                                </div>
-                                                <div className="col-6 mb-3">
-                                                    <label className="mb-1 font-sm">Thời gian tạo HĐ</label>
-                                                    <input type="datetime-local" className="form-control" style={{ backgroundImage: "none" }} />
-                                                </div>
-                                            </div>
-                                            <div className="payment-form ng-star-inserted">
-                                                <div className="payment-form-block pt-3">
-                                                    <div className="payment-form-row form-row">
-                                                        <div className="payment-form-label col-form-label"> Tổng cộng </div>
-                                                        <div className="payment-form-control col-form-control">
-                                                            <div className="btn pl-0 pr-0 border-none">31,500,000</div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="payment-form-row form-row">
-                                                        <div className="payment-form-label col-form-label"> Giảm giá </div>
-                                                        <div className="payment-form-control col-form-control">
-                                                            <button className="form-control form-control-line cell-change-price"> 0 </button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="payment-form-row form-row">
-                                                        <div className="payment-form-label col-form-label"> Thu khác </div>
-                                                        <div className="payment-form-control col-form-control">
-                                                            <button type="button" className="form-control form-control-line cell-change-price"> 0 </button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="payment-form-row form-row">
-                                                        <div className="payment-form-label col-form-label">
-                                                            <strong>Còn cần trả</strong>
-                                                        </div>
-                                                        <div className="payment-to-pay payment-form-control col-form-control"> 31,500,000 </div>
-                                                    </div>
-                                                </div>
-                                                <div className="payment-form-block mt-3">
-                                                    <h3> Phương thức thanh toán </h3>
-                                                    <div className="payment-form-row form-row mb-0 ng-star-inserted">
-                                                        <div className="payment-form-label col-form-label pt-0">
-                                                            <span> Khách thanh toán </span>
-                                                            <button className="btn btn-icon-only btn-circle btn-ligprimary">
-                                                                <i className="far fa-credit-card icon-btn"></i>
-                                                            </button>
-                                                        </div>
-                                                        <div className="payment-customer-pay payment-form-control col-form-control">
-                                                            <input id="payingAmountTxt" type="text" className="form-control form-control-line cell-change-price ng-pristine ng-valid ng-star-inserted ng-touched" />
-                                                        </div>
-                                                    </div>
-                                                    <div className="ng-star-inserted">
-                                                        <div className="payment-choose-method ng-star-inserted">
-                                                            <label className="form-check">
-                                                                <input type="radio" name="paymentMethod" className="form-check-input ng-valid ng-dirty ng-touched" />
-                                                                <span className="form-check-text">Tiền mặt</span>
-                                                            </label>
-                                                            <label className="form-check">
-                                                                <input type="radio" name="paymentMethod" className="form-check-input ng-valid ng-dirty ng-touched" />
-                                                                <span className="form-check-text">Chuyển khoản</span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div className="payment-return ng-star-inserted">
-                                                        <div className="payment-form-row form-row mb-3 ng-star-inserted">
-                                                            <div className="payment-form-label col-form-label"> Tiền thừa trả khách </div>
-                                                            <div className="payment-form-control col-form-control payment-return-money ng-star-inserted"> 58,500,000 </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <div className="border p-3 rounded">
+                                    <h5>Chi tiết thanh toán</h5>
+                                    <div className="mb-3">
+                                        <label className="form-label">Nhân viên tạo HĐ</label>
+                                        <input className="form-control" value={decodedToken.fullname} disabled />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Thời gian tạo HĐ</label>
+                                        <input
+                                            type="datetime-local"
+                                            value={dateTime}
+                                            onChange={(e) => setDateTime(e.target.value)}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <div className="d-flex justify-content-between">
+                                            <span>Tổng cộng</span>
+                                            <strong>{formatCurrency(calculateTotal())} VNĐ</strong>
                                         </div>
-                                        <div className="payment-footer">
-                                            <div className="payment-actions">
-                                                <button type="button" className="btn btn-outline-success ng-star-inserted w-100"> Hoàn thành </button>
-                                            </div>
+                                    </div>
+                                    <div className="mb-3">
+                                        <div className="d-flex justify-content-between">
+                                            <span>Giảm giá</span>
+                                            <strong>0</strong>
                                         </div>
+                                    </div>
+                                    <div className="mb-3">
+                                        <div className="d-flex justify-content-between">
+                                            <span>Thu khác</span>
+                                            <strong>0</strong>
+                                        </div>
+                                    </div>
+                                    <div className="mb-3">
+                                        <div className="d-flex justify-content-between">
+                                            <span>Khách đã trả</span>
+                                            <strong>{bookings.methodPaymentDto
+                                                ? bookings.methodPaymentDto === 1
+                                                    ? 0
+                                                    : bookings.methodPaymentDto === 2
+                                                        ? formatCurrency(tatolRoom())
+                                                        : null
+                                                : 0}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    <div className="mb-3">
+                                        <div className="d-flex justify-content-between">
+                                            <strong>Còn cần trả</strong>
+                                            <strong>
+                                                {bookings.methodPaymentDto === 2
+                                                    ? formatCurrency(calculateTotal() - tatolRoom())
+                                                    : formatCurrency(calculateTotal())} VNĐ
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    <h5>Phương thức thanh toán</h5>
+                                    <div className="form-check">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio"
+                                            name="paymentMethod"
+                                            id="cash"
+                                        />
+                                        <label className="form-check-label" htmlFor="cash">
+                                            Tiền mặt
+                                        </label>
+                                    </div>
+                                    <div className="form-check">
+                                        <input
+                                            className="form-check-input"
+                                            type="radio"
+                                            name="paymentMethod"
+                                            id="bankTransfer"
+                                        />
+                                        <label className="form-check-label" htmlFor="bankTransfer">
+                                            Chuyển khoản
+                                        </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </Offcanvas.Body>
-            </Offcanvas>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="success" onClick={handleClose}>
+                        Thanh toán và xuất hóa đơn
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
-    )
-}
+    );
+};
 
 export default PopupPayment;
