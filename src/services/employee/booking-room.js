@@ -9,4 +9,30 @@ const getByIdBookingRoom = async (id) => {
     return res;
 }
 
-export {getByIdBookingRoom};
+const addBookingRoomServiceRoom = async (serviceRoom) => {
+    const res = await request({
+        method: "POST",
+        path: 'api/booking-room-service-room',
+        data: serviceRoom
+    });
+    return res;
+}
+
+const updateQuantity = async (id, service) => {
+    const res = await request({
+        method: "PUT",
+        path: `api/booking-room-service-room/${id}`,
+        data: service
+    });
+    return res;
+}
+
+const deleteService = async (id) => {
+    const res = await request({
+        method: "DELETE",
+        path: `api/booking-room-service-room/${id}`
+    });
+    return res;
+}
+
+export {getByIdBookingRoom,addBookingRoomServiceRoom,updateQuantity,deleteService};

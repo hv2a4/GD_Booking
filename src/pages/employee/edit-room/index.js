@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Layoutemployee from "../../../components/layout/employee";
 import PopupPayment from "./payment";
-import InsertCustomer from "../list-reservation/modalInsertCustomer";
 import useGetParams from "../../../config/Params";
-import { getBookingId } from "../../../services/employee/booking-manager";
-import { getByIdBookingRoom } from "../../../services/employee/booking-room";
+import { getBookingId, getBookingRoomInformation } from "../../../services/employee/booking-manager";
+import { addBookingRoomServiceRoom, deleteService, getByIdBookingRoom, updateQuantity } from "../../../services/employee/booking-room";
 import { formatCurrency, formatDateTime } from "../../../config/formatPrice";
 import DatePicker from "react-datepicker";
 import { Link } from "react-router-dom";
 import Alert from "../../../config/alert";
 import { getAllService } from "../../../services/employee/type-room-service";
 import { serviceRoomBookingRoom } from "../../../services/employee/service";
+import AlertComfirm from "../../../config/alert/comfirm";
+import TTNhanPhong from "../list-reservation/modalTTNP";
+import { Modal } from "react-bootstrap";
 
 const EditRoom = () => {
     const encodedIdBooking = useGetParams("idBookingRoom");
@@ -19,6 +21,7 @@ const EditRoom = () => {
     const [bookingRoom, setBookingRoom] = useState({});
     const [booking, setBooking] = useState({});
     const [loading, setLoading] = useState(true);
+    const [customerInformation, setCustomerInformation] = useState([]);
     const [alert, setAlert] = useState(null);
     const [typeServiceRoom, setTypeServiceRoom] = useState([]);
     const [activeTab, setActiveTab] = useState("all");
@@ -27,13 +30,19 @@ const EditRoom = () => {
     const [selectedApiService, setSelectedApiService] = useState([]);
     const [searchValue, setSearchValue] = useState("");
     const [totalRoomPrice, setTotalRoomPrice] = useState(0);
+    const [totalBookingRoom, setToltalBookingRoom] = useState(0);
 
     const handleSearchChange = (e) => {
         setSearchValue(e.target.value);
     };
     useEffect(() => {
         hanhdleBooking();
-    }, [encodedIdBooking]);
+        setTimeout(() => setAlert(null), 500);
+    }, [encodedIdBooking, selectedManualService, alert, totalBookingRoom]);
+
+    useEffect(() => {
+        calculateTotalPrice();
+    }, [selectedManualService, selectedApiService]);
 
     const hanhdleBooking = async () => {
         try {
@@ -42,12 +51,17 @@ const EditRoom = () => {
                 const bookingRoom = await getByIdBookingRoom(idBookingRoom);
                 const booking = await getBookingId(bookingRoom.booking.id);
                 setBookingRoom(bookingRoom);
+                const data = await getBookingRoomInformation([bookingRoom?.id]);
+                setCustomerInformation(data);
                 setBooking(booking);
                 if (bookingRoom?.id) {
                     try {
                         const data = await serviceRoomBookingRoom(bookingRoom?.id);
                         setSelectedApiService(data);
-                        console.log("Services from API:", data);
+                        const totalManualServicePrice = selectedManualService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
+                        const totalApiServicePrice = data.reduce((sum, service) => sum + (service.price * service.quantity), 0);
+                        const total = totalManualServicePrice + totalApiServicePrice + (bookingRoom?.price || 0);
+                        setToltalBookingRoom(total);
                     } catch (error) {
                         setAlert({ type: "error", title: "Lỗi tải dữ liệu dịch vụ" });
                     }
@@ -55,8 +69,6 @@ const EditRoom = () => {
                 const totalPriceRoom = booking.bookingRooms.map((e) => e.room?.typeRoomDto?.price || 0);
                 const totalRoomPrice = totalPriceRoom.reduce((sum, price) => sum + price, 0);
                 setTotalRoomPrice(totalRoomPrice);
-                console.log(totalPriceRoom);
-
             }
             const service = await getAllService();
             setTypeServiceRoom(service);
@@ -66,12 +78,183 @@ const EditRoom = () => {
             setLoading(false);
         }
     }
+    // dịch vụ
 
-    const handleSelectService = (service) => {
-        setSelectedManualService((prevSelectedServices) => [...prevSelectedServices, service]);
-        console.log(service);
+    const handleAddService = async () => {
+        const date = new Date();
+        const serviceRoom = selectedManualService.map(
+            service => ({
+                createAt: date.toISOString(),
+                price: service.price,
+                quantity: service.quantity,
+                bookingRoomId: idBookingRoom * 1,
+                serviceRoomId: service.id
+            }))
+        if (serviceRoom && selectedManualService.length > 0) {
+            const data = await addBookingRoomServiceRoom(serviceRoom);
+            if (data) {
+                setAlert({ type: data.status, title: data.message });
+                setSelectedManualService([]);
+            }
+        } else {
+            setAlert({ type: "warning", title: "Vui lòng chọn dịch vụ" });
+        }
 
+    }
+    const calculateTotalPrice = () => {
+        const totalManualServicePrice = selectedManualService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
+        const totalApiServicePrice = selectedApiService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
+        const total = totalManualServicePrice + totalApiServicePrice + (bookingRoom?.price || 0);
+        setToltalBookingRoom(total);
     };
+
+    const handleSelectService = async (service) => {
+        const isServiceFromApi = selectedApiService.some(
+            (apiService) => apiService.serviceRoomDto?.id === service.id
+        );
+
+        if (isServiceFromApi) {
+            // Dịch vụ từ API
+            const updatedServices = await Promise.all(
+                selectedApiService.map(async (apiService) => {
+                    if (apiService.serviceRoomDto?.id === service.id) {
+                        const updated = {
+                            ...apiService,
+                            quantity: apiService.quantity + 1,
+                        };
+                        // Cập nhật số lượng qua API
+                        const data = await updateQuantity(updated.id, updated);
+                        return { ...updated, ...data }; // Cập nhật state với dữ liệu từ API
+                    }
+                    return apiService;
+                })
+            );
+            setSelectedApiService(updatedServices);
+        } else {
+            // Dịch vụ nằm trong selectedManualService
+            setSelectedManualService((prevSelectedServices) => {
+                const existingServiceIndex = prevSelectedServices.findIndex(
+                    (item) => item.id === service.id
+                );
+                if (existingServiceIndex !== -1) {
+                    const updatedServices = [...prevSelectedServices];
+                    updatedServices[existingServiceIndex].quantity += 1; // Tăng số lượng
+                    return updatedServices;
+                } else {
+                    return [...prevSelectedServices, { ...service, quantity: 1 }];
+                }
+            });
+        }
+    };
+
+
+
+    const handleDeleteService = async (item) => {
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa dịch vụ này không?",
+            confirmButtonText: "Xóa",
+            cancelButtonText: "Hủy",
+        });
+        if (confirmation) {
+            try {
+                const response = await deleteService(item.id);
+                if (response) {
+                    setAlert({ type: response.status, title: response.message });
+                    hanhdleBooking();
+                }
+            } catch (error) {
+                setAlert({ type: "error", title: "Đã xảy ra lỗi khi xóa!" });
+            }
+        }
+    }
+
+    const handleRemoveService = (indexToRemove) => {
+        setSelectedManualService((prevSelectedServices) =>
+            prevSelectedServices.filter((_, index) => index !== indexToRemove)
+        );
+    };
+    const handleUpdateQuantity = async (service, newQuantity) => {
+        const isServiceFromApi = selectedApiService.some(apiService => apiService?.id === service.id);
+
+        if (isServiceFromApi) {
+            // Nếu dịch vụ đến từ API
+            const updatedServices = await Promise.all(
+                selectedApiService.map(async (apiService) => {
+                    if (apiService?.id === service.id) {
+                        const updated = { ...apiService, quantity: newQuantity };
+                        const data = await updateQuantity(updated.id, updated); // Cập nhật lại số lượng qua API
+                        return { ...updated, ...data }; // Trả về kết quả cập nhật từ API
+                    }
+                    return apiService;
+                })
+            );
+            setSelectedApiService(updatedServices);
+        } else {
+            // Nếu dịch vụ đến từ manual
+            const updatedServices = selectedManualService.map(item => {
+                if (item.id === service.id) {
+                    return { ...item, quantity: newQuantity };
+                }
+                return item;
+            });
+            setSelectedManualService(updatedServices);
+        }
+    };
+
+    const handleIncreaseQuantity = async (service) => {
+        const isServiceFromApi = selectedApiService.some(apiService => apiService?.id === service.id);
+        if (isServiceFromApi) {
+            const updatedServices = await Promise.all(
+                selectedApiService.map(async (apiService) => {
+                    if (apiService?.id === service.id) {
+                        const updated = { ...apiService, quantity: apiService.quantity + 1 };
+                        const data = await updateQuantity(updated.id, updated);
+                        return { ...updated, ...data };
+                    }
+                    return apiService;
+                })
+            );
+            setSelectedApiService(updatedServices);
+        } else {
+            setSelectedManualService((prevSelectedServices) => {
+                return prevSelectedServices.map(item =>
+                    item.id === service.id ? { ...item, quantity: item.quantity + 1 } : item
+                );
+            });
+        }
+        // Cập nhật tổng giá tiền
+        calculateTotalPrice();
+    };
+
+
+    const handleDecreaseQuantity = async (service) => {
+        const isServiceFromApi = selectedApiService.some(apiService => apiService?.id === service.id);
+        if (isServiceFromApi) {
+            const updatedServices = await Promise.all(
+                selectedApiService.map(async (apiService) => {
+                    if (apiService?.id === service.id && apiService.quantity > 1) {
+                        const updated = { ...apiService, quantity: apiService.quantity - 1 };
+                        const data = await updateQuantity(updated.id, updated);
+                        return { ...updated, ...data };
+                    }
+                    return apiService;
+                })
+            );
+            setSelectedApiService(updatedServices);
+        } else {
+            setSelectedManualService((prevSelectedServices) => {
+                return prevSelectedServices.map(item =>
+                    item.id === service.id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
+                );
+            });
+        }
+        // Cập nhật tổng giá tiền
+        calculateTotalPrice();
+    };
+
+    //dịch vụ    
 
     const renderServiceItem = (service) => (
         <div
@@ -206,6 +389,21 @@ const EditRoom = () => {
             return `${diffHours} giờ`;
         }
     };
+
+    const calculateDuration = (checkIn, checkOut) => {
+        if (!checkIn || !checkOut) return 0;
+
+        const start = new Date(checkIn);
+        const end = new Date(checkOut);
+
+        if (isNaN(start) || isNaN(end)) return 0;
+
+        const diffMs = end - start; // Khoảng thời gian thuê tính bằng milliseconds
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)); // Số ngày (làm tròn lên để tính ngày lẻ)
+
+        return diffDays > 0 ? diffDays : 0; // Nếu ngày <= 0, trả về 0
+    };
+
     const handleShowModalInsertCustomer = () => {
         setShowModalInsertCustomer(true);
     }
@@ -215,13 +413,13 @@ const EditRoom = () => {
     return (
         <Layoutemployee>
             <div className="mb-3">
-                {loading ? (
+                {/* {loading ? (
                     <div className="overlay-loading">
                         <div className="spinner-border text-success" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </div>
                     </div>
-                ) : ""}
+                ) : ""} */}
                 {alert && <Alert type={alert.type} title={alert.title} />}
                 <div className="cashier-head">
                     <div className="cashier-info">
@@ -235,18 +433,18 @@ const EditRoom = () => {
                                     <div className="cashier-info-customer-search">
                                         <div className="customer-search">
                                             <div className="auto-complete-wrapper form-control-wrapper d-flex">
-                                                <a className="customer-search-name form-control text-info font-medium" title="Lê Minh Khôi | Nợ: 0 Số lượng mua: 0">
-                                                    Lê Minh Khôi
+                                                <a className="customer-search-name form-control text-success font-medium" title="Lê Minh Khôi">
+                                                    {bookingRoom?.booking?.accountDto?.fullname}
                                                 </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="cashier-info-col col-md-3 col-12 mb-2">
-                                    <label className="cashier-info-label">Khách lưu trú</label>
+                                    <label className="cashier-info-label">Khách ở cùng</label>
                                     <div className="cashier-info-capacity" onClick={handleShowModalInsertCustomer}>
                                         <button className="form-control d-flex align-items-center text-neutral justify-content-between" onClick={handleShowModalInsertCustomer}>
-                                            <span><i className="fa fa-user icon-mask icon-xs w-auto"></i> 0</span>
+                                            <span><i className="fa fa-user icon-mask icon-xs w-auto"></i>{customerInformation.length} người</span>
                                         </button>
                                     </div>
                                 </div>
@@ -363,7 +561,7 @@ const EditRoom = () => {
                                                                                             <strong className="me-1 text-success">{item.room.roomName}</strong>
                                                                                             <span className="tag text-success">{item.room.statusRoomDto.statusRoomName}</span>
                                                                                         </div>
-                                                                                        <div className="cell-price fw-bolder text-success">{formatCurrency(item.price)}</div>
+                                                                                        <div className="cell-price fw-bolder text-success">{formatCurrency(item?.room?.typeRoomDto?.price || 0)}</div>
                                                                                     </div>
                                                                                     <div className="text-neutral">{formatDateTime(item.checkIn)} - {formatDateTime(item.checkOut)}</div>
                                                                                 </div>
@@ -448,7 +646,11 @@ const EditRoom = () => {
                                                     </div>
                                                     <div className="col-12 col-md-auto">
                                                         <label className="text-neutral font-sm">Lưu trú</label>
-                                                        <span className="form-control">1 ngày</span>
+                                                        <span className="form-control">
+                                                            {calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)} ngày
+                                                            {bookingRoom?.booking?.endAt && new Date() > new Date(bookingRoom?.booking?.endAt) && (
+                                                                <span className="text-danger"> (Đã quá hạn trả)</span>
+                                                            )}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -470,40 +672,48 @@ const EditRoom = () => {
                                                     <tr className="cart-item row align-items-center">
                                                         <td className="col-2 col-lg-1 text-start">1</td>
                                                         <td className="col-5 col-lg-3">
-                                                            <h6 className="cart-item-name mb-0">Phòng 01 giường đơn (Ngày)</h6>
+                                                            <h6 className="cart-item-name mb-0">{bookingRoom?.room?.typeRoomDto?.typeRoomName} (Ngày)</h6>
                                                         </td>
                                                         <td className="col-4 col-lg-2 text-center">
                                                             <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
-                                                                <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle down">
-                                                                    <i className="fa fa-minus-circle icon-btn"></i>
-                                                                </button>
-                                                                <input type="text" className="form-control mx-1 text-center" value="1" style={{ maxWidth: "50px" }} />
-                                                                <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle up">
-                                                                    <i className="fa fa-plus-circle icon-btn"></i>
-                                                                </button>
+                                                                <input type="text" className="form-control mx-1 text-center" value={calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)} style={{ maxWidth: "50px", borderBottom: "none" }} />
                                                             </div>
                                                         </td>
                                                         <td className="col-5 col-lg-3 d-flex justify-content-center">
-                                                            <span className="w-auto">600,000</span>
+                                                            <span className="w-auto">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price)}</span>
                                                         </td>
-                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">600,000</td>
+                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price * calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt))}</td>
                                                         <td className="col-auto"></td>
                                                     </tr>
-                                                    {/* {selectedManualService && selectedManualService.length > 0 ? (
+                                                    {selectedManualService && selectedManualService.length > 0 ? (
                                                         selectedManualService.map((item, index) => {
                                                             return (
                                                                 <tr className="cart-item row align-items-center" key={index}>
-                                                                    <td className="col-2 col-lg-1 text-start">{index + 2 + selectedManualService.length}</td>
+                                                                    <td className="col-2 col-lg-1 text-start">{index + 2}</td>
                                                                     <td className="col-5 col-lg-3">
                                                                         <h6 className="cart-item-name mb-0">{item.serviceRoomName} ({item.typeServiceRoomDto.duration})</h6>
                                                                     </td>
                                                                     <td className="col-4 col-lg-2 text-center">
                                                                         <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
-                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle down">
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn btn-icon-only btn-text-neutral btn-circle down"
+                                                                                onClick={() => handleDecreaseQuantity(item)}
+                                                                            >
                                                                                 <i className="fa fa-minus-circle icon-btn"></i>
                                                                             </button>
-                                                                            <input type="text" className="form-control mx-1 text-center" value="1" style={{ maxWidth: "50px" }} />
-                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle up">
+                                                                            <input
+                                                                                type="text"
+                                                                                className="form-control mx-1 text-center"
+                                                                                value={item.quantity}
+                                                                                style={{ maxWidth: "70px" }}
+                                                                                readOnly
+                                                                            />
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn btn-icon-only btn-text-neutral btn-circle up"
+                                                                                onClick={() => handleIncreaseQuantity(item)}
+                                                                            >
                                                                                 <i className="fa fa-plus-circle icon-btn"></i>
                                                                             </button>
                                                                         </div>
@@ -511,9 +721,9 @@ const EditRoom = () => {
                                                                     <td className="col-5 col-lg-3 d-flex justify-content-center">
                                                                         <span className="w-auto">{formatCurrency(item.price)}</span>
                                                                     </td>
-                                                                    <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.price * item.quantity)}</td>
+                                                                    <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.price * item.quantity) || 0}</td>
                                                                     <td className="col-auto">
-                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleRemoveService(index)}>
                                                                             <i className="fa fa-trash-alt"></i>
                                                                         </button>
                                                                     </td>
@@ -521,7 +731,7 @@ const EditRoom = () => {
                                                             )
                                                         })
 
-                                                    ) : ""} */}
+                                                    ) : ""}
                                                     {selectedApiService && selectedApiService.length > 0 ? (
                                                         selectedApiService.map((item, index) => {
                                                             return (
@@ -532,11 +742,25 @@ const EditRoom = () => {
                                                                     </td>
                                                                     <td className="col-4 col-lg-2 text-center">
                                                                         <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
-                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle down">
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn btn-icon-only btn-text-neutral btn-circle down"
+                                                                                onClick={() => handleDecreaseQuantity(item)}
+                                                                            >
                                                                                 <i className="fa fa-minus-circle icon-btn"></i>
                                                                             </button>
-                                                                            <input type="text" className="form-control mx-1 text-center" value="1" style={{ maxWidth: "50px" }} />
-                                                                            <button type="button" className="btn btn-icon-only btn-text-neutral btn-circle up">
+                                                                            <input
+                                                                                type="number"
+                                                                                className="form-control mx-1 text-center"
+                                                                                value={item.quantity}
+                                                                                onChange={(e) => handleUpdateQuantity(item, parseInt(e.target.value) || 1)}
+                                                                                style={{ maxWidth: "70px" }}
+                                                                            />
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn btn-icon-only btn-text-neutral btn-circle up"
+                                                                                onClick={() => handleIncreaseQuantity(item)}
+                                                                            >
                                                                                 <i className="fa fa-plus-circle icon-btn"></i>
                                                                             </button>
                                                                         </div>
@@ -546,7 +770,7 @@ const EditRoom = () => {
                                                                     </td>
                                                                     <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.serviceRoomDto.price * item.quantity)}</td>
                                                                     <td className="col-auto">
-                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger">
+                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleDeleteService(item)}>
                                                                             <i className="fa fa-trash-alt"></i>
                                                                         </button>
                                                                     </td>
@@ -559,11 +783,9 @@ const EditRoom = () => {
                                             </table>
                                         </div>
                                         <div className="cart-footer">
-                                            <div className="text-success fw-bold font-semibold">
-                                                <div className="row">
-                                                    <div className="col text-right">Tổng tiền</div>
-                                                    <div className="col text-right">17,740,000</div>
-                                                </div>
+                                            <div className="text-success fw-bold font-semibold d-flex">
+                                                <div className="text-right me-2">Tổng tiền: </div>
+                                                <div className="text-right">{formatCurrency(totalBookingRoom)} VNĐ</div>
                                             </div>
                                         </div>
                                     </div>
@@ -578,8 +800,8 @@ const EditRoom = () => {
                                         </button>
                                     </div>
                                     <div className="d-flex align-items-center">
-                                        <button className="btn btn-outline-secondary ng-star-inserted mx-2" type="button">Lưu</button>
-                                        <PopupPayment></PopupPayment>
+                                        <button className="btn btn-outline-secondary ng-star-inserted mx-2" type="button" onClick={handleAddService}>Lưu</button>
+                                        <PopupPayment bookings={booking}></PopupPayment>
                                     </div>
                                 </div>
                             </div>
@@ -587,7 +809,9 @@ const EditRoom = () => {
                     </div>
                 </div>
             </div>
-            {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} />}
+            <Modal show={showModalInsertCustomer} onHide={handleCloseModalInsertCustomer} backdrop="static" centered>
+                <TTNhanPhong onHide={handleCloseModalInsertCustomer} bookingRoomIds={[bookingRoom?.id]} />
+            </Modal>
         </Layoutemployee >
     )
 }

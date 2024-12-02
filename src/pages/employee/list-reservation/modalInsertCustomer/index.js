@@ -76,8 +76,6 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             imgFirstCard: imgFirstCard,
             imgLastCard: imgLastCard
         };
-        console.log(newCustomer);
-        
         try {
             const customerData = item ? await updateCustomer(item.customerInformationDto.id,newCustomer) : await addCustomer(newCustomer, id[0]?.id);
             if (customerData?.errors) {

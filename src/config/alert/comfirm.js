@@ -11,7 +11,7 @@ const AlertComfirm = {
             cancelButtonText: cancelButtonText,
         });
 
-        return result.isConfirmed; // Trả về true nếu người dùng xác nhận
+        return result.isConfirmed;
     },
 };
 

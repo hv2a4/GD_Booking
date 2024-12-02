@@ -45,9 +45,12 @@ const ListReservation = () => {
     // Áp dụng filterBookings và searchBookings
     const filteredAndSearchedBookings = searchBookings(bookings, searchTerm);
 
+    // useEffect(() => {
+    //     handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
+    // }, [filterType, startDate, endDate, location]);
     useEffect(() => {
         handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
-    }, [filterType, startDate, endDate, location]);
+    }, [filteredBookings])
 
     const handleStartDateChange = (selectedDate) => {
         setStartDate(selectedDate);
@@ -231,7 +234,7 @@ const ListReservation = () => {
                         <button class="nav-link" id="pills-chotaohoadon-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-chotaohoadon" type="button"
                             role="tab" aria-controls="pills-chotaohoadon"
-                            aria-selected="false">Chờ tạo hoá đơn</button>
+                            aria-selected="false">Đã hủy</button>
 
                     </div>
                 </nav>
