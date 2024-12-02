@@ -24,7 +24,7 @@ const request = async ({ method = "GET", path = "", data = {}, headers = {}, tok
 
     Swal.fire({
       icon: "error",
-      title: "Lỗi xác thực dữ liệu!",
+      title: "",
       html: `<ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`,
       toast: true,
       position: "top-end",

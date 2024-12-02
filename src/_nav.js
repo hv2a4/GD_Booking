@@ -33,13 +33,18 @@ const _nav = [
   },
   {
     component: CNavGroup,
-    name: 'Phòng',
+    name: 'Phòng & tầng',
     icon: <CIcon icon={cilRoom} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
         name: 'Loại phòng & phòng',
         to: '/admin/room',
+      },
+      {
+        component: CNavItem,
+        name: 'Tầng',
+        to: '/admin/floor',
       },
       {
         component: CNavItem,
