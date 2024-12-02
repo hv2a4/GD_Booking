@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { formatCurrency } from "../../../config/formatPrice";
-import { Button } from "react-bootstrap";
+import { Button, Table } from "react-bootstrap";
 
 const CheckedOut = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -43,8 +43,8 @@ const CheckedOut = ({ item }) => {
         return range;
     };
     return (
-        <div className="table-responsive">
-            <table className="table">
+        <div>
+            <Table bordered hover>
                 <thead>
                     <tr>
                         <th>STT</th>
@@ -82,22 +82,7 @@ const CheckedOut = ({ item }) => {
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
                                     <td className="d-flex">
-                                        <span>Đã thanh toán</span>
-                                        <div className="dropdown-center d-flex align-item-center">
-                                            <button
-                                                style={{ backgroundColor: "transparent", border: "none" }}
-                                                className="btn dropdown-toggle"
-                                                type="button"
-                                                data-bs-toggle="dropdown">
-                                                <i className="fas fa-ellipsis-v"
-                                                    style={{ color: "black", fontSize: "15px", marginTop: "auto" }}></i>
-                                            </button>
-                                            <ul className="dropdown-menu dropdown-menu-light">
-                                                <li><a className="dropdown-item" href="#">Thêm sản phẩm, dịch vụ</a></li>
-                                                <li><a className="dropdown-item" href="#">Cập nhật đặt phòng</a></li>
-                                                <li><a className="dropdown-item" href="#">Hủy đặt phòng</a></li>
-                                            </ul>
-                                        </div>
+                                        <Button variant="outline-success">Chi tiết</Button>
                                     </td>
                                 </tr>
                             );
@@ -108,7 +93,7 @@ const CheckedOut = ({ item }) => {
                         </tr>
                     )}
                 </tbody>
-            </table>
+            </Table>
             <div className="pagination">
                 {currentPage > 1 && (
                     <Button

@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "../../../config/formatPrice";
-import { Button } from "react-bootstrap";
+import { Button, Table } from "react-bootstrap";
 
 const InUse = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -45,7 +45,7 @@ const InUse = ({ item }) => {
     };
     return (
         <div className="table-responsive">
-            <table className="table">
+            <Table bordered hover>
                 <thead>
                     <tr>
                         <th>STT</th>
@@ -123,7 +123,7 @@ const InUse = ({ item }) => {
                         </tr>
                     )}
                 </tbody>
-            </table>
+            </Table>
             <div className="pagination">
                 {currentPage > 1 && (
                     <Button

@@ -10,6 +10,7 @@ import NhanPhong from "../modalNhanPhong";
 const ModalDetailFloor = ({ onClose, item }) => {
     const [bookingRoom, setBookingRoom] = useState({});
     const [customer, setCustomer] = useState([]);
+    const encodedIdBookingRoom = btoa(bookingRoom.id);
     const cookie = new Cookies();
     const token = cookie.get("token");
     useEffect(() => {
@@ -161,7 +162,7 @@ const ModalDetailFloor = ({ onClose, item }) => {
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <Link to="/employee/edit-room">
+                <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
                     <Button variant="outline-success">Cập nhật đặt phòng</Button>
                 </Link>
                 {item?.statusRoomDto?.id === 2 ? (

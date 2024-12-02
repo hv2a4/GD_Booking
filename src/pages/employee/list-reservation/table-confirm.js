@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { formatCurrency } from "../../../config/formatPrice";
 import XacNhan from "./modalXacNhan";
-import { Button } from "react-bootstrap";
+import { Button, Table } from "react-bootstrap";
 
 const Confirm = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -46,7 +46,7 @@ const Confirm = ({ item }) => {
 
     return (
         <div className="table-responsive">
-            <table className="table">
+            <Table bordered hover>
                 <thead>
                     <tr>
                         <th>STT</th>
@@ -103,7 +103,7 @@ const Confirm = ({ item }) => {
                         );
                     })}
                 </tbody>
-            </table>
+            </Table>
             {/* Hiển thị phân trang */}
             <div className="pagination">
                 {/* Hiển thị nút "Previous" */}

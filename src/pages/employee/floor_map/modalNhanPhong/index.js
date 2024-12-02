@@ -271,8 +271,6 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
-            {/* Modal thông tin nhận phòng */}
             <Modal show={showModal2} onHide={handleCloseModal2} backdrop="static" centered>
                 <TTNhanPhong onHide={handleCloseModal2} bookingRoomIds={checkBoxSelected.map((e) => e.bookingRoomId)} />
             </Modal>

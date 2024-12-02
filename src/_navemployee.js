@@ -26,7 +26,7 @@ export const createNavData = async () => {
   return [
     {
       component: CNavItem,
-      name: 'Sơ đồ',
+      name: 'Sơ đồ lưới',
       to: '/employee/home',
       icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
     },
@@ -38,7 +38,7 @@ export const createNavData = async () => {
     },
     {
       component: CNavGroup,
-      name: 'Quản lý tầng',
+      name: 'Sơ đồ tầng',
       icon: <CIcon icon={cilBuilding} customClassName="nav-icon" />,
       items: floorItems,
     },
