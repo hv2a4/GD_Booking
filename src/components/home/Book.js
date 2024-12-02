@@ -63,7 +63,7 @@ export default function Booking() {
       ),
       guest: adultCount,
     };
-    
+
     navigate("/client/rooms", { state: filterData }); // Gửi filter qua state
   };
 
@@ -141,6 +141,7 @@ export default function Booking() {
                           placeholder={guestSummary}
                           readOnly
                           onClick={toggleGuestDropdown}
+                          style={{ background: '#fff' }}
                         />
                       </InputGroup>
                     </Form.Group>

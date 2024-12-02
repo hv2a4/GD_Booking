@@ -131,6 +131,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                                     placeholder={guestSummary}
                                                     readOnly
                                                     onClick={toggleGuestDropdown}
+                                                    style={{ background: '#fff' }}
                                                 />
                                             </InputGroup>
                                         </Form.Group>

@@ -147,8 +147,7 @@ const PageBookRoom = () => {
         const status = queryParams.get("status");
         const message = queryParams.get("message");
         const decodedMessage = decodeURIComponent(message || "");
-        if (status === 'success' && message === 'Bạn đã đặt phòng thành công vui lòng vào email để xem chi tiết') {
-
+        if (status === 'success' && message === 'Bạn đã đặt phòng thành công vui lòng vào email để xem chi tiết đơn đặt hàng và file pdf đã được lưu vào máy của quý khách') {
             console.log("Dữ liệu:", decodedMessage);
             console.log("Trạng thái: ", status);
 
@@ -254,17 +253,17 @@ const PageBookRoom = () => {
         setCurrentPage(pageNumber);
     };
 
-    useEffect(() => {
-        // Kiểm tra dữ liệu trong sessionStorage
-        const bookedRooms = sessionStorage.getItem("bookedRooms");
-        const booking = sessionStorage.getItem("booking");
-        if (!bookedRooms && !booking) {
-            // Nếu không có dữ liệu, chuyển hướng người dùng
-            navigate("/client/rooms");
-        } else {
-            navigate("/client/booking-room");
-        }
-    }, [navigate]);
+    // useEffect(() => {
+    //     // Kiểm tra dữ liệu trong sessionStorage
+    //     const bookedRooms = sessionStorage.getItem("bookedRooms");
+    //     const booking = sessionStorage.getItem("booking");
+    //     if (!bookedRooms && !booking) {
+    //         // Nếu không có dữ liệu, chuyển hướng người dùng
+    //         navigate("/client/rooms");
+    //     } else {
+    //         navigate("/client/booking-room");
+    //     }
+    // }, [navigate]);
 
     const handleCancel = () => {
         Swal.fire({
@@ -285,6 +284,18 @@ const PageBookRoom = () => {
             }
         });
     }
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
+
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+        const year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
+    };
+
 
     return (
         <LayoutClient>
@@ -594,7 +605,7 @@ const PageBookRoom = () => {
                                                         </div>
                                                     </td>
                                                     <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="info-right">{rooms.startDate}</div>
+                                                        <div className="info-right">{rooms.startDate ? formatDate(rooms.startDate) : "N/A"}</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -604,7 +615,7 @@ const PageBookRoom = () => {
                                                         </div>
                                                     </td>
                                                     <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="info-right">{rooms.endDate}</div>
+                                                        <div className="info-right">{rooms.endDate ? formatDate(rooms.endDate) : "N/A"}</div>
                                                     </td>
                                                 </tr>
                                             </tbody>
