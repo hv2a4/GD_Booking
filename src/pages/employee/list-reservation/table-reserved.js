@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import NhanPhong from "../floor_map/modalNhanPhong";
 import { format } from "date-fns";
 import { formatCurrency } from "../../../config/formatPrice";
-import { Button } from "react-bootstrap";
+import { Button, Dropdown, DropdownButton, Table } from "react-bootstrap";
+import { cancelBooking } from "../../../services/employee/booking-manager";
 
 const Reserved = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -43,9 +44,18 @@ const Reserved = ({ item }) => {
         }
         return range;
     };
+
+    const handleCancelBooking = async (booking) => {
+        if (booking.id) {
+            const res = await cancelBooking(booking?.id);
+        }else{
+            
+        }
+        
+    }
     return (
         <div className="table-responsive">
-            <table className="table">
+            <Table bordered hover>
                 <thead>
                     <tr>
                         <th>STT</th>
@@ -72,8 +82,9 @@ const Reserved = ({ item }) => {
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
+
                             return (
-                                <tr key={index} className="tr-center">
+                                <tr key={index} className="text-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                     <td>{booking.id}</td>
                                     <td>Phòng {roomNames}</td>
@@ -98,7 +109,7 @@ const Reserved = ({ item }) => {
                                             <ul className="dropdown-menu dropdown-menu-light">
                                                 <li><a className="dropdown-item" href="#">Thêm sản phẩm, dịch vụ</a></li>
                                                 <li><a className="dropdown-item" href="#">Cập nhật đặt phòng</a></li>
-                                                <li><a className="dropdown-item" href="#">Hủy đặt phòng</a></li>
+                                                <li onClick={() => handleCancelBooking(booking)}><a className="dropdown-item" href="#">Hủy đặt phòng</a></li>
                                             </ul>
                                         </div>
                                     </td>
@@ -111,8 +122,10 @@ const Reserved = ({ item }) => {
                         </tr>
                     )}
                 </tbody>
-            </table>
-            <div className="pagination">
+            </Table>
+
+            {/* Pagination */}
+            <div className="pagination mt-3">
                 {currentPage > 1 && (
                     <Button
                         variant="secondary"

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
-import Heading from "../common/Heading";
-import { about } from "../data/Data";
 import { getImageHotel } from "../../services/admin/home-info-service";
 import Alert from "../../config/alert";
 import { getCountAbout } from "../../services/client/home";
+import { useNavigate } from "react-router-dom";
 
 export default function About() {
   const [image, setImage] = useState([]);
   const [alert, setAlert] = useState(null);
   const [countReven, setCountReven] = useState(null);
-
+  const location = useNavigate();
   useEffect(() => {
     handleImageHotel();
     handleCountReven();
@@ -38,6 +37,11 @@ export default function About() {
     } catch (error) {
       setAlert({ type: "error", title: error });
     }
+  }
+
+  const handleOnclickNavigate = () => {
+    location("/client/about");
+    window.scrollTo(0, 0);
   }
   return (
     <>
@@ -93,9 +97,9 @@ export default function About() {
                 </div>
               </div>
 
-              <a className="btn btn-primary py-3 px-5 mt-2" href="">
+              <button className="btn btn-primary py-3 px-5 mt-2" onClick={handleOnclickNavigate}>
                 Khám phá
-              </a>
+              </button>
             </div>
             <div className="col-lg-6">
               <div className="row g-3">

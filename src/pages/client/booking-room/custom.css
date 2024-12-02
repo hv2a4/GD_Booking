@@ -239,3 +239,50 @@
     padding-left: 0;
   }
 }
+
+/* Đảm bảo các nút có cùng một khoảng cách */
+.box-submit {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* Nút Quay lại */
+.back-button button {
+  background-color: #feaf39; /* Màu nền vàng sáng */
+  color: #fff; /* Màu chữ trắng để tương phản với nền */
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none; /* Loại bỏ viền nếu cần */
+  font-weight: bold;
+}
+
+/* Nút Xác nhận */
+.submit-button button {
+  background-color: #feaf39;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+/* Bố cục nhóm nút */
+.box-submit .button-group {
+  display: flex;
+  justify-content: center; /* Căn giữa các nút */
+  gap: 20px; /* Khoảng cách giữa các nút */
+  padding: 10px 0;
+}
+
+/* Style chung cho các nút */
+.custom-back-btn,
+.custom-cancel-btn,
+.custom-submit-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Hiệu ứng khi hover */
+}

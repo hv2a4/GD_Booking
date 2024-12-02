@@ -49,6 +49,8 @@ const EditRoom = () => {
             if (idBookingRoom) {
                 setLoading(true);
                 const bookingRoom = await getByIdBookingRoom(idBookingRoom);
+                console.log(bookingRoom);
+                
                 const booking = await getBookingId(bookingRoom.booking.id);
                 setBookingRoom(bookingRoom);
                 const data = await getBookingRoomInformation([bookingRoom?.id]);

@@ -58,9 +58,9 @@ export default function Carousel() {
         >
           <div className="carousel-inner">
             <Slider ref={sliderRef} {...settings}>
-            {image.map((val, index) => (
+              {image.map((val, index) => (
                 <div className="carousel-item" key={index}>
-                  <img className="w-100" src={val.imageName} alt="Image" height={700}/>
+                  <img className="w-100" src={val.imageName} alt="Image" height={700} />
                   <div className="carousel-caption d-flex flex-column align-items-center justify-content-center">
                     <div className="p-3" style={{ maxWidth: "700px" }}>
                       <h6 className="section-title text-white text-uppercase mb-3 animated slideInDown">
@@ -69,18 +69,6 @@ export default function Carousel() {
                       <h1 className="display-3 text-white mb-4 animated slideInDown">
                         Khám phá một khách sạn sang trọng
                       </h1>
-                      <a
-                        href=""
-                        className="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft"
-                      >
-                        Phòng của chúng tôi
-                      </a>
-                      <a
-                        href=""
-                        className="btn btn-light py-md-3 px-md-5 animated slideInRight"
-                      >
-                        Đặt phòng
-                      </a>
                     </div>
                   </div>
                 </div>

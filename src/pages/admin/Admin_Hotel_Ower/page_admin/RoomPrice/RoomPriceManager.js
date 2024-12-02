@@ -150,7 +150,7 @@ const RoomRatesTable = ({ discounts, searchTerm, searchTermDate, selectedRoomTyp
                                 </>
                             )}
                         </td>
-                        <td>{item.typeRoomDto.typeRoomName}</td>
+                        {/* <td>{item.typeRoomDto.typeRoomName}</td> */}
                         <td className="text-end">
                             <RoomPriceModal id={item.id} />
                             <DeletePriceModal id={item.id} />

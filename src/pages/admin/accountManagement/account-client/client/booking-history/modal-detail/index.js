@@ -59,7 +59,7 @@ const DetailHistoryOrder = ({ show, handleClose, item }) => {
                                 <strong>Tổng số tiền:</strong> {item?.invoiceDtos?.[0]?.totalAmount ? formatCurrency(item.invoiceDtos[0].totalAmount) : 0}
                             </div>
                             <div>
-                                <strong>Trạng thái:</strong> {item?.invoiceDtos?.[0]?.invoiceStatus ? "Đã hoàn thành" : "Chưa hoàn thành"}
+                                <strong>Trạng thái thanh toán:</strong> {item.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                             </div>
                         </div>
                     </Card.Header>
@@ -69,7 +69,7 @@ const DetailHistoryOrder = ({ show, handleClose, item }) => {
                             <Row>
                                 <Col><strong>Ngày tạo:</strong> {formatDate(item.createAt)}</Col>
                                 <Col><strong>Ngày bắt đầu:</strong> {formatDate(item.startAt)}</Col>
-                                <Col><strong>Trạng thái thanh toán:</strong> {item.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}</Col>
+                                <Col><strong>Trạng thái:</strong> {item?.invoiceDtos?.[0]?.invoiceStatus ? "Đã hoàn thành" : "Chưa hoàn thành"}</Col>
                             </Row>
                             <hr />
                             <h6>Chi tiết phòng</h6>

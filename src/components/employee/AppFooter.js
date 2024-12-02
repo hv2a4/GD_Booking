@@ -8,7 +8,6 @@ const AppFooter = () => {
         <a href="http://localhost:3000/client/home" target="_blank" rel="noopener noreferrer">
           Khách Sạn HotelStars
         </a>
-        <span className="ms-1">&copy; 2024 Khách Sạn HotelStars. Mọi quyền được bảo lưu.</span>
       </div>
       <div className="ms-auto">
         <span className="me-1">Vận hành bởi</span>
