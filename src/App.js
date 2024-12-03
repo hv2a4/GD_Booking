@@ -51,6 +51,7 @@ import ResetPassword from "./pages/admin/ForgotPassword/ResetPassword";
 import ChangePassword from "./pages/admin/ChangePassword";
 import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
 import FloorPage from "./pages/admin/home/Floor";
+import SelectedRoomsPage from "./components/home/Componet/SelectedRoomsPage";
 function App() {
 
   const getUserRole = () => {
@@ -139,6 +140,7 @@ function App() {
         <Route path="otp-code" element={<VerifyOTP />} />
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="change-password" element={<ChangePassword />} />
+        <Route path="/selected-rooms" element={<SelectedRoomsPage />} />
       </Route>
     )
   );

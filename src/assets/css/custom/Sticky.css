@@ -1,188 +1,102 @@
-.sticky-bar {
+.floating-bubble {
   position: fixed;
   bottom: 20px;
-  left: 20px;
   right: 20px;
-  background-color: #282c34;
-  padding: 10px; /* Giảm padding của khung sticky */
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  color: #f8f9fa;
-  z-index: 1000;
+  width: 60px;
+  height: 60px;
+  background-color: #feaa16;
+  color: white;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
-  gap: 8px; /* Giảm khoảng cách giữa các phần tử */
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.3s ease;
 }
 
-.sticky-bar h5 {
-  margin-bottom: 12px; /* Giảm khoảng cách dưới của tiêu đề */
-  font-size: 1rem; /* Giảm kích thước chữ tiêu đề */
+.floating-bubble:hover {
+  transform: scale(1.1);
+  background-color: #e6910c;
+}
+
+.floating-bubble .bubble-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e74c3c;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
   font-weight: bold;
-  color: #ffa500;
 }
 
-.sticky-bar ul {
+/* Hiển thị danh sách phòng */
+.selected-room-modal {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #282c34;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  z-index: 1000;
+  display: none;
+}
+
+.selected-room-modal.active {
+  display: block;
+}
+
+.selected-room-modal h5 {
+  color: #ffa500;
+  margin-bottom: 10px;
+}
+
+.selected-room-modal ul {
+  list-style: none;
   margin: 0;
   padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px; /* Giảm khoảng cách giữa các phần tử trong danh sách */
 }
 
-.sticky-bar ul li {
+.selected-room-modal li {
   background-color: #343a40;
-  color: #ffa500;
-  padding: 8px; /* Giảm padding của mỗi item */
+  color: white;
+  padding: 8px;
   border-radius: 8px;
+  margin-bottom: 8px;
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  width: 30%;
-  min-width: 150px; /* Giảm kích thước tối thiểu của mỗi item */
-  max-width: 30%;
-  box-sizing: border-box;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s, box-shadow 0.3s;
+  align-items: center;
 }
 
-.sticky-bar ul li span {
-  font-size: 0.85rem; /* Giảm kích thước chữ của các phần tử bên trong item */
-  display: block;
-  margin-bottom: 4px; /* Giảm khoảng cách dưới của mỗi span */
-}
-
-.sticky-bar ul li .room-type {
+.selected-room-modal li .room-name {
   font-weight: bold;
   color: #f1c40f;
 }
 
-.sticky-bar ul li .room-info {
-  font-weight: normal;
-  color: #ecf0f1;
-}
-
-.sticky-bar ul li .room-price {
-  font-weight: bold;
+.selected-room-modal li .room-price {
+  font-size: 0.85rem;
   color: #e67e22;
-  font-size: 0.9rem; /* Giảm kích thước chữ của giá */
 }
 
-/* Màu sắc khi nhấn vào nút xóa */
-.sticky-bar ul li button:active {
-  background-color: #c0392b;
-}
-
-/* Màu sắc khi hover qua mục trong danh sách */
-.sticky-bar ul li:hover {
-  background-color: #444a52; /* Màu nền khi hover */
-}
-
-/* Màu sắc khi nhấn vào mục trong danh sách */
-.sticky-bar ul li:active {
-  background-color: #555b63; /* Màu nền khi nhấn */
-}
-
-/* Màu sắc khi nút xóa được chọn */
-.sticky-bar ul li button:focus {
-  outline: 2px solid #e74c3c; /* Thêm đường viền khi nút được chọn */
-}
-
-/* Màu sắc của tổng tiền khi nhấn */
-.sticky-bar .total-price:active {
-  background-color: #444a52;
-}
-
-/* Màu sắc khi người dùng hover qua tổng tiền */
-.sticky-bar .total-price:hover {
-  background-color: #444a52;
-}
-
-/* Màu sắc khi người dùng hover qua nút phân trang */
-.sticky-bar .pagination-controls button:hover {
-  background-color: #c0392b;
-}
-
-/* Màu sắc khi người dùng nhấn vào nút phân trang */
-.sticky-bar .pagination-controls button:active {
-  background-color: #e74c3c;
-}
-
-/* Thay đổi màu sắc khi nút phân trang bị vô hiệu hóa */
-.sticky-bar .pagination-controls button:disabled {
-  background-color: #7f8c8d;
-  cursor: not-allowed;
-}
-
-/* Màu sắc khi hover qua nút thêm */
-.sticky-bar button:hover {
-  background-color: #e6910c;
-}
-
-/* Màu sắc khi nút thêm được nhấn */
-.sticky-bar button:active {
-  background-color: #feaa16;
-}
-
-.sticky-bar .total-price {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1rem; /* Giảm kích thước chữ của tổng tiền */
-  font-weight: bold;
-  color: #ffa500;
-  padding: 6px 10px; /* Giảm padding */
-  background-color: #343a40;
-  border-radius: 8px;
-}
-
-.sticky-bar button {
-  padding: 6px 12px; /* Giảm padding */
-  font-size: 0.9rem; /* Giảm kích thước chữ */
-  font-weight: bold;
-  text-transform: uppercase;
+.selected-room-modal li button {
+  background-color: transparent;
   border: none;
-  border-radius: 8px;
-  background-color: #feaa16;
-  color: white;
+  color: #e74c3c;
   cursor: pointer;
-  transition: background-color 0.3s;
-  align-self: flex-end;
+  transition: color 0.3s;
 }
 
-.sticky-bar button:hover {
-  background-color: #e6910c;
+.selected-room-modal li button:hover {
+  color: #c0392b;
 }
-
-.sticky-bar .pagination-controls {
-  display: flex;
-  justify-content: center;
-  gap: 8px; /* Giảm khoảng cách giữa các nút phân trang */
-  margin-top: 8px; /* Giảm khoảng cách trên */
-}
-
-.sticky-bar .pagination-controls button {
-  padding: 4px 12px; /* Giảm padding của nút phân trang */
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.sticky-bar .pagination-controls button:hover {
-  background-color: #c0392b;
-}
-
-.sticky-bar .pagination-controls button:disabled {
-  background-color: #7f8c8d;
-  cursor: not-allowed;
-}
-
-.sticky-bar .pagination-controls span {
-  font-size: 0.9rem; /* Giảm kích thước chữ của trang */
-  color: #fff;
-}
-

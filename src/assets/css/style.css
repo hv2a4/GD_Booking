@@ -821,3 +821,11 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
 }
+.dropdown-item:active{
+    color: #212529 !important;
+    background-color: transparent !important;
+}
+.dropdown-item:hover{
+    color: #212529 !important;
+    background-color: transparent !important;
+}

@@ -21,6 +21,8 @@ import BookingFillter from "../../pages/account/Filter/FilterBooking";
 import { getFilterBooking } from "../../services/client/home";
 import { Cookies } from 'react-cookie';
 import Swal from 'sweetalert2';
+import { ListRooms } from "./Componet/ListRooms";
+import FloatingBubble from "./Componet/FloatingBubble";
 const amenityIcons = {
     "WiFi": <FaWifi style={{ color: "#FEA116" }} />,
     "Điều Hoà": <FaRegSnowflake style={{ color: "#FEA116" }} />,
@@ -59,6 +61,7 @@ export default function ListRoom() {
         (currentPageIndex - 1) * roomsPerPage,
         currentPageIndex * roomsPerPage
     );
+
 
     // Xử lý thay đổi trang
     const handlePageChanges = (pageIndex) => {
@@ -297,11 +300,11 @@ export default function ListRoom() {
                             <div className="col-lg-12 col-md-12 col-sm-12 wow fadeInUp" data-wow-delay="0.1s" key={key}>
                                 <div className="row border-cutom">
                                     {/* Phần hiển thị phòng */}
-                                    <div className="room-item rounded overflow-hidden col-md-4" style={{ padding: '0' }}>
+                                    <div className="room-item rounded overflow-hidden col-md-4 mt-2" style={{}}>
                                         <div className="position-relative">
                                             <img
-                                                className="img-fluid w-100"
-                                                style={{ height: '271px' }}
+                                                className="img-fluid w-100 rounded-3"
+                                                style={{ height: '271px', boxShadow: ' 0 4px 6px rgba(0, 0, 0, 0.1)' }}
                                                 src={item?.imageList?.[0]}
                                                 alt={item?.typeRoomName || "Room Image"}
                                             />
@@ -364,71 +367,12 @@ export default function ListRoom() {
                                     </div>
 
                                     {/* Danh sách đặt phòng */}
-                                    <div className="col-12 col-md-8">
-                                        <div className="row">
-                                            <div className="col-12">
-                                                <div className="card border-0">
-                                                    <div className="card-header text-center bg-white">
-                                                        <h3>Danh sách phòng</h3>
-                                                    </div>
-                                                    <div className="card-body bg-white">
-                                                        {/* Nút sổ danh sách phòng trên màn hình điện thoại */}
-                                                        <button
-                                                            className="btn btn-primary d-block d-md-none w-100 mb-3"
-                                                            type="button"
-                                                            data-bs-toggle="collapse"
-                                                            data-bs-target="#roomList"
-                                                            aria-expanded="false"
-                                                            aria-controls="roomList"
-                                                        >
-                                                            Danh sách phòng
-                                                        </button>
-
-                                                        {/* Danh sách phòng sẽ sổ xuống trên màn hình điện thoại */}
-                                                        <div className="collapse d-md-block" id="roomList">
-                                                            <ul className="list-group">
-                                                                {item?.roomId?.length > 0 ? (
-                                                                    item.roomId.map((roomId, subIndex) => {
-                                                                        const isRoomSelected = selectedRooms.some((room) => room.roomId === roomId);
-
-                                                                        return (
-                                                                            <li
-                                                                                className={`list-group-item ${isRoomSelected ? 'list-group-item-secondary' : ''}`}
-                                                                                key={`${roomId}-${subIndex}`}  // Sử dụng roomId và subIndex làm key duy nhất
-                                                                                className="d-flex justify-content-between align-items-center py-3 px-2"
-                                                                                aria-disabled={isRoomSelected}
-                                                                            >
-                                                                                <span>{item.roomName[subIndex]}</span>
-                                                                                <button
-                                                                                    className={`btn ${isRoomSelected ? 'btn-secondary' : 'btn-primary'} btn-sm`}
-                                                                                    onClick={() => {
-                                                                                        if (isRoomSelected) {
-                                                                                            handleDeselectRoom(roomId);
-                                                                                        } else {
-                                                                                            handleSelectRoom({ Object: item, roomId: roomId });
-                                                                                        }
-                                                                                    }}
-                                                                                    disabled={isRoomSelected}
-                                                                                    style={{
-                                                                                        fontSize: '12px',
-                                                                                    }}
-                                                                                >
-                                                                                    {isRoomSelected ? 'Bỏ chọn' : 'Chọn phòng'}
-                                                                                </button>
-                                                                            </li>
-                                                                        );
-                                                                    })
-                                                                ) : (
-                                                                    <li className="list-group-item text-center">Không có phòng nào để hiển thị.</li>
-                                                                )}
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    <ListRooms
+                                        item={item}
+                                        selectedRooms={selectedRooms}
+                                        handleSelectRoom={handleSelectRoom}
+                                        handleDeselectRoom={handleDeselectRoom}
+                                    />
                                 </div>
                             </div>
                         ))
@@ -457,75 +401,13 @@ export default function ListRoom() {
                 </div>
             </div>
             {/* Sticky Selected Room Bar */}
-            {
-                selectedRooms.length > 0 && (
-                    <div className="sticky-bar">
-                        <h5>Phòng đã chọn:</h5>
-                        <ul>
-                            {currentRooms.map((room) => (
-                                <li key={room.roomId}>
-                                    <span className="room-type">{room.roomName} ({room.typeRoomName})</span>
-                                    {/* Loại phòng có thể bỏ qua nếu không cần thiết */}
-                                    <span className="room-price">
-                                        Giá:{" "}
-                                        {room.price.toLocaleString("vi-VN", {
-                                            style: "currency",
-                                            currency: "VND",
-                                        })}
-                                    </span>
-                                    <button onClick={() => handleRemoveRoom(room.roomId)}>
-                                        <i className="bi bi-trash"></i> {/* Sử dụng biểu tượng thùng rác từ Bootstrap Icons */}
-                                    </button>
-
-                                </li>
-                            ))}
-                        </ul>
-
-                        {/* Hiển thị tổng tiền */}
-                        <div className="total-price">
-                            <span>Tổng tiền:</span>
-                            <span>
-                                {calculateTotalPrice().toLocaleString("vi-VN", {
-                                    style: "currency",
-                                    currency: "VND",
-                                })}
-                            </span>
-                        </div>
-
-                        {/* Nút Đặt phòng */}
-                        <button onClick={handleBooking}>
-                            {loading ? (
-                                <>
-                                    Đang đặt phòng... <Spinner animation="border" size="sm" />
-                                </>
-                            ) : (
-                                "Đặt phòng"
-                            )}
-                        </button>
-
-                        {/* Điều khiển phân trang */}
-                        {totalPageCount > 1 && (
-                            <div className="pagination-controls">
-                                <button
-                                    onClick={() => handlePageChanges(currentPageIndex - 1)}
-                                    disabled={currentPageIndex === 1}
-                                >
-                                    Trước
-                                </button>
-                                <span>
-                                    Trang {currentPageIndex} / {totalPageCount}
-                                </span>
-                                <button
-                                    onClick={() => handlePageChanges(currentPageIndex + 1)}
-                                    disabled={currentPageIndex === totalPageCount}
-                                >
-                                    Tiếp theo
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )
-            }
+            <FloatingBubble
+                selectedRooms={selectedRooms}
+                handleRemoveRoom={handleRemoveRoom}
+                calculateTotalPrice={calculateTotalPrice}
+                loading={loading}
+                handleBooking={handleBooking}
+            />
 
             <RoomDetail show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
         </div >
