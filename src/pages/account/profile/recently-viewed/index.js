@@ -149,7 +149,10 @@ const RecentlyViewed = () => {
                                         <div className="amenities-info mb-4">
                                             <p><strong>Tiện nghi:</strong> {booking.amenities || "Chưa có thông tin"}</p>
                                         </div>
-
+                                         {/* Phần dịch vụ */}
+                                        <div className="amenities-info mb-4">
+                                            <p><strong>Dịch vụ:</strong> {booking.amenities || "Chưa có thông tin"}</p>
+                                        </div>
                                         {/* Phần đánh giá */}
                                         <div className="rating-info mb-4">
                                             <p><strong>Đánh giá:</strong> {Array(booking.rating).fill("⭐").join("")}</p>

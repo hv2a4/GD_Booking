@@ -9,6 +9,7 @@ import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 import "../../../assets/css/account/profile/style.css"
+import ChangePassword from "../../admin/ChangePassword";
 const Profile = () => {
     const navigate = useNavigate();
     const handleLogout = () => {
@@ -56,7 +57,7 @@ const Profile = () => {
                                     <RecentlyViewed />
                                 </div>
                                 <div className="tab-pane fade" id="tab-favourites" role="tabpanel">
-                                    <Favourite />
+                                  <ChangePassword />
                                 </div>
                             </div>
                         </div>

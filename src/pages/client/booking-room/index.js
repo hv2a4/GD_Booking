@@ -213,7 +213,6 @@ const PageBookRoom = () => {
 
         fetchBookedRooms();
     }, []); // Chạy chỉ một lần khi component mount
-
     useEffect(() => {
         const bookingDataJSON = sessionStorage.getItem('booking'); // Lấy dữ liệu từ sessionStorage
 
