@@ -64,7 +64,7 @@ const FloatingBubble = ({
             </div>
 
             {/* Modal danh sách tóm tắt phòng */}
-            {!isModalOpen && (
+            {(currentRooms.length > 0 && !isModalOpen) && (
                 <div className="selected-room-modal">
                     <h5>Phòng đã chọn:</h5>
                     <ul>

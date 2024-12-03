@@ -94,7 +94,7 @@ const ListReservation = () => {
             const allCheckInNull = booking.bookingRooms?.every(room => room.checkIn === null) ?? false;
     
             // Kiểm tra cả 2 điều kiện: statusBookingDto.id === 7 và có ít nhất một phòng có checkIn khác null
-            return (booking.statusBookingDto.id === 7 || !allCheckInNull) && booking.statusBookingDto.id !== 8 && booking.statusBookingDto.id !== 6;
+            return (booking.statusBookingDto.id === 7 || !allCheckInNull) && booking.statusBookingDto.id !== 8 && booking.statusBookingDto.id !== 6 && booking.statusBookingDto.id !== 2  && booking.statusBookingDto.id !== 1;
         });
     };
     

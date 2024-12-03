@@ -46,6 +46,8 @@ function RoomSchedule({ room, startDate, endDate }) {
             try {
                 const data = await getBookingByRoom(room?.id);
                 setBookings(data);
+                console.log(data);
+                
             } catch (error) {
                 console.error("Error fetching bookings:", error);
             }
