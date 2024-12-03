@@ -19,23 +19,23 @@ export const navList = [
     path: "/client/rooms",
     text: "Phòng",
   },
-  {
-    id: 5,
-    path: "/page",
-    text: "Trang",
-    subItems: [
-      {
-        id: 51,
-        path: "/client/booking",
-        text: "Đặt phòng",
-      },
-      {
-        id: 53,
-        path: "/client/testimonial",
-        text: "Lời chứng thực",
-      },
-    ],
-  },
+  // {
+  //   id: 5,
+  //   path: "/page",
+  //   text: "Trang",
+  //   subItems: [
+  //     {
+  //       id: 51,
+  //       path: "/client/booking",
+  //       text: "Đặt phòng",
+  //     },
+  //     {
+  //       id: 53,
+  //       path: "/client/testimonial",
+  //       text: "Lời chứng thực",
+  //     },
+  //   ],
+  // },
   {
     id: 6,
     path: "/client/contact",

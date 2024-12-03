@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   RouterProvider,
   Route,
@@ -13,6 +13,7 @@ import {
   Contact,
   PageNotFound,
   RoomClient,
+  Services,
   // Team,
   Testimonial,
 } from "./pages/client/index";
@@ -36,7 +37,10 @@ import PageBookRoom from "./pages/client/booking-room";
 import Invoice from "./pages/client/invoice";
 import RevenueReport from "./pages/admin/report-generation/revenue";
 import ServicesPage from "./pages/admin/home/Services";
-
+import ReservationReport from "./pages/admin/report-generation/reservation-report";
+import RoomClassReport from "./pages/admin/report-generation/room-class-report";
+import EmployeeReport from "./pages/admin/report-generation/employee-report";
+import AmenitiesPage from "./pages/admin/home/Amenities";
 // import LoginAdmin from "./pages/admin/login";
 import Cookies from 'js-cookie';
 import { Outlet } from "react-router-dom";
@@ -45,6 +49,8 @@ import ForgotPassword from "./pages/admin/ForgotPassword/ForgotPassword";
 import VerifyOTP from "./pages/admin/ForgotPassword/OTPCode";
 import ResetPassword from "./pages/admin/ForgotPassword/ResetPassword";
 import ChangePassword from "./pages/admin/ChangePassword";
+import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
+import FloorPage from "./pages/admin/home/Floor";
 function App() {
 
   const getUserRole = () => {
@@ -57,7 +63,7 @@ function App() {
       return null; // Return null if there's an error
     }
   };
- 
+  const cookieTokens = Cookies.get("token") ? Cookies.get("token") : null;
 
   const ProtectedRoute = ({ element }) => {
     const token = Cookies.get("token") || null; // Get token from cookies
@@ -87,8 +93,8 @@ function App() {
         {/* Routes cho Client */}
         <Route path="/client" >
           <Route path="home" element={<Home />} />
-          <Route path="booking" element={<Booking />} />
-          <Route path="testimonial" element={<Testimonial />} />
+          {/* <Route path="booking" element={<Booking />} /> */}
+          {/* <Route path="testimonial" element={<Testimonial />} /> */}
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<Contact />} />
           <Route path="rooms" element={<RoomClient />} />
@@ -120,11 +126,16 @@ function App() {
           <Route path="hotel-info" element={<HotelInfo />} />
           <Route path="revenue" element={<RevenueReport />} />
           <Route path="service" element={<ServicesPage />} /> 
+          <Route path="amenities" element={<AmenitiesPage />} />
+          <Route path="reservation-report" element={<ReservationReport />} />
+          <Route path="room-class-report" element={<RoomClassReport />} />
+          <Route path="employee-report" element={<EmployeeReport />} />
+          <Route path="floor" element={<FloorPage />} />
         </Route>
 
         <Route path="account" element={<Login />} />
         <Route path="login" element={<LoginAdmin />} />
-        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="forgot-password" element={<ForgotPasswordEmail />} />
         <Route path="otp-code" element={<VerifyOTP />} />
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="change-password" element={<ChangePassword />} />

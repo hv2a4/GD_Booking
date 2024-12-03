@@ -30,6 +30,29 @@ export default function BookingFilter() {
         return `${year}-${month}-${day}`;
     };
 
+    // Xử lý khi thay đổi ngày nhận phòng
+    const handleCheckinChange = (date) => {
+        setCheckinDate(date);
+
+        // Nếu ngày trả phòng không hợp lệ, tự động điều chỉnh
+        if (checkoutDate && date >= checkoutDate) {
+            const correctedDate = new Date(date);
+            correctedDate.setDate(correctedDate.getDate() + 1); // Ngày trả phòng phải ít nhất 1 ngày sau ngày nhận phòng
+            setCheckoutDate(correctedDate);
+        }
+    };
+
+    // Xử lý khi thay đổi ngày trả phòng
+    const handleCheckoutChange = (date) => {
+        if (checkinDate && date <= checkinDate) {
+            const correctedDate = new Date(checkinDate);
+            correctedDate.setDate(correctedDate.getDate() + 1); // Tự động sửa ngày trả phòng
+            setCheckoutDate(correctedDate);
+        } else {
+            setCheckoutDate(date);
+        }
+    };
+
     // Hàm toggle dropdown
     const toggleGuestDropdown = () => {
         setGuestDropdownVisible(!guestDropdownVisible);
@@ -64,28 +87,29 @@ export default function BookingFilter() {
                                 <div className="row g-2">
                                     <div className="col-md-3">
                                         <label htmlFor="checkin" className="form-label">Nhận phòng</label>
-                                        <div className="input-group flex-nowrap">
+                                        <div className="input-group flex-nowrap" style={{ height: '44px' }}>
                                             <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkinDate}
-                                                onChange={date => setCheckinDate(date)}
+                                                onChange={handleCheckinChange}
                                                 className="form-control mt-0"
                                                 placeholderText="Chọn ngày"
                                                 dateFormat="dd/MM/yyyy"
-                                                minDate={new Date()}
+                                                minDate={new Date()} // Ngày nhận phòng không thể trước ngày hiện tại
                                             />
                                         </div>
                                     </div>
                                     <div className="col-md-3">
                                         <label htmlFor="checkout" className="form-label">Trả phòng</label>
                                         <div className="input-group flex-nowrap">
-                                            <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
+                                            <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
                                             <DatePicker
                                                 selected={checkoutDate}
-                                                onChange={date => setCheckoutDate(date)}
+                                                onChange={handleCheckoutChange}
                                                 className="form-control mt-0"
                                                 placeholderText="Chọn ngày"
                                                 dateFormat="dd/MM/yyyy"
+                                                // minDate dựa trên ngày nhận phòng
                                                 minDate={checkinDate ? new Date(checkinDate).setDate(new Date(checkinDate).getDate() + 1) : new Date()}
                                             />
                                         </div>

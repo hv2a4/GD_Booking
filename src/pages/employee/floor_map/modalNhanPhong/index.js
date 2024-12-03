@@ -5,31 +5,42 @@ import DatePicker from "react-datepicker";
 import Alert from "../../../../config/alert";
 import { updateStatusCheckInBooking } from "../../../../services/employee/booking-manager";
 
-const NhanPhong = ({ bookingRoom }) => {
+const NhanPhong = ({ bookingRooms, onClose }) => {
     const [showModal1, setShowModal1] = useState(false);
     const [showModal2, setShowModal2] = useState(false);
     const [alert, setAlert] = useState(null);
     const [checkBoxSelected, setCheckBoxSelected] = useState([]); // Lưu các ID phòng đã chọn
     const [dates, setDates] = useState([]); // Lưu ngày nhận/trả phòng
-    const filteredBookingRoom = bookingRoom.filter(item => item.checkIn === null);
+    const parsedBookingRoom = Array.isArray(bookingRooms) ? bookingRooms : JSON.stringify([bookingRooms]);;
+    const parsedBookingRooms = Array.isArray(bookingRooms) ? bookingRooms : JSON.parse(parsedBookingRoom);
+    const filteredBookingRoom = parsedBookingRooms.filter(item => item.checkIn === null);
 
     // Đóng/Mở modal
     const handleCloseModal1 = () => setShowModal1(false);
-    const handleShowModal1 = () => setShowModal1(true);
+    const handleShowModal1 = () => {
+        setShowModal1(true);
+    };
+
 
     const handleCloseModal2 = () => setShowModal2(false);
     const handleShowModal2 = async () => {
-        setShowModal2(true);
-        setShowModal1(false);
         if (checkBoxSelected.length === 0) {
             setAlert({ type: "error", title: "Vui lòng chọn phòng" });
             return;
         }
-
-        
         const roomId = checkBoxSelected.map((e) => e.roomId);
         const RoomIdsString = roomId.join(',');
+        const occupiedRoom = filteredBookingRoom?.some((d) => {
+            const roomStatus = d.room.statusRoomDto?.id;
+            return Number(roomStatus) === 2;
+        });
+        console.log(occupiedRoom);
+        console.log(filteredBookingRoom);
         
+        if (occupiedRoom) {
+            setAlert({ type: "error", title: "Phòng này đang có người" });
+            return;
+        }
         const newBookings = dates
             .filter(d => roomId.includes(d.roomId))
             .map(d => ({
@@ -38,12 +49,10 @@ const NhanPhong = ({ bookingRoom }) => {
                 checkIn: d.checkIn?.toISOString(),
                 checkOut: d.checkOut?.toISOString(),
             }));
-        const bookingId = bookingRoom[0]?.booking.id
+        const bookingId = filteredBookingRoom[0]?.booking.id
         try {
             if (bookingId) {
                 const data = await updateStatusCheckInBooking(bookingId, RoomIdsString, newBookings);
-                console.log(data);
-
                 if (data) {
                     setAlert({ type: data.status, title: data.message });
                     if (data.status === "success") {
@@ -60,24 +69,32 @@ const NhanPhong = ({ bookingRoom }) => {
 
     // Cập nhật dữ liệu ngày nhận và trả phòng khi nhận bookingRoom
     useEffect(() => {
-        setTimeout(() => setAlert(null), 500);
-    
-        if (bookingRoom && bookingRoom.length > 0) {
-            const initialDates = bookingRoom.map(item => {
+        if (filteredBookingRoom.length > 0) {
+            const initialDates = filteredBookingRoom.map(item => {
                 const now = new Date();
-                now.setHours(0, 0, 0, 0); // Reset the time to ensure it's only the date part
-    
+                now.setHours(0, 0, 0, 0);
                 return {
                     roomId: item.room.id,
                     bookingRoomId: item.id,
-                    checkIn: item.booking.startAt ? new Date(item.booking.startAt) : now,  // Set to current date if not defined
+                    checkIn: now,
                     checkOut: new Date(item.booking.endAt),
                 };
             });
-            setDates(initialDates);
+
+            // Chỉ cập nhật nếu `initialDates` khác `dates`
+            if (JSON.stringify(initialDates) !== JSON.stringify(dates)) {
+                setDates(initialDates);
+            }
         }
-    }, [bookingRoom, alert]);
-    
+    }, [filteredBookingRoom, dates]);
+    useEffect(() => {
+        if (alert) {
+            const timeout = setTimeout(() => setAlert(null), 500);
+            return () => clearTimeout(timeout);
+        }
+    }, [alert]);
+
+
 
     const handleCheckBoxChange = (roomId, bookingRoomId, checked) => {
         if (checked) {
@@ -97,7 +114,7 @@ const NhanPhong = ({ bookingRoom }) => {
 
     const handleSelectAllChange = (checked) => {
         if (checked) {
-            const allSelections = bookingRoom.map((item) => ({
+            const allSelections = filteredBookingRoom.map((item) => ({
                 roomId: item.room.id,
                 bookingRoomId: item.id
             }));
@@ -106,29 +123,25 @@ const NhanPhong = ({ bookingRoom }) => {
             setCheckBoxSelected([]);
         }
     };
-    
+
 
     // Kiểm tra trạng thái "Chọn tất cả"
-    const isSelectAll = checkBoxSelected.length === bookingRoom.length;
+    const isSelectAll = checkBoxSelected.length === filteredBookingRoom.length;
 
     // Xử lý thay đổi ngày
     const handleChange = (field, bookingRoomId, value) => {
         const now = new Date();
         now.setHours(0, 0, 0, 0); // Reset time part to compare dates only
-    
+
         // Reset time part of the value to compare dates only
         const selectedDate = new Date(value);
         selectedDate.setHours(0, 0, 0, 0);
-    
+
         // Check if the selected date is in the past
-        if (selectedDate < now) {
-            setAlert({ type: "error", title: "Ngày chọn không được là ngày quá khứ!" });
-            return;
-        }
-    
+
         const room = dates.find(item => item.bookingRoomId === bookingRoomId);
         if (!room) return;
-    
+
         if (field === "checkOut" && value < room.checkIn) {
             setAlert({ type: "error", title: "Ngày trả không được nhỏ hơn ngày nhận!" });
             return;
@@ -137,23 +150,23 @@ const NhanPhong = ({ bookingRoom }) => {
             setAlert({ type: "error", title: "Ngày nhận phòng không được trong tương lai!" });
             return;
         }
-    
+
         if (field === "checkIn" && value > room.checkOut) {
             setAlert({ type: "error", title: "Ngày nhận không được lớn hơn ngày trả!" });
             return;
         }
-    
+
         // Cập nhật ngày trong danh sách
         const updatedDates = dates.map(item =>
             item.bookingRoomId === bookingRoomId
                 ? { ...item, [field]: value }
                 : item
         );
-    
+
         setDates(updatedDates);
         setAlert(null); // Xóa thông báo lỗi nếu hợp lệ
     };
-    
+
 
     return (
         <>
@@ -182,7 +195,7 @@ const NhanPhong = ({ bookingRoom }) => {
                 </Modal.Header>
                 <Modal.Body>
                     <p>
-                        <i className="bi bi-person-circle"></i> {bookingRoom[0]?.booking.accountDto?.fullname} - {bookingRoom[0]?.booking.accountDto?.phone}
+                        <i className="bi bi-person-circle"></i> {filteredBookingRoom[0]?.booking?.accountDto?.fullname} - {filteredBookingRoom[0]?.booking?.accountDto?.phone}
                     </p>
                     {alert && <Alert type={alert.type} title={alert.title} />}
                     {/* Bảng danh sách phòng */}
@@ -214,7 +227,7 @@ const NhanPhong = ({ bookingRoom }) => {
                                             )}
                                             onChange={(e) =>
                                                 handleCheckBoxChange(item.room.id, item.id, e.target.checked)
-                                            } 
+                                            }
                                         />
                                     </td>
                                     <td style={{ whiteSpace: "normal", wordWrap: "break-word" }}>

@@ -1,20 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Row, Col } from 'react-bootstrap';
+import { Card, Form, Row, Col, InputGroup } from 'react-bootstrap';
 import '../Filter/style/customCss.css';
 import { Add_Floor } from '../Rom/AddAndUpdate';
 import Select from 'react-select';
 import { RiAddCircleLine } from "react-icons/ri";
 import { request } from '../../../../../../config/configApi';
 import Cookies from 'js-cookie';
+import { BsSearch } from 'react-icons/bs';
 
 // Component tìm kiếm chung
 function SearchBox({ placeholder, onSearch }) {
     return (
         <Form.Group controlId="search">
+            <InputGroup>
+                <InputGroup.Text>
+                    <BsSearch style={{ fontSize: "24px" }} />
+                </InputGroup.Text>
+                <Form.Control
+                    type="text"
+                    placeholder={placeholder}
+                    onChange={(e) => onSearch(e.target.value)}
+                />
+            </InputGroup>
+        </Form.Group>
+    );
+};
+
+function SearchDateBox({ onChange }) {
+    return (
+        <Form.Group controlId="search">
             <Form.Control
-                type="text"
-                placeholder={placeholder}
-                onChange={(e) => onSearch(e.target.value)}
+                type="date"
+                onChange={(e) => onChange(e.target.value)}
             />
         </Form.Group>
     );
@@ -180,4 +197,4 @@ function FloorSelector({ onFloorChange }) {
 
 
 // Xuất các component chính
-export { SearchBox, StatusSelector, RoomTypeSelector, FloorSelector };
+export { SearchBox, StatusSelector, RoomTypeSelector, FloorSelector, SearchDateBox };

@@ -22,11 +22,7 @@ const ImageUploader = ({ label, onImageChange, image, setImage }) => {
                     {image ? (
                         <>
                             <Card.Img variant="top" src={images} />
-                            <div className="button-container">
-                                <Button variant="danger" size="sm" onClick={() => setImage(null)}>
-                                    Xóa
-                                </Button>
-                            </div>
+
                         </>
                     ) : (
                         <>
@@ -44,7 +40,13 @@ const ImageUploader = ({ label, onImageChange, image, setImage }) => {
                         </>
                     )}
                 </>
+
             </Card >
+            <div className="button-container d-flex justify-content-center">
+                <Button variant="danger" style={{maxWidth: "80px"}} onClick={() => setImage(null)}>
+                    Xóa
+                </Button>
+            </div>
         </div>
     );
 };

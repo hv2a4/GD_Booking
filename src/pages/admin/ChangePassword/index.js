@@ -15,16 +15,15 @@ const ChangePassword = () => {
   // Define styles with unique class names
   const styles = {
     changePasswordContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#fff7f0', // Light background for contrast
+  
+      padding: '10px 20px 15px 5px', // Thêm padding để tạo khoảng cách
+      minHeight: '100vh', // Đảm bảo chiều cao tối thiểu
       fontFamily: 'Arial, sans-serif',
-    },
+      margin: '10px 20px 15px 100px'
+  },
     changePasswordCard: {
       backgroundColor: '#ffffff', // White card background
-      padding: '30px',
+      padding: '10px',
       borderRadius: '10px', // Rounded corners
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Light shadow for a card effect
       width: '400px',

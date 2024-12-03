@@ -59,7 +59,7 @@ const RoomDetail = ({ show, onClose, room }) => {
                 {/* Giá phòng */}
                 <div className="d-flex flex-column align-items-start mt-3">
                     <span><strong>Giá phòng:</strong></span>
-                    <span className="price-final mt-2">{priceFormatted}</span>
+                    <span className="price-final mt-2">{priceFormatted}/ Ngày</span>
                 </div>
             </Modal.Body>
 

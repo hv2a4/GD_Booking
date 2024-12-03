@@ -8,9 +8,9 @@ const formatCurrency = (amount) => {
 };
 const formatDateTime = (dateString) => {
   if (dateString) {
-    return format(new Date(dateString), "dd-MM-yyyy HH:mm:ss");
+    return format(new Date(dateString), "dd-MM-yyyy HH:mm");
   }
-  return "dd-MM-yyyy HH:mm:ss";
+  return "dd-MM-yyyy HH:mm";
 };
 const formatDate = (dateString) => {
   if (dateString) {
