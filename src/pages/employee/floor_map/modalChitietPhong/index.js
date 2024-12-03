@@ -7,9 +7,11 @@ import { getBookingRoomInformation } from "../../../../services/admin/account-ma
 import { format } from "date-fns";
 import { formatCurrency } from "../../../../config/formatPrice";
 import NhanPhong from "../modalNhanPhong";
-const ModalDetailFloor = ({ onClose, item }) => {
+import ConfirmBookingModal from "../../list-reservation/modalXacNhan";
+const ModalDetailFloor = ({ onClose, item, booking }) => {
     const [bookingRoom, setBookingRoom] = useState({});
     const [customer, setCustomer] = useState([]);
+    const encodedIdBookingRoom = item ? btoa(bookingRoom.id) : btoa(booking?.bookingRooms[0]?.id);
     const cookie = new Cookies();
     const token = cookie.get("token");
     useEffect(() => {
@@ -17,9 +19,8 @@ const ModalDetailFloor = ({ onClose, item }) => {
             handleDetail(item?.id, item?.statusRoomDto?.id, token);
             handleCustomerInfo(item?.id, token);
         }
+    }, [item, booking])
 
-    }, [item])
-    
     const handleCustomerInfo = async (id, token) => {
         try {
             const data = await getBookingRoomInformation(id, token);
@@ -75,24 +76,39 @@ const ModalDetailFloor = ({ onClose, item }) => {
             return `${diffMinutes} phút`;
         }
     };
+    const dataRooms = () => {
+        if (booking && booking.bookingRooms && booking.bookingRooms.length > 0) {
+            const roomNames = booking.bookingRooms.map((e) => e.room.roomName.replace("Phòng ", ""));
+            return `Phòng ${roomNames.join(", ")}`; // Nếu có nhiều phòng, nối tên các phòng với dấu phẩy
+        }
+        return "";
+    }
 
+    const totalPrice = () => {
+        if (booking && booking.bookingRooms && booking.bookingRooms.length > 0) {
+            const totalPriceBookingRoom = booking.bookingRooms.map((e) => e.price || 0);
+            const totalBookingRoomPrice = totalPriceBookingRoom.reduce((sum, price) => sum + price, 0);
+            return totalBookingRoomPrice;
+        }
+        return 0;
+    }
 
     return (
         <Modal className="custom-modal-width modal-noneBg" show={true} onHide={onClose} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Chi tiết {item?.roomName}</Modal.Title>
+                <Modal.Title>Chi tiết {item?.roomName || dataRooms()}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <div className="boxster">
                     <div className="d-flex align-items-center mb-3">
-                        <h3 className="font-weight-bold mb-0">{item?.roomName}</h3>
-                        <span className="text-success ms-auto">{item?.statusRoomDto?.statusRoomName}</span>
+                        <h3 className="font-weight-bold mb-0">{item?.roomName || dataRooms()}</h3>
+                        <span className={item ? "text-success ms-auto" : booking?.statusBookingDto?.id === 6 ? "text-danger ms-auto":"text-success ms-auto"}>{item?.statusRoomDto?.statusRoomName || booking?.statusBookingDto?.statusBookingName == "trả phòng" ? "Đang sử dụng" : booking?.statusBookingDto?.statusBookingName}</span>
                     </div>
                     <hr />
                     <div className="row mb-3">
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Tên khách hàng</Form.Label>
-                            <div className="font-weight-medium">{bookingRoom?.booking?.accountDto?.fullname}</div>
+                            <div className="font-weight-medium">{bookingRoom?.booking?.accountDto?.fullname || booking?.accountDto?.fullname}</div>
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Khách lưu trú</Form.Label>
@@ -100,23 +116,23 @@ const ModalDetailFloor = ({ onClose, item }) => {
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Mã đặt phòng</Form.Label>
-                            <div className="font-weight-medium">{bookingRoom?.id}</div>
+                            <div className="font-weight-medium">{bookingRoom?.id || booking?.id}</div>
                         </div>
                     </div>
                     <div className="row mb-3">
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Nhận phòng</Form.Label>
-                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.booking?.startAt)}</div>
+                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.booking?.startAt || booking?.startAt)}</div>
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Trả phòng</Form.Label>
-                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.booking?.endAt)}</div>
+                            <div className="font-weight-medium">{formatDateTime(bookingRoom?.booking?.endAt || booking?.endAt)}</div>
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Thời gian thuê</Form.Label>
                             <div className="font-weight-medium">
-                                {calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)}
-                                {bookingRoom?.booking?.endAt && new Date() > new Date(bookingRoom?.booking?.endAt) && (
+                                {calculateDuration(bookingRoom?.booking?.startAt || booking?.startAt, bookingRoom?.booking?.endAt || booking?.endAt)}
+                                {(bookingRoom?.booking?.endAt || booking?.endAt) && new Date() > new Date(bookingRoom?.booking?.endAt || booking?.endAt) && (
                                     <span className="text-danger"> (Đã quá hạn trả)</span>
                                 )}
                             </div>
@@ -139,11 +155,11 @@ const ModalDetailFloor = ({ onClose, item }) => {
                     <div className="payment-suggest-money p-4 boxster">
                         <div className="payment-form-row form-row ng-star-inserted">
                             <div className="payment-form-label col-form-label">
-                                <span>{item?.roomName}</span>
+                                <span>{item?.roomName || 'Tổng giá'}</span>
                             </div>
                             <div className="payment-form-control col-form-control">
                                 <div className="payment-form-control col-form-control payment-total-amount font-regular">
-                                    <span>{formatCurrency(bookingRoom?.price)}</span>
+                                    <span>{formatCurrency(bookingRoom?.price || totalPrice())} VNĐ</span>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +169,7 @@ const ModalDetailFloor = ({ onClose, item }) => {
                             </div>
                             <div className="payment-form-control col-form-control">
                                 <div className="payment-form-control fw-bolder col-form-control payment-total-amount font-regular">
-                                    <span> 150,000</span>
+                                    <span>{booking?.statusPayment ? formatCurrency(totalPrice()) : 0 || bookingRoom?.booking?.statusPayment ? formatCurrency(bookingRoom?.price) : 0} VNĐ</span>
                                 </div>
                             </div>
                         </div>
@@ -161,19 +177,43 @@ const ModalDetailFloor = ({ onClose, item }) => {
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <Link to="/employee/edit-room">
-                    <Button variant="outline-success">Cập nhật đặt phòng</Button>
-                </Link>
-                {item?.statusRoomDto?.id === 2 ? (
-                    <Link to="/employee/edit-room">
-                        <Button variant="success">Trả phòng</Button>
+                {item ? (
+                    <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
+                        <Button variant="outline-success">Cập nhật đặt phòng</Button>
                     </Link>
                 ) : (
-                    <NhanPhong
-                        bookingRooms={bookingRoom}
-                        onClose={onClose} // Truyền callback để đóng modal chi tiết 
-                    />
+                    ""
                 )}
+                {item ?
+                    (item?.statusRoomDto?.id === 2 ? (
+                        <Link to="/employee/edit-room">
+                            <Button variant="success" >Trả phòng</Button>
+                        </Link>
+                    ) : (
+                        <NhanPhong
+                            bookingRooms={bookingRoom}
+                            onClose={onClose}
+                        />
+                    )) : (
+                        (booking?.statusBookingDto?.id !== 6 && booking?.statusBookingDto?.id !== 8) ? (
+                            booking?.statusBookingDto?.id === 2 ? (
+                                <ConfirmBookingModal bookingRoom={booking.bookingRooms} />
+                            ) : (
+                                booking?.statusBookingDto?.id === 4 ? (
+                                    <NhanPhong bookingRooms={booking.bookingRooms} />
+                                ) : (
+                                    <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
+                                        <Button variant="outline-success" >Trả phòng</Button>
+                                    </Link>
+                                )
+                            )
+                        ) : (
+                            <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
+                                <Button variant="outline-success" >Chi tiết</Button>
+                            </Link>
+                        )
+                    )
+                }
 
             </Modal.Footer>
         </Modal>

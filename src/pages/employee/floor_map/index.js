@@ -10,9 +10,11 @@ import { getStatusRoom } from "../../../services/employee/status-room";
 import { Cookies } from "react-cookie";
 import { Spinner } from "react-bootstrap";
 import { getBookingRoomByRoom } from "../../../services/employee/floor";
+import DatPhong from "../list-reservation/modalDatPhong";
 const FloorMap = () => {
     const { id } = useParams();
     const [rooms, setRooms] = useState([]);
+    const [room, setRoom] = useState({});
     const [alert, setAlert] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +33,8 @@ const FloorMap = () => {
     };
     const [showModalOrder, setShowModalOrder] = useState(false);
 
-    const handleShowModalOrder = () => {
+    const handleShowModalOrder = (item) => {
+        setRoom(item);
         setShowModalOrder(true);
     };
     const handleCloseModalOrder = () => {
@@ -40,11 +43,11 @@ const FloorMap = () => {
 
     useEffect(() => {
         handleRoomByFloor();
-    }, [id]);
+    }, [id,room]);
     useEffect(() => {
         if (alert) {
-            const timer = setTimeout(() => setAlert(null), 500); // Ẩn thông báo sau 3 giây
-            return () => clearTimeout(timer); // Xóa timer khi component unmount
+            const timer = setTimeout(() => setAlert(null), 500);
+            return () => clearTimeout(timer);
         }
     }, [alert]);
 
@@ -53,7 +56,6 @@ const FloorMap = () => {
         try {
             const data = await getRoomByFloorId(id);
             console.log(data);
-
             if (data) {
                 setRooms(data);
                 const statusRooms = {};
@@ -61,6 +63,8 @@ const FloorMap = () => {
                     const statusRoomData = await getStatusRoom(room.statusRoomDto?.id);
                     statusRooms[room.statusRoomDto?.id] = statusRoomData;
                 }))
+                console.log(statusRooms);
+                
                 setStatusRoom(statusRooms);
                 const bookings = {};
                 await Promise.all(data.map(async (room) => {
@@ -73,7 +77,6 @@ const FloorMap = () => {
                         bookings[room?.id] = null;
                     }
                 }));
-                console.log(bookings);
                 setBooking(bookings);
             } else {
                 setAlert({ type: "error", title: "Lỗi không có dữ liệu" });
@@ -193,7 +196,7 @@ const FloorMap = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="reception-item-body" onClick={handleShowModalOrder}>
+                                            <div className="reception-item-body" onClick={() => handleShowModalOrder(item)}>
                                                 <div className="reception-info d-flex spacer align-items-center flex-nowrap mb-2">
                                                     <h2 className="reception-room-name mb-0 tag-neutral" title={item?.roomName}> {item?.roomName} </h2>
                                                 </div>
@@ -378,7 +381,7 @@ const FloorMap = () => {
                 </div>
             </div>
             {showModal && <ModalDetailFloor onClose={handleCloseModal} item={roomDetail} />}
-            {showModalOrder && <ModalORR onClose={handleCloseModalOrder} />}
+            {showModalOrder && <DatPhong onClose={handleCloseModalOrder} room={room}/>}
         </Layoutemployee>
     )
 }

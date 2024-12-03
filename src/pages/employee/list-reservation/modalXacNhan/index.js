@@ -72,19 +72,8 @@ const ConfirmBookingModal = ({ bookingRoom }) => {
     return (
         <>
             <Button
-                variant="success"
-                onClick={handleShowModal1}
-                style={{
-                    fontSize: "12px",
-                    width: "127px",
-                    height: "36px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "#02963d",
-                    color: "white",
-                }}
-            >
+                variant="outline-secondary"
+                onClick={handleShowModal1}>
                 Xác nhận
             </Button>
             <Modal show={showModal1} onHide={handleCloseModal1} centered>

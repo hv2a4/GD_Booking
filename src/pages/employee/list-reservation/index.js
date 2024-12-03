@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { Cookies } from "react-cookie";
 import { getAllBooking } from "../../../services/employee/order-room-manager";
 import { useLocation } from 'react-router-dom';
+import "../home/FillterDate/style.css"
 
 const ListReservation = () => {
     const [filterType, setFilterType] = useState(null);
@@ -45,12 +46,11 @@ const ListReservation = () => {
     // Áp dụng filterBookings và searchBookings
     const filteredAndSearchedBookings = searchBookings(bookings, searchTerm);
 
-    // useEffect(() => {
-    //     handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
-    // }, [filterType, startDate, endDate, location]);
     useEffect(() => {
         handleBooking(filterType, formatDateTime(startDate), formatDateTime(endDate), token);
-    }, [filteredBookings])
+    }, [filterType, startDate, endDate, location]);
+    useEffect(() => {
+    }, [filteredBookings]);
 
     const handleStartDateChange = (selectedDate) => {
         setStartDate(selectedDate);
@@ -92,11 +92,14 @@ const ListReservation = () => {
         return bookings.filter((booking) => {
             // Kiểm tra nếu tất cả các phòng đều có checkIn === null
             const allCheckInNull = booking.bookingRooms?.every(room => room.checkIn === null) ?? false;
-
-            // Giữ lại nếu có ít nhất một phòng có checkIn khác null
-            return !allCheckInNull;
+    
+            // Kiểm tra cả 2 điều kiện: statusBookingDto.id === 7 và có ít nhất một phòng có checkIn khác null
+            return (booking.statusBookingDto.id === 7 || !allCheckInNull) && booking.statusBookingDto.id !== 8 && booking.statusBookingDto.id !== 6;
         });
     };
+    
+    
+    
     const renderTabContent = (tab) => {
         let bookingsForTab = [];
         switch (tab) {
@@ -118,7 +121,9 @@ const ListReservation = () => {
                 );
                 break;
             case "chotaohoadon":
-                return <CreateInvoice />;
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 6);
+                break;
+                
             default:
                 return <p>Không có dữ liệu</p>;
         }
@@ -139,7 +144,7 @@ const ListReservation = () => {
             case "quagio":
                 return <OverTime item={bookingsForTab} />;
             default:
-                return null;
+                return <CreateInvoice item={bookingsForTab}/>;
         }
     };
     
@@ -169,7 +174,7 @@ const ListReservation = () => {
                 <div className="toolbar-item justify-content-end mb-3 d-flex align-items-center" style={{ flexWrap: "wrap" }}>
                     <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
                         <select
-                            className="form-select"
+                            className="date-filter-input"
                             value={filterType}
                             onChange={handleFilterChange}
                             aria-label="Default select example"
@@ -186,7 +191,7 @@ const ListReservation = () => {
                             selected={startDate}
                             placeholderText="Chọn ngày bắt đầu"
                             onChange={handleStartDateChange}
-                            className="custom-date-picker"
+                            className="date-filter-input"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -196,7 +201,7 @@ const ListReservation = () => {
                             selected={endDate}
                             placeholderText="Chọn ngày kết thúc"
                             onChange={handleEndDateChange}
-                            className="custom-date-picker"
+                            className="date-filter-input"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -214,27 +219,27 @@ const ListReservation = () => {
                             data-bs-toggle="pill" data-bs-target="#pills-choxacnhan"
                             type="button" role="tab"
                             aria-controls="pills-choxacnhan"
-                            aria-selected="false">Chờ xác nhận</button>
+                            aria-selected="false" onClick={handleReload}>Chờ xác nhận</button>
                         <button class="nav-link" id="pills-datra-tab"
                             data-bs-toggle="pill" data-bs-target="#pills-datra"
                             type="button" role="tab" aria-controls="pills-datra"
-                            aria-selected="false">Đã trả</button>
+                            aria-selected="false" onClick={handleReload}>Hoàn thành</button>
                         <button class="nav-link" id="pills-dattruoc-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-dattruoc" type="button"
                             role="tab" aria-controls="pills-dattruoc"
-                            aria-selected="false">Đã đặt trước</button>
+                            aria-selected="false" onClick={handleReload}>Đã đặt trước</button>
                         <button class="nav-link" id="pills-dangsudung-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-dangsudung" type="button"
                             role="tab" aria-controls="pills-dangsudung"
-                            aria-selected="false">Đang sử dụng</button>
+                            aria-selected="false" onClick={handleReload}>Đang sử dụng</button>
                         <button class="nav-link" id="pills-quagio-tab"
                             data-bs-toggle="pill" data-bs-target="#pills-quagio"
                             type="button" role="tab" aria-controls="pills-quagio"
-                            aria-selected="false">Quá giờ trả</button>
+                            aria-selected="false" onClick={handleReload}>Quá giờ trả</button>
                         <button class="nav-link" id="pills-chotaohoadon-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-chotaohoadon" type="button"
                             role="tab" aria-controls="pills-chotaohoadon"
-                            aria-selected="false">Đã hủy</button>
+                            aria-selected="false" onClick={handleReload}>Đã hủy</button>
 
                     </div>
                 </nav>
