@@ -3,11 +3,17 @@ import { format } from "date-fns";
 import { formatCurrency } from "../../../config/formatPrice";
 import XacNhan from "./modalXacNhan";
 import { Button, Table } from "react-bootstrap";
+import AlertComfirm from "../../../config/alert/comfirm";
+import { cancelBooking } from "../../../services/employee/booking-manager";
+import { useNavigate } from "react-router-dom";
+import Alert from "../../../config/alert";
 
 const Confirm = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const itemsPerPage = 10; // Số lượng bản ghi trên mỗi trang
     const totalPages = Math.ceil(item?.length / itemsPerPage); // Tổng số trang
+    const [alert, setAlert] = useState(null);
+    const navigate = useNavigate();
 
     const formatDate = (dateString) => {
         return format(new Date(dateString), "dd-MM-yyyy HH:mm:ss");
@@ -43,9 +49,28 @@ const Confirm = ({ item }) => {
         }
         return range;
     };
+    const handleCancelBooking = async (booking) => {
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa đặt phòng này không?",
+            confirmButtonText: "Đồng ý",
+            cancelButtonText: "Hủy",
+        });
+        if (confirmation) {
+            if (booking.id) {
+                const res = await cancelBooking(booking.id);
+                res ? setAlert({ type: res.status, title: res.message }) : setAlert({ type: res.status, title: res.message });
+                navigate('/employee/list-booking-room');
+            } else {
+                setAlert({ type: "error", title: "Không có mã đặt phòng này" });
+            }
+        }
+    }
 
     return (
-        <div className="table-responsive">
+        <div>
+            {alert && <Alert type={alert.type} title={alert.title} />}
             <Table bordered hover>
                 <thead>
                     <tr>
@@ -95,7 +120,7 @@ const Confirm = ({ item }) => {
                                         <ul className="dropdown-menu dropdown-menu-light">
                                             <li><a className="dropdown-item" href="#">Thêm sản phẩm, dịch vụ</a></li>
                                             <li><a className="dropdown-item" href="#">Cập nhật đặt phòng</a></li>
-                                            <li><a className="dropdown-item" href="#">Hủy đặt phòng</a></li>
+                                            <li onClick={() => handleCancelBooking(booking)}><a className="dropdown-item" href="#">Hủy đặt phòng</a></li>
                                         </ul>
                                     </div>
                                 </td>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Table } from "react-bootstrap";
 import { formatCurrency, formatDate, formatDateTime } from "../../../config/formatPrice";
+import { Link } from "react-router-dom";
 
 const CreateInvoice = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -39,7 +40,7 @@ const CreateInvoice = ({ item }) => {
         return range;
     };
     return (
-        <div className="table-responsive">
+        <div>
             <Table bordered hover>
                 <thead>
                     <tr>
@@ -81,7 +82,9 @@ const CreateInvoice = ({ item }) => {
                                         {booking.statusBookingDto.statusBookingName}
                                     </td>
                                     <td className="d-flex">
-                                        <Button variant="outline-success">Chi tiết</Button>
+                                        <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
+                                            <Button variant="outline-success">Chi tiết</Button>
+                                        </Link>
                                     </td>
                                 </tr>
                             );

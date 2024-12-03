@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { formatCurrency } from "../../../config/formatPrice";
 import { Button, Table } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 const CheckedOut = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -68,7 +69,7 @@ const CheckedOut = ({ item }) => {
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
-
+                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -82,7 +83,9 @@ const CheckedOut = ({ item }) => {
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
                                     <td className="d-flex">
-                                        <Button variant="outline-success">Chi tiết</Button>
+                                        <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
+                                            <Button variant="outline-success">Chi tiết</Button>
+                                        </Link>
                                     </td>
                                 </tr>
                             );

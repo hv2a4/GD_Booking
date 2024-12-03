@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import { jwtDecode as jwt_decode } from "jwt-decode";
 import { addInvoice } from "../../../../services/employee/invoice";
 import Alert from "../../../../config/alert";
+import { useNavigate } from "react-router-dom";
 
 const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} } }) => {
     const [show, setShow] = useState(false);
@@ -17,6 +18,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
     const handleShow = () => setShow(true);
     const cookieToken = Cookies.get("token") ? Cookies.get("token") : null;
     const decodedToken = jwt_decode(cookieToken);
+    const navigate = useNavigate();
     useEffect(() => {
         if (bookings?.bookingRooms) {
             setBookingRooms(bookings.bookingRooms);
@@ -78,13 +80,12 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
             createAt: new Date(dateTime),
             invoiceStatus: true,
             totalAmount: calculateTotal(),
-            bookingId: bookings.id
+            bookingId: bookings?.id
         }
-        console.log(data);
-        
         const res = await addInvoice(data, cookieToken);
         if (res) {
             setAlert({ type: res.status, title: res.message });
+            setTimeout(() => navigate("/employee/home"), 3000);
         }
     }
 
@@ -103,6 +104,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                 className="btn btn-outline-success"
                 type="button"
                 onClick={handleShow}
+                disabled={bookings?.statusBookingDto?.id === 6 || bookings?.statusBookingDto?.id === 8}
             >
                 Thanh toán
             </button>
@@ -115,7 +117,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
             >
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
-                    <Modal.Title>Thanh toán hóa đơn {bookings.id} - {bookings?.accountDto?.fullname}</Modal.Title>
+                    <Modal.Title>Thanh toán hóa đơn {bookings?.id} - {bookings?.accountDto?.fullname}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="container-fluid">
@@ -247,7 +249,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                         <div className="d-flex justify-content-between">
                                             <strong>Còn cần trả</strong>
                                             <strong>
-                                                {bookings.methodPaymentDto.id === 2
+                                                {bookings.methodPaymentDto?.id === 2
                                                     ? formatCurrency(calculateTotal() - tatolRoom())
                                                     : formatCurrency(calculateTotal())} VNĐ
                                             </strong>

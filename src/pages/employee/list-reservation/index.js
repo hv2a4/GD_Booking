@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { Cookies } from "react-cookie";
 import { getAllBooking } from "../../../services/employee/order-room-manager";
 import { useLocation } from 'react-router-dom';
+import "../home/FillterDate/style.css"
 
 const ListReservation = () => {
     const [filterType, setFilterType] = useState(null);
@@ -173,7 +174,7 @@ const ListReservation = () => {
                 <div className="toolbar-item justify-content-end mb-3 d-flex align-items-center" style={{ flexWrap: "wrap" }}>
                     <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
                         <select
-                            className="form-select"
+                            className="date-filter-input"
                             value={filterType}
                             onChange={handleFilterChange}
                             aria-label="Default select example"
@@ -190,7 +191,7 @@ const ListReservation = () => {
                             selected={startDate}
                             placeholderText="Chọn ngày bắt đầu"
                             onChange={handleStartDateChange}
-                            className="custom-date-picker"
+                            className="date-filter-input"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -200,7 +201,7 @@ const ListReservation = () => {
                             selected={endDate}
                             placeholderText="Chọn ngày kết thúc"
                             onChange={handleEndDateChange}
-                            className="custom-date-picker"
+                            className="date-filter-input"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -222,7 +223,7 @@ const ListReservation = () => {
                         <button class="nav-link" id="pills-datra-tab"
                             data-bs-toggle="pill" data-bs-target="#pills-datra"
                             type="button" role="tab" aria-controls="pills-datra"
-                            aria-selected="false" onClick={handleReload}>Đã trả</button>
+                            aria-selected="false" onClick={handleReload}>Hoàn thành</button>
                         <button class="nav-link" id="pills-dattruoc-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-dattruoc" type="button"
                             role="tab" aria-controls="pills-dattruoc"

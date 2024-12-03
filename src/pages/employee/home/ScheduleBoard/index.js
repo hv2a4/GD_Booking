@@ -1,50 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import RoomSchedule from '../RoomSchedule';
 import { Card } from 'react-bootstrap';
-
-const data = [
-  {
-    floor: 2,
-    rooms: [
-      {
-        id: 201,
-        name: 'P.201',
-        reservations: [
-          { start: '2024-10-29T08:00', end: '2024-10-29T12:00', status: 'past' }
-        ]
-      },
-      {
-        id: 202,
-        name: 'P.202',
-        reservations: [
-          { start: '2024-11-21T13:00', end: '2024-12-28T18:00', status: 'upcoming' }
-        ]
-      },
-      // Các phòng khác của tầng 2
-    ]
-  },
-  {
-    floor: 3,
-    rooms: [
-      {
-        id: 301,
-        name: 'P.301',
-        reservations: [
-          { start: '2024-10-29T10:00', end: '2024-10-30T15:00', status: 'ongoing' }
-        ]
-      },
-      {
-        id: 302,
-        name: 'P.302',
-        reservations: [
-          { start: '2024-11-01T09:00', end: '2024-11-02T12:00', status: 'past' }
-        ]
-      },
-      // Các phòng khác của tầng 3
-    ]
-  },
-  // Thêm dữ liệu các tầng khác nếu cần
-];
+import { getAllFloor } from '../../../../services/employee/floor';
+import FillterDateHome from '../FillterDate';
 
 const getDatesForNextWeek = (startDate) => {
   const daysOfWeek = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
@@ -61,20 +19,41 @@ const getDatesForNextWeek = (startDate) => {
   return dates;
 };
 
-const dates = getDatesForNextWeek(new Date()); // Lấy ngày bắt đầu từ ngày hôm nay
-
 function ScheduleBoard() {
   const [expandedFloors, setExpandedFloors] = useState({});
+  const [floors, setFloors] = useState([]);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(null);
+
+  const dates = useMemo(() => getDatesForNextWeek(startDate || new Date()), [startDate]);
+
+  useEffect(() => {
+    handleGetAllFloor();
+  }, []);
+
+  const handleGetAllFloor = async () => {
+    const data = await getAllFloor();
+    setFloors(data);
+  };
+
+  const handleDateFilterChange = (start, end) => {
+    setStartDate(start || new Date());
+    const adjustedEnd = end || new Date();
+    adjustedEnd.setDate(adjustedEnd.getDate() + 7);
+    setEndDate(adjustedEnd);
+};
+
 
   const toggleFloor = (floor) => {
     setExpandedFloors((prevState) => ({
       ...prevState,
-      [floor]: !prevState[floor]
+      [floor]: !prevState[floor],
     }));
   };
 
   return (
-    <Card className='p-2'>
+    <Card className="p-2">
+      <FillterDateHome onDatesChange={handleDateFilterChange} />
       <div className="schedule-board">
         <div className="header">
           <div className="floor">Tầng</div>
@@ -84,18 +63,21 @@ function ScheduleBoard() {
             ))}
           </div>
         </div>
-
-        {data.map((floorData) => (
-          <div key={floorData.floor} className="floor-section">
-            <div className="floor-header" onClick={() => toggleFloor(floorData.floor)}>
-              <span className="toggle-icon">{expandedFloors[floorData.floor] ? '-' : '+'}</span>
-              Tầng {floorData.floor}
+        {floors.map((floorData, index) => (
+          <div key={index} className="floor-section">
+            <div className="floor-header" onClick={() => toggleFloor(floorData.id)}>
+              <span className="toggle-icon">{expandedFloors[floorData.id] ? '-' : '+'}</span>
+              {floorData.floorName}
             </div>
-
-            {expandedFloors[floorData.floor] && (
+            {expandedFloors[floorData.id] && floorData.roomDtos.length > 0 && (
               <div className="rooms">
-                {floorData.rooms.map((room) => (
-                  <RoomSchedule key={room.id} room={room} />
+                {floorData.roomDtos.map((room) => (
+                  <RoomSchedule
+                  key={room.id}
+                  room={room}
+                  startDate={startDate}
+                  endDate={endDate}
+              />              
                 ))}
               </div>
             )}

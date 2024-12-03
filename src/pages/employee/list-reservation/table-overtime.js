@@ -45,7 +45,7 @@ const OverTime = ({ item }) => {
         return range;
     };
     return (
-        <div className="table-responsive">
+        <div>
             <Table bordered hover>
                 <thead>
                     <tr>
@@ -70,7 +70,7 @@ const OverTime = ({ item }) => {
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
-
+                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -84,17 +84,8 @@ const OverTime = ({ item }) => {
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
                                     <td className="d-flex">
-                                        <Link to="/employee/edit-room">
-                                            <button className="btn-tt"
-                                                style={{
-                                                    fontSize: '12px',
-                                                    width: '127px',
-                                                    height: '36px',
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    backgroundColor: '#04aeba'
-                                                }}>Trả phòng</button>
+                                        <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
+                                            <Button variant="outline-success">Trả phòng</Button>
                                         </Link>
                                         <div className="dropdown-center d-flex align-item-center">
                                             <button

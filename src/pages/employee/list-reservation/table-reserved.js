@@ -4,12 +4,16 @@ import { format } from "date-fns";
 import { formatCurrency } from "../../../config/formatPrice";
 import { Button, Dropdown, DropdownButton, Table } from "react-bootstrap";
 import { cancelBooking } from "../../../services/employee/booking-manager";
+import Alert from "../../../config/alert";
+import { useNavigate } from "react-router-dom";
+import AlertComfirm from "../../../config/alert/comfirm";
 
 const Reserved = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const itemsPerPage = 10; // Số lượng bản ghi trên mỗi trang
     const totalPages = Math.ceil(item?.length / itemsPerPage); // Tổng số trang
-
+    const [alert, setAlert] = useState(null);
+    const navigate = useNavigate();
     const formatDate = (dateString) => {
         return format(new Date(dateString), "dd-MM-yyyy HH:mm:ss");
     };
@@ -46,15 +50,27 @@ const Reserved = ({ item }) => {
     };
 
     const handleCancelBooking = async (booking) => {
-        if (booking.id) {
-            const res = await cancelBooking(booking?.id);
-        }else{
-            
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa đặt phòng này không?",
+            confirmButtonText: "Đồng ý",
+            cancelButtonText: "Hủy",
+        });
+        if (confirmation) {
+            if (booking.id) {
+                const res = await cancelBooking(booking.id);
+                res ? setAlert({ type: res.status, title: res.message }) : setAlert({ type: res.status, title: res.message });
+                navigate('/employee/list-booking-room');
+            } else {
+                setAlert({ type: "error", title: "Không có mã đặt phòng này" });
+            }
         }
-        
     }
+    
     return (
-        <div className="table-responsive">
+        <div>
+            {alert && <Alert type={alert.type} title={alert.title} />}
             <Table bordered hover>
                 <thead>
                     <tr>
@@ -109,7 +125,7 @@ const Reserved = ({ item }) => {
                                             <ul className="dropdown-menu dropdown-menu-light">
                                                 <li><a className="dropdown-item" href="#">Thêm sản phẩm, dịch vụ</a></li>
                                                 <li><a className="dropdown-item" href="#">Cập nhật đặt phòng</a></li>
-                                                <li onClick={() => handleCancelBooking(booking)}><a className="dropdown-item" href="#">Hủy đặt phòng</a></li>
+                                                <li onClick={() => handleCancelBooking(booking)}><a className="dropdown-item">Hủy đặt phòng</a></li>
                                             </ul>
                                         </div>
                                     </td>

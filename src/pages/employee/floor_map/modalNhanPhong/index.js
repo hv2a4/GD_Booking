@@ -172,19 +172,9 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         <>
             {/* Nút mở modal */}
             <Button
-                variant="success"
+                variant="outline-dark"
                 onClick={handleShowModal1}
-                style={{
-                    fontSize: '12px',
-                    width: '127px',
-                    height: '36px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#02963d',
-                    color: 'white',
-                }}
-            >
+                disabled={bookingRooms[0]?.booking?.statusBookingDto?.id === 6 || bookingRooms[0]?.booking?.statusBookingDto?.id === 8}>
                 Nhận phòng
             </Button>
 
