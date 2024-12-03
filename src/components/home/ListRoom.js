@@ -13,8 +13,8 @@ import {
     FaTaxi,
 } from "react-icons/fa";
 import RoomDetail from "../../pages/client/Room/modal-room/RoomDetail";
-import { useLocation, useNavigate } from "react-router-dom";
-import "../../assets/css/custom/Sticky.css";
+import { Route, useLocation, useNavigate } from "react-router-dom";
+// import "../../assets/css/custom/Sticky.css";
 import "../../assets/css/custom/Filter.css";
 import "../../assets/css/custom/cardBorder.css";
 import BookingFillter from "../../pages/account/Filter/FilterBooking";
@@ -221,6 +221,13 @@ export default function ListRoom() {
             setSelectedRooms([]);
             return roomDetails;
         } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yêu cầu chọn phòng',
+                text: 'Vui lòng chọn phòng trước khi đặt!',
+                confirmButtonText: 'Oke',
+            });
+
             console.log("Vui lòng chọn phòng trước khi đặt!");
             return null;
         }
@@ -408,7 +415,6 @@ export default function ListRoom() {
                 loading={loading}
                 handleBooking={handleBooking}
             />
-
             <RoomDetail show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
         </div >
     );

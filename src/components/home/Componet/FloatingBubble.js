@@ -1,15 +1,54 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../../../assets/css/custom/Sticky.css";
 
-const FloatingBubble = ({ selectedRooms, handleRemoveRoom, calculateTotalPrice, loading, handleBooking }) => {
+const FloatingBubble = ({
+    selectedRooms,
+    handleRemoveRoom,
+    calculateTotalPrice,
+    loading,
+    handleBooking,
+}) => {
     const [isModalOpen, setModalOpen] = useState(false);
-    const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const roomsPerPage = 2; // Số phòng mỗi trang
+
+    // Tính toán các phòng cần hiển thị cho trang hiện tại
+    const indexOfLastRoom = currentPage * roomsPerPage;
+    const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
+    const currentRooms = selectedRooms.slice(indexOfFirstRoom, indexOfLastRoom);
+
+    // Tổng số trang
+    const totalPages = Math.ceil(selectedRooms.length / roomsPerPage);
+
+    // Hàm chuyển trang
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    // Cập nhật lại khi xóa phòng
+    const handleRemoveAndUpdatePagination = (roomId) => {
+        handleRemoveRoom(roomId); // Xóa phòng
+
+        // Kiểm tra số phòng còn lại và trang hiện tại
+        const remainingRooms = selectedRooms.filter(room => room.roomId !== roomId);
+        const remainingPages = Math.ceil(remainingRooms.length / roomsPerPage);
+
+        // Nếu đang ở trang cuối mà đã xóa hết các phòng trên trang đó, chuyển về trang trước
+        if (currentPage > remainingPages) {
+            setCurrentPage(remainingPages); // Chuyển về trang cuối còn lại
+        }
+
+        // Nếu không còn phòng nào trên trang, chuyển về trang trước
+        if (remainingRooms.length === 0) {
+            setCurrentPage(1); // Chuyển về trang 1 nếu không còn phòng
+        }
+    };
 
     return (
         <>
             {/* Bong bóng */}
-            <div className="floating-bubble" onClick={() => setModalOpen(!isModalOpen)}>
+            <div
+                className="floating-bubble"
+                onClick={() => setModalOpen(!isModalOpen)}
+            >
                 <i className="bi bi-door-open"></i>
                 {selectedRooms.length > 0 && (
                     <div className="bubble-count">{selectedRooms.length}</div>
@@ -17,47 +56,95 @@ const FloatingBubble = ({ selectedRooms, handleRemoveRoom, calculateTotalPrice, 
             </div>
 
             {/* Modal danh sách tóm tắt phòng */}
-            <div className={`selected-room-modal ${isModalOpen ? "active" : ""}`}>
-                <h5>Phòng đã chọn:</h5>
-                <ul>
-                    {selectedRooms.slice(0, 3).map((room) => ( // Hiển thị tối đa 3 phòng
-                        <li key={room.roomId}>
-                            <span className="room-name">{room.roomName}</span>
-                            <span className="room-price">
-                                {room.price.toLocaleString("vi-VN", {
-                                    style: "currency",
-                                    currency: "VND",
-                                })}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+            {isModalOpen && (
+                <div className="selected-room-modal">
+                    <h5>Phòng đã chọn:</h5>
+                    <ul>
+                        {currentRooms.map((room) => (
+                            <li key={room.roomId}>
+                                <div className="room-info">
+                                    <span className="room-name">{room.roomName}</span>
+                                    <span className="room-price">
+                                        {room.price.toLocaleString("vi-VN", {
+                                            style: "currency",
+                                            currency: "VND",
+                                        })}
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => handleRemoveAndUpdatePagination(room.roomId)}
+                                    title="Xóa phòng"
+                                >
+                                    <i className="bi bi-trash"></i>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
 
-                {selectedRooms.length > 3 && (
+                    {/* Phân trang */}
+                    {totalPages > 1 && (
+                        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                            <div style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+                                <button
+                                    onClick={() => paginate(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    style={{
+                                        padding: '3px 8px',  // Giảm padding
+                                        fontSize: '14px',  // Giảm font-size
+                                        backgroundColor: '#FEA116',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',  // Giảm border-radius
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.3s ease'
+                                    }}
+                                >
+                                    <span aria-hidden="true" style={{ fontSize: '16px' }}>&laquo;</span> {/* Mũi tên trái */}
+                                </button>
+                                <span style={{ fontSize: '14px', color: '#FEA116', fontWeight: 'bold' }}>
+                                    {currentPage} / {totalPages} {/* Số trang hiện tại */}
+                                </span>
+                                <button
+                                    onClick={() => paginate(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    style={{
+                                        padding: '3px 8px',  // Giảm padding
+                                        fontSize: '14px',  // Giảm font-size
+                                        backgroundColor: '#FEA116',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',  // Giảm border-radius
+                                        cursor: 'pointer',
+                                        transition: 'background-color 0.3s ease'
+                                    }}
+                                >
+                                    <span aria-hidden="true" style={{ fontSize: '16px' }}>&raquo;</span> {/* Mũi tên phải */}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Tổng tiền */}
+                    <div className="total-price">
+                        <span>Tổng tiền:</span>
+                        <span>
+                            {calculateTotalPrice().toLocaleString("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                            })}
+                        </span>
+                    </div>
+
+                    {/* Nút đặt phòng */}
                     <button
-                        onClick={() => navigate("/selected-rooms")}
-                        className="btn btn-link"
+                        onClick={handleBooking}
+                        className={`btn btn-primary booking-button ${loading ? "loading" : ""}`}
+                        disabled={loading}
                     >
-                        Xem danh sách đầy đủ ({selectedRooms.length} phòng)
+                        {loading ? "Đang đặt phòng..." : "Đặt phòng"}
                     </button>
-                )}
-
-                {/* Tổng tiền */}
-                <div className="total-price">
-                    <span>Tổng tiền:</span>
-                    <span>
-                        {calculateTotalPrice().toLocaleString("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                        })}
-                    </span>
                 </div>
-
-                {/* Nút đặt phòng */}
-                <button onClick={handleBooking} className="btn btn-primary">
-                    {loading ? "Đang đặt phòng..." : "Đặt phòng"}
-                </button>
-            </div>
+            )}
         </>
     );
 };

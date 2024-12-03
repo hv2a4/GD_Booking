@@ -98,7 +98,7 @@ const ListRooms = ({ item, selectedRooms, handleSelectRoom, handleDeselectRoom }
                                     onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 1}
                                 >
-                                    Trang trước
+                                    Trước
                                 </button>
                                 {Array.from({ length: totalPages }, (_, index) => (
                                     <button
@@ -114,7 +114,7 @@ const ListRooms = ({ item, selectedRooms, handleSelectRoom, handleDeselectRoom }
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={currentPage === totalPages}
                                 >
-                                    Trang sau
+                                    Sau
                                 </button>
                             </div>
                         </div>
