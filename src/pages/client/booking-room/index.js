@@ -136,7 +136,6 @@ const PageBookRoom = () => {
             // Gọi API đặt phòng
             await bookingRoom(payload, navigate);
 
-
         } catch (error) {
             console.error("Đặt phòng thất bại:", error);
         }
@@ -253,17 +252,17 @@ const PageBookRoom = () => {
         setCurrentPage(pageNumber);
     };
 
-    // useEffect(() => {
-    //     // Kiểm tra dữ liệu trong sessionStorage
-    //     const bookedRooms = sessionStorage.getItem("bookedRooms");
-    //     const booking = sessionStorage.getItem("booking");
-    //     if (!bookedRooms && !booking) {
-    //         // Nếu không có dữ liệu, chuyển hướng người dùng
-    //         navigate("/client/rooms");
-    //     } else {
-    //         navigate("/client/booking-room");
-    //     }
-    // }, [navigate]);
+    useEffect(() => {
+        // Kiểm tra dữ liệu trong sessionStorage
+        const bookedRooms = sessionStorage.getItem("bookedRooms");
+        const booking = sessionStorage.getItem("booking");
+        if (!bookedRooms && !booking) {
+            // Nếu không có dữ liệu, chuyển hướng người dùng
+            navigate("/client/rooms");  
+        } else {
+            navigate("/client/booking-room");
+        }
+    }, [navigate]);
 
     const handleCancel = () => {
         Swal.fire({

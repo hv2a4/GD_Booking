@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { getDetailListTypeRoom, getListRoom } from "../../services/client/home";
 import Alert from "../../config/alert";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import {
     FaWifi,
     FaTv,
@@ -13,7 +13,7 @@ import {
     FaTaxi,
 } from "react-icons/fa";
 import RoomDetail from "../../pages/client/Room/modal-room/RoomDetail";
-import { Route, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 // import "../../assets/css/custom/Sticky.css";
 import "../../assets/css/custom/Filter.css";
 import "../../assets/css/custom/cardBorder.css";
@@ -53,20 +53,6 @@ export default function ListRoom() {
     const roomsPerPage = 3; // Số lượng phòng trên mỗi trang
     const [currentPageIndex, setCurrentPageIndex] = useState(1); // Trang hiện tại
     const location = useLocation();
-    // Tính toán tổng số trang
-    const totalPageCount = Math.ceil(selectedRooms.length / roomsPerPage);
-
-    // Hàm tính danh sách phòng hiện tại cho danh sách phòng đã chọn
-    const currentRooms = selectedRooms.slice(
-        (currentPageIndex - 1) * roomsPerPage,
-        currentPageIndex * roomsPerPage
-    );
-
-
-    // Xử lý thay đổi trang
-    const handlePageChanges = (pageIndex) => {
-        setCurrentPageIndex(pageIndex);
-    };
 
     // Hàm gọi API danh sách phòng
     const fetchRooms = async () => {
@@ -206,7 +192,30 @@ export default function ListRoom() {
 
             //Bất đầu tải trang
             setLoading(true);
-
+            let timerInterval;
+            Swal.fire({
+                title: "Đang xử lý đặt phòng...",
+                html: "Chờ một chút, bạn sẽ được chuyển hướng.",
+                timer: 1000,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    const timer = Swal.getPopup().querySelector("b");
+                    if (timer) { // Kiểm tra xem phần tử b có tồn tại không
+                        timerInterval = setInterval(() => {
+                            timer.textContent = `${Swal.getTimerLeft()}`;
+                        }, 100);
+                    }
+                },
+                willClose: () => {
+                    clearInterval(timerInterval);
+                }
+            }).then((result) => {
+                // Sau khi thông báo tự động đóng, đóng modal
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    console.log("Thông báo đã đóng tự động.");
+                }
+            });
             // Điều hướng tới trang đặt phòng
             setTimeout(() => {
                 navigate("/client/booking-room");
@@ -247,6 +256,8 @@ export default function ListRoom() {
             const res = await getFilterBooking(startDate, endDate, guestLimit, 1, pageSize); // Trang đầu tiên
             setTypeRoom(res.content); // Cập nhật danh sách phòng
             setTotalPages(res.totalPages); // Cập nhật tổng số trang từ API
+            console.log("Dữ liệu khi lọc thành công");
+
         } catch (error) {
             console.error("Lỗi khi gọi API filterBooking:", error);
         }
@@ -315,17 +326,32 @@ export default function ListRoom() {
                                                 src={item?.imageList?.[0]}
                                                 alt={item?.typeRoomName || "Room Image"}
                                             />
-                                            <div className="d-flex align-items-center position-absolute start-0 top-100 translate-middle-y ms-4">
-                                                <small className="bg-warning text-white rounded py-1 px-3">
-                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}/ <strong>Ngày</strong>
+                                            <div className="d-flex flex-column align-items-start position-absolute start-0 top-100 translate-middle-y ms-4">
+                                                {/* Giá hiện tại */}
+                                                <small className="bg-warning text-white rounded py-1 px-3 mb-2">
+                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
                                                 </small>
                                             </div>
+
                                         </div>
 
                                         {/* Thông tin phòng */}
                                         <div className="p-4 mt-2" style={{ borderRight: '1px soild' }}>
                                             <h5 className="mb-3"><strong>{item?.typeRoomName}</strong></h5>
-                                            <div className="mb-3" style={{ fontSize: "1rem" }}>
+                                            {/* Chi phí dự kiến */}
+                                            {item?.estCost && (
+                                                <div className="">
+                                                    <p className="text-danger fw-bold mb-0">
+                                                        <strong>Chi phí dự kiến:</strong>
+                                                        <span className="ms-2">
+                                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.estCost)}
+                                                        </span>
+                                                        / <strong>Ngày</strong>
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            <div className="mb-3 mt-2" style={{ fontSize: "1rem" }}>
                                                 <strong>Sức chứa: </strong>Tối đa {item?.guestLimit} người
                                             </div>
 

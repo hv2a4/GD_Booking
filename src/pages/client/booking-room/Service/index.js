@@ -89,7 +89,7 @@ const bookingRoom = async (bookingData, navigate) => {
                 icon: 'success',
                 confirmButtonText: 'OK'
             });
-
+            sessionStorage.clear()
             navigate('/client/home');
         }
 

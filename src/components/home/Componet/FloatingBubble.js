@@ -47,31 +47,7 @@ const FloatingBubble = ({
         // Gọi hàm đặt phòng
         handleBooking();
 
-        let timerInterval;
-        Swal.fire({
-            title: "Đang xử lý đặt phòng...",
-            html: "Chờ một chút, bạn sẽ được chuyển hướng.",
-            timer: 1000,
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-                const timer = Swal.getPopup().querySelector("b");
-                if (timer) { // Kiểm tra xem phần tử b có tồn tại không
-                    timerInterval = setInterval(() => {
-                        timer.textContent = `${Swal.getTimerLeft()}`;
-                    }, 100);
-                }
-            },
-            willClose: () => {
-                clearInterval(timerInterval);
-            }
-        }).then((result) => {
-            // Sau khi thông báo tự động đóng, đóng modal
-            if (result.dismiss === Swal.DismissReason.timer) {
-                console.log("Thông báo đã đóng tự động.");
-                setModalOpen(false); // Đóng modal khi đặt phòng xong
-            }
-        });
+        setModalOpen(false);
     };
 
     return (
