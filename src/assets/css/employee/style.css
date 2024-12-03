@@ -1539,7 +1539,8 @@ textarea {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 12%);
     height: 44px;
 }
-.form-control,.form-select {
+
+/* .form-control,.form-select {
     border: 1px solid #ccc;
     border-radius: 0.6rem;
     font-size: 1rem;
@@ -1547,7 +1548,7 @@ textarea {
     transition: border-color 0.3s;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 12%);
     height: 44px;
-}
+} */
 
 .toolbar-select .form-select {
     width: 120px;
