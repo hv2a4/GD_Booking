@@ -34,6 +34,31 @@ const bookingRoom = async (bookingData, navigate) => {
                     Swal.showLoading();
                 }
             });
+        } else {
+            let timerInterval;
+            Swal.fire({
+                title: "Đang chuyển đến cổng thanh toán VNPay...",
+                html: "Chờ một chút, bạn sẽ được chuyển hướng đến VNPay để hoàn tất thanh toán.",
+                timer: 5000,  // Thời gian đếm ngược là 5 giây (hoặc tùy chỉnh theo yêu cầu của bạn)
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    const timer = Swal.getPopup().querySelector("b");
+                    if (timer) { // Kiểm tra xem phần tử b có tồn tại không
+                        timerInterval = setInterval(() => {
+                            timer.textContent = `${Swal.getTimerLeft()}`;
+                        }, 100);
+                    }
+                },
+                willClose: () => {
+                    clearInterval(timerInterval);
+                }
+            }).then((result) => {
+                // Sau khi thông báo tự động đóng, đóng modal
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    console.log("Thông báo đã đóng tự động.");
+                }
+            });
         }
 
         const res = await request({

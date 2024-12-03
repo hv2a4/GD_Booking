@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../../../assets/css/custom/Sticky.css";
+import Swal from "sweetalert2";
 
 const FloatingBubble = ({
     selectedRooms,
@@ -42,6 +43,37 @@ const FloatingBubble = ({
         }
     };
 
+    const handleBookingAndCloseModal = () => {
+        // Gọi hàm đặt phòng
+        handleBooking();
+
+        let timerInterval;
+        Swal.fire({
+            title: "Đang xử lý đặt phòng...",
+            html: "Chờ một chút, bạn sẽ được chuyển hướng.",
+            timer: 1000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+                const timer = Swal.getPopup().querySelector("b");
+                if (timer) { // Kiểm tra xem phần tử b có tồn tại không
+                    timerInterval = setInterval(() => {
+                        timer.textContent = `${Swal.getTimerLeft()}`;
+                    }, 100);
+                }
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            // Sau khi thông báo tự động đóng, đóng modal
+            if (result.dismiss === Swal.DismissReason.timer) {
+                console.log("Thông báo đã đóng tự động.");
+                setModalOpen(false); // Đóng modal khi đặt phòng xong
+            }
+        });
+    };
+
     return (
         <>
             {/* Bong bóng */}
@@ -56,7 +88,7 @@ const FloatingBubble = ({
             </div>
 
             {/* Modal danh sách tóm tắt phòng */}
-            {isModalOpen && (
+            {!isModalOpen && (
                 <div className="selected-room-modal">
                     <h5>Phòng đã chọn:</h5>
                     <ul>
@@ -89,36 +121,36 @@ const FloatingBubble = ({
                                     onClick={() => paginate(currentPage - 1)}
                                     disabled={currentPage === 1}
                                     style={{
-                                        padding: '3px 8px',  // Giảm padding
-                                        fontSize: '14px',  // Giảm font-size
+                                        padding: '3px 8px',
+                                        fontSize: '14px',
                                         backgroundColor: '#FEA116',
                                         color: 'white',
                                         border: 'none',
-                                        borderRadius: '4px',  // Giảm border-radius
+                                        borderRadius: '4px',
                                         cursor: 'pointer',
                                         transition: 'background-color 0.3s ease'
                                     }}
                                 >
-                                    <span aria-hidden="true" style={{ fontSize: '16px' }}>&laquo;</span> {/* Mũi tên trái */}
+                                    <span aria-hidden="true" style={{ fontSize: '16px' }}>&laquo;</span>
                                 </button>
                                 <span style={{ fontSize: '14px', color: '#FEA116', fontWeight: 'bold' }}>
-                                    {currentPage} / {totalPages} {/* Số trang hiện tại */}
+                                    {currentPage} / {totalPages}
                                 </span>
                                 <button
                                     onClick={() => paginate(currentPage + 1)}
                                     disabled={currentPage === totalPages}
                                     style={{
-                                        padding: '3px 8px',  // Giảm padding
-                                        fontSize: '14px',  // Giảm font-size
+                                        padding: '3px 8px',
+                                        fontSize: '14px',
                                         backgroundColor: '#FEA116',
                                         color: 'white',
                                         border: 'none',
-                                        borderRadius: '4px',  // Giảm border-radius
+                                        borderRadius: '4px',
                                         cursor: 'pointer',
                                         transition: 'background-color 0.3s ease'
                                     }}
                                 >
-                                    <span aria-hidden="true" style={{ fontSize: '16px' }}>&raquo;</span> {/* Mũi tên phải */}
+                                    <span aria-hidden="true" style={{ fontSize: '16px' }}>&raquo;</span>
                                 </button>
                             </div>
                         </div>
@@ -137,7 +169,7 @@ const FloatingBubble = ({
 
                     {/* Nút đặt phòng */}
                     <button
-                        onClick={handleBooking}
+                        onClick={handleBookingAndCloseModal}  // Đặt phòng và đóng modal
                         className={`btn btn-primary booking-button ${loading ? "loading" : ""}`}
                         disabled={loading}
                     >
