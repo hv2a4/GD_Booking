@@ -75,14 +75,22 @@ const CheckedOut = ({ item }) => {
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                     <td>{booking.id}</td>
                                     <td>Phòng {roomNames}</td>
-                                    <td>{booking.accountDto.fullname}</td>
+                                    <td>
+                                        <strong style={{fontWeight: "500"}}>{booking.accountDto.fullname}</strong>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', }} >
+                                            <i className="fa fa-pen" style={{ fontSize: '10px', marginRight: '6px', color: 'gray' }}></i>
+                                            <span style={{ fontSize: '14px', color: 'gray', }} >
+                                                {booking.descriptions || "Mô tả....."}
+                                            </span>
+                                        </div>
+                                    </td>
                                     <td>{formatDate(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
                                     <td>{formatCurrency(totalPrice)}</td>
                                     <td style={{ color: booking.statusPayment ? "green" : "red" }}>
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
-                                    <td className="d-flex">
+                                    <td>
                                         <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
                                             <Button variant="outline-success">Chi tiết</Button>
                                         </Link>

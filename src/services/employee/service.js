@@ -9,4 +9,13 @@ const serviceRoomBookingRoom = async (idBookingRoom) => {
     return res;
 }
 
-export {serviceRoomBookingRoom}
+const addServiceNew = async (models, bookingRoomId) => {
+    const res = await request({
+        method: "POST",
+        path: `api/booking-room-service-room/post-service?bookingRoomId=${bookingRoomId}`,
+        data: models
+    });
+    return res;
+}
+
+export {serviceRoomBookingRoom,addServiceNew}

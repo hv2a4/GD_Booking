@@ -15,8 +15,6 @@ const updateCustomer = async (id, data) => {
         path: `api/customer-info/update/${id}`,
         data: data
     });
-    console.log(res);
-    
     return res;
 }
 const deleteCustomer = async (idCustomer, idBookingRoom) => {

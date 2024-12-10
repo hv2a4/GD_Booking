@@ -3,14 +3,12 @@ import { Button, Card, Col, Modal, Row, Form } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import { useForm, Controller } from 'react-hook-form';
 import { addCustomer, updateCustomer } from '../../../../services/employee/customer';
-import uploadImageToFirebase from '../../../../config/fireBase';
-import ImageUploader from './fileImage';
 import Alert from '../../../../config/alert';
+import { getBookingRoomInformation } from '../../../../services/admin/account-manager';
 
 const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
     const { register, handleSubmit, control, setValue } = useForm();
-    const [images1, setImages1] = useState(null);
-    const [images2, setImages2] = useState(null);
+    const [customerInformation, setCustomerInformation] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [alert, setAlert] = useState(null);
 
@@ -23,25 +21,27 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             setValue("gioitinh", item.customerInformationDto.gender ? "true" : "false");
             setValue("sodienthoai", item.customerInformationDto.phone);
             setValue("lydoluutru", item.customerInformationDto.cccd);
-            setImages1(item.customerInformationDto.imgFirstCard);
-            setImages2(item.customerInformationDto.imgLastCard)
         }
         setTimeout(() => setAlert(null), 500);
     }, [item, setValue, alert]);
 
-    const handleImageChange = (e, setImage) => {
-        const file = e.target.files[0];
-        if (file) setImage(file);
-    };
-    const validateForm = (data, images1, images2) => {
+    useEffect(() => {
+        const handleCustomerInfo = async () => {
+            const idBookingRoom = bookingRoom.map((e) => e.id);
+            const idBookingRoomString = idBookingRoom.join(",");
+            const data = await getBookingRoomInformation(idBookingRoomString);
+            setCustomerInformation(data);
+        }
+        handleCustomerInfo();
+    }, [bookingRoom]);
+
+    const validateForm = (data) => {
         const errors = {};
         if (!data.hovaten) errors.hovaten = "Họ và tên không được để trống.";
         if (!data.sodienthoai.match(/^(\+84|0)\d{9}$/)) errors.sodienthoai = "Số điện thoại không hợp lệ.";
         if (!data.ngaysinh) errors.ngaysinh = "Ngày sinh không được để trống.";
-        if (!images1) errors.images1 = "Vui lòng tải lên ảnh mặt trước CCCD.";
-        if (!images2) errors.images2 = "Vui lòng tải lên ảnh mặt sau CCCD.";
         return errors;
-      };
+    };
 
 
     const onSubmit = async (data) => {
@@ -53,7 +53,7 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             return;
         }
 
-        const errors = validateForm(data, images1, images2);
+        const errors = validateForm(data);
         if (Object.keys(errors).length > 0) {
             setAlert({ type: "error", title: "Vui lòng kiểm tra lại thông tin.", details: errors });
             setIsLoading(false);
@@ -64,8 +64,25 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
         if (!item) {
             id = bookingRoom.filter(d => data.phong.includes(d.room.id)).map(d => ({ id: d.id }));
         }
-        const imgFirstCard = await uploadImageToFirebase(images1);
-        const imgLastCard = await uploadImageToFirebase(images2);
+        if (!id || id.length === 0) {
+            setAlert({ type: "error", title: "Không tìm thấy phòng để thêm khách." });
+            setIsLoading(false);
+            return;
+        }
+
+        const checkGuestLimit = (roomId) => {
+            const matchedCustomers = customerInformation.filter(
+                (customer) => customer.bookingRoomDto.id === roomId
+            );
+            const guestLimit = bookingRoom.find((room) => room.id === roomId)?.room?.typeRoomDto?.guestLimit;
+            return matchedCustomers.length < guestLimit;
+        };
+
+        if (!checkGuestLimit(id[0]?.id)) {
+            setAlert({ type: "error", title: "Phòng đã đầy không thể thêm" });
+            setIsLoading(false);
+            return;
+        }
 
         const newCustomer = {
             cccd: data.lydoluutru,
@@ -73,17 +90,16 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             phone: data.sodienthoai,
             gender: data.gioitinh === "true",
             birthday: data.ngaysinh.toISOString(),
-            imgFirstCard: imgFirstCard,
-            imgLastCard: imgLastCard
         };
         try {
-            const customerData = item ? await updateCustomer(item.customerInformationDto.id,newCustomer) : await addCustomer(newCustomer, id[0]?.id);
+            const customerData = item ? await updateCustomer(item.customerInformationDto.id, newCustomer) : await addCustomer(newCustomer, id[0]?.id);
             if (customerData?.errors) {
                 setAlert({ type: "error", title: "Đã xảy ra lỗi khi thêm khách hàng.", details: customerData.errors });
             } else {
-                setAlert({ type: "success", title: `${item ? "Cập nhật" : "Thêm"} khách thành công! `});
+                setAlert({ type: "success", title: `${item ? "Cập nhật" : "Thêm"} khách thành công! ` });
                 fetchData();
             }
+
         } catch (error) {
             setAlert({ type: "error", title: "Lỗi khi thêm khách hàng.", details: error.message });
         }
@@ -113,10 +129,10 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
                             <Col md={6}>
                                 <Form.Label htmlFor="phong">Phòng</Form.Label>
                                 <Form.Select id="phong" {...register('phong')}>
-                                    {rooms && rooms.length > 0 ? (
-                                        rooms.map((room, index) => (
-                                            <option key={index} value={room.id}>
-                                                {room.roomName}
+                                    {bookingRoom && bookingRoom.length > 0 ? (
+                                        bookingRoom.map((item, index) => (
+                                            <option key={index} value={item.room.id}>
+                                                {item.room.roomName}
                                             </option>
                                         ))
                                     ) : (
@@ -195,25 +211,6 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
                                     id="lydoluutru"
                                     placeholder="Nhập số căn cước"
                                     {...register('lydoluutru')}
-                                />
-                            </Col>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <ImageUploader
-                                    label="Mặt trước CCCD"
-                                    image={images1}
-                                    setImage={setImages1}
-                                    onImageChange={(e) => handleImageChange(e, setImages1)}
-                                />
-                            </Col>
-                            <Col md={6}>
-                                <ImageUploader
-                                    label="Mặt sau CCCD"
-                                    image={images2}
-                                    setImage={setImages2}
-                                    onImageChange={(e) => handleImageChange(e, setImages2)}
                                 />
                             </Col>
                         </Row>

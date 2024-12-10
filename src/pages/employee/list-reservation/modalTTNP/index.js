@@ -34,7 +34,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
         setIsSelect(item);
         setShowModalUpdateCustomer(true);
     }
- 
+
 
     const handleCloseModalInsertCustomer = () => {
         setShowModalInsertCustomer(false);
@@ -50,7 +50,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
         });
         if (confirmation) {
             try {
-                const response = await deleteCustomer(item.customerInformationDto.id, item.bookingRoomDto.id); 
+                const response = await deleteCustomer(item.customerInformationDto.id, item.bookingRoomDto.id);
                 if (response) {
                     setAlert({ type: "success", title: "Xóa thành công!" });
                     handleCustomer();
@@ -62,7 +62,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
             }
         }
     };
-    
+
     const handleCloseTTNhanPhong = () => {
         onHide();
     }
@@ -91,7 +91,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     return (
         <>
-            <div className="modal-content modal-fill">
+            <Modal show={true} onHide={onHide} backdrop="static" centered size="xl">
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
                     <Modal.Title id="exampleModalLabel">Thông tin nhận phòng - {bookingRoom[0]?.booking.id}</Modal.Title>
@@ -140,24 +140,24 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
                         <table className="table table-striped table-borderless table-fill">
                             <thead>
                                 <tr>
-                                    <td>Họ tên</td>
-                                    <td>Giới tính/SDT/Ngày sinh</td>
-                                    <td>CCCD</td>
-                                    <td>Phòng</td>
-                                    <td></td>
+                                    <th>Họ tên</th>
+                                    <th>Giới tính/SDT/Ngày sinh</th>
+                                    <th>CCCD</th>
+                                    <th>Phòng</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {currentItems.length > 0 ? (
                                     currentItems.map((item, index) => (
-                                        <tr key={index} className="text-center">
+                                        <tr key={index}>
                                             <td>{item.customerInformationDto.fullname}</td>
                                             <td>{item.customerInformationDto.gender ? "Nam" : "Nữ"}
                                                 / {item.customerInformationDto.phone}
                                                 / {formatDate(item.customerInformationDto.birthday)}
                                             </td>
                                             <td>{item.customerInformationDto.cccd}</td>
-                                            <td>P.{item.bookingRoomDto.room.roomName.replace("Phòng ", "")}</td>
+                                            <td>{item.bookingRoomDto.room.roomName}</td>
                                             <td>
                                                 <button className="btn btn-sm btn-icon-only btn-circle text-neutral" onClick={() => handleShowModalUpdateCustomer(item)}>
                                                     <i className="fa fa-pen"></i>
@@ -245,9 +245,10 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
                     </Link>
                     <button className="btn btn-success" onClick={handleCloseTTNhanPhong}>Xong</button>
                 </Modal.Footer>
-                {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} bookingRoom={bookingRoom} rooms={bookingRoom.map((e) => e.room)} fetchData={handleCustomer}/>}
+                {showModalInsertCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} bookingRoom={bookingRoom} rooms={bookingRoom.map((e) => e.room)} fetchData={handleCustomer} />}
                 {showModalUpdateCustomer && <InsertCustomer onClose={handleCloseModalInsertCustomer} item={isSelect} bookingRoom={bookingRoom} rooms={bookingRoom.map((e) => e.room)} />}
-            </div>
+
+            </Modal>
         </>
     )
 }

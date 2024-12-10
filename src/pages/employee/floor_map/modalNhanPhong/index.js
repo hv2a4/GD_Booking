@@ -21,7 +21,6 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         setShowModal1(true);
     };
 
-
     const handleCloseModal2 = () => setShowModal2(false);
     const handleShowModal2 = async () => {
         if (checkBoxSelected.length === 0) {
@@ -261,9 +260,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <Modal show={showModal2} onHide={handleCloseModal2} backdrop="static" centered>
-                <TTNhanPhong onHide={handleCloseModal2} bookingRoomIds={checkBoxSelected.map((e) => e.bookingRoomId)} />
-            </Modal>
+            {showModal2 && <TTNhanPhong onHide={handleCloseModal2} bookingRoomIds={checkBoxSelected.map((e) => e.bookingRoomId)} />}
         </>
     );
 };
