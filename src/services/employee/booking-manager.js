@@ -41,10 +41,10 @@ const getBookingRoomIds = async (idBookingRoom) => {
     return res;
 }
 
-const cancelBooking = async (id) => {
+const cancelBooking = async (id, descriptions) => {
     const res = await request({
         method: "PUT",
-        path: `api/booking/cancel-booking/${id}`
+        path: `api/booking/cancel-booking/${id}?descriptions=${descriptions}`
     });
     return res;
 }

@@ -13,6 +13,7 @@ import { serviceRoomBookingRoom } from "../../../services/employee/service";
 import AlertComfirm from "../../../config/alert/comfirm";
 import TTNhanPhong from "../list-reservation/modalTTNP";
 import { Modal } from "react-bootstrap";
+import CancelBookingModal from "../list-reservation/modalCancel";
 
 const EditRoom = () => {
     const encodedIdBooking = useGetParams("idBookingRoom");
@@ -20,6 +21,7 @@ const EditRoom = () => {
     const [showModalInsertCustomer, setShowModalInsertCustomer] = useState(false);
     const [bookingRoom, setBookingRoom] = useState({});
     const [booking, setBooking] = useState({});
+    const [modalCancel, setModalCancel] = useState(false);
     const [loading, setLoading] = useState(true);
     const [customerInformation, setCustomerInformation] = useState([]);
     const [alert, setAlert] = useState(null);
@@ -78,6 +80,14 @@ const EditRoom = () => {
         } finally {
             setLoading(false);
         }
+    }
+
+    const handleCloseCancel = () => {
+        setModalCancel(false);
+    }
+    const handleCancelBooking = async (booking) => {
+        setBooking(booking);
+        setModalCancel(true);
     }
     // dịch vụ
 
@@ -451,9 +461,21 @@ const EditRoom = () => {
                                 </div>
                                 <div className="cashier-info-col col-md-3 col-12">
                                     <label className="cashier-info-label">Ghi chú</label>
-                                    <div className="cashier-info-note">
+                                    <div className="cashier-info-note" style={{ width: "275px" }}>
                                         <div className="form-control">
-                                            <span className="note-text">{bookingRoom?.booking?.statusPayment ? "Đặt phòng trực tuyến" : "Đặt phòng trực tiếp"}</span>
+                                            <span
+                                                className="note-text"
+                                                style={{
+                                                    fontSize: '14px',
+                                                    color: 'gray',
+                                                    display: 'inline-block',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }}
+                                            >
+                                                {bookingRoom?.booking?.descriptions || "Mô tả...."}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -801,7 +823,7 @@ const EditRoom = () => {
                             <div className="cashier-cart-footer">
                                 <div className="d-flex justify-content-between align-items-center flex-wrap">
                                     <div className="d-flex align-items-center">
-                                        <button type="button" className="btn btn-outline-neutral btn-icon-only" title="Hủy đặt phòng" disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8}>
+                                        <button type="button" className="btn btn-outline-neutral btn-icon-only" title="Hủy đặt phòng" disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8 || booking?.statusBookingDto?.id === 7} onClick={() => handleCancelBooking(booking)}>
                                             <i className="fa fa-trash-alt icon-btn"></i>
                                         </button>
                                     </div>
@@ -815,9 +837,9 @@ const EditRoom = () => {
                     </div>
                 </div>
             </div>
-            <Modal show={showModalInsertCustomer} onHide={handleCloseModalInsertCustomer} backdrop="static" centered>
-                <TTNhanPhong onHide={handleCloseModalInsertCustomer} bookingRoomIds={[bookingRoom?.id]} />
-            </Modal>
+            {modalCancel && <CancelBookingModal handleClose={handleCloseCancel} booking={booking} />}
+            {showModalInsertCustomer && <TTNhanPhong onHide={handleCloseModalInsertCustomer} bookingRoomIds={booking.bookingRooms.map((e) => e.id)} />}
+            
         </Layoutemployee >
     )
 }

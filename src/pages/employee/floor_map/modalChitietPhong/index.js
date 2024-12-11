@@ -15,6 +15,7 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
     const cookie = new Cookies();
     const token = cookie.get("token");
     useEffect(() => {
+        console.log(booking);
         if (item && token) {
             handleDetail(item?.id, item?.statusRoomDto?.id, token);
             handleCustomerInfo(item?.id, token);
@@ -38,7 +39,6 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
                 const latestBooking = data.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).pop();
 
                 setBookingRoom(latestBooking); // Chỉ lưu booking mới nhất (cuối cùng)
-                console.log(latestBooking); // Kiểm tra booking mới nhất
             } else {
                 setBookingRoom(null); // Không có booking
                 console.log("Không có booking nào.");
@@ -133,7 +133,7 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
                             <div className="font-weight-medium">
                                 {calculateDuration(bookingRoom?.booking?.startAt || booking?.startAt, bookingRoom?.booking?.endAt || booking?.endAt)}
                                 {(bookingRoom?.booking?.endAt || booking?.endAt) && new Date() > new Date(bookingRoom?.booking?.endAt || booking?.endAt) && (
-                                    <span className="text-danger"> (Đã quá hạn trả)</span>
+                                    <span className="text-danger"> (Đã quá hạn)</span>
                                 )}
                             </div>
                         </div>
