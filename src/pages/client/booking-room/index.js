@@ -129,13 +129,16 @@ const PageBookRoom = () => {
                     return;
                 }
             }
+
+            const finalDiscountName = discountName ? discountName?.discountName : "";
+
             // Tạo payload để gửi đi
             const payload = {
                 userName: token.username + "",
                 startDate: rooms.startDate,
                 endDate: rooms.endDate,
                 roomId: roomIdArray,
-                discountName: discountName.discountName ?? "",
+                discountName: finalDiscountName,
                 methodPayment: parseInt(PaymentMethodId)
             };
 
