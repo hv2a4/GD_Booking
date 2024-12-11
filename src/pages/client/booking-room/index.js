@@ -138,7 +138,7 @@ const PageBookRoom = () => {
                 startDate: rooms.startDate,
                 endDate: rooms.endDate,
                 roomId: roomIdArray,
-                discountName: finalDiscountName,
+                discountName: finalDiscountName ?? null,
                 methodPayment: parseInt(PaymentMethodId)
             };
 
