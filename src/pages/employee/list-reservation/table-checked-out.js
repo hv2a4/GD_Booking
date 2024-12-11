@@ -69,11 +69,11 @@ const CheckedOut = ({ item }) => {
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
-                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
+                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0]?.id);
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking.id}</td>
+                                    <td>{booking?.id}</td>
                                     <td>Phòng {roomNames}</td>
                                     <td>
                                         <strong style={{fontWeight: "500"}}>{booking.accountDto.fullname}</strong>
