@@ -331,6 +331,7 @@ const PageBookRoom = () => {
         return `${day}/${month}/${year}`;
     };
 
+    console.log(discounts);
 
     return (
         <LayoutClient>

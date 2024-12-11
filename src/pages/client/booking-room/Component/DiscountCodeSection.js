@@ -8,18 +8,18 @@ const DiscountCodeSection = ({ discounts, discountNameTotal }) => {
         if (selectedDiscount?.id === discount.id) {
             // If the discount is already selected, deselect it
             setSelectedDiscount(null);
-            discountNameTotal(null);  // Notify the parent that no discount is selected
+            discountNameTotal(null); // Notify the parent that no discount is selected
         } else {
             // Select the new discount
             setSelectedDiscount(discount);
-            discountNameTotal(discount);  // Pass the selected discount to the parent component
+            discountNameTotal(discount); // Pass the selected discount to the parent component
         }
     };
 
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked);
         setSelectedDiscount(null); // Reset selection when checkbox is unchecked
-        discountNameTotal(null);  // Notify the parent that no discount is selected
+        discountNameTotal(null); // Notify the parent that no discount is selected
     };
 
     return (
@@ -41,52 +41,56 @@ const DiscountCodeSection = ({ discounts, discountNameTotal }) => {
                     </label>
                 </div>
 
-                {/* Display discount list if checkbox is checked */}
+                {/* Check if discounts list is empty */}
                 {isChecked && (
-                    <div className="discount-list">
-                        {discounts.map((discount) => (
-                            <div
-                                key={discount.id}
-                                className="card mb-3 shadow-sm border-0 cursor-pointer discount-card"
-                                style={{
-                                    backgroundColor: selectedDiscount?.id === discount.id ? '#f0f0f0' : '#fff',
-                                    color: selectedDiscount?.id === discount.id ? '#333' : '#666',
-                                }}
-                                onClick={() => handleDiscountSelect(discount)} // Toggle selection
-                            >
-                                <div className="card-body p-3">
-                                    <div className="d-flex flex-column align-items-start">
-                                        <h5 className="card-title"
-                                            style={{
-                                                color: selectedDiscount?.id === discount.id ? '#333' : '#FEAF39',
-                                                fontSize: '1.1rem',
-                                                fontWeight: 'bold'
-                                            }}
-                                        >
-                                            {discount.discountName}
-                                        </h5>
-                                        <p className="card-text"
-                                            style={{
-                                                fontSize: '0.9rem',
-                                                margin: '5px 0',
-                                                color: selectedDiscount?.id === discount.id ? '#333' : '#6c757d'
-                                            }}
-                                        >
-                                            {discount.percent}% Giảm giá
-                                        </p>
-                                        <p className="text-muted"
-                                            style={{
-                                                fontSize: '0.85rem',
-                                                margin: '5px 0',
-                                            }}
-                                        >
-                                            {new Date(discount.startDate).toLocaleString()} - {new Date(discount.endDate).toLocaleString()}
-                                        </p>
+                    discounts.length > 0 ? (
+                        <div className="discount-list">
+                            {discounts.map((discount) => (
+                                <div
+                                    key={discount.id}
+                                    className="card mb-3 shadow-sm border-0 cursor-pointer discount-card"
+                                    style={{
+                                        backgroundColor: selectedDiscount?.id === discount.id ? '#f0f0f0' : '#fff',
+                                        color: selectedDiscount?.id === discount.id ? '#333' : '#666',
+                                    }}
+                                    onClick={() => handleDiscountSelect(discount)} // Toggle selection
+                                >
+                                    <div className="card-body p-3">
+                                        <div className="d-flex flex-column align-items-start">
+                                            <h5 className="card-title"
+                                                style={{
+                                                    color: selectedDiscount?.id === discount.id ? '#333' : '#FEAF39',
+                                                    fontSize: '1.1rem',
+                                                    fontWeight: 'bold',
+                                                }}
+                                            >
+                                                {discount.discountName}
+                                            </h5>
+                                            <p className="card-text"
+                                                style={{
+                                                    fontSize: '0.9rem',
+                                                    margin: '5px 0',
+                                                    color: selectedDiscount?.id === discount.id ? '#333' : '#6c757d',
+                                                }}
+                                            >
+                                                {discount.percent}% Giảm giá
+                                            </p>
+                                            <p className="text-muted"
+                                                style={{
+                                                    fontSize: '0.85rem',
+                                                    margin: '5px 0',
+                                                }}
+                                            >
+                                                {new Date(discount.startDate).toLocaleString()} - {new Date(discount.endDate).toLocaleString()}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-muted">Không có mã giảm giá khả dụng.</p>
+                    )
                 )}
             </div>
         </div>

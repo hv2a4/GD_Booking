@@ -108,7 +108,7 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
                                 )}
                                 <tr className="tr-total">
                                     <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                        <div className="title">Giá đã giảm</div>
+                                        <div className="title">Số tiền cần thanh toán</div>
                                     </td>
                                     <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
                                         <div className="info-right" style={{ fontWeight: 'bold', color: '#d9534f' }}>
