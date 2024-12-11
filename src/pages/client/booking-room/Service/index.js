@@ -107,5 +107,12 @@ const bookingRoom = async (bookingData, navigate) => {
     }
 };
 
+const fetchDiscounts = async (username) => {
+    const res = await request({
+        method: "GET",
+        path: `api/discount/get-discount-account?username=${username}`
+    });
+    return res;
+};
 
-export { getDataListTypeRoom, bookingRoom };
+export { getDataListTypeRoom, bookingRoom, fetchDiscounts };
