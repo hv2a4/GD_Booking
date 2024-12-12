@@ -2,47 +2,12 @@ import React from 'react';
 import { CChartBar } from '@coreui/react-chartjs';
 import "../revenue/style.css";
 
-const ReservationChart = () => {
-  const rows = [
-    {
-      date: '01/11/2024',
-      revenue: '52,920,000',
-      refund: '0',
-    },
-    {
-      date: '02/11/2024',
-      revenue: '35,000,000',
-      refund: '0',
-    },
-    {
-      date: '03/11/2024',
-      revenue: '15,000,000',
-      refund: '0',
-    },
-    {
-      date: '04/11/2024',
-      revenue: '20,000,000',
-      refund: '0',
-    },
-    {
-      date: '05/11/2024',
-      revenue: '35,000,000',
-      refund: '0',
-    },
-    {
-      date: '06/11/2024',
-      revenue: '50,000,000',
-      refund: '0',
-    },
-    {
-      date: '07/11/2024',
-      revenue: '10,000,000',
-      refund: '0',
-    },
-  ];
-/*Doanh thu netRevenue = tổng doanh thu - chiết khấu - giảm giá - hoàn trả*/
-  const labels = rows.map(row => row.date); // Lấy ngày làm nhãn cột
-  const revenueData = rows.map(row => parseInt(row.revenue.replace(/,/g, ''))); // Dữ liệu doanh thu
+const ReservationChart = ({ booking }) => {
+  // Lấy ngày làm nhãn cột
+  const labels = booking.map(row => row.bookingDate);
+
+  // Tính tổng số phòng đã đặt trong mỗi ngày
+  const roomsBookedData = booking.map(row => parseInt(row.totalRoomsBooked));
 
   return (
     <div style={{
@@ -57,12 +22,12 @@ const ReservationChart = () => {
     }}>
       <CChartBar
         data={{
-          labels: labels,
+          labels: labels, // Ngày làm nhãn
           datasets: [
             {
-              label: 'Doanh thu',
-              backgroundColor: '#42A5F5',
-              data: revenueData,
+              label: 'Số phòng đã đặt',
+              backgroundColor: '#42A5F5', // Màu nền
+              data: roomsBookedData, // Dữ liệu số phòng đã đặt
             },
           ],
         }}
@@ -78,7 +43,7 @@ const ReservationChart = () => {
               beginAtZero: true,
               ticks: {
                 callback: function (value) {
-                  return value.toLocaleString('vi-VN'); // Định dạng số thành kiểu Việt Nam
+                  return value.toLocaleString('vi-VN'); // Định dạng số theo kiểu Việt Nam
                 },
               },
             },
@@ -88,5 +53,6 @@ const ReservationChart = () => {
     </div>
   );
 };
+
 
 export default ReservationChart;
