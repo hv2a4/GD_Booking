@@ -75,12 +75,11 @@ const bookingRoom = async (bookingData, navigate) => {
 
         if (res.status !== 'success') {
             throw new Error(res.message || "Phản hồi không hợp lệ từ server.");
+        } else {
         }
         if (res.vnPayURL) {
-
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             await delay(2000);
-
             window.location.href = res.vnPayURL;
         } else {
             await Swal.fire({
@@ -88,9 +87,11 @@ const bookingRoom = async (bookingData, navigate) => {
                 text: `${res.message || 'Chúc bạn có kỳ nghỉ vui vẻ!'}`,
                 icon: 'success',
                 confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/client/home');
+                }
             });
-            sessionStorage.clear()
-            navigate('/client/home');
         }
 
     } catch (error) {

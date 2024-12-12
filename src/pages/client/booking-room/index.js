@@ -127,6 +127,9 @@ const PageBookRoom = () => {
                 // Người dùng hủy thanh toán
                 if (!result.isConfirmed) {
                     return;
+                }else{
+                    const isChecked = true;
+                    localStorage.setItem("status",JSON.stringify(isChecked));
                 }
             }
 
@@ -146,7 +149,6 @@ const PageBookRoom = () => {
 
             // Gọi API đặt phòng
             await bookingRoom(payload, navigate);
-
         } catch (error) {
             console.error("Đặt phòng thất bại:", error);
         }
@@ -168,6 +170,10 @@ const PageBookRoom = () => {
                 confirmButtonText: 'OK',
             }).then((result) => {
                 if (result.isConfirmed) {
+                    sessionStorage.clear();
+                    const isChecked = true;
+                    localStorage.setItem("status", JSON.stringify(isChecked));
+                    console.log("Thành công rồi nha");
                     navigate('/client/home');
                 }
             });
@@ -274,18 +280,21 @@ const PageBookRoom = () => {
         setCurrentPage(pageNumber);
     };
 
+    //kiểm tra người dùng khi chưa đặt phòng
     useEffect(() => {
-        // Kiểm tra dữ liệu trong sessionStorage
-        const bookedRooms = sessionStorage.getItem("bookedRooms");
-        const booking = sessionStorage.getItem("booking");
-        if (!bookedRooms && !booking) {
-            // Nếu không có dữ liệu, chuyển hướng người dùng
+        try {
+            const status = localStorage.getItem("status");
+
+            if (status && JSON.parse(status) === true) {
+                navigate("/client/rooms");
+            } else {
+                navigate("/client/booking-room");
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra trạng thái đặt phòng:", error);
             navigate("/client/rooms");
-        } else {
-            navigate("/client/booking-room");
         }
     }, [navigate]);
-
 
     useEffect(() => {
         const fetchDiscountsFromAPI = async (userName) => {
@@ -317,6 +326,8 @@ const PageBookRoom = () => {
             if (result.isConfirmed) {
                 // Xóa toàn bộ dữ liệu trong sessionStorage
                 sessionStorage.clear();
+                const isChecked = true;
+                localStorage.setItem("status", JSON.stringify(isChecked));  
                 // Điều hướng về trang phòng
                 navigate("/client/rooms");
             }

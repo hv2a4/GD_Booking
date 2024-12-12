@@ -63,7 +63,7 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
                   </ListGroup>
                 </Col>
               </Row>
-              <p className="room-detail-description">{room.describes || 'Chưa có mô tả'}</p>
+              {/* <p className="room-detail-description">{room.describes || 'Chưa có mô tả'}</p> */}
             </div>
           </Col>
         </Row>
@@ -80,8 +80,8 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
         <div className="room-feedback mt-4">
           <h5>Đánh giá của khách hàng</h5>
           <p>
-            <strong>Đánh giá trung bình:</strong> {avgStart.averageStars}{' '}
-            {renderStars(Math.round(avgStart.averageStars))}
+            <strong>Đánh giá trung bình:</strong> {avgStart.averageStars ? avgStart.averageStars.toFixed(1) : 'N/A'}{' '}
+            {renderStars(avgStart.averageStars ? Math.round(avgStart.averageStars) : 0)}
           </p>
           {room.feedBack?.length > 0 ? (
             <div className="feedback-container">

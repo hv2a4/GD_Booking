@@ -115,7 +115,18 @@ export default function ListRoom() {
             });
             return; // Ngừng hàm nếu chưa đăng nhập
         }
+        // Kiểm tra xem người dùng đã chọn thời gian chưa
+        if (!dates.checkin || !dates.checkout) {
+            // Nếu chưa chọn thời gian, tự động kích hoạt bộ lọc
+            Swal.fire({
+                icon: 'info',
+                title: 'Chọn thời gian',
+                text: 'Vui lòng chọn thời gian trước khi chọn phòng!',
+                confirmButtonText: 'OK',
+            })
 
+            return; // Ngừng hàm cho đến khi người dùng chọn thời gian
+        }
         // Tìm đối tượng phòng dựa trên roomId
         const selectedRoomIndex = Object.roomId.indexOf(roomId);
 
@@ -256,7 +267,7 @@ export default function ListRoom() {
             const res = await getFilterBooking(startDate, endDate, guestLimit, 1, pageSize); // Trang đầu tiên
             setTypeRoom(res.content); // Cập nhật danh sách phòng
             setTotalPages(res.totalPages); // Cập nhật tổng số trang từ API
-            console.log("Dữ liệu khi lọc thành công");
+            console.log("Dữ liệu khi lọc thành công: ", res.content);
 
         } catch (error) {
             console.error("Lỗi khi gọi API filterBooking:", error);

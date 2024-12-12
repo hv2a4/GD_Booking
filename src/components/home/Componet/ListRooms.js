@@ -24,7 +24,6 @@ const ListRooms = ({ item, selectedRooms, handleSelectRoom, handleDeselectRoom }
             }
         }
     };
-
     return (
         <div className="col-12 col-md-8">
             <div className="row">

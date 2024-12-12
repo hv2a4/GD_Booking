@@ -1,10 +1,18 @@
 import React from 'react';
 
 const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
-    const formatDate = (date) => {
-        // Assuming you have a date formatting function
-        return new Date(date).toLocaleDateString();
+    const formatDate = (date, format = "DD/MM/YYYY") => {
+        if (!date) return "";
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullYear();
+        if (format === "DD/MM/YYYY") {
+            return `${day}/${month}/${year}`;
+        }
+        return d.toLocaleDateString(); // Hoặc bạn có thể thêm các định dạng khác nếu cần.
     };
+
 
     const discountPercent = discount ? discount.percent : 0;
     const discountAmount = discountPercent > 0 ? (totalPrice * discountPercent) / 100 : 0;

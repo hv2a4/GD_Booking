@@ -118,7 +118,7 @@ const RecentlyViewed = () => {
                                 <div className="modal-content">
                                     <div className="modal-headers modal-header">
                                         <h5 className="modal-title" id={`detailModalLabel-${booking.id}`}>
-                                            Chi Tiết Phòng
+                                            Thông tin đặt phòng
                                         </h5>
                                         <button
                                             type="button"

@@ -38,11 +38,11 @@ export const navList = [
   //     },
   //   ],
   // },
-  {
-    id: 6,
-    path: "/client/contact",
-    text: "Liên hệ",
-  },
+  // {
+  //   id: 6,
+  //   path: "/client/contact",
+  //   text: "Liên hệ",
+  // },
 ];
 export const socialIcons = [
   {

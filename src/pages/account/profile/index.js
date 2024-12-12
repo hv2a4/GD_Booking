@@ -2,10 +2,8 @@ import React from "react";
 import LayoutCilent from '../../../components/layout/cilent';
 import MyProfile from "./my-profile";
 import RecentlyViewed from "./recently-viewed";
-import Favourite from "./favourites";
-import HistoryBooking from "./history-booking";
 import Cookies from 'js-cookie';
-import { ToastContainer, toast, Bounce } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 import "../../../assets/css/account/profile/style.css"
@@ -57,7 +55,7 @@ const Profile = () => {
                                     <RecentlyViewed />
                                 </div>
                                 <div className="tab-pane fade" id="tab-favourites" role="tabpanel">
-                                  <ChangePassword />
+                                    <ChangePassword />
                                 </div>
                             </div>
                         </div>
