@@ -12,7 +12,7 @@ const RecentlyViewed = () => {
     const mockBookings = [
         {
             id: "1",
-            roomName: "Phòng Deluxe",
+            roomName: "BK11092024",
             imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
             checkInDate: "2024-12-01",
             checkOutDate: "2024-12-05",
@@ -23,7 +23,7 @@ const RecentlyViewed = () => {
         },
         {
             id: "2",
-            roomName: "Phòng Standard",
+            roomName: "BK20112024",
             imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
             checkInDate: "2024-11-25",
             checkOutDate: "2024-11-28",
@@ -34,7 +34,7 @@ const RecentlyViewed = () => {
         },
         {
             id: "3",
-            roomName: "Phòng Suite",
+            roomName: "BK05052024",
             imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
             checkInDate: "2024-11-20",
             checkOutDate: "2024-11-23",
@@ -45,7 +45,7 @@ const RecentlyViewed = () => {
         },
         {
             id: "4",
-            roomName: "Phòng VIP",
+            roomName: "BK12102024",
             imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
             checkInDate: "2024-11-15",
             checkOutDate: "2024-11-18",
@@ -89,6 +89,9 @@ const RecentlyViewed = () => {
                                 <p className="card-text">
                                     <strong>Trả phòng:</strong> {booking.checkOutDate}
                                 </p>
+                                <p className="card-text">
+                                    <strong>Trạng thái:</strong> hủy rồi
+                                </p>
                                 <p className="custom-price-text">
                                     <strong>Tổng giá:</strong> {booking.totalPrice.toLocaleString()} VND
                                 </p>
@@ -131,7 +134,8 @@ const RecentlyViewed = () => {
                                         {/* Phần thông tin phòng */}
                                         <div className="room-info mb-4">
                                             <h5>{booking.roomName}</h5>
-                                            <p><strong>Loại giường:</strong> {booking.bedType || "Không xác định"}</p>
+                                            <p><strong>Ngày đặt:</strong> {booking.bedType || "Không xác định"}</p>
+                                            <p><strong>Trạng thái:</strong> {booking.bedType || "Không xác định"}</p>
                                         </div>
 
                                         {/* Phần thời gian */}
@@ -139,19 +143,24 @@ const RecentlyViewed = () => {
                                             <p><strong>Nhận phòng:</strong> {booking.checkInDate}</p>
                                             <p><strong>Trả phòng:</strong> {booking.checkOutDate}</p>
                                         </div>
-
-                                        {/* Phần giá phòng */}
+                                         {/* Phần phòng */}
+                                         <div className="amenities-info mb-4">
+                                            <p><strong>Phòng:</strong> {booking.amenities || "Chưa có thông tin"}</p>
+                                            <p><strong>Loại Phòng:</strong> {booking.amenities || "Chưa có thông tin"}</p>
+                                            <p><strong>Tiền Phòng:</strong> {booking.amenities || "Chưa có thông tin"}</p>
+                                        </div>
+                                          {/* Phần phòng */}
+                                          <div className="amenities-info mb-4">
+                                            <p><strong>Dịch vụ:</strong> {booking.amenities || "Chưa có thông tin"}</p>
+                                            <p><strong>Tiền Dịch Vụ:</strong> {booking.amenities || "Chưa có thông tin"}</p>
+                                        </div>
+                                        {/* Phần giá tổng tiền */}
                                         <div className="price-info mb-4">
                                             <p><strong>Tổng giá:</strong> {booking.totalPrice.toLocaleString()} VND</p>
                                         </div>
-
-                                        {/* Phần tiện nghi */}
-                                        <div className="amenities-info mb-4">
-                                            <p><strong>Tiện nghi:</strong> {booking.amenities || "Chưa có thông tin"}</p>
-                                        </div>
                                          {/* Phần dịch vụ */}
                                         <div className="amenities-info mb-4">
-                                            <p><strong>Dịch vụ:</strong> {booking.amenities || "Chưa có thông tin"}</p>
+                                            <p><strong>Nội dung đánh giá:</strong> {booking.amenities || "Chưa có thông tin"}</p>
                                         </div>
                                         {/* Phần đánh giá */}
                                         <div className="rating-info mb-4">
