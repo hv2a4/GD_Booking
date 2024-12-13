@@ -149,9 +149,7 @@ const RecentlyViewed = () => {
                                                     <h5>Chi tiết phòng</h5>
                                                     <br />
                                                     <p><strong>Phòng:</strong> {booking.roomInfo}</p>
-                                                    <p><strong>Tiền Phòng:</strong> {booking.totalRoom.toLocaleString()} VND {booking.discountPercents && booking.discountNames ? (
-                                                        <span> - Đã giảm  {booking.discountPercents}%</span>
-                                                    ) : null}</p>
+                                                    <p><strong>Tiền Phòng:</strong> {booking.totalRoom.toLocaleString()} VND </p>
                                                     <p><strong>Dịch vụ:</strong> {booking.combinedServiceNames || "Chưa sử dụng dịch vụ"}</p>
                                                     <p><strong>Tiền Dịch Vụ:</strong> {booking.combinedTotalServices ? booking.combinedTotalServices.toLocaleString() : "0"} VND</p>
                                                     <p><strong>Tổng giá:</strong> <span style={{ color: '#E60000 ' }}>{booking.totalBooking.toLocaleString()} VND</span> </p>
