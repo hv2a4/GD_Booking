@@ -6,6 +6,7 @@ import { Button, Dropdown, DropdownButton, Table } from "react-bootstrap";
 import Alert from "../../../config/alert";
 import CancelBookingModal from "./modalCancel";
 import ProductServiceModal from "./serviceInsert";
+import { getIdBooking } from "../../../config/idBooking";
 
 const Reserved = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -102,7 +103,7 @@ const Reserved = ({ item }) => {
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking.id}</td>
+                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
                                     <td>
                                         <strong style={{ fontWeight: "500" }}>{booking.accountDto.fullname}</strong>

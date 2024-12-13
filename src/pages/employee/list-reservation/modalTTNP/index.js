@@ -8,6 +8,7 @@ import { formatDate, formatDateTime } from "../../../../config/formatPrice";
 import InsertCustomer from "../modalInsertCustomer";
 import AlertComfirm from "../../../../config/alert/comfirm";
 import { deleteCustomer } from "../../../../services/employee/customer";
+import { getIdBooking } from "../../../../config/idBooking";
 
 const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     const [showModalInsertCustomer, setShowModalInsertCustomer] = useState(false);
@@ -18,6 +19,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     const [alert, setAlert] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(2);
+    const encodedIdBookingRoom = btoa(bookingRoomIds[0]);
     useEffect(() => {
         handleCustomer();
         handleBookingRoom();
@@ -94,7 +96,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
             <Modal show={true} onHide={onHide} backdrop="static" centered size="xl">
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
-                    <Modal.Title id="exampleModalLabel">Thông tin nhận phòng - {bookingRoom[0]?.booking.id}</Modal.Title>
+                    <Modal.Title id="exampleModalLabel">Thông tin nhận phòng - {getIdBooking(bookingRoom[0]?.booking.id,bookingRoom[0]?.booking.createAt)}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ overflowY: "auto", maxHeight: "500px" }}>
                     <div className="boxster ng-star-inserted">
@@ -240,7 +242,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Link to="/employee/edit-room">
+                    <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
                         <button className="btn btn-outline-success">Cập nhật đặt phòng</button>
                     </Link>
                     <button className="btn btn-success" onClick={handleCloseTTNhanPhong}>Xong</button>

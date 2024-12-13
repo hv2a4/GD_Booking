@@ -15,8 +15,9 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
     useEffect(() => {
         if (item && item.customerInformationDto?.birthday) {
             setValue("id", item.customerInformationDto.id);
+            setValue("bookingRoomId", item.bookingRoomDto.id);
             setValue("ngaysinh", new Date(item.customerInformationDto.birthday));
-            setValue("phong", item.bookingRoomDto.room.id);
+            setValue("phong", item.bookingRoomDto.room.id + "");
             setValue("hovaten", item.customerInformationDto.fullname);
             setValue("gioitinh", item.customerInformationDto.gender ? "true" : "false");
             setValue("sodienthoai", item.customerInformationDto.phone);
@@ -45,6 +46,8 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
 
 
     const onSubmit = async (data) => {
+        console.log(data);
+
         // Validate dữ liệu đầu vào
         setIsLoading(true);
         if (!data.sodienthoai === 10) {
@@ -59,12 +62,8 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             setIsLoading(false);
             return;
         }
-        // Xử lý nếu dữ liệu hợp lệ
-        let id = [];
-        if (!item) {
-            id = bookingRoom.filter(d => data.phong.includes(d.room.id)).map(d => ({ id: d.id }));
-        }
-        if (!id || id.length === 0) {
+        const id = bookingRoom.filter(d => data.phong.includes(d.room.id)).map(d => ({ id: d.id }));
+        if ((!id || id.length === 0) && !item) {
             setAlert({ type: "error", title: "Không tìm thấy phòng để thêm khách." });
             setIsLoading(false);
             return;
@@ -78,12 +77,11 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             return matchedCustomers.length < guestLimit;
         };
 
-        if (!checkGuestLimit(id[0]?.id)) {
+        if (!checkGuestLimit(id[0]?.id) && !item) {
             setAlert({ type: "error", title: "Phòng đã đầy không thể thêm" });
             setIsLoading(false);
             return;
         }
-
         const newCustomer = {
             cccd: data.lydoluutru,
             fullname: data.hovaten,
@@ -92,14 +90,9 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             birthday: data.ngaysinh.toISOString(),
         };
         try {
-            const customerData = item ? await updateCustomer(item.customerInformationDto.id, newCustomer) : await addCustomer(newCustomer, id[0]?.id);
-            if (customerData?.errors) {
-                setAlert({ type: "error", title: "Đã xảy ra lỗi khi thêm khách hàng.", details: customerData.errors });
-            } else {
-                setAlert({ type: "success", title: `${item ? "Cập nhật" : "Thêm"} khách thành công! ` });
-                fetchData();
-            }
-
+            const customerData = item ? await updateCustomer(item.id, newCustomer, id[0]?.id) : await addCustomer(newCustomer, id[0]?.id);
+            setAlert({ type: customerData.status, title: customerData.message });
+            fetchData();
         } catch (error) {
             setAlert({ type: "error", title: "Lỗi khi thêm khách hàng.", details: error.message });
         }

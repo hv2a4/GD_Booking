@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Table } from "react-bootstrap";
 import { formatCurrency, formatDate, formatDateTime } from "../../../config/formatPrice";
 import { Link } from "react-router-dom";
+import { getIdBooking } from "../../../config/idBooking";
 
 const CreateInvoice = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -72,7 +73,7 @@ const CreateInvoice = ({ item }) => {
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking.id}</td>
+                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
                                     <td>
                                         <strong style={{fontWeight: "500"}}>{booking.accountDto.fullname}</strong>
