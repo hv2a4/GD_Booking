@@ -357,7 +357,6 @@ export default function ListRoom() {
                                                         <span className="ms-2">
                                                             {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.estCost)}
                                                         </span>
-                                                        / <strong>Ngày</strong>
                                                     </p>
                                                 </div>
                                             )}

@@ -10,10 +10,19 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
 
   // Helper function to render star ratings
   const renderStars = (stars) => {
-    return [...Array(5)].map((_, i) => (
-      i < stars ? <FaStar key={i} className="text-warning" /> : <FaRegStar key={i} className="text-muted" />
-    ));
+    return [...Array(5)].map((_, i) => {
+      const fullStars = Math.floor(stars);
+      const isHalfStar = stars - fullStars >= 0.5 && i === fullStars;
+      return i < fullStars ? (
+        <FaStar key={i} className="text-warning" />
+      ) : isHalfStar ? (
+        <FaStar key={i} className="text-warning half-star" />
+      ) : (
+        <FaRegStar key={i} className="text-muted" />
+      );
+    });
   };
+
 
   // Tính toán chỉ số bắt đầu và kết thúc cho các đánh giá ở trang hiện tại
   const indexOfLastReview = currentPage * reviewsPerPage;
@@ -96,8 +105,9 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
           <p>
             <strong>Đánh giá trung bình:</strong>{' '}
             {room.averageFeedBack ? room.averageFeedBack.toFixed(1) : 'N/A'}{' '}
-            {renderStars(room.averageFeedBack ? Math.round(room.averageFeedBack) : 0)}
+            {renderStars(room.averageFeedBack || 0)}
           </p>
+
           {room.feedBack && room.feedBack.length > 0 ? (
             <div className="feedback-container">
               {/* Duyệt qua mỗi phản hồi */}

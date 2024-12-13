@@ -144,3 +144,7 @@
   max-width: 800px;
   margin: auto; /* Căn giữa container đánh giá */
 }
+
+.half-star {
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+}
