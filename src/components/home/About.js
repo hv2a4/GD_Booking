@@ -55,7 +55,7 @@ export default function About() {
               </h6>
               <h1 className="mb-4">
                 Chào mừng đến{" "}
-                <span className="text-orange text-uppercase">Start Hotel</span>
+                <span className="text-orange text-uppercase">Stars Hotel</span>
               </h1>
               <p className="mb-4">
                 Khách sạn Start Hotel – nơi nghỉ dưỡng hoàn hảo với tiện nghi hiện đại, không gian sang trọng và vị trí lý tưởng,
