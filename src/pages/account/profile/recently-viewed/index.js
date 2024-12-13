@@ -1,73 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactPaginate from 'react-paginate';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './RecentlyViewed.css';
-
+import Cookies from "js-cookie";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+import HistoryBookings from "./callApi";
 const RecentlyViewed = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const roomsPerPage = 3;
     const [rating, setRating] = useState(0); // Để lưu sao đánh giá của người dùng
     const [review, setReview] = useState(""); // Để lưu nội dung đánh giá
     const [hoveredRating, setHoveredRating] = useState(0);
-    const mockBookings = [
-        {
-            id: "1",
-            roomName: "Phòng Deluxe",
-            imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
-            checkInDate: "2024-12-01",
-            checkOutDate: "2024-12-05",
-            totalPrice: 2000000,
-            rating: 4,
-            username: "Nguyễn Văn A",
-            avatarUrl: "https://randomuser.me/api/portraits/men/1.jpg",
-        },
-        {
-            id: "2",
-            roomName: "Phòng Standard",
-            imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
-            checkInDate: "2024-11-25",
-            checkOutDate: "2024-11-28",
-            totalPrice: 1500000,
-            rating: 3,
-            username: "Nguyễn Văn B",
-            avatarUrl: "https://randomuser.me/api/portraits/men/2.jpg",
-        },
-        {
-            id: "3",
-            roomName: "Phòng Suite",
-            imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
-            checkInDate: "2024-11-20",
-            checkOutDate: "2024-11-23",
-            totalPrice: 3000000,
-            rating: 5,
-            username: "Nguyễn Văn C",
-            avatarUrl: "https://randomuser.me/api/portraits/men/3.jpg",
-        },
-        {
-            id: "4",
-            roomName: "Phòng VIP",
-            imageUrl: "https://hoanghaihotel.vn/Data/images/tintuc/10032021170917-gioi-thieu-ve-khach-san-hoang-hai.jpg",
-            checkInDate: "2024-11-15",
-            checkOutDate: "2024-11-18",
-            totalPrice: 5000000,
-            rating: 4
-        }
-    ];
+    const [mockBookings, setMockBookings] = useState([]);
 
+    // Lấy token từ cookies và decode
+    const tokens = Cookies.get("token") || null;
+    const decodedToken = tokens ? jwt_decode(tokens) : null;
 
+    useEffect(() => {
+        const fetchBookings = async () => {
+            if (!decodedToken?.id) {
+                console.error("Invalid token or missing account ID.");
+                setMockBookings([]);
+                return;
+            }
 
+            try {
+                // Gọi API lấy lịch sử đặt phòng
+                const response = await HistoryBookings(decodedToken.id);
+                console.log("API response:", response);
+
+                // Kiểm tra nếu API trả về mảng, lưu vào state
+                if (Array.isArray(response)) {
+                    setMockBookings(response);
+                } else {
+                    console.error("API response is not an array:", response);
+                    setMockBookings([]);
+                }
+            } catch (error) {
+                console.error("Error fetching booking history:", error);
+                setMockBookings([]);
+            }
+        };
+
+        fetchBookings();
+    }, [decodedToken]);
+
+    // Xử lý khi người dùng đổi trang
     const handlePageClick = (event) => {
         setCurrentPage(event.selected);
     };
 
-    const currentRooms = mockBookings.slice(
-        currentPage * roomsPerPage,
-        (currentPage + 1) * roomsPerPage
-    );
+    // Lấy các mục hiển thị trên trang hiện tại
+    const currentRooms = Array.isArray(mockBookings)
+        ? mockBookings.slice(
+            currentPage * roomsPerPage,
+            (currentPage + 1) * roomsPerPage
+        )
+        : [];
+
+    // Xử lý sự kiện khi người dùng đánh giá sao
     const handleRatingClick = (stars) => {
         setRating(stars);
     };
 
+    // Xử lý sự kiện khi người dùng nhập đánh giá
     const handleReviewChange = (event) => {
         setReview(event.target.value);
     };
@@ -80,26 +77,31 @@ const RecentlyViewed = () => {
                 {currentRooms.map((booking) => (
                     <div key={booking.id} className="col-md-4 mb-4">
                         <div className="card shadow-sm">
-                            <img src={booking.imageUrl} className="card-img-top" alt={booking.roomName} />
+                            <img src={booking.image} className="card-img-top" alt={booking.fullname} />
                             <div className="card-body">
-                                <h5 className="card-title">{booking.roomName}</h5>
+                                <h5 className="card-title">{booking.bkFormat}</h5>
                                 <p className="card-text">
-                                    <strong>Nhận phòng:</strong> {booking.checkInDate}
+                                    <strong>Nhận phòng:</strong> {booking.startAt}
                                 </p>
                                 <p className="card-text">
-                                    <strong>Trả phòng:</strong> {booking.checkOutDate}
+                                    <strong>Trả phòng:</strong> {booking.endAt}
                                 </p>
                                 <p className="custom-price-text">
-                                    <strong>Tổng giá:</strong> {booking.totalPrice.toLocaleString()} VND
+                                    <strong>Tổng giá:</strong> {booking.totalBooking.toLocaleString()}  VND
                                 </p>
                                 <p className="card-text">
-                                    <strong>Đánh giá:</strong> {Array(booking.rating).fill("⭐").join("")}
+                                    <strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}
                                 </p>
                                 <div className="text-center">
-                                    <button className="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target={`#reviewModal-${booking.id}`}>
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target={`#reviewModal-${booking.bkId}`}
+                                        disabled={booking.ivId == null} // Disable button if booking.ivId is null
+                                    >
                                         Đánh giá
                                     </button>
-                                    <button className="btn btn-primary ms-2 btn-sm" data-bs-toggle="modal" data-bs-target={`#detailModal-${booking.id}`}>
+                                    <button className="btn btn-primary ms-2 btn-sm" data-bs-toggle="modal" data-bs-target={`#detailModal-${booking.bkId}`}>
                                         Chi tiết
                                     </button>
                                 </div>
@@ -109,16 +111,17 @@ const RecentlyViewed = () => {
                         {/* Modal Chi Tiết */}
                         <div
                             className="modal fade"
-                            id={`detailModal-${booking.id}`}
+                            id={`detailModal-${booking.bkId}`}
                             tabIndex="-1"
-                            aria-labelledby={`detailModalLabel-${booking.id}`}
+                            aria-labelledby={`detailModalLabel-${booking.bkId}`}
                             aria-hidden="true"
                         >
-                            <div className="modal-dialog modal-lg">
+                            <div className="modal-dialog modal-xl">
                                 <div className="modal-content">
+                                    {/* Modal Header */}
                                     <div className="modal-headers modal-header">
-                                        <h5 className="modal-title" id={`detailModalLabel-${booking.id}`}>
-                                            Thông tin đặt phòng
+                                        <h5 className="modal-title" id={`detailModalLabel-${booking.bkId}`}>
+                                            Chi Tiết Phòng
                                         </h5>
                                         <button
                                             type="button"
@@ -127,37 +130,44 @@ const RecentlyViewed = () => {
                                             aria-label="Close"
                                         ></button>
                                     </div>
+
+                                    {/* Modal Body */}
                                     <div className="modal-body">
-                                        {/* Phần thông tin phòng */}
-                                        <div className="room-info mb-4">
-                                            <h5>{booking.roomName}</h5>
-                                            <p><strong>Loại giường:</strong> {booking.bedType || "Không xác định"}</p>
-                                        </div>
-
-                                        {/* Phần thời gian */}
-                                        <div className="time-info mb-4">
-                                            <p><strong>Nhận phòng:</strong> {booking.checkInDate}</p>
-                                            <p><strong>Trả phòng:</strong> {booking.checkOutDate}</p>
-                                        </div>
-
-                                        {/* Phần giá phòng */}
-                                        <div className="price-info mb-4">
-                                            <p><strong>Tổng giá:</strong> {booking.totalPrice.toLocaleString()} VND</p>
-                                        </div>
-
-                                        {/* Phần tiện nghi */}
-                                        <div className="amenities-info mb-4">
-                                            <p><strong>Tiện nghi:</strong> {booking.amenities || "Chưa có thông tin"}</p>
-                                        </div>
-                                         {/* Phần dịch vụ */}
-                                        <div className="amenities-info mb-4">
-                                            <p><strong>Dịch vụ:</strong> {booking.amenities || "Chưa có thông tin"}</p>
-                                        </div>
-                                        {/* Phần đánh giá */}
-                                        <div className="rating-info mb-4">
-                                            <p><strong>Đánh giá:</strong> {Array(booking.rating).fill("⭐").join("")}</p>
+                                        <div className="container">
+                                            {/* Row 1: Thông tin phòng */}
+                                            <div className="row mb-4">
+                                                <div className="col-md-4">
+                                                    <h5>Thông tin đặt phòng</h5>
+                                                    <br />
+                                                    <p><strong>Mã Đặt Phòng:</strong> {booking.bkFormat}</p>
+                                                    <p><strong>Ngày đặt:</strong> {booking.createAt}</p>
+                                                    <p><strong>Nhận phòng:</strong> {booking.startAt}</p>
+                                                    <p><strong>Trả phòng:</strong> {booking.endAt}</p>
+                                                    <p><strong>Trạng thái:</strong> <span style={{ color: '#FEA116' }}>{booking.statusBkName}</span></p>
+                                                </div>
+                                                <div className="col-md-8">
+                                                    <h5>Chi tiết phòng</h5>
+                                                    <br />
+                                                    <p><strong>Phòng:</strong> {booking.roomInfo}</p>
+                                                    <p><strong>Tiền Phòng:</strong> {booking.totalRoom.toLocaleString()} VND {booking.discountPercents && booking.discountNames ? (
+                                                        <span> - Đã giảm  {booking.discountPercents}%</span>
+                                                    ) : null}</p>
+                                                    <p><strong>Dịch vụ:</strong> {booking.combinedServiceNames || "Chưa sử dụng dịch vụ"}</p>
+                                                    <p><strong>Tiền Dịch Vụ:</strong> {booking.combinedTotalServices ? booking.combinedTotalServices.toLocaleString() : "0"} VND</p>
+                                                    <p><strong>Tổng giá:</strong> <span style={{ color: '#E60000 ' }}>{booking.totalBooking.toLocaleString()} VND</span> </p>
+                                                </div>
+                                            </div>
+                                            {/* Row 6: Đánh giá */}
+                                            <div className="row mb-4">
+                                                <div className="col-md-12">
+                                                    <p><strong>Nội dung đánh giá:</strong> {booking.content || "Chưa đánh giá"}</p>
+                                                    <p><strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    {/* Modal Footer */}
                                     <div className="modal-footers modal-footer">
                                         <button
                                             type="button"
@@ -172,11 +182,11 @@ const RecentlyViewed = () => {
                         </div>
 
                         {/* Modal Đánh Giá */}
-                        <div className="modal fade" id={`reviewModal-${booking.id}`} tabIndex="-1" aria-labelledby={`reviewModalLabel-${booking.id}`} aria-hidden="true">
+                        <div className="modal fade" id={`reviewModal-${booking.bkId}`} tabIndex="-1" aria-labelledby={`reviewModalLabel-${booking.bkId}`} aria-hidden="true">
                             <div className="modal-dialog">
                                 <div className="modal-content">
                                     <div className="modal-headers modal-header">
-                                        <h5 className="modal-title" id={`reviewModalLabel-${booking.id}`}>Đánh Giá Phòng</h5>
+                                        <h5 className="modal-title" id={`reviewModalLabel-${booking.bkId}`}>Đánh Giá Phòng</h5>
                                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div className="modal-body">
