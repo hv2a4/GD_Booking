@@ -50,7 +50,6 @@ const EmployeeReport = () => {
                 </div>
             </div>
         <EmployeeReportTable/>
-            
         </LayoutAdmin>
     );
 };

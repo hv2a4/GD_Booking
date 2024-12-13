@@ -24,7 +24,6 @@ const FloorMap = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modal7, setModal7] = useState(false);
-    const [roomDetail, setRoomDetail] = useState({});
     const [statusRoom, setStatusRoom] = useState([]);
     const [booking, setBooking] = useState({});
     const cookie = new Cookies();

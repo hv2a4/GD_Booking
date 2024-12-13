@@ -1,37 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getStartDateWithInvoice } from "../../../../../services/admin/reservation";
+import { formatCurrency, formatDateTime } from "../../../../../config/formatPrice";
+import { getIdBooking } from "../../../../../config/idBooking";
 
-const RevenueChilren = () => {
+const RevenueChilren = ({ bookingDate }) => {
+    const [bookings, setBookings] = useState([]);
+
+    useEffect(() => {
+        if (bookingDate) {
+            handleGetData(bookingDate);
+        }
+    })
+
+    const handleGetData = async (date) => {
+        const data = await getStartDateWithInvoice(date);
+        setBookings(data);
+    }
     return (
         <tr>
             <td colSpan="4" style={{ padding: '0' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
+                <table style={{ width: '97%', borderCollapse: 'collapse', margin: "15px" }}>
                     <thead>
                         <tr>
-                            <th style={{ backgroundColor: '#f7f3d6', padding: '8px', border: '1px solid #ddd' }}>Mã giao dịch</th>
-                            <th style={{ backgroundColor: '#f7f3d6', padding: '8px', border: '1px solid #ddd' }}>Thời gian</th>
-                            <th style={{ backgroundColor: '#f7f3d6', padding: '8px', border: '1px solid #ddd' }}>Khách hàng</th>
-                            <th style={{ backgroundColor: '#f7f3d6', padding: '8px', border: '1px solid #ddd' }}>Doanh thu</th>
+                            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Mã giao dịch</th>
+                            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Thời gian</th>
+                            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Khách hàng</th>
+                            <th style={{ padding: '8px', border: '1px solid #ddd' }}>Doanh thu</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td style={{ padding: '8px', border: '1px solid #ddd', color: '#1976d2', cursor: 'pointer' }}>HD000077</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>01/11/2024 14:22</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>Khách lẻ</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>29,000,000</td>
-                        </tr>
-                        <tr>
-                            <td style={{ padding: '8px', border: '1px solid #ddd', color: '#1976d2', cursor: 'pointer' }}>HD000076</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>01/11/2024 14:22</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>Khách lẻ</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>23,200,000</td>
-                        </tr>
-                        <tr>
-                            <td style={{ padding: '8px', border: '1px solid #ddd', color: '#1976d2', cursor: 'pointer' }}>HD000075</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>01/11/2024 14:21</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>3sds</td>
-                            <td style={{ padding: '8px', border: '1px solid #ddd' }}>720,000</td>
-                        </tr>
+                        {bookings && bookings.length > 0 ? (
+                            bookings.map((item, index) => {
+                                return (
+                                    <tr key={index}>
+                                        <td style={{ padding: '8px', border: '1px solid #ddd', color: '#1976d2', cursor: 'pointer' }}>{`HD${getIdBooking(item.id, item.invoiceDtos[0].id)}`}</td>
+                                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{formatDateTime(item.invoiceDtos[0].createAt)}</td>
+                                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{item.accountDto.fullname}</td>
+                                        <td style={{ padding: '8px', border: '1px solid #ddd' }}>{formatCurrency(item.invoiceDtos[0].totalAmount)}</td>
+                                    </tr>
+                                )
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan="9" style={{ textAlign: 'center', padding: '8px', border: '1px solid #ddd' }}>
+                                    Không có dữ liệu
+                                </td>
+                            </tr>
+                        )}
+
                     </tbody>
                 </table>
             </td>

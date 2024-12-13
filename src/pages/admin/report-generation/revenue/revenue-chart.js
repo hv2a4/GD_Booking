@@ -2,37 +2,10 @@ import React from 'react';
 import { CChartBar } from '@coreui/react-chartjs';
 import "./style.css";
 
-const RevenueChart = () => {
-  const rows = [
-    {
-      date: '01/11/2024',
-      revenue: '52,920,000',
-      refund: '0',
-    },
-    {
-      date: '02/11/2024',
-      revenue: '35,000,000',
-      refund: '0',
-    },
-    {
-      date: '02/11/2024',
-      revenue: '35,000,000',
-      refund: '0',
-    },
-    {
-      date: '02/11/2024',
-      revenue: '35,000,000',
-      refund: '0',
-    },
-    {
-      date: '02/11/2024',
-      revenue: '35,000,000',
-      refund: '0',
-    },
-  ];
+const RevenueChart = ({ booking }) => {
 /*Doanh thu netRevenue = tổng doanh thu - chiết khấu - giảm giá - hoàn trả*/
-  const labels = rows.map(row => row.date); // Lấy ngày làm nhãn cột
-  const revenueData = rows.map(row => parseInt(row.revenue.replace(/,/g, ''))); // Dữ liệu doanh thu
+  const labels = booking.map(row => row.bookingDate); // Lấy ngày làm nhãn cột
+  const revenueData = booking.map(row => parseInt(row.totalRevenue)); // Dữ liệu doanh thu
 
   return (
     <div style={{
