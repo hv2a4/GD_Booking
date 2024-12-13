@@ -3,31 +3,34 @@ import { Modal, Button, Table } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Alert from "../../../../config/alert";
-import { updateStatusBooking } from "../../../../services/employee/booking-manager";
+import { getBookingId, updateStatusBooking } from "../../../../services/employee/booking-manager";
 import { useLocation } from "react-router-dom";
 
-const ConfirmBookingModal = ({ bookingRoom }) => {
-    const [showModal1, setShowModal1] = useState(false);
+const ConfirmBookingModal = ({ booking, onClose }) => {
     const [alert, setAlert] = useState(null);
+    const [bookingRoom, setBookingRoom] = useState([]);
     const location = useLocation();
     const [dates, setDates] = useState({
         startAt: null,
         endAt: null,
     });
 
-    const handleShowModal1 = () => setShowModal1(true);
-    const handleCloseModal1 = () => setShowModal1(false);
-
     // Đặt mặc định `startAt` và `endAt` từ bookingRoom dòng đầu tiên
     useEffect(() => {
-        setTimeout(() => setAlert(null), 500);
-        if (bookingRoom && bookingRoom.length > 0) {
+        if (booking) {
             setDates({
-                startAt: new Date(bookingRoom[0]?.booking?.startAt),
-                endAt: new Date(bookingRoom[0]?.booking?.endAt),
+                startAt: booking.startAt ? new Date(booking.startAt) : null,
+                endAt: booking.endAt ? new Date(booking.endAt) : null,
             });
         }
-    }, [bookingRoom,alert,location]);
+        handleBookingRoom();
+        setTimeout(() => setAlert(null), 500);
+    }, [booking,alert]);
+
+    const handleBookingRoom = async () => {
+        const data = await getBookingId(booking?.id);
+        setBookingRoom(data.bookingRooms);
+    }
 
     // Xử lý khi thay đổi ngày
     const handleChange = (field, value) => {
@@ -58,11 +61,10 @@ const ConfirmBookingModal = ({ bookingRoom }) => {
             startDate: dates.startAt.toISOString(),
             endDate: dates.endAt.toISOString()
         }
-        const idBooking = bookingRoom[0].booking.id;
         try {
-            const data = await updateStatusBooking(idBooking, 4, newBooking);
+            const data = await updateStatusBooking(booking.id, 4, newBooking);
             setAlert({ type: data.status, title: data.message });
-            handleCloseModal1();
+            onClose ();
         } catch (error) {
             setAlert({ type: "error", title: error.message });
         }
@@ -71,23 +73,7 @@ const ConfirmBookingModal = ({ bookingRoom }) => {
 
     return (
         <>
-            <Button
-                variant="success"
-                onClick={handleShowModal1}
-                style={{
-                    fontSize: "12px",
-                    width: "127px",
-                    height: "36px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    backgroundColor: "#02963d",
-                    color: "white",
-                }}
-            >
-                Xác nhận
-            </Button>
-            <Modal show={showModal1} onHide={handleCloseModal1} centered>
+            <Modal show={true} onHide={onClose} centered>
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
                     <Modal.Title>Xác nhận đặt phòng - DP000017</Modal.Title>
@@ -95,7 +81,7 @@ const ConfirmBookingModal = ({ bookingRoom }) => {
                 <Modal.Body>
                     <div>
                         <p>
-                            <i className="bi bi-person-circle"></i> {bookingRoom[0]?.booking?.accountDto?.fullname} - {bookingRoom[0]?.booking?.accountDto?.phone}
+                            <i className="bi bi-person-circle"></i> {booking?.accountDto?.fullname} - {booking?.accountDto?.phone}
                         </p>
                     </div>
                     <Table>

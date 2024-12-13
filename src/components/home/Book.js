@@ -63,7 +63,7 @@ export default function Booking() {
       ),
       guest: adultCount,
     };
-    
+
     navigate("/client/rooms", { state: filterData }); // Gửi filter qua state
   };
 
@@ -104,7 +104,7 @@ export default function Booking() {
                   <div className="col-md-3">
                     <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                     <div className="input-group flex-nowrap">
-                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
+                      <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkinDate}
                         onChange={handleCheckinChange}
@@ -118,7 +118,7 @@ export default function Booking() {
                   <div className="col-md-3">
                     <label htmlFor="checkout" className="form-label">Trả phòng</label>
                     <div className="input-group flex-nowrap">
-                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
+                      <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkoutDate}
                         onChange={handleCheckoutChange}
@@ -133,7 +133,7 @@ export default function Booking() {
                     <Form.Group controlId="guests">
                       <Form.Label>Số khách</Form.Label>
                       <InputGroup className="flex-nowrap">
-                        <InputGroup.Text style={{ height: '44px' }}>
+                        <InputGroup.Text>
                           <i className="bi bi-person"></i>
                         </InputGroup.Text>
                         <Form.Control
@@ -141,6 +141,7 @@ export default function Booking() {
                           placeholder={guestSummary}
                           readOnly
                           onClick={toggleGuestDropdown}
+                          style={{ background: '#fff' }}
                         />
                       </InputGroup>
                     </Form.Group>

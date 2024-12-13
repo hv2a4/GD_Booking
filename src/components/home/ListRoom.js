@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { getDetailListTypeRoom, getListRoom } from "../../services/client/home";
 import Alert from "../../config/alert";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import {
     FaWifi,
     FaTv,
@@ -14,12 +14,15 @@ import {
 } from "react-icons/fa";
 import RoomDetail from "../../pages/client/Room/modal-room/RoomDetail";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../../assets/css/custom/Sticky.css";
+// import "../../assets/css/custom/Sticky.css";
 import "../../assets/css/custom/Filter.css";
+import "../../assets/css/custom/cardBorder.css";
 import BookingFillter from "../../pages/account/Filter/FilterBooking";
 import { getFilterBooking } from "../../services/client/home";
 import { Cookies } from 'react-cookie';
 import Swal from 'sweetalert2';
+import { ListRooms } from "./Componet/ListRooms";
+import FloatingBubble from "./Componet/FloatingBubble";
 const amenityIcons = {
     "WiFi": <FaWifi style={{ color: "#FEA116" }} />,
     "Điều Hoà": <FaRegSnowflake style={{ color: "#FEA116" }} />,
@@ -50,30 +53,18 @@ export default function ListRoom() {
     const roomsPerPage = 3; // Số lượng phòng trên mỗi trang
     const [currentPageIndex, setCurrentPageIndex] = useState(1); // Trang hiện tại
     const location = useLocation();
-    // Tính toán tổng số trang
-    const totalPageCount = Math.ceil(selectedRooms.length / roomsPerPage);
 
-    // Lấy danh sách phòng cho trang hiện tại
-    const currentRooms = selectedRooms.slice(
-        (currentPageIndex - 1) * roomsPerPage,
-        currentPageIndex * roomsPerPage
-    );
-
-    // Xử lý thay đổi trang
-    const handlePageChanges = (pageIndex) => {
-        setCurrentPageIndex(pageIndex);
-    };
-
-    // Hàm lấy dữ liệu phòng từ API danh sách phòng
+    // Hàm gọi API danh sách phòng
     const fetchRooms = async () => {
         try {
             const res = await getListRoom(currentPage - 1, pageSize); // Lấy phòng dựa trên trang hiện tại
             setTypeRoom(res.rooms);
-            setTotalPages(res.totalPages); // Tổng số trang từ API danh sách phòng
+            setTotalPages(res.totalPages); // Tổng số trang từ API
         } catch (error) {
             console.log("Lỗi API trả về: ", error);
         }
     };
+
 
     // Effect để gọi API khi trang thay đổi
     useEffect(() => {
@@ -104,36 +95,68 @@ export default function ListRoom() {
         setCurrentPage(newPage);
     };
 
-    const handleSelectRoom = (room) => {
-        const cookies = new Cookies(); // Tạo một instance của Cookies
-        const token = cookies.get('token'); // Lấy cookie theo tên "token"
+    const handleSelectRoom = ({ Object, roomId }) => {
+        const cookies = new Cookies();
+        const token = cookies.get('token');
+        console.log("Dữ liệu item: ", Object);  // Kiểm tra dữ liệu item
+        console.log("Dữ liệu roomId: ", roomId);  // Kiểm tra roomId
 
+        // Kiểm tra người dùng đã đăng nhập chưa
         if (!token) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Yêu cầu đăng nhập',
                 text: 'Bạn cần đăng nhập để thực hiện chức năng đặt phòng.',
-                confirmButtonText: 'Đăng nhập ngay'
+                confirmButtonText: 'Đăng nhập ngay',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    navigate("/account"); // Điều hướng tới trang đăng nhập
+                    navigate("/account"); // Chuyển hướng đến trang đăng nhập
                 }
             });
-            return; // Dừng hàm tại đây nếu chưa đăng nhập
+            return; // Ngừng hàm nếu chưa đăng nhập
         }
 
+        // Tìm đối tượng phòng dựa trên roomId
+        const selectedRoomIndex = Object.roomId.indexOf(roomId);
+
+        if (selectedRoomIndex === -1) {
+            console.log("Không tìm thấy phòng với roomId:", roomId);
+            return; // Ngừng nếu không tìm thấy phòng
+        }
+
+        // Lấy thông tin phòng
+        const roomDetails = {
+            roomId: roomId,
+            roomName: Object.roomName[selectedRoomIndex],
+            price: Object.price,
+            typeRoomName: Object.typeRoomName,
+            description: Object.description,
+            imageList: Object.imageList,
+        };
+
+        console.log("Thông tin phòng đã chọn: ", roomDetails);
+
+        // Cập nhật danh sách phòng đã chọn
         setSelectedRooms((prev) => {
-            if (prev.some((r) => r.roomId === room.roomId)) {
-                return prev.filter((r) => r.roomId !== room.roomId);
-            } else {
-                return [...prev, room];
+            // Kiểm tra nếu phòng đã được chọn thì loại bỏ, nếu chưa thì thêm vào
+            if (prev.some((r) => r.roomId === roomDetails.roomId)) {
+                return prev.filter((r) => r.roomId !== roomDetails.roomId); // Loại bỏ phòng nếu đã chọn
             }
+            return [...prev, roomDetails]; // Thêm phòng mới vào danh sách
         });
     };
 
     const handleRemoveRoom = (roomId) => {
-        setSelectedRooms((prev) => prev.filter((room) => room.roomId !== roomId));
+        setSelectedRooms((prev) => {
+            const updatedRooms = prev.filter((room) => room.roomId !== roomId);
+            // Kiểm tra nếu số phòng còn lại không đủ cho trang hiện tại, chuyển về trang đầu tiên
+            if (updatedRooms.length <= (currentPageIndex - 1) * roomsPerPage) {
+                setCurrentPageIndex(1); // Chuyển về trang đầu tiên
+            }
+            return updatedRooms;
+        });
     };
+
 
     const saveArrayToSession = (key, array) => {
         const jsonString = JSON.stringify(array); // Chuyển mảng thành chuỗi JSON
@@ -169,7 +192,30 @@ export default function ListRoom() {
 
             //Bất đầu tải trang
             setLoading(true);
-
+            let timerInterval;
+            Swal.fire({
+                title: "Đang xử lý đặt phòng...",
+                html: "Chờ một chút, bạn sẽ được chuyển hướng.",
+                timer: 1000,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    const timer = Swal.getPopup().querySelector("b");
+                    if (timer) { // Kiểm tra xem phần tử b có tồn tại không
+                        timerInterval = setInterval(() => {
+                            timer.textContent = `${Swal.getTimerLeft()}`;
+                        }, 100);
+                    }
+                },
+                willClose: () => {
+                    clearInterval(timerInterval);
+                }
+            }).then((result) => {
+                // Sau khi thông báo tự động đóng, đóng modal
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    console.log("Thông báo đã đóng tự động.");
+                }
+            });
             // Điều hướng tới trang đặt phòng
             setTimeout(() => {
                 navigate("/client/booking-room");
@@ -184,19 +230,37 @@ export default function ListRoom() {
             setSelectedRooms([]);
             return roomDetails;
         } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Yêu cầu chọn phòng',
+                text: 'Vui lòng chọn phòng trước khi đặt!',
+                confirmButtonText: 'Oke',
+            });
+
             console.log("Vui lòng chọn phòng trước khi đặt!");
             return null;
         }
     };
 
-    // Hàm xử lý lọc
-    const handleDataFilter = (startDate, endDate, guestLimit) => {
+    // Hàm xử lý lọc phòng
+    const handleDataFilter = async (startDate, endDate, guestLimit) => {
         console.log("handleDataFilter nhận giá trị:", startDate, endDate, guestLimit);
 
+        // Cập nhật dữ liệu lọc vào state
         setDataFilterBook({ startDate, endDate, guestLimit });
         setCurrentPage(1); // Reset về trang đầu
         setDates({ checkin: startDate, checkout: endDate });
-        filterBooking(startDate, endDate, guestLimit, 1, pageSize); // Gọi API
+
+        // Gọi API lọc và cập nhật danh sách phòng
+        try {
+            const res = await getFilterBooking(startDate, endDate, guestLimit, 1, pageSize); // Trang đầu tiên
+            setTypeRoom(res.content); // Cập nhật danh sách phòng
+            setTotalPages(res.totalPages); // Cập nhật tổng số trang từ API
+            console.log("Dữ liệu khi lọc thành công");
+
+        } catch (error) {
+            console.error("Lỗi khi gọi API filterBooking:", error);
+        }
     };
 
     useEffect(() => {
@@ -231,6 +295,11 @@ export default function ListRoom() {
         console.log("Received dates from child:", { checkin, checkout });
     };
 
+    const handleDeselectRoom = (roomId) => {
+        // Logic to deselect the room
+        setSelectedRooms((prevSelectedRooms) => prevSelectedRooms.filter((room) => room.roomId !== roomId));
+    };
+
     // Show alert if there's an error
     const renderAlert = alert && <Alert type={alert.type} title={alert.title} />;
 
@@ -240,85 +309,103 @@ export default function ListRoom() {
                 <BookingFillter onFilter={handleDataFilter} onSendDates={handleDatesFromChild} />
                 <CommonHeading heading="Phòng của chúng tôi" title="Phòng" subtitle="Khám phá" />
                 {renderAlert}
+
                 <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     {typeRoom.length === 0 ? (
                         <div className="col-12 text-center">Không có phòng nào để hiển thị.</div>
                     ) : (
                         typeRoom.map((item, key) => (
-                            <div className="col-lg-4 col-md-6 col-sm-12 wow fadeInUp" data-wow-delay="0.1s" key={key}>
-                                <div className="room-item shadow rounded overflow-hidden">
-                                    <div className="position-relative">
-                                        <img className="img-fluid w-100" style={{ height: '271px' }} src={item?.imageList?.[0]} alt={item?.typeRoomName || "Room Image"} />
-                                        <div className="d-flex align-items-center position-absolute start-0 top-100 translate-middle-y ms-4">
-                                            <small className="bg-warning text-white rounded py-1 px-3">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)}/ <strong>Ngày</strong>
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div className="p-4 mt-2">
-                                        <div className="d-flex justify-content-between mb-3">
-                                            <h5 className="mb-0">{item?.typeRoomName} ({item?.roomName})</h5>
-                                        </div>
-                                        <div className="d-flex justify-content-between mb-3">
-                                            <div className="ps-2" style={{ fontSize: "1rem" }}>Tối đa {item?.guestLimit} người</div>
-                                        </div>
-                                        <div className="d-flex mb-3">
-                                            {item?.amenitiesDetails?.slice(0, 3).map((amenity, idx) => (
-                                                <small
-                                                    className="border-end me-3 pe-3 d-flex align-items-center"
-                                                    key={idx}
-                                                    style={{ fontSize: "1.2rem" }}
-                                                >
-                                                    {amenityIcons[amenity]}
-                                                    <span
-                                                        style={{
-                                                            fontSize: "1rem",
-                                                            maxWidth: "82px",
-                                                            whiteSpace: "nowrap",
-                                                            overflow: "hidden",
-                                                            textOverflow: "ellipsis"
-                                                        }}
-                                                        title={amenity}
-                                                    >
-                                                        &nbsp;{amenity}
-                                                    </span>
+                            <div className="col-lg-12 col-md-12 col-sm-12 wow fadeInUp" data-wow-delay="0.1s" key={key}>
+                                <div className="row border-cutom">
+                                    {/* Phần hiển thị phòng */}
+                                    <div className="room-item rounded overflow-hidden col-md-4 mt-2" style={{}}>
+                                        <div className="position-relative">
+                                            <img
+                                                className="img-fluid w-100 rounded-3"
+                                                style={{ height: '271px', boxShadow: ' 0 4px 6px rgba(0, 0, 0, 0.1)' }}
+                                                src={item?.imageList?.[0]}
+                                                alt={item?.typeRoomName || "Room Image"}
+                                            />
+                                            <div className="d-flex flex-column align-items-start position-absolute start-0 top-100 translate-middle-y ms-4">
+                                                {/* Giá hiện tại */}
+                                                <small className="bg-warning text-white rounded py-1 px-3 mb-2">
+                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
                                                 </small>
-                                            ))}
-                                            {item?.amenitiesDetails?.length > 3 && (
-                                                <small
-                                                    className="more-amenities"
-                                                    style={{ fontSize: "1.2rem", color: "#FEA116" }}
-                                                    title="Click to see more amenities"
-                                                >
-                                                    &nbsp;...
-                                                </small>
+                                            </div>
+
+                                        </div>
+
+                                        {/* Thông tin phòng */}
+                                        <div className="p-4 mt-2" style={{ borderRight: '1px soild' }}>
+                                            <h5 className="mb-3"><strong>{item?.typeRoomName}</strong></h5>
+                                            {/* Chi phí dự kiến */}
+                                            {item?.estCost && (
+                                                <div className="">
+                                                    <p className="text-danger fw-bold mb-0">
+                                                        <strong>Chi phí dự kiến:</strong>
+                                                        <span className="ms-2">
+                                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.estCost)}
+                                                        </span>
+                                                        / <strong>Ngày</strong>
+                                                    </p>
+                                                </div>
                                             )}
-                                        </div>
-                                        <p
-                                            className="text-body mb-3"
-                                            style={{
-                                                height: "80px",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                                lineHeight: "1.5",
-                                            }}
-                                        >
-                                            {item.description}
-                                        </p>
-                                        <div className="d-flex justify-content-between">
-                                            <Button className="btn btn-sm btn-primary rounded py-2 px-4" onClick={() => getDataDetail(item.roomId)}>
-                                                Chi tiết
-                                            </Button>
-                                            <Button
-                                                className="btn btn-primary"
-                                                onClick={() => handleSelectRoom(item)}
-                                            >
-                                                {selectedRooms.some((r) => r.roomId === item.roomId)
-                                                    ? "Bỏ chọn"
-                                                    : "Chọn"}
-                                            </Button>
+
+                                            <div className="mb-3 mt-2" style={{ fontSize: "1rem" }}>
+                                                <strong>Sức chứa: </strong>Tối đa {item?.guestLimit} người
+                                            </div>
+
+                                            {/* Tiện nghi phòng */}
+                                            <div className="mb-3">
+                                                <strong>Tiện nghi phòng:</strong>
+                                                <div className="d-flex flex-wrap mt-2">
+                                                    {item?.amenitiesDetails?.slice(0, 3).map((amenity, idx) => (
+                                                        <small
+                                                            className="border-end me-3 pe-3 d-flex align-items-center mb-2"
+                                                            key={idx}
+                                                            style={{ fontSize: "1.2rem" }}
+                                                        >
+                                                            {amenityIcons[amenity]}
+                                                            <span
+                                                                style={{
+                                                                    fontSize: "1rem",
+                                                                    maxWidth: "82px",
+                                                                    whiteSpace: "nowrap",
+                                                                    overflow: "hidden",
+                                                                    textOverflow: "ellipsis"
+                                                                }}
+                                                                title={amenity}
+                                                            >
+                                                                &nbsp;{amenity}
+                                                            </span>
+                                                        </small>
+                                                    ))}
+                                                    {item?.amenitiesDetails?.length > 3 && (
+                                                        <small
+                                                            className="more-amenities"
+                                                            style={{ fontSize: "1.2rem", color: "#FEA116" }}
+                                                            title="Click to see more amenities"
+                                                        >
+                                                            &nbsp;...
+                                                        </small>
+                                                    )}
+                                                </div>
+                                                <div className="d-flex justify-content-between mt-4">
+                                                    <Button className="btn btn-sm btn-primary rounded py-2 px-4" onClick={() => getDataDetail(item.typeRoomId)}>
+                                                        Chi tiết
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    {/* Danh sách đặt phòng */}
+                                    <ListRooms
+                                        item={item}
+                                        selectedRooms={selectedRooms}
+                                        handleSelectRoom={handleSelectRoom}
+                                        handleDeselectRoom={handleDeselectRoom}
+                                    />
                                 </div>
                             </div>
                         ))
@@ -335,7 +422,7 @@ export default function ListRoom() {
                         Trước
                     </Button>
                     <span className="d-flex align-items-center">
-                        Page {currentPage} of {totalPages}
+                        Trang {currentPage} trên {totalPages}
                     </span>
                     <Button
                         className="btn btn-secondary ms-2"
@@ -347,75 +434,14 @@ export default function ListRoom() {
                 </div>
             </div>
             {/* Sticky Selected Room Bar */}
-            {selectedRooms.length > 0 && (
-                <div className="sticky-bar">
-                    <h5>Phòng đã chọn:</h5>
-                    <ul>
-                        {currentRooms.map((room) => (
-                            <li key={room.roomId}>
-                                <span className="room-type">{room.roomName} ({room.typeRoomName})</span>
-                                {/* Loại phòng có thể bỏ qua nếu không cần thiết */}
-                                <span className="room-price">
-                                    Giá:{" "}
-                                    {room.price.toLocaleString("vi-VN", {
-                                        style: "currency",
-                                        currency: "VND",
-                                    })}
-                                </span>
-                                <button onClick={() => handleRemoveRoom(room.roomId)}>
-                                    <i className="bi bi-trash"></i> {/* Sử dụng biểu tượng thùng rác từ Bootstrap Icons */}
-                                </button>
-
-                            </li>
-                        ))}
-                    </ul>
-
-                    {/* Hiển thị tổng tiền */}
-                    <div className="total-price">
-                        <span>Tổng tiền:</span>
-                        <span>
-                            {calculateTotalPrice().toLocaleString("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                            })}
-                        </span>
-                    </div>
-
-                    {/* Nút Đặt phòng */}
-                    <button onClick={handleBooking}>
-                        {loading ? (
-                            <>
-                                Đang đặt phòng... <Spinner animation="border" size="sm" />
-                            </>
-                        ) : (
-                            "Đặt phòng"
-                        )}
-                    </button>
-
-                    {/* Điều khiển phân trang */}
-                    {totalPageCount > 1 && (
-                        <div className="pagination-controls">
-                            <button
-                                onClick={() => handlePageChanges(currentPageIndex - 1)}
-                                disabled={currentPageIndex === 1}
-                            >
-                                Trước
-                            </button>
-                            <span>
-                                Trang {currentPageIndex} / {totalPageCount}
-                            </span>
-                            <button
-                                onClick={() => handlePageChanges(currentPageIndex + 1)}
-                                disabled={currentPageIndex === totalPageCount}
-                            >
-                                Tiếp theo
-                            </button>
-                        </div>
-                    )}
-                </div>
-            )}
-
+            <FloatingBubble
+                selectedRooms={selectedRooms}
+                handleRemoveRoom={handleRemoveRoom}
+                calculateTotalPrice={calculateTotalPrice}
+                loading={loading}
+                handleBooking={handleBooking}
+            />
             <RoomDetail show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
-        </div>
+        </div >
     );
 }

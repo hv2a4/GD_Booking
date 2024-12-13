@@ -21,7 +21,6 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         setShowModal1(true);
     };
 
-
     const handleCloseModal2 = () => setShowModal2(false);
     const handleShowModal2 = async () => {
         if (checkBoxSelected.length === 0) {
@@ -172,19 +171,9 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         <>
             {/* Nút mở modal */}
             <Button
-                variant="success"
+                variant="outline-dark"
                 onClick={handleShowModal1}
-                style={{
-                    fontSize: '12px',
-                    width: '127px',
-                    height: '36px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#02963d',
-                    color: 'white',
-                }}
-            >
+                disabled={bookingRooms[0]?.booking?.statusBookingDto?.id === 6 || bookingRooms[0]?.booking?.statusBookingDto?.id === 8}>
                 Nhận phòng
             </Button>
 
@@ -271,11 +260,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
-            {/* Modal thông tin nhận phòng */}
-            <Modal show={showModal2} onHide={handleCloseModal2} backdrop="static" centered>
-                <TTNhanPhong onHide={handleCloseModal2} bookingRoomIds={checkBoxSelected.map((e) => e.bookingRoomId)} />
-            </Modal>
+            {showModal2 && <TTNhanPhong onHide={handleCloseModal2} bookingRoomIds={checkBoxSelected.map((e) => e.bookingRoomId)} />}
         </>
     );
 };

@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { addBookingOffline } from "../../../../services/employee/orderRoom";
 import OrderRoom from "./list-order-room";
 
-const DatPhong = ({ onClose }) => {
+const DatPhong = ({ onClose, room }) => {
     const getDefaultDates = () => {
         const today = new Date();
         const tomorrow = new Date(today);
@@ -32,8 +32,26 @@ const DatPhong = ({ onClose }) => {
 
     // Mỗi khi checkInDate hoặc checkOutDate thay đổi, sẽ gọi lại handleRooms
     useEffect(() => {
+        if (room) {
+            const roomData = {
+                roomId: room.id,
+                roomName: room.roomName,
+                typeRoomName: room.typeRoomDto.typeRoomName,
+                bedName: room.typeRoomDto.typeBedDto.bedName,
+                price: room.typeRoomDto.price,
+                checkInDate,
+                checkOutDate,
+            };
+            setSelectedRooms((prev) => {
+                if (!prev.some((r) => r.roomId === room.id)) {
+                    return [...prev, roomData];
+                }
+                return prev;
+            });
+        }
+        setTimeout(() => setAlert(null), 500);
         handleRooms(currentPage);
-    }, [checkInDate, checkOutDate, currentPage, guestLimit]);  // Theo dõi sự thay đổi của checkInDate và checkOutDate
+    }, [checkInDate, checkOutDate, currentPage, guestLimit, totalPages,alert]);  // Theo dõi sự thay đổi của checkInDate và checkOutDate
 
     const handleRooms = async (page = 0) => {
         setCurrentPage(page); // Đặt lại currentPage khi tìm kiếm hoặc lọc mới
@@ -53,7 +71,6 @@ const DatPhong = ({ onClose }) => {
         room.roomName.toLowerCase().includes(searchTerm.toLowerCase())
         || room.typeRoomDto.typeRoomName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         handleRooms(0); // Reset về trang đầu tiên khi tìm kiếm
@@ -77,10 +94,6 @@ const DatPhong = ({ onClose }) => {
             checkInDate,
             checkOutDate,
         };
-
-        console.log(roomData);
-
-
         // Thêm phòng vào danh sách nếu chưa có
         setSelectedRooms((prev) => {
             if (!prev.some((r) => r.roomId === room.id)) {
@@ -141,14 +154,12 @@ const DatPhong = ({ onClose }) => {
             endDate: checkOutDate,
             roomId: idRoom
         }
-        try {
-            const response = await addBookingOffline(orderData);
-            if (response.status === "success") {
-                setAlert({ type: 'success', title: response.message });
-            }
-        } catch (error) {
-            setAlert({ type: 'error', title: 'Đặt phòng thất bại. Vui lòng thử lại!' });
-            setTimeout(() => setAlert(null), 3000);
+        console.log(orderData);
+        
+        const response = await addBookingOffline(orderData);
+        if (response) {
+            setAlert({ type: response.status , title: response.message });
+            setTimeout(() => onClose(), 3000);
         }
     };
     const handleRemoveRoom = (roomId) => {
@@ -163,7 +174,6 @@ const DatPhong = ({ onClose }) => {
             </Modal.Header>
 
             <Modal.Body style={{ overflow: "auto" }}>
-                {/* Form chọn ngày */}
                 <div className="row text-start mb-3">
                     <div className="col-12 col-md-5 mb-3">
                         <Form.Group controlId="checkInDate">
@@ -248,7 +258,6 @@ const DatPhong = ({ onClose }) => {
                     </tbody>
                 </Table>
 
-                {/* Chuyển trang */}
                 <div className="d-flex justify-content-between align-items-center mt-3">
                     <Button
                         variant="outline-secondary"

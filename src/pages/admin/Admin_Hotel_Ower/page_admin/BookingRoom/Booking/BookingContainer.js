@@ -8,7 +8,7 @@ const Booking_Container = () => {
             <Card style={{ border: 'none', background: '#fff', boxShadow: 'none' }}>
                 <Card.Body>
                     <Row>
-                        < SearchBooking />
+                        <SearchBooking />
                     </Row>
                 </Card.Body>
             </Card>

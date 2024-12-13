@@ -62,4 +62,12 @@ const getFilterBooking = async (startDate, endDate, guestLimit, page, size) => {
     return res;
 };
 
-export { getCountAbout, getTypeRoomTop3, getAllServiceHotel, getDetailTypeRoom, getListRoom, getDetailListTypeRoom, getFilterBooking };
+const getListRoomById = async (roomId) => {
+    const res = request({
+        method: 'GET',
+        path: `/api/room/list-room-id?roomId=${roomId}`
+    });
+    return res;
+}
+
+export { getCountAbout, getTypeRoomTop3, getAllServiceHotel, getDetailTypeRoom, getListRoom, getDetailListTypeRoom, getFilterBooking, getListRoomById };
