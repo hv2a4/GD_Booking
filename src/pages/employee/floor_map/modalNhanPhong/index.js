@@ -23,10 +23,24 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
 
     const handleCloseModal2 = () => setShowModal2(false);
     const handleShowModal2 = async () => {
+        console.log(dates);
+        
         if (checkBoxSelected.length === 0) {
             setAlert({ type: "error", title: "Vui lòng chọn phòng" });
             return;
         }
+        const bookingCreateAt = filteredBookingRoom[0]?.booking.startAt 
+        ? new Date(filteredBookingRoom[0].booking.startAt) 
+        : null;
+    if (!bookingCreateAt) {
+        setAlert({ type: "error", title: "Không tìm thấy ngày tạo booking" });
+        return;
+    }
+
+    if (new Date() < bookingCreateAt) {
+        setAlert({ type: "error", title: "Chưa tới ngày nhận phòng" });
+        return;
+    }
         const roomId = checkBoxSelected.map((e) => e.roomId);
         const RoomIdsString = roomId.join(',');
         const occupiedRoom = filteredBookingRoom?.some((d) => {
@@ -45,7 +59,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
             .map(d => ({
                 id: d.bookingRoomId,
                 roomId: d.roomId,
-                checkIn: d.checkIn?.toISOString(),
+                checkIn: new Date(),
                 checkOut: d.checkOut?.toISOString(),
             }));
         const bookingId = filteredBookingRoom[0]?.booking.id
@@ -75,7 +89,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                 return {
                     roomId: item.room.id,
                     bookingRoomId: item.id,
-                    checkIn: now,
+                    checkIn: new Date(item.booking.startAt),
                     checkOut: new Date(item.booking.endAt),
                 };
             });
