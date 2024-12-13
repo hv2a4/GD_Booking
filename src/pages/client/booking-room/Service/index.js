@@ -86,7 +86,9 @@ const bookingRoom = async (bookingData, navigate) => {
                 title: 'Đặt phòng thành công!',
                 text: `${res.message || 'Chúc bạn có kỳ nghỉ vui vẻ!'}`,
                 icon: 'success',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,  // Chặn click ra ngoài
+                allowEscapeKey: false      // Chặn đóng bằng phím ESC
             }).then((result) => {
                 if (result.isConfirmed) {
                     navigate('/client/home');
@@ -103,7 +105,6 @@ const bookingRoom = async (bookingData, navigate) => {
             icon: 'error',
             confirmButtonText: 'OK'
         });
-
         throw error;
     }
 };

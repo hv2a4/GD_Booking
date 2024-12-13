@@ -130,6 +130,7 @@ const PageBookRoom = () => {
                 }else{
                     const isChecked = true;
                     localStorage.setItem("status",JSON.stringify(isChecked));
+                    sessionStorage.clear();
                 }
             }
 
