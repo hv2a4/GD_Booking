@@ -57,7 +57,7 @@ const RoomPriceModal = ({ id = null }) => {
             discountName: data.discountName,
             percent: data.percent,
             startDate: data.startDate + 'T00:00:00Z',
-            endDate: data.endDate + 'T00:00:00Z',
+            endDate: data.endDate + 'T23:59:59Z',
         };
 
         if (id) {

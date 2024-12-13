@@ -75,7 +75,7 @@ const RoomRatesManagement = () => {
                 </Card>
                 <Card>
                     {/*Bảng hệ thống giảm giá*/}
-                    <RoomRatesTable discounts={discounts} searchTerm={searchTerm} searchStartDateDate={searchStartDate}
+                    <RoomRatesTable discounts={discounts} searchTerm={searchTerm} searchStartDate={searchStartDate}
                          searchEndDate={searchEndDate}/>
                 </Card>
             </Container>
@@ -119,7 +119,7 @@ const RoomRatesTable = ({ discounts, searchTerm, searchStartDate,  searchEndDate
         // Lọc theo khoảng thời gian
         const startDate = item.startDate.substring(0, 10); // Lấy ngày bắt đầu của giảm giá
         const endDate = item.endDate.substring(0, 10); // Lấy ngày kết thúc của giảm giá
-
+    
         const isDateInRange =
             (!searchStartDate || searchStartDate <= endDate) && // Nếu không có ngày bắt đầu, bỏ qua điều kiện
             (!searchEndDate || searchEndDate >= startDate); // Nếu không có ngày kết thúc, bỏ qua điều kiện
