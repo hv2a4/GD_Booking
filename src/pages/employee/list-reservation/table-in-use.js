@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { formatCurrency } from "../../../config/formatPrice";
 import { Button, Table } from "react-bootstrap";
 import ProductServiceModal from "./serviceInsert";
+import { getIdBooking } from "../../../config/idBooking";
 
 const InUse = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -88,7 +89,7 @@ const InUse = ({ item }) => {
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking.id}</td>
+                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
                                     <td>
                                         <strong style={{ fontWeight: "500" }}>{booking.accountDto.fullname}</strong>

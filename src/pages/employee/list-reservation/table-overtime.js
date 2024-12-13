@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "../../../config/formatPrice";
 import { Button, Table } from "react-bootstrap";
+import { getIdBooking } from "../../../config/idBooking";
 
 const OverTime = ({ item }) => {
 
@@ -74,7 +75,7 @@ const OverTime = ({ item }) => {
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking.id}</td>
+                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
                                     <td>
                                         <strong style={{ fontWeight: "500" }}>{booking.accountDto.fullname}</strong>
