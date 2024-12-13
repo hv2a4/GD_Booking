@@ -14,11 +14,14 @@ const DiscountCodeSection = ({ discounts, discountNameTotal }) => {
             discountNameTotal(discount); // Pass the selected discount to the parent component
         }
     };
-
+    const formattedDate = (dateString) => {
+        const [year, month, day] = dateString.split("-");
+        return `${day}/${month}/${year}`;
+    };
     return (
         <div className="col-12">
             <div className="discount-code-section p-3 rounded shadow-sm bg-light">
-                <h4 className="mb-3 text-warning">Chọn mã giảm giá</h4>
+                <h4 className="mb-3 text-warning">Áp dụng mã giảm giá</h4>
 
                 {/* Check if discounts list is empty */}
                 {discounts.length > 0 ? (
@@ -55,7 +58,7 @@ const DiscountCodeSection = ({ discounts, discountNameTotal }) => {
                                             fontSize: '0.85rem',
                                             margin: '5px 0',
                                         }}>
-                                            {new Date(discount.startDate).toLocaleString()} - {new Date(discount.endDate).toLocaleString()}
+                                            {formattedDate(discount.startDate.substring(0, 10))} - {formattedDate(discount.endDate.substring(0, 10))}
                                         </p>
                                     </div>
                                 </div>

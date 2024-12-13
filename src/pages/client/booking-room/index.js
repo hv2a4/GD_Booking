@@ -179,7 +179,7 @@ const PageBookRoom = () => {
                 }
             });
         }
-        if (status === 'error' && message === 'Thanh toán thất bại, đơn đặt phòng của bạn đã bị hủy') {
+        if (status === 'error' && message === 'Thanh toán thất bại') {
             Swal.fire({
                 icon: 'error',
                 title: 'Đặt phòng không thành công!',
