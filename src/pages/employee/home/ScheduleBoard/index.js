@@ -12,7 +12,7 @@ const getDatesForNextWeek = (startDate) => {
     const date = new Date(startDate);
     date.setDate(startDate.getDate() + i); // Tính toán ngày
     const dayName = daysOfWeek[date.getDay()]; // Lấy tên ngày trong tuần
-    const formattedDate = `${date.getDate()} ${dayName}`; // Định dạng ngày
+    const formattedDate = `${date.getDate()} - ${dayName}`; // Định dạng ngày
     dates.push(formattedDate);
   }
 
