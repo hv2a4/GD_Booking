@@ -26,7 +26,7 @@ export default function Header() {
               to="/"
               className="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center"
             >
-              <h1 className="m-0 text-orange text-uppercase fw-bolder">Starts.</h1>
+              <h1 className="m-0 text-orange text-uppercase fw-bolder">Stars.</h1>
             </Link>
           </div>
           <div className="col-lg-9">

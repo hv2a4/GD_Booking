@@ -21,13 +21,26 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         setShowModal1(true);
     };
 
-
     const handleCloseModal2 = () => setShowModal2(false);
     const handleShowModal2 = async () => {
+        console.log(dates);
+        
         if (checkBoxSelected.length === 0) {
             setAlert({ type: "error", title: "Vui lòng chọn phòng" });
             return;
         }
+        const bookingCreateAt = filteredBookingRoom[0]?.booking.startAt 
+        ? new Date(filteredBookingRoom[0].booking.startAt) 
+        : null;
+    if (!bookingCreateAt) {
+        setAlert({ type: "error", title: "Không tìm thấy ngày tạo booking" });
+        return;
+    }
+
+    if (new Date() < bookingCreateAt) {
+        setAlert({ type: "error", title: "Chưa tới ngày nhận phòng" });
+        return;
+    }
         const roomId = checkBoxSelected.map((e) => e.roomId);
         const RoomIdsString = roomId.join(',');
         const occupiedRoom = filteredBookingRoom?.some((d) => {
@@ -46,7 +59,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
             .map(d => ({
                 id: d.bookingRoomId,
                 roomId: d.roomId,
-                checkIn: d.checkIn?.toISOString(),
+                checkIn: new Date(),
                 checkOut: d.checkOut?.toISOString(),
             }));
         const bookingId = filteredBookingRoom[0]?.booking.id
@@ -76,7 +89,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                 return {
                     roomId: item.room.id,
                     bookingRoomId: item.id,
-                    checkIn: now,
+                    checkIn: new Date(item.booking.startAt),
                     checkOut: new Date(item.booking.endAt),
                 };
             });
@@ -172,26 +185,16 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         <>
             {/* Nút mở modal */}
             <Button
-                variant="success"
+                variant="outline-dark"
                 onClick={handleShowModal1}
-                style={{
-                    fontSize: '12px',
-                    width: '127px',
-                    height: '36px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#02963d',
-                    color: 'white',
-                }}
-            >
+                disabled={bookingRooms[0]?.booking?.statusBookingDto?.id === 6 || bookingRooms[0]?.booking?.statusBookingDto?.id === 8}>
                 Nhận phòng
             </Button>
 
             {/* Modal xác nhận đặt phòng */}
             <Modal show={showModal1} onHide={handleCloseModal1} backdrop="static" centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Xác nhận đặt phòng</Modal.Title>
+                    <Modal.Title>Nhận phòng</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
@@ -271,9 +274,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <Modal show={showModal2} onHide={handleCloseModal2} backdrop="static" centered>
-                <TTNhanPhong onHide={handleCloseModal2} bookingRoomIds={checkBoxSelected.map((e) => e.bookingRoomId)} />
-            </Modal>
+            {showModal2 && <TTNhanPhong onHide={handleCloseModal2} bookingRoomIds={checkBoxSelected.map((e) => e.bookingRoomId)} />}
         </>
     );
 };

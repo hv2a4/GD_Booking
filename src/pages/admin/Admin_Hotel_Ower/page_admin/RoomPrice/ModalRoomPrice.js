@@ -17,7 +17,6 @@ import { useNavigate } from 'react-router-dom';
 
 const RoomPriceModal = ({ id = null }) => {
     const [show, setShow] = useState(false);
-    const [roomTypes, setRoomTypes] = useState([]);
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
 
@@ -32,22 +31,6 @@ const RoomPriceModal = ({ id = null }) => {
         setShow(true);
         setAlert(null);
     };
-
-    useEffect(() => {
-        const fetchRoomTypes = async () => {
-            const response = await request({
-                method: "GET",
-                path: "/api/type-room/getAll",
-                token: Cookies.get('token'),
-            });
-
-            if (response && response.length > 0) {
-                setRoomTypes(response);
-            }
-        };
-
-        fetchRoomTypes();
-    }, []);
 
     const fetchDiscount = async () => {
         const response = await request({
@@ -64,7 +47,6 @@ const RoomPriceModal = ({ id = null }) => {
             setValue('percent', response.percent);
             setValue('startDate', response.startDate.split('T')[0]);
             setValue('endDate', response.endDate.split('T')[0]);
-            setValue('roomType', response.typeRoomDto.id);
         }
     };
 
@@ -75,8 +57,7 @@ const RoomPriceModal = ({ id = null }) => {
             discountName: data.discountName,
             percent: data.percent,
             startDate: data.startDate + 'T00:00:00Z',
-            endDate: data.endDate + 'T00:00:00Z',
-            typeRoomId: data.roomType
+            endDate: data.endDate + 'T23:59:59Z',
         };
 
         if (id) {
@@ -195,6 +176,42 @@ const RoomPriceModal = ({ id = null }) => {
                                             </Col>
                                         </Form.Group>
                                     </Col>
+                                   
+                                    <Col md={6} className="mb-3">
+                                        <Form.Group as={Row}>
+                                            <Form.Label column sm={4}>
+                                                <strong>Ngày bắt đầu</strong>
+                                            </Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control
+                                                    type="date"
+                                                    {...register("startDate", { required: "Vui lòng chọn ngày bắt đầu" })}
+                                                />
+                                                {errors.startDate && (
+                                                    <small className="text-danger">{errors.startDate.message}</small>
+                                                )}
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+
+                                    <Col md={6} className="mb-3">
+                                        <Form.Group as={Row}>
+                                            <Form.Label column sm={4}>
+                                                <strong>Ngày kết thúc</strong>
+                                            </Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control
+                                                    type="date"
+                                                    {...register("endDate", { required: "Vui lòng chọn ngày kết thúc" })}
+                                                />
+                                                {errors.endDate && (
+                                                    <small className="text-danger">{errors.endDate.message}</small>
+                                                )}
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+
+                                    
                                     <Col md={6} className="mb-3">
                                         <Form.Group as={Row}>
                                             <Form.Label column sm={4}><strong>Phần trăm</strong></Form.Label>
@@ -214,61 +231,7 @@ const RoomPriceModal = ({ id = null }) => {
                                             </Col>
                                         </Form.Group>
                                     </Col>
-                                    <Col md={6} className="mb-3">
-                                        <Form.Group as={Row}>
-                                            <Form.Label column sm={4}>
-                                                <strong>Loại phòng</strong>
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...register("roomType", { required: "Vui lòng chọn loại phòng" })}
-                                                >
-                                                    <option value="">--Lựa chọn loại phòng--</option>
-                                                    {roomTypes.map((roomType) => (
-                                                        <option key={roomType.id} value={roomType.id}>
-                                                            {roomType.typeRoomName}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.roomType && (
-                                                    <small className="text-danger">{errors.roomType.message}</small>
-                                                )}
-                                            </Col>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={6} className="mb-3">
-                                        <Form.Group as={Row}>
-                                            <Form.Label column sm={4}>
-                                                <strong>Ngày bắt đầu</strong>
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Control
-                                                    type="date"
-                                                    {...register("startDate", { required: "Vui lòng chọn ngày bắt đầu" })}
-                                                />
-                                                {errors.startDate && (
-                                                    <small className="text-danger">{errors.startDate.message}</small>
-                                                )}
-                                            </Col>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col md={6} className="mb-3">
-                                        <Form.Group as={Row}>
-                                            <Form.Label column sm={4}>
-                                                <strong>Ngày kết thúc</strong>
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Control
-                                                    type="date"
-                                                    {...register("endDate", { required: "Vui lòng chọn ngày kết thúc" })}
-                                                />
-                                                {errors.endDate && (
-                                                    <small className="text-danger">{errors.endDate.message}</small>
-                                                )}
-                                            </Col>
-                                        </Form.Group>
-                                    </Col>
+
                                     <Col xs={12} className="mb-3">
                                         <small className="text-muted">
                                             <strong>* Lưu ý:</strong> Nếu giảm giá chỉ áp dụng trong 1 ngày,

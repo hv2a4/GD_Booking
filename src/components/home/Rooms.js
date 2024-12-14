@@ -4,7 +4,7 @@ import RoomDetailModal from "../../pages/client/Room/modal-room";
 import { getDetailTypeRoom, getTypeRoomTop3 } from "../../services/client/home";
 import Alert from "../../config/alert";
 import { Button } from "react-bootstrap";
-import { FaWifi, FaTv, FaRegSnowflake, FaTshirt, FaConciergeBell, FaCoffee, FaTaxi } from "react-icons/fa";
+import { FaStar, FaRegStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 export default function Rooms() {
@@ -30,29 +30,6 @@ export default function Rooms() {
       setAlert({ type: "error", title: error.message });
     }
   }
-
-  const getAmenityIcon = (amenityName) => {
-    switch (amenityName) {
-      case "WiFi":
-        return <FaWifi style={{ color: '#FEA116' }} />;
-      case "Điều Hoà":
-        return <FaRegSnowflake style={{ color: '#FEA116' }} />;
-      case "TV":
-        return <FaTv style={{ color: '#FEA116' }} />;
-      case "Mini Bar":
-        return <FaTshirt style={{ color: '#FEA116' }} />;
-      case "Dịch Vụ Phòng":
-        return <FaConciergeBell style={{ color: '#FEA116' }} />;
-      case "Bữa sáng miễn phí":
-        return <FaCoffee style={{ color: '#FEA116' }} />;
-      case "Giặt ủi":
-        return <FaTshirt style={{ color: '#FEA116' }} />;
-      case "Đưa Đón":
-        return <FaTaxi style={{ color: '#FEA116' }} />;
-      default:
-        return <span>No icon</span>;
-    }
-  };
 
   const getDataDetail = async (id) => {
     try {
@@ -99,15 +76,23 @@ export default function Rooms() {
                     <div className="ps-2">Tiêu chuẩn {item?.guestLimit} người</div>
                   </div>
                   <div className="d-flex align-items-center mb-2">
-                    {[...Array(5)].map((_, index) => (
-                      <span
-                        key={index}
-                        className={`fa fa-star ${index < Math.floor(item.averageStars) ? "text-warning" : ""}`}
-                        style={{ color: index >= Math.floor(item.averageStars) ? "#d3d3d3" : undefined }}
-                      ></span>
-                    ))}
-                    <small className="ms-2">{item.averageStars.toFixed(1)}/5 ({item.totalReviews} đánh giá)</small>
+                    {[...Array(5)].map((_, i) => {
+                      const fullStars = Math.floor(item.averageStars);
+                      const isHalfStar = item.averageStars - fullStars >= 0.5 && i === fullStars;
+
+                      return i < fullStars ? (
+                        <FaStar key={i} className="text-warning" />
+                      ) : isHalfStar ? (
+                        <FaStar key={i} className="text-warning half-star" />
+                      ) : (
+                        <FaRegStar key={i} className="text-muted" />
+                      );
+                    })}
+                    <small className="ms-2">
+                      {item.averageStars.toFixed(1)}/5 ({item.totalReviews} đánh giá)
+                    </small>
                   </div>
+
 
                   <div className="d-flex mb-3">
                     {item?.amenitiesId?.slice(0, 3).map((amenity, index) => (
@@ -116,7 +101,6 @@ export default function Rooms() {
                         key={index}
                         style={{ fontSize: "1.2rem" }}
                       >
-                        {getAmenityIcon(amenity?.amenitiesTypeRoomDto?.amenitiesTypeRoomName)}{" "}
                         <span style={{ fontSize: "1rem" }}> &nbsp;{amenity?.amenitiesTypeRoomDto?.amenitiesTypeRoomName}</span>
                       </small>
                     ))}

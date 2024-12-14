@@ -8,12 +8,14 @@ import { request } from "../../../../../config/configApi";
 import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import { RoomTypeSelector, SearchBox, SearchDateBox } from "../RoomAndTypeRoom/Filter/FilterTypeRoom";
+import Alert from "../../../../../config/alert";
 
 const RoomRatesManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [discounts, setDiscounts] = useState([]);
-    const [searchTermDate, setSearchTermDate] = useState("");
-    const [selectedRoomType, setSelectedRoomType] = useState(null);
+    const [searchStartDate, setSearchStartDate] = useState("");
+    const [searchEndDate, setSearchEndDate] = useState("");
+    const [alert, setAlert] = useState("");
     const location = useLocation();
 
     useEffect(() => {
@@ -30,41 +32,58 @@ const RoomRatesManagement = () => {
         fetchDiscountData();
     }, [location]);
 
+    useEffect(() => {
+       setAlert(null);
+    }, [alert]);
+
     const handleSearch = (value) => {
         setSearchTerm(value.toLowerCase());
     };
 
     const handleChange = (value) => {
-        setSearchTermDate(value);
+        if (searchEndDate && value > searchEndDate) {
+            setAlert({ type: "error", title: "Ngày bắt đầu không được lớn hơn ngày kết thúc." });
+        } else {
+            setSearchStartDate(value);
+            setAlert(null); // Xóa thông báo lỗi nếu hợp lệ
+        }
     };
 
-    const handleSelected = (value) => {
-        setSelectedRoomType(value);
+    const handleChangeEndDate = (value) => {
+        if (searchStartDate && value < searchStartDate) {
+            setAlert({ type: "error", title: "Ngày kết thúc không được nhỏ hơn ngày bắt đầu." });
+        } else {
+            setSearchEndDate(value);
+            setAlert(null); // Xóa thông báo lỗi nếu hợp lệ
+        }
     };
+
 
     return (
         <>
+         {alert && <Alert type={alert.type} title={alert.title} />}
             <Container fluid>
 
                 <Card>
                     <Card.Body>
                         <Row>
                             {/*Tìm kiếm và nút thêm */}
-                            <RoomPriceSearchAndAdd onSearch={handleSearch} onChange={handleChange} onSelected={handleSelected}/>
+                            <RoomPriceSearchAndAdd onSearch={handleSearch} onChangeStartDate={handleChange} 
+                            onChangeEndDate={handleChangeEndDate} />
                         </Row>
                     </Card.Body>
                 </Card>
                 <Card>
                     {/*Bảng hệ thống giảm giá*/}
-                    <RoomRatesTable discounts={discounts} searchTerm={searchTerm} searchTermDate={searchTermDate}
-                        selectedRoomType={selectedRoomType} />
+                    <RoomRatesTable discounts={discounts} searchTerm={searchTerm} searchStartDate={searchStartDate}
+                         searchEndDate={searchEndDate}/>
                 </Card>
             </Container>
         </>
     );
 };
 
-const RoomPriceSearchAndAdd = ({ onSearch, onChange, onSelected }) => {
+const RoomPriceSearchAndAdd = ({ onSearch, onChangeStartDate, onChangeEndDate }) => {
     return (
         <div className="d-flex justify-content-between align-items-center p-3">
             <SearchBox
@@ -72,19 +91,20 @@ const RoomPriceSearchAndAdd = ({ onSearch, onChange, onSelected }) => {
                 placeholder="Tìm kiếm giảm giá..."
             />
             <div className="d-flex align-items-center">
-                <span className="me-2">Ngày áp dụng: </span>
-                <SearchDateBox onChange={onChange} />
+                <span className="me-2">Ngày bắt đầu: </span>
+                <SearchDateBox onChange={onChangeStartDate} />
             </div>
-            <RoomTypeSelector
-                onChange={onSelected}
-            />
+            <div className="d-flex align-items-center">
+                <span className="me-2">Ngày kết thúc: </span>
+                <SearchDateBox onChange={onChangeEndDate} />
+            </div>
             {/* Thêm giá mới */}
             <RoomPriceModal />
         </div>
     );
 };
 
-const RoomRatesTable = ({ discounts, searchTerm, searchTermDate, selectedRoomType }) => {
+const RoomRatesTable = ({ discounts, searchTerm, searchStartDate,  searchEndDate}) => {
     const formattedDate = (dateString) => {
         const [year, month, day] = dateString.split("-");
         return `${day}-${month}-${year}`;
@@ -97,19 +117,15 @@ const RoomRatesTable = ({ discounts, searchTerm, searchTermDate, selectedRoomTyp
         const isNameMatch = item.discountName.toLowerCase().includes(searchLower);
 
         // Lọc theo khoảng thời gian
-        const searchDate = searchTermDate; // Giả sử searchTermDate là một giá trị ngày hợp lệ hoặc undefined
-        const startDate = item.startDate.substring(0, 10);
-        const endDate = item.endDate.substring(0, 10);
-
-        const matchesRoomType = selectedRoomType
-                ? item.typeRoomDto.id === selectedRoomType.value
-                : true;
-
-        const isDateMatch =
-            !searchDate || (searchDate >= startDate && searchDate <= endDate); // Nếu searchDate không có, bỏ qua điều kiện lọc ngày
+        const startDate = item.startDate.substring(0, 10); // Lấy ngày bắt đầu của giảm giá
+        const endDate = item.endDate.substring(0, 10); // Lấy ngày kết thúc của giảm giá
+    
+        const isDateInRange =
+            (!searchStartDate || searchStartDate <= endDate) && // Nếu không có ngày bắt đầu, bỏ qua điều kiện
+            (!searchEndDate || searchEndDate >= startDate); // Nếu không có ngày kết thúc, bỏ qua điều kiện
 
         // Chỉ giữ các mục thỏa mãn cả hai điều kiện
-        return isNameMatch && isDateMatch && matchesRoomType;
+        return isNameMatch && isDateInRange;
     });
 
 
@@ -121,7 +137,6 @@ const RoomRatesTable = ({ discounts, searchTerm, searchTermDate, selectedRoomTyp
                     <th>Tên giảm giá</th>
                     <th>Phần trăm giảm</th>
                     <th>Thời gian áp dụng</th>
-                    <th>Loại phòng</th>
                     <th></th>
                 </tr>
             </thead>
@@ -150,7 +165,6 @@ const RoomRatesTable = ({ discounts, searchTerm, searchTermDate, selectedRoomTyp
                                 </>
                             )}
                         </td>
-                        {/* <td>{item.typeRoomDto.typeRoomName}</td> */}
                         <td className="text-end">
                             <RoomPriceModal id={item.id} />
                             <DeletePriceModal id={item.id} />

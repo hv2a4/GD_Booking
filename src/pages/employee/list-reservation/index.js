@@ -14,7 +14,9 @@ import CreateInvoice from "./create-invoice";
 import { format } from "date-fns";
 import { Cookies } from "react-cookie";
 import { getAllBooking } from "../../../services/employee/order-room-manager";
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import "../home/FillterDate/style.css"
+import { cilList } from "@coreui/icons";
 
 const ListReservation = () => {
     const [filterType, setFilterType] = useState(null);
@@ -91,14 +93,14 @@ const ListReservation = () => {
         return bookings.filter((booking) => {
             // Kiểm tra nếu tất cả các phòng đều có checkIn === null
             const allCheckInNull = booking.bookingRooms?.every(room => room.checkIn === null) ?? false;
-    
+
             // Kiểm tra cả 2 điều kiện: statusBookingDto.id === 7 và có ít nhất một phòng có checkIn khác null
-            return (booking.statusBookingDto.id === 7 || !allCheckInNull) && booking.statusBookingDto.id !== 8 && booking.statusBookingDto.id !== 6;
+            return (booking.statusBookingDto.id === 7 || !allCheckInNull) && booking.statusBookingDto.id !== 8 && booking.statusBookingDto.id !== 6 && booking.statusBookingDto.id !== 2 && booking.statusBookingDto.id !== 1;
         });
     };
-    
-    
-    
+
+
+
     const renderTabContent = (tab) => {
         let bookingsForTab = [];
         switch (tab) {
@@ -122,7 +124,7 @@ const ListReservation = () => {
             case "chotaohoadon":
                 bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 6);
                 break;
-                
+
             default:
                 return <p>Không có dữ liệu</p>;
         }
@@ -143,14 +145,14 @@ const ListReservation = () => {
             case "quagio":
                 return <OverTime item={bookingsForTab} />;
             default:
-                return <CreateInvoice item={bookingsForTab}/>;
+                return <CreateInvoice item={bookingsForTab} />;
         }
     };
-    
-    
+
+
 
     return (
-        <Layoutemployee>
+        <Layoutemployee title={"Danh sách đặt phòng"} icons={cilList}>
             <div className="container-fluid">
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
                     <div className="product-search">
@@ -173,7 +175,7 @@ const ListReservation = () => {
                 <div className="toolbar-item justify-content-end mb-3 d-flex align-items-center" style={{ flexWrap: "wrap" }}>
                     <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
                         <select
-                            className="form-select"
+                            className="date-filter-input"
                             value={filterType}
                             onChange={handleFilterChange}
                             aria-label="Default select example"
@@ -190,7 +192,7 @@ const ListReservation = () => {
                             selected={startDate}
                             placeholderText="Chọn ngày bắt đầu"
                             onChange={handleStartDateChange}
-                            className="custom-date-picker"
+                            className="date-filter-input"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -200,17 +202,20 @@ const ListReservation = () => {
                             selected={endDate}
                             placeholderText="Chọn ngày kết thúc"
                             onChange={handleEndDateChange}
-                            className="custom-date-picker"
+                            className="date-filter-input"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
-                    <Button
-                        className="mx-3 mb-2"
-                        onClick={handleShowModalInserRoom}
-                        variant="success">
-                        <i className="fa fa-plus icon-btn"></i>
-                        <span className="m-2">Đặt phòng</span>
-                    </Button>
+                    <Link to={`/employee/booking-offline`}>
+                        <Button
+                            className="mx-3 mb-2"
+                            onClick={handleShowModalInserRoom}
+                            variant="success">
+                            <i className="fa fa-plus icon-btn"></i>
+                            <span className="m-2">Đặt phòng</span>
+                        </Button>
+                    </Link>
+
                 </div>
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -219,10 +224,6 @@ const ListReservation = () => {
                             type="button" role="tab"
                             aria-controls="pills-choxacnhan"
                             aria-selected="false" onClick={handleReload}>Chờ xác nhận</button>
-                        <button class="nav-link" id="pills-datra-tab"
-                            data-bs-toggle="pill" data-bs-target="#pills-datra"
-                            type="button" role="tab" aria-controls="pills-datra"
-                            aria-selected="false" onClick={handleReload}>Đã trả</button>
                         <button class="nav-link" id="pills-dattruoc-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-dattruoc" type="button"
                             role="tab" aria-controls="pills-dattruoc"
@@ -235,6 +236,10 @@ const ListReservation = () => {
                             data-bs-toggle="pill" data-bs-target="#pills-quagio"
                             type="button" role="tab" aria-controls="pills-quagio"
                             aria-selected="false" onClick={handleReload}>Quá giờ trả</button>
+                        <button class="nav-link" id="pills-datra-tab"
+                            data-bs-toggle="pill" data-bs-target="#pills-datra"
+                            type="button" role="tab" aria-controls="pills-datra"
+                            aria-selected="false" onClick={handleReload}>Hoàn thành</button>
                         <button class="nav-link" id="pills-chotaohoadon-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-chotaohoadon" type="button"
                             role="tab" aria-controls="pills-chotaohoadon"
@@ -286,7 +291,7 @@ const ListReservation = () => {
             {ShowInserRoom && <DatPhong onClose={handleCloseModalInserRoom} />}
         </Layoutemployee>
     )
-    
+
 }
 
 export default ListReservation;

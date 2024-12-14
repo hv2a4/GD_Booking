@@ -34,6 +34,31 @@ const bookingRoom = async (bookingData, navigate) => {
                     Swal.showLoading();
                 }
             });
+        } else {
+            let timerInterval;
+            Swal.fire({
+                title: "Đang chuyển đến cổng thanh toán VNPay...",
+                html: "Chờ một chút, bạn sẽ được chuyển hướng đến VNPay để hoàn tất thanh toán.",
+                timer: 5000,  // Thời gian đếm ngược là 5 giây (hoặc tùy chỉnh theo yêu cầu của bạn)
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    const timer = Swal.getPopup().querySelector("b");
+                    if (timer) { // Kiểm tra xem phần tử b có tồn tại không
+                        timerInterval = setInterval(() => {
+                            timer.textContent = `${Swal.getTimerLeft()}`;
+                        }, 100);
+                    }
+                },
+                willClose: () => {
+                    clearInterval(timerInterval);
+                }
+            }).then((result) => {
+                // Sau khi thông báo tự động đóng, đóng modal
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    console.log("Thông báo đã đóng tự động.");
+                }
+            });
         }
 
         const res = await request({
@@ -50,22 +75,25 @@ const bookingRoom = async (bookingData, navigate) => {
 
         if (res.status !== 'success') {
             throw new Error(res.message || "Phản hồi không hợp lệ từ server.");
+        } else {
         }
         if (res.vnPayURL) {
-
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             await delay(2000);
-
             window.location.href = res.vnPayURL;
         } else {
             await Swal.fire({
                 title: 'Đặt phòng thành công!',
                 text: `${res.message || 'Chúc bạn có kỳ nghỉ vui vẻ!'}`,
                 icon: 'success',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,  // Chặn click ra ngoài
+                allowEscapeKey: false      // Chặn đóng bằng phím ESC
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/client/home');
+                }
             });
-
-            navigate('/client/home');
         }
 
     } catch (error) {
@@ -77,10 +105,16 @@ const bookingRoom = async (bookingData, navigate) => {
             icon: 'error',
             confirmButtonText: 'OK'
         });
-
         throw error;
     }
 };
 
+const fetchDiscounts = async (username) => {
+    const res = await request({
+        method: "GET",
+        path: `api/discount/get-discount-account?username=${username}`
+    });
+    return res;
+};
 
-export { getDataListTypeRoom, bookingRoom };
+export { getDataListTypeRoom, bookingRoom, fetchDiscounts };

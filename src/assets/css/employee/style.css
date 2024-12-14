@@ -1539,7 +1539,8 @@ textarea {
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 12%);
     height: 44px;
 }
-.form-control,.form-select {
+
+/* .form-control,.form-select {
     border: 1px solid #ccc;
     border-radius: 0.6rem;
     font-size: 1rem;
@@ -1547,7 +1548,7 @@ textarea {
     transition: border-color 0.3s;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 12%);
     height: 44px;
-}
+} */
 
 .toolbar-select .form-select {
     width: 120px;
@@ -1777,8 +1778,11 @@ textarea {
 /* RoomSchedule.css */
 .room-schedule {
     position: relative;
-    margin-bottom: 20px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
+
 
 .room-name {
     font-weight: bold;
@@ -1787,7 +1791,7 @@ textarea {
 .reservations {
     position: relative;
     height: 40px; /* Chiều cao của ô đặt phòng */
-    border: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
     background: #f9f9f9; /* Màu nền của vùng đặt phòng */
     display: flex; /* Sử dụng Flexbox */
     align-items: center; /* Canh giữa theo chiều dọc */
@@ -1804,13 +1808,9 @@ textarea {
 }
 
 .upcoming {
-    background-color: #f1cd7f;
+    background-color: #23d762;
     color: #2f3030;
 }
-.upcoming:hover {
-    background-color: #fd7e14;
-}
-
 .ongoing {
     background-color: rgb(106, 238, 106);
     color: #2f3030;
@@ -1821,12 +1821,10 @@ textarea {
 }
 
 .past {
-    background-color: rgb(165, 161, 161);
+    background-color: rgba(255, 165, 0, 0.3);
     color: #2f3030;
 }
-.past:hover {
-    background-color: rgb(107, 104, 104);
-}
+
 
 .custom-modal-width1{
     padding-right: 143px;

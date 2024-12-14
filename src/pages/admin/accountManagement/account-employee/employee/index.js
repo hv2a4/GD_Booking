@@ -122,7 +122,7 @@ const Account = () => {
                     Thêm
                 </Button>
             </div>
-            <CTable responsive>
+            <CTable responsive className="table-bordered">
                 <CTableHead>
                     <CTableRow>
                         <CTableHeaderCell>Ảnh</CTableHeaderCell>
@@ -159,8 +159,7 @@ const Account = () => {
                             </CTableRow>
                             <CTableRow>
                                 <CTableDataCell colSpan="6">
-                                    <Card>
-                                        <CCollapse visible={details.includes(item.id)}>
+                                    <CCollapse visible={details.includes(item.id)}>
                                             <CCardBody style={{ width: "auto" }}>
                                                 <h3>Thông tin nhân viên</h3>
                                                 <Row className="mt-2">
@@ -184,7 +183,7 @@ const Account = () => {
                                                     <Col xs={12} md={4}>
                                                         <div className="form-check form-switch d-flex align-items-center border-bottom-invoice ps-0 mb-3 mt-3">
                                                             <label className="form-check-label me-3">Trạng thái:</label>
-                                                                <div color="danger" className="me-5"></div>
+                                                            <div color="danger" className="me-5"></div>
                                                             <input
                                                                 className="form-check-input"
                                                                 type="checkbox"
@@ -204,8 +203,7 @@ const Account = () => {
                                                     <CButton size="sm" color="danger" className="ms-1">Delete</CButton>
                                                 </div>
                                             </CCardBody>
-                                        </CCollapse>
-                                    </Card>
+                                    </CCollapse>
                                 </CTableDataCell>
                             </CTableRow>
                         </React.Fragment>

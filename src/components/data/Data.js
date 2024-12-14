@@ -1,3 +1,5 @@
+import { getListCustom } from "../home/Service/Index";
+
 export const navList = [
   {
     id: 1,
@@ -36,11 +38,11 @@ export const navList = [
   //     },
   //   ],
   // },
-  {
-    id: 6,
-    path: "/client/contact",
-    text: "Liên hệ",
-  },
+  // {
+  //   id: 6,
+  //   path: "/client/contact",
+  //   text: "Liên hệ",
+  // },
 ];
 export const socialIcons = [
   {
@@ -228,39 +230,19 @@ export const contact = [
     email: "info@example.com",
   },
 ];
+
 export const testimonial = [
   {
     description:
       "Tempor stet labore dolor clita stet diam amet ipsum dolor duo ipsum rebum stet dolor amet diam stet. Est stet ea lorem amet est kasd kasd et erat magna eos",
     name: "Client Name",
-    profession: "Profession",
+    profession: "",
     icon: (
       <i className="fa fa-quote-right fa-3x text-orange position-absolute end-0 bottom-0 me-4 mb-n1"></i>
     ),
     img: "../assets/img/testimonial-1.jpg",
-  },
-  {
-    description:
-      "Tempor stet labore dolor clita stet diam amet ipsum dolor duo ipsum rebum stet dolor amet diam stet. Est stet ea lorem amet est kasd kasd et erat magna eos",
-    name: "Client Name",
-    profession: "Profession",
-    icon: (
-      <i className="fa fa-quote-right fa-3x text-orange position-absolute end-0 bottom-0 me-4 mb-n1"></i>
-    ),
-    img: "../assets/img/testimonial-2.jpg",
-  },
-  {
-    description:
-      "Tempor stet labore dolor clita stet diam amet ipsum dolor duo ipsum rebum stet dolor amet diam stet. Est stet ea lorem amet est kasd kasd et erat magna eos",
-    name: "Client Name",
-    profession: "Profession",
-    icon: (
-      <i className="fa fa-quote-right fa-3x text-orange position-absolute end-0 bottom-0 me-4 mb-n1"></i>
-    ),
-    img: "../assets/img/testimonial-3.jpg",
-  },
+  }
 ];
-
 export const roomItems = [
   {
     img: "../assets/img/room-1.jpg",

@@ -13,6 +13,7 @@ import { serviceRoomBookingRoom } from "../../../services/employee/service";
 import AlertComfirm from "../../../config/alert/comfirm";
 import TTNhanPhong from "../list-reservation/modalTTNP";
 import { Modal } from "react-bootstrap";
+import CancelBookingModal from "../list-reservation/modalCancel";
 
 const EditRoom = () => {
     const encodedIdBooking = useGetParams("idBookingRoom");
@@ -20,6 +21,7 @@ const EditRoom = () => {
     const [showModalInsertCustomer, setShowModalInsertCustomer] = useState(false);
     const [bookingRoom, setBookingRoom] = useState({});
     const [booking, setBooking] = useState({});
+    const [modalCancel, setModalCancel] = useState(false);
     const [loading, setLoading] = useState(true);
     const [customerInformation, setCustomerInformation] = useState([]);
     const [alert, setAlert] = useState(null);
@@ -31,14 +33,13 @@ const EditRoom = () => {
     const [searchValue, setSearchValue] = useState("");
     const [totalRoomPrice, setTotalRoomPrice] = useState(0);
     const [totalBookingRoom, setToltalBookingRoom] = useState(0);
-
+    const flag = [6, 8].includes(booking?.statusBookingDto?.id) || false;
     const handleSearchChange = (e) => {
         setSearchValue(e.target.value);
     };
     useEffect(() => {
         hanhdleBooking();
-        setTimeout(() => setAlert(null), 500);
-    }, [encodedIdBooking, selectedManualService, alert, totalBookingRoom]);
+    }, [encodedIdBooking, selectedManualService]);
 
     useEffect(() => {
         calculateTotalPrice();
@@ -49,8 +50,6 @@ const EditRoom = () => {
             if (idBookingRoom) {
                 setLoading(true);
                 const bookingRoom = await getByIdBookingRoom(idBookingRoom);
-                console.log(bookingRoom);
-                
                 const booking = await getBookingId(bookingRoom.booking.id);
                 setBookingRoom(bookingRoom);
                 const data = await getBookingRoomInformation([bookingRoom?.id]);
@@ -80,6 +79,14 @@ const EditRoom = () => {
             setLoading(false);
         }
     }
+
+    const handleCloseCancel = () => {
+        setModalCancel(false);
+    }
+    const handleCancelBooking = async (booking) => {
+        setBooking(booking);
+        setModalCancel(true);
+    }
     // dịch vụ
 
     const handleAddService = async () => {
@@ -107,7 +114,7 @@ const EditRoom = () => {
         const totalManualServicePrice = selectedManualService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
         const totalApiServicePrice = selectedApiService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
         const total = totalManualServicePrice + totalApiServicePrice + (bookingRoom?.price || 0);
-        setToltalBookingRoom(total);
+        setToltalBookingRoom(flag ? bookingRoom?.price : total);
     };
 
     const handleSelectService = async (service) => {
@@ -452,9 +459,21 @@ const EditRoom = () => {
                                 </div>
                                 <div className="cashier-info-col col-md-3 col-12">
                                     <label className="cashier-info-label">Ghi chú</label>
-                                    <div className="cashier-info-note">
+                                    <div className="cashier-info-note" style={{ width: "275px" }}>
                                         <div className="form-control">
-                                            <span className="note-text">Đặt phòng online: e</span>
+                                            <span
+                                                className="note-text"
+                                                style={{
+                                                    fontSize: '14px',
+                                                    color: 'gray',
+                                                    display: 'inline-block',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }}
+                                            >
+                                                {bookingRoom?.booking?.descriptions || "Mô tả...."}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -599,8 +618,12 @@ const EditRoom = () => {
                                                     <a className="btn btn-sm btn-text-neutral btn-icon-only btn-circle mr-2">
                                                         <i className="fa fa-images icon-btn"></i>
                                                     </a>
-                                                    <div className="text-success">
-                                                        <span>Đang sử dụng: {calculateUsageDuration(bookingRoom.checkIn)}</span>
+                                                    <div className={booking?.statusBookingDto?.id === 6 ? "text-danger" : "text-success"}>
+                                                        <span>
+                                                            {booking?.statusBookingDto?.id === 7
+                                                                ? `Đang sử dụng: ${calculateUsageDuration(bookingRoom.checkIn)}`
+                                                                : booking?.statusBookingDto?.statusBookingName}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -622,9 +645,9 @@ const EditRoom = () => {
                                                     <div className="col-12 col-md-auto">
                                                         <label className="text-neutral font-sm d-block">Nhận phòng</label>
                                                         <DatePicker
-                                                            selected={bookingRoom.checkIn}
+                                                            selected={bookingRoom.checkIn ? new Date(bookingRoom.checkIn) : null}
                                                             className="custom-date-picker"
-                                                            onChange=""
+                                                            onChange={(date) => setBookingRoom({ ...bookingRoom, checkIn: date })}
                                                             disabled
                                                             showTimeSelect
                                                             timeFormat="HH:mm"
@@ -636,9 +659,10 @@ const EditRoom = () => {
                                                     <div className="col-12 col-md-auto">
                                                         <label className="text-neutral font-sm d-block">Trả phòng</label>
                                                         <DatePicker
-                                                            selected={bookingRoom.checkOut}
+                                                            selected={bookingRoom.checkOut ? new Date(bookingRoom.checkOut) : null}
                                                             className="custom-date-picker"
-                                                            onChange=""
+                                                            onChange={(date) => setBookingRoom({ ...bookingRoom, checkOut: date })}
+                                                            disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8}
                                                             showTimeSelect
                                                             timeFormat="HH:mm"
                                                             timeIntervals={15}
@@ -678,13 +702,28 @@ const EditRoom = () => {
                                                         </td>
                                                         <td className="col-4 col-lg-2 text-center">
                                                             <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
-                                                                <input type="text" className="form-control mx-1 text-center" value={calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)} style={{ maxWidth: "50px", borderBottom: "none" }} />
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control mx-1 text-center"
+                                                                    value={calculateDuration(
+                                                                        bookingRoom?.booking?.startAt,
+                                                                        (booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8)
+                                                                            ? bookingRoom?.checkOut
+                                                                            : bookingRoom?.booking?.endAt
+                                                                    )}
+                                                                    style={{ maxWidth: "50px", borderBottom: "none" }}
+                                                                />
                                                             </div>
                                                         </td>
                                                         <td className="col-5 col-lg-3 d-flex justify-content-center">
                                                             <span className="w-auto">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price)}</span>
                                                         </td>
-                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price * calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt))}</td>
+                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price * calculateDuration(
+                                                            bookingRoom?.booking?.startAt,
+                                                            (booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8)
+                                                                ? bookingRoom?.checkOut
+                                                                : bookingRoom?.booking?.endAt
+                                                        ))}</td>
                                                         <td className="col-auto"></td>
                                                     </tr>
                                                     {selectedManualService && selectedManualService.length > 0 ? (
@@ -797,13 +836,13 @@ const EditRoom = () => {
                             <div className="cashier-cart-footer">
                                 <div className="d-flex justify-content-between align-items-center flex-wrap">
                                     <div className="d-flex align-items-center">
-                                        <button type="button" className="btn btn-outline-neutral btn-icon-only" title="Hủy đặt phòng">
+                                        <button type="button" className="btn btn-outline-neutral btn-icon-only" title="Hủy đặt phòng" disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8 || booking?.statusBookingDto?.id === 7} onClick={() => handleCancelBooking(booking)}>
                                             <i className="fa fa-trash-alt icon-btn"></i>
                                         </button>
                                     </div>
                                     <div className="d-flex align-items-center">
-                                        <button className="btn btn-outline-secondary ng-star-inserted mx-2" type="button" onClick={handleAddService}>Lưu</button>
-                                        <PopupPayment bookings={booking}></PopupPayment>
+                                        <button className="btn btn-outline-secondary ng-star-inserted mx-2" type="button" onClick={handleAddService} disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8}>Lưu</button>
+                                        <PopupPayment bookings={booking} ></PopupPayment>
                                     </div>
                                 </div>
                             </div>
@@ -811,9 +850,9 @@ const EditRoom = () => {
                     </div>
                 </div>
             </div>
-            <Modal show={showModalInsertCustomer} onHide={handleCloseModalInsertCustomer} backdrop="static" centered>
-                <TTNhanPhong onHide={handleCloseModalInsertCustomer} bookingRoomIds={[bookingRoom?.id]} />
-            </Modal>
+            {modalCancel && <CancelBookingModal handleClose={handleCloseCancel} booking={booking} />}
+            {showModalInsertCustomer && <TTNhanPhong onHide={handleCloseModalInsertCustomer} bookingRoomIds={booking.bookingRooms.map((e) => e.id)} />}
+
         </Layoutemployee >
     )
 }

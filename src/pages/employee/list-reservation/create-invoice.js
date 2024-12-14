@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Button, Table } from "react-bootstrap";
 import { formatCurrency, formatDate, formatDateTime } from "../../../config/formatPrice";
+import { Link } from "react-router-dom";
+import { getIdBooking } from "../../../config/idBooking";
 
 const CreateInvoice = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -39,7 +41,7 @@ const CreateInvoice = ({ item }) => {
         return range;
     };
     return (
-        <div className="table-responsive">
+        <div>
             <Table bordered hover>
                 <thead>
                     <tr>
@@ -71,17 +73,27 @@ const CreateInvoice = ({ item }) => {
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking.id}</td>
+                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
-                                    <td>{booking.accountDto.fullname}</td>
+                                    <td>
+                                        <strong style={{fontWeight: "500"}}>{booking.accountDto.fullname}</strong>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', }} >
+                                            <i className="fa fa-pen" style={{ fontSize: '10px', marginRight: '6px', color: 'gray' }}></i>
+                                            <span style={{ fontSize: '14px', color: 'gray', }} >
+                                                {booking.descriptions || "Mô tả....."}
+                                            </span>
+                                        </div>
+                                    </td>
                                     <td>{formatDateTime(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
                                     <td>{formatCurrency(totalPrice)}</td>
                                     <td style={{ color: "red" }}>
                                         {booking.statusBookingDto.statusBookingName}
                                     </td>
-                                    <td className="d-flex">
-                                        <Button variant="outline-success">Chi tiết</Button>
+                                    <td>
+                                        <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
+                                            <Button variant="outline-success">Chi tiết</Button>
+                                        </Link>
                                     </td>
                                 </tr>
                             );

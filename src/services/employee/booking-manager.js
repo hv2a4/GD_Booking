@@ -41,12 +41,20 @@ const getBookingRoomIds = async (idBookingRoom) => {
     return res;
 }
 
-const cancelBooking = async (id) => {
+const cancelBooking = async (id, descriptions) => {
     const res = await request({
         method: "PUT",
-        path: `api/booking/cancel-booking/${id}`
+        path: `api/booking/cancel-booking/${id}?descriptions=${descriptions}`
     });
     return res;
 }
 
-export {updateStatusBooking,updateStatusCheckInBooking,getBookingRoomInformation,getBookingRoomIds,getBookingId,cancelBooking};
+const getBookingByRoom = async (id) => {
+    const res = await request({
+        method: "GET",
+        path:`api/booking/booking-by-room/${id}`
+    });
+    return res;
+}
+
+export {updateStatusBooking,updateStatusCheckInBooking,getBookingRoomInformation,getBookingRoomIds,getBookingId,cancelBooking,getBookingByRoom};

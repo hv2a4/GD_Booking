@@ -119,16 +119,6 @@ const _nav = [
         name: 'Doanh thu',
         to: '/admin/revenue',
       },
-      {
-        component: CNavItem,
-        name: 'Phòng',
-        to: '/admin/room-class-report',
-      },
-      {
-        component: CNavItem,
-        name: 'Nhân viên',
-        to: '/admin/employee-report',
-      },
     ],
   },
   {

@@ -11,16 +11,9 @@ export default function Booking() {
   const [guestDropdownVisible, setGuestDropdownVisible] = useState(false);
   const [adultCount, setAdultCount] = useState(1);
   const [guestSummary, setGuestSummary] = useState("1 khách");
-
+  const [isCheckinOpen, setIsCheckinOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const today = new Date();
-    setCheckinDate(today);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    setCheckoutDate(tomorrow);
-  }, []);
 
   // Format ngày về yyyy-MM-dd
   const formatDateToYYYYMMDD = (date) => {
@@ -50,21 +43,24 @@ export default function Booking() {
   };
 
   const handleSubmit = () => {
+    if (!checkinDate) {
+      setIsCheckinOpen(true); // Mở lịch chọn ngày nhận khách
+      return;
+    }
+
+    if (!checkoutDate || (checkinDate && checkoutDate <= checkinDate)) {
+      setIsCheckoutOpen(true); // Mở lịch chọn ngày trả khách
+      return;
+    }
     // Sử dụng giá trị từ state hoặc fallback vào giá trị mặc định trong useEffect
     const filterData = {
-      checkIn: formatDateToYYYYMMDD(checkinDate || new Date()), // Nếu chưa có ngày nhận phòng, lấy ngày hiện tại
+      checkIn: formatDateToYYYYMMDD(checkinDate), // Nếu chưa có ngày nhận phòng, lấy ngày hiện tại
       checkOut: formatDateToYYYYMMDD(
-        checkoutDate ||
-        (() => {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1); // Ngày mai
-          return tomorrow;
-        })()
-      ),
+        checkoutDate),
       guest: adultCount,
     };
-    
-    navigate("/client/rooms", { state: filterData }); // Gửi filter qua state
+    sessionStorage.setItem('valueFillter', JSON.stringify(filterData));
+    setTimeout(navigate("/client/rooms", { state: filterData }), 10000);
   };
 
 
@@ -104,28 +100,40 @@ export default function Booking() {
                   <div className="col-md-3">
                     <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                     <div className="input-group flex-nowrap">
-                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
+                      <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkinDate}
-                        onChange={handleCheckinChange}
+                        onChange={(date) => {
+                          handleCheckinChange(date);
+                          setIsCheckinOpen(false); // Đóng lịch sau khi chọn ngày
+                        }}
                         className="form-control mt-0"
                         placeholderText="Chọn ngày nhận khách"
                         dateFormat="dd/MM/yyyy"
-                        minDate={new Date()}
+                        open={isCheckinOpen} // Kiểm soát hiển thị lịch
+                        onClickOutside={() => setIsCheckinOpen(false)} // Đóng lịch khi click bên ngoài
+                        minDate={new Date()} // Ngày nhận phòng phải sau hoặc bằng ngày hiện tại
+                        onFocus={() => setIsCheckinOpen(true)}
                       />
                     </div>
                   </div>
                   <div className="col-md-3">
                     <label htmlFor="checkout" className="form-label">Trả phòng</label>
                     <div className="input-group flex-nowrap">
-                      <span className="input-group-text" style={{ height: '44px' }}><i className="bi bi-calendar-minus"></i></span>
+                      <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkoutDate}
-                        onChange={handleCheckoutChange}
+                        onChange={(date) => {
+                          handleCheckoutChange(date);
+                          setIsCheckoutOpen(false); // Đóng lịch sau khi chọn ngày
+                        }}
                         className="form-control mt-0"
-                        placeholderText="Chọn ngày"
+                        placeholderText="Chọn ngày trả khách"
                         dateFormat="dd/MM/yyyy"
-                        minDate={checkinDate ? new Date(checkinDate).setDate(new Date(checkinDate).getDate() + 1) : new Date()}
+                        open={isCheckoutOpen} // Kiểm soát hiển thị lịch
+                        onClickOutside={() => setIsCheckoutOpen(false)} // Đóng lịch khi click bên ngoài
+                        minDate={checkinDate ? new Date(checkinDate).setDate(new Date(checkinDate).getDate() + 1) : new Date()} // Ngày trả phòng phải lớn hơn ngày nhận phòng
+                        onFocus={() => setIsCheckoutOpen(true)} // Mở lịch khi nhấn vào input
                       />
                     </div>
                   </div>
@@ -133,7 +141,7 @@ export default function Booking() {
                     <Form.Group controlId="guests">
                       <Form.Label>Số khách</Form.Label>
                       <InputGroup className="flex-nowrap">
-                        <InputGroup.Text style={{ height: '44px' }}>
+                        <InputGroup.Text>
                           <i className="bi bi-person"></i>
                         </InputGroup.Text>
                         <Form.Control
@@ -141,6 +149,7 @@ export default function Booking() {
                           placeholder={guestSummary}
                           readOnly
                           onClick={toggleGuestDropdown}
+                          style={{ background: '#fff' }}
                         />
                       </InputGroup>
                     </Form.Group>
@@ -184,7 +193,7 @@ export default function Booking() {
                 </div>
               </div>
               <div className="col-md-2" style={{ marginTop: "40px" }}>
-                <button className="btn btn-primary w-100" onClick={handleSubmit} style={{ height: '44px' }}>Tìm</button>
+                <button className="btn btn-primary w-100" onClick={handleSubmit} style={{ height: '37px' }}>Tìm</button>
               </div>
             </div>
           </div>

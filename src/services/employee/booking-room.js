@@ -35,4 +35,12 @@ const deleteService = async (id) => {
     return res;
 }
 
-export {getByIdBookingRoom,addBookingRoomServiceRoom,updateQuantity,deleteService};
+const getByRoom = async (idRoom) => {
+    const res = await request({
+        method: "GET",
+        path: `api/booking-room/getByRoom/${idRoom}`
+    });
+    return res;
+}
+
+export {getByIdBookingRoom,addBookingRoomServiceRoom,updateQuantity,deleteService,getByRoom};

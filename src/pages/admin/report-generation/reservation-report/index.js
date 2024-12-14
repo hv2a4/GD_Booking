@@ -1,30 +1,63 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LayoutAdmin from '../../../../components/layout/admin/DefaultLayout';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ReservationTable from './reservation-table';
-import { Card, Form } from 'react-bootstrap';
+import { Button, Card, Form } from 'react-bootstrap';
 import ReservationChart from './reservation-chart';
+import { getReservationReport } from '../../../../services/admin/reservation';
+import { format } from 'date-fns';
+import Alert from '../../../../config/alert';
+
 // import RevenueChart from './revenue-chart';
 
 const ReservationReport = () => {
     const [checkinDate, setCheckinDate] = useState(null);
     const [checkoutDate, setCheckoutDate] = useState(null);
-    const [view, setView] = useState('table'); // Default to table view
+    const [view, setView] = useState('table');
+    const [bookings, setBookings] = useState([]);
+    const [alert, setAlert] = useState(null);
 
     const handleViewChange = (event) => {
         setView(event.target.id);
     };
 
+    const formatDate = (dateString) => {
+        if (dateString) {
+          return format(new Date(dateString), "yyyy-MM-dd");
+        }
+        return "yyyy-MM-dd";
+      };
+    useEffect(() => {
+        if (!checkinDate && !checkoutDate) {
+            const today = new Date();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            setCheckinDate(sevenDaysAgo);
+            setCheckoutDate(today);
+            handleBookingReservation(formatDate(sevenDaysAgo), formatDate(today));
+        }
+        setTimeout(() => setAlert(null), 500);
+    }, [checkinDate, checkoutDate]);
+
+    const handleBookingReservation = async (startDate, endDate) => {
+        const data = await getReservationReport(startDate, endDate);
+        setBookings(data);
+    }
+
     const handleSubmit = (event) => {
-        event.preventDefault(); // Ngăn chặn hành vi gửi mặc định
-        // Xử lý dữ liệu ở đây, ví dụ: gửi đến API hoặc hiển thị thông báo
-        console.log("Ngày bắt đầu:", checkinDate);
-        console.log("Ngày kết thúc:", checkoutDate);
+        event.preventDefault();
+        if (checkoutDate && checkinDate && new Date(checkoutDate) < new Date(checkinDate)) {
+            setAlert({ type: "error", title: "Ngày kết thúc không thể nhỏ hơn ngày bắt đầu." });
+            return;
+        } else {
+            handleBookingReservation(formatDate(checkinDate), formatDate(checkoutDate));
+        }
     };
 
     return (
         <LayoutAdmin>
+            {alert && <Alert type={alert.type} title={alert.title} />}
             <div className="row mb-3 d-flex justify-content-center">
                 <div className="col-md-2 mb-3 mb-sm-0 mt-2">
                     <Card style={{ padding: '10px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
@@ -58,6 +91,7 @@ const ReservationReport = () => {
                                     selected={checkinDate}
                                     onChange={date => setCheckinDate(date)}
                                     placeholderText="Ngày bắt đầu"
+                                    dateFormat="dd-MM-yyyy"
                                 />
                             </div>
                             <div className="col-md-6" style={{ marginTop: "30px" }}>
@@ -66,16 +100,17 @@ const ReservationReport = () => {
                                     selected={checkoutDate}
                                     onChange={date => setCheckoutDate(date)}
                                     placeholderText="Ngày kết thúc"
+                                    dateFormat="dd-MM-yyyy"
                                 />
                             </div>
                             <div className='col-md-12'>
-                                <button
+                                <Button
                                     type="submit"
                                     style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer', width: "100%" }}
-                                    className="btn-primary"
+                                    variant="outline-success"
                                 >
                                     Lưu thay đổi
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </form>
@@ -83,9 +118,9 @@ const ReservationReport = () => {
             </div>
 
             {view === 'chart' ? (
-                <ReservationChart/>
+                <ReservationChart booking={bookings}/>
             ) : (
-                <ReservationTable />
+                <ReservationTable booking={bookings} checkinDate={checkinDate} checkoutDate={checkoutDate}/>
             )}
         </LayoutAdmin>
     );

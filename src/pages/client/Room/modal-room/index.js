@@ -1,16 +1,44 @@
-import React from 'react';
-import { Modal, Button, Image, ListGroup, Row, Col, Carousel, Card } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Modal, Button, Image, ListGroup, Row, Col, Carousel, Card, Pagination } from 'react-bootstrap';
 import './style.css'; // Import CSS file
 import { FaStar, FaRegStar } from 'react-icons/fa'; // For star icons
 
 const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
+  // Số lượng đánh giá hiển thị trên mỗi trang
+  const reviewsPerPage = 2;
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+
   // Helper function to render star ratings
   const renderStars = (stars) => {
-    return [...Array(5)].map((_, i) => (
-      i < stars ? <FaStar key={i} className="text-warning" /> : <FaRegStar key={i} className="text-muted" />
-    ));
+    return [...Array(5)].map((_, i) => {
+      const fullStars = Math.floor(stars);
+      const isHalfStar = stars - fullStars >= 0.5 && i === fullStars;
+      return i < fullStars ? (
+        <FaStar key={i} className="text-warning" />
+      ) : isHalfStar ? (
+        <FaStar key={i} className="text-warning half-star" />
+      ) : (
+        <FaRegStar key={i} className="text-muted" />
+      );
+    });
   };
 
+
+  // Tính toán chỉ số bắt đầu và kết thúc cho các đánh giá ở trang hiện tại
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = room.feedBack ? room.feedBack.slice(indexOfFirstReview, indexOfLastReview) : [];
+
+  // Hàm xử lý khi thay đổi trang
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Tổng số trang
+  const totalPages = room.feedBack ? Math.ceil(room.feedBack.length / reviewsPerPage) : 1;
+  useEffect(() => {
+    console.log(room);
+  }, [room]);
   return (
     <Modal show={show} onHide={onClose} centered className="room-detail-modal" size="lg">
       <Modal.Header closeButton>
@@ -63,7 +91,6 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
                   </ListGroup>
                 </Col>
               </Row>
-              <p className="room-detail-description">{room.describes || 'Chưa có mô tả'}</p>
             </div>
           </Col>
         </Row>
@@ -74,40 +101,45 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price)}/Ngày
           </span>
         </div>
-
-
         {/* Phần đánh giá */}
         <div className="room-feedback mt-4">
           <h5>Đánh giá của khách hàng</h5>
           <p>
-            <strong>Đánh giá trung bình:</strong> {avgStart.averageStars}{' '}
-            {renderStars(Math.round(avgStart.averageStars))}
+            <strong>Đánh giá trung bình:</strong>{' '}
+            {room.averageFeedBack ? room.averageFeedBack.toFixed(1) : 'N/A'}{' '}
+            {renderStars(room.averageFeedBack || 0)}
           </p>
-          {room.feedBack?.length > 0 ? (
+
+          {room.feedBack && room.feedBack.length > 0 ? (
             <div className="feedback-container">
-              {room.feedBack.map((feedback) => (
-                <div key={feedback.id} className="mb-3">
+              {/* Duyệt qua mỗi phản hồi */}
+              {currentReviews.map((feedback, index) => (
+                <div key={feedback.id || index} className="mb-3">
                   <Card className="feedback-card shadow-sm">
                     <Card.Body>
-                      <div className="d-flex align-items-center">
-                        <div className="me-3 feedback-avatar">
+                      <div className="row align-items-center">
+                        {/* Ảnh đại diện */}
+                        <div className="col-auto">
                           <img
-                            src={room.image}
-                            alt={`Ảnh của ${room.accountName}`}
-                            className="room-avatar"
-                            style={{ width: '25%', borderRadius: '50%' }}
-                          />
+                            src={room.image && room.image.length > 0 ? room.image[index % room.image.length] : 'default-image.jpg'}
+                            alt={`Ảnh của ${room.accountNames && room.accountNames[index] ? room.accountNames[index] : 'Khách hàng ẩn danh'}`}
+                            className="rounded-circle"
+                            style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                          />    
                         </div>
-                        <div>
-                          <Card.Title className="mb-1 feedback-username">
-                            <strong>{room.accountName}</strong>
+
+                        {/* Tên và ngày */}
+                        <div className="col">
+                          <Card.Title className="mb-1">
+                            <strong>{room.accountNames && room.accountNames[index] ? room.accountNames[index] : 'Khách hàng ẩn danh'}</strong>  {/* Tên khách hàng */}
                           </Card.Title>
-                          <Card.Text className="mb-0 text-muted feedback-date">
-                            {new Date(feedback.createAt).toLocaleDateString('vi-VN')}
+                          <Card.Text className="text-muted mb-0">
+                            {feedback.createAt ? new Date(feedback.createAt).toLocaleDateString('vi-VN') : 'Ngày không xác định'}  {/* Kiểm tra ngày */}
                           </Card.Text>
                         </div>
                       </div>
 
+                      {/* Nội dung phản hồi */}
                       <div className="mt-3">
                         <p className="mb-2">{feedback.content}</p>
                         <div>{renderStars(feedback.stars)}</div>
@@ -120,8 +152,22 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
           ) : (
             <p className="text-muted">Chưa có đánh giá nào.</p>
           )}
-        </div>
 
+          {/* Phân trang */}
+          <Pagination>
+            <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+            {[...Array(totalPages)].map((_, index) => (
+              <Pagination.Item
+                key={index + 1}
+                active={index + 1 === currentPage}
+                onClick={() => handlePageChange(index + 1)}
+              >
+                {index + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+          </Pagination>
+        </div>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onClose}>

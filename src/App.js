@@ -51,6 +51,7 @@ import ResetPassword from "./pages/admin/ForgotPassword/ResetPassword";
 import ChangePassword from "./pages/admin/ChangePassword";
 import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
 import FloorPage from "./pages/admin/home/Floor";
+import ListRoomEmployee from "./pages/employee/booking-offline";
 function App() {
 
   const getUserRole = () => {
@@ -84,6 +85,15 @@ function App() {
 
     return element; // Render the component if access is allowed
   };
+  useEffect(() => {
+    // Kiểm tra nếu "status" đã tồn tại trong localStorage
+    const storedStatus = localStorage.getItem("status");
+    if (storedStatus === null) {
+      // Nếu chưa tồn tại, đặt giá trị mặc định là false
+      const isChecked = false;
+      localStorage.setItem("status", JSON.stringify(isChecked));
+    }
+  }, []);
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -112,6 +122,7 @@ function App() {
           <Route path="edit-room" element={<EditRoom />} />
           <Route path="list-booking-room" element={<ListReservation />} />
           <Route path="Floor/:id" element={<FloorMap />} />
+          <Route path="booking-offline" element={<ListRoomEmployee />} />
         </Route>
 
         {/* Routes cho Admin */}
@@ -125,7 +136,7 @@ function App() {
           <Route path="account-employee" element={<Accountemployee />} />
           <Route path="hotel-info" element={<HotelInfo />} />
           <Route path="revenue" element={<RevenueReport />} />
-          <Route path="service" element={<ServicesPage />} /> 
+          <Route path="service" element={<ServicesPage />} />
           <Route path="amenities" element={<AmenitiesPage />} />
           <Route path="reservation-report" element={<ReservationReport />} />
           <Route path="room-class-report" element={<RoomClassReport />} />

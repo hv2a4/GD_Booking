@@ -1,48 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import './button.css'
+import { getListStaff } from "./Service/Index";
 export default function AboutDetails() {
+    const [dataStaff, setDataStaff] = useState([]);
 
-    const employees = [
-        {
-            id: 1,
-            name: "Nguyễn Văn A",
-            role: "Nhân viên lễ tân",
-            image: "https://media.istockphoto.com/id/1437816897/photo/business-woman-manager-or-human-resources-portrait-for-career-success-company-we-are-hiring.jpg?s=612x612&w=0&k=20&c=tyLvtzutRh22j9GqSGI33Z4HpIwv9vL_MZw_xOE19NQ=", // Replace with actual image path
-        },
-        {
-            id: 2,
-            name: "Trần Thị B",
-            role: "Nhân viên phục vụ",
-            image: "https://www.shutterstock.com/image-photo/head-shot-portrait-close-smiling-600nw-1714666150.jpg", // Replace with actual image path
-        },
-        {
-            id: 3,
-            name: "Lê Văn C",
-            role: "Nhân viên dọn phòng",
-            image: "https://i.pinimg.com/736x/f3/78/4a/f3784adc704a1bc9bcb2e494cd39caee.jpg", // Replace with actual image path
-        },
-        {
-            id: 4,
-            name: "Lê Văn D",
-            role: "Nhân viên dọn phòng",
-            image: "https://headshots-inc.com/wp-content/uploads/2020/11/Professional-Headshot-Poses-Blog-Post.jpg", // Replace with actual image path
-        },
-        {
-            id: 5,
-            name: "Lê Văn D",
-            role: "Nhân viên dọn phòng",
-            image: "https://headshots-inc.com/wp-content/uploads/2020/11/Professional-Headshot-Poses-Blog-Post.jpg", // Replace with actual image path
-        },
-    ];
+    const employees = dataStaff.map((staff) => ({
+        id: staff?.id,
+        name: staff?.fullname,
+        role: staff?.roleName,
+        image: staff?.avatar || 'https://png.pngtree.com/png-clipart/20210308/original/pngtree-personnel-icon-vector-material-png-image_5751805.jpg',
+    }));
 
-    const services = [
-        { id: 1, service_hotel_name: "Giao Thức Ăn", price: 15, image: null, hotel_id: 1 },
-        { id: 2, service_hotel_name: "Giặt Ủi", price: 5, image: null, hotel_id: 1 },
-        { id: 3, service_hotel_name: "Tham Quan Có Hướng Dẫn", price: 40, image: null, hotel_id: 1 },
-        { id: 4, service_hotel_name: "Đỗ Xe", price: 10, image: null, hotel_id: 1 },
-        { id: 5, service_hotel_name: "Dịch Vụ Xe Đưa Đón", price: 25, image: null, hotel_id: 1 },
-    ];
+    const getDataListStaff = async () => {
+        try {
+            const res = await getListStaff();
+            setDataStaff(res);
+            console.log("Dữ liệu từ service: ", res);
+        } catch (error) {
+            console.log("Không lấy được danh sách: ", error);
+        }
+    }
 
+    useEffect(() => {
+        getDataListStaff()
+    }, []);
 
     const chunkedEmployees = [];
     for (let i = 0; i < employees.length; i += 4) {
@@ -260,7 +241,7 @@ export default function AboutDetails() {
                                                     color: "#777",
                                                 }}
                                             >
-                                                {employee.role}
+                                                {employee.role === 'Staff' ? "Nhân viên" : "Nhân viên"}
                                             </p>
                                         </div>
                                     ))}

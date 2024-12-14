@@ -3,9 +3,10 @@ import LayoutClient from '../../../components/layout/cilent';
 import './custom.css';
 import { decodeToken } from '../../../services/client/Booking/BookingService';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { bookingRoom, getDataListTypeRoom } from './Service';
-import { useLocation } from "react-router-dom";
+import { bookingRoom, fetchDiscounts, getDataListTypeRoom } from './Service';
 import Swal from 'sweetalert2';
+import DiscountCodeSection from './Component/DiscountCodeSection';
+import BookingInfo from './Component/BookingInfo';
 const PageBookRoom = () => {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
@@ -21,7 +22,8 @@ const PageBookRoom = () => {
     // State to store payment method and discount code
     const [paymentMethod, setPaymentMethod] = useState('');
     const location = useLocation();
-
+    const [discounts, setDiscounts] = useState([]);
+    const [discountName, setDiscountName] = useState({});
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -32,6 +34,11 @@ const PageBookRoom = () => {
             phone,
         });
     };
+
+    const handleDiscountName = (discount) => {
+        console.log("Mã giảm giá đã chọn là: ", discount);
+        setDiscountName(discount);
+    }
 
     const getDataListRoomData = async (roomIdList) => {
         try {
@@ -109,7 +116,7 @@ const PageBookRoom = () => {
             } else {
                 const result = await Swal.fire({
                     title: 'Xác nhận đặt phòng',
-                    text: 'Bạn đã chọn thanh toán tại quầy lễ tân. Nhấn "Tiếp tục" để xác nhận đặt phòng.',
+                    text: 'Bạn đã chọn thanh toán khi trả phòng. Nhấn "Tiếp tục" để xác nhận đặt phòng.',
                     icon: 'info',
                     confirmButtonText: 'Tiếp tục',
                     cancelButtonText: 'Hủy',
@@ -120,15 +127,22 @@ const PageBookRoom = () => {
                 // Người dùng hủy thanh toán
                 if (!result.isConfirmed) {
                     return;
+                }else{
+                    const isChecked = true;
+                    localStorage.setItem("status",JSON.stringify(isChecked));
+                    sessionStorage.clear();
                 }
             }
+
+            const finalDiscountName = discountName ? discountName?.discountName : "";
+
             // Tạo payload để gửi đi
             const payload = {
                 userName: token.username + "",
                 startDate: rooms.startDate,
                 endDate: rooms.endDate,
                 roomId: roomIdArray,
-                discountName: "",
+                discountName: finalDiscountName ?? null,
                 methodPayment: parseInt(PaymentMethodId)
             };
 
@@ -136,8 +150,6 @@ const PageBookRoom = () => {
 
             // Gọi API đặt phòng
             await bookingRoom(payload, navigate);
-
-
         } catch (error) {
             console.error("Đặt phòng thất bại:", error);
         }
@@ -148,8 +160,7 @@ const PageBookRoom = () => {
         const status = queryParams.get("status");
         const message = queryParams.get("message");
         const decodedMessage = decodeURIComponent(message || "");
-        if (status === 'success' && message === 'Bạn đã đặt phòng thành công vui lòng vào email để xem chi tiết') {
-
+        if (status === 'success' && message === 'Bạn đã đặt phòng thành công vui lòng vào email để xem chi tiết đơn đặt hàng và file pdf đã được lưu vào máy của quý khách') {
             console.log("Dữ liệu:", decodedMessage);
             console.log("Trạng thái: ", status);
 
@@ -160,11 +171,15 @@ const PageBookRoom = () => {
                 confirmButtonText: 'OK',
             }).then((result) => {
                 if (result.isConfirmed) {
+                    sessionStorage.clear();
+                    const isChecked = true;
+                    localStorage.setItem("status", JSON.stringify(isChecked));
+                    console.log("Thành công rồi nha");
                     navigate('/client/home');
                 }
             });
         }
-        if (status === 'error' && message === 'Thanh toán thất bại, đơn đặt phòng của bạn đã bị hủy') {
+        if (status === 'error' && message === 'Thanh toán thất bại') {
             Swal.fire({
                 icon: 'error',
                 title: 'Đặt phòng không thành công!',
@@ -238,11 +253,23 @@ const PageBookRoom = () => {
     }, []);
 
 
-    useEffect(() => {
-        // Tính tổng tiền từ mảng selectedRooms
-        const total = selectedRooms.reduce((acc, item) => acc + item.price, 0);
+    // Function to calculate the total price with discount applied
+    const calculateTotalPrice = () => {
+        let total = selectedRooms.reduce((acc, item) => acc + item.price, 0);
+
+        // Apply discount if available and valid
+        if (discountName && discountName.percent > 0) {
+            const discountPercent = discountName.percent;
+            total = total - (total * discountPercent / 100);
+        }
+
         setTotalPrice(total);
-    }, [selectedRooms]);
+    };
+
+    // Update total price whenever selectedRooms or discount changes
+    useEffect(() => {
+        calculateTotalPrice();
+    }, [selectedRooms, discountName]);
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -254,17 +281,37 @@ const PageBookRoom = () => {
         setCurrentPage(pageNumber);
     };
 
+    //kiểm tra người dùng khi chưa đặt phòng
     useEffect(() => {
-        // Kiểm tra dữ liệu trong sessionStorage
-        const bookedRooms = sessionStorage.getItem("bookedRooms");
-        const booking = sessionStorage.getItem("booking");
-        if (!bookedRooms && !booking) {
-            // Nếu không có dữ liệu, chuyển hướng người dùng
+        try {
+            const status = localStorage.getItem("status");
+
+            if (status && JSON.parse(status) === true) {
+                navigate("/client/rooms");
+            } else {
+                navigate("/client/booking-room");
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra trạng thái đặt phòng:", error);
             navigate("/client/rooms");
-        } else {
-            navigate("/client/booking-room");
         }
     }, [navigate]);
+
+    useEffect(() => {
+        const fetchDiscountsFromAPI = async (userName) => {
+            try {
+                const res = await fetchDiscounts(userName);  // Assuming fetchDiscounts is a defined function
+                setDiscounts(res);
+            } catch (error) {
+                console.log("Error fetching data from API: ", error);
+            }
+        };
+
+        if (token.username) {  // Check if token.username exists
+            fetchDiscountsFromAPI(token.username);
+        }
+    }, [token.username]);  // Add token.username as a dependency
+
 
     const handleCancel = () => {
         Swal.fire({
@@ -280,11 +327,26 @@ const PageBookRoom = () => {
             if (result.isConfirmed) {
                 // Xóa toàn bộ dữ liệu trong sessionStorage
                 sessionStorage.clear();
+                const isChecked = true;
+                localStorage.setItem("status", JSON.stringify(isChecked));  
                 // Điều hướng về trang phòng
                 navigate("/client/rooms");
             }
         });
     }
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
+
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+        const year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
+    };
+
+    console.log(discounts);
 
     return (
         <LayoutClient>
@@ -446,25 +508,7 @@ const PageBookRoom = () => {
                                     </div>
                                     <div className="row mt-2">
                                         {/* Phần mã giảm giá */}
-                                        <div className="col-12">
-                                            <div className="discount-code-section" style={{ padding: '15px', borderRadius: '8px' }}>
-                                                <h4>Chọn mã giảm giá</h4>
-                                                <select
-                                                    className="form-select"
-                                                    style={{
-                                                        fontSize: '1rem',
-                                                        padding: '10px',
-                                                        borderRadius: '5px',
-                                                        border: '1px solid #ddd',
-                                                    }}
-                                                >
-                                                    <option value="">Chọn mã giảm giá</option>
-                                                    <option value="discount10">Giảm 10%</option>
-                                                    <option value="discount20">Giảm 20%</option>
-                                                    <option value="discount30">Giảm 30%</option>
-                                                </select>
-                                            </div>
-                                        </div>
+                                        <DiscountCodeSection discounts={discounts} discountNameTotal={handleDiscountName} />
 
                                         {/* Phần phương thức thanh toán */}
                                         <div className="col-12 mt-2">
@@ -545,105 +589,13 @@ const PageBookRoom = () => {
                                 </form>
                             </div>
                         </div>
-                        <div className="col-md-5">
-                            <h3 className='booking-title'>Xác thực thông tin</h3>
-                            <div className="hotel-page-sidebar" style={{ background: '#f9f9f9', borderRadius: '10px', padding: '20px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }}>
-                                <div className="box-summary">
-                                    {/* Thông tin cá nhân */}
-                                    <div className="summary-total" style={{ marginTop: '20px' }}>
-                                        <h4>Thông tin khách hàng</h4>
-                                        <table className="tlb-info" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                            <tbody>
-                                                <tr>
-                                                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="title">Họ và tên</div>
-                                                    </td>
-                                                    <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="info-right">{token.fullname}</div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="title">Email</div>
-                                                    </td>
-                                                    <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="info-right">{token.email}</div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="title">Số điện thoại</div>
-                                                    </td>
-                                                    <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="info-right">{token.phone}</div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {/* Thông tin phòng đã chọn */}
-                                    <div className="summary-total" style={{ marginTop: '20px' }}>
-                                        <h4>Chi tiết phòng</h4>
-                                        <table className="tlb-info" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                            <tbody>
-                                                <tr>
-                                                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="title">
-                                                            <i className="fa fa-calendar" style={{ marginRight: '5px' }}></i> Ngày nhận phòng
-                                                        </div>
-                                                    </td>
-                                                    <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="info-right">{rooms.startDate}</div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="title">
-                                                            <i className="fas fa-calendar-check" style={{ marginRight: '5px' }}></i> Ngày trả phòng
-                                                        </div>
-                                                    </td>
-                                                    <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="info-right">{rooms.endDate}</div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {/* Thông tin giá phòng */}
-                                    <div className="summary-total" style={{ marginTop: '20px' }}>
-                                        <h4>Chi phí phòng</h4>
-                                        <table className="tlb-info tlb-info-price" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                            <tbody>
-                                                {selectedRooms.map((item, index) => (
-                                                    <tr key={index}>
-                                                        <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                                            <div className="title">{item.roomName}</div>
-                                                        </td>
-                                                        <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                            <div className="info-right">
-                                                                {item.price.toLocaleString()} VND
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                                <tr className="tr-total">
-                                                    <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>
-                                                        <div className="title">Tổng tiền</div>
-                                                    </td>
-                                                    <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                                        <div data-price-format="2,012,200 VND" className="info-right" style={{ fontWeight: 'bold', color: '#d9534f' }}>
-                                                            {totalPrice.toLocaleString()} VND
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <BookingInfo
+                            token={token}
+                            rooms={rooms}
+                            selectedRooms={selectedRooms}
+                            totalPrice={totalPrice}
+                            discount={discountName}
+                        />
                     </div>
                 </div >
             </div >

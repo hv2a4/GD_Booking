@@ -128,7 +128,7 @@ const Account = () => {
                 className="mb-3 form-control"
                 style={{ width: "20%" }}
             />
-            <CTable responsive>
+            <CTable responsive className="table-bordered">
                 <CTableHead>
                     <CTableRow>
                         <CTableHeaderCell>Ảnh</CTableHeaderCell>
@@ -162,22 +162,21 @@ const Account = () => {
                                 </CTableDataCell>
                             </CTableRow>
                             <CTableRow>
-                                <CTableDataCell colSpan="6">
-                                    <Card>
-                                        <CCollapse visible={details.includes(item.id)}>
+                                <CTableDataCell colSpan="12">
+                                    <CCollapse visible={details.includes(item.id)}>
                                             <CCardBody style={{ width: "auto" }}>
                                                 <ul className="nav nav-tabs" role="tablist">
                                                     <li className="nav-item">
-                                                        <button 
-                                                            className={`nav-link ${tabs[item.id] === 'info' ? 'active' : ''}`} 
+                                                        <button
+                                                            className={`nav-link ${tabs[item.id] === 'info' ? 'active' : ''}`}
                                                             onClick={() => handleTabChange(item.id, 'info')}
                                                         >
                                                             Thông tin
                                                         </button>
                                                     </li>
                                                     <li className="nav-item">
-                                                        <button 
-                                                            className={`nav-link ${tabs[item.id] === 'bookingHistory' ? 'active' : ''}`} 
+                                                        <button
+                                                            className={`nav-link ${tabs[item.id] === 'bookingHistory' ? 'active' : ''}`}
                                                             onClick={() => handleTabChange(item.id, 'bookingHistory')}
                                                         >
                                                             Lịch sử đặt phòng
@@ -197,8 +196,7 @@ const Account = () => {
                                                     )}
                                                 </div>
                                             </CCardBody>
-                                        </CCollapse>
-                                    </Card>
+                                    </CCollapse>
                                 </CTableDataCell>
                             </CTableRow>
                         </React.Fragment>

@@ -9,14 +9,12 @@ const addCustomer = async (data, idBookingRoom) => {
     return res;
 }
 
-const updateCustomer = async (id, data) => {
+const updateCustomer = async (id, data, idBookingRoom) => {
     const res = await request({
         method: "PUT",
-        path: `api/customer-info/update/${id}`,
+        path: `api/customer-info/update/${id}?bookingRoomId=${idBookingRoom}`,
         data: data
     });
-    console.log(res);
-    
     return res;
 }
 const deleteCustomer = async (idCustomer, idBookingRoom) => {

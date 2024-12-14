@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { getAllServiceHotel } from "../../services/client/home";
 import Alert from "../../config/alert";
-import { FaCoffee, FaParking, FaTaxi, FaTshirt, FaWalking } from "react-icons/fa";
-
+import { FaCar, FaCoffee, FaParking, FaTaxi, FaTshirt, FaTv, FaWalking } from "react-icons/fa";
+import { MdOutlineWarning } from "react-icons/md";
 export default function Services() {
   const [services, setService] = useState([]);
   const [alert, setAlert] = useState(null);
@@ -36,8 +36,12 @@ export default function Services() {
         return <FaParking />;
       case "Dịch Vụ Xe Đưa Đón":
         return <FaTaxi />;
+      case "Xe Đưa Đón":
+        return <FaCar />;
+      case "Truyền Hình Cáp":
+        return <FaTv />;
       default:
-        return null;
+        return <MdOutlineWarning />;
     }
   };
   return (
