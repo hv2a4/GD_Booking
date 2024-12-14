@@ -51,6 +51,7 @@ import ResetPassword from "./pages/admin/ForgotPassword/ResetPassword";
 import ChangePassword from "./pages/admin/ChangePassword";
 import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
 import FloorPage from "./pages/admin/home/Floor";
+import ListRoomEmployee from "./pages/employee/booking-offline";
 function App() {
 
   const getUserRole = () => {
@@ -121,6 +122,7 @@ function App() {
           <Route path="edit-room" element={<EditRoom />} />
           <Route path="list-booking-room" element={<ListReservation />} />
           <Route path="Floor/:id" element={<FloorMap />} />
+          <Route path="booking-offline" element={<ListRoomEmployee />} />
         </Route>
 
         {/* Routes cho Admin */}

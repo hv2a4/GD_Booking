@@ -5,6 +5,7 @@ import {
   cilList,
   cilBuilding,
   cilLayers,
+  cilStream,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { getAllFloor } from './services/employee/floor';
@@ -28,7 +29,7 @@ export const createNavData = async () => {
       component: CNavItem,
       name: 'Sơ đồ lưới',
       to: '/employee/home',
-      icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
+      icon: <CIcon icon={cilStream} customClassName="nav-icon" />,
     },
     {
       component: CNavItem,

@@ -41,7 +41,7 @@ function ScheduleBoard() {
     const adjustedEnd = end || new Date();
     adjustedEnd.setDate(adjustedEnd.getDate() + 7);
     setEndDate(adjustedEnd);
-};
+  };
 
 
   const toggleFloor = (floor) => {
@@ -52,7 +52,7 @@ function ScheduleBoard() {
   };
 
   return (
-    <Card className="p-2">
+    <>
       <FillterDateHome onDatesChange={handleDateFilterChange} />
       <div className="schedule-board">
         <div className="header">
@@ -73,18 +73,18 @@ function ScheduleBoard() {
               <div className="rooms">
                 {floorData.roomDtos.map((room) => (
                   <RoomSchedule
-                  key={room.id}
-                  room={room}
-                  startDate={startDate}
-                  endDate={endDate}
-              />              
+                    key={room.id}
+                    room={room}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
                 ))}
               </div>
             )}
           </div>
         ))}
       </div>
-    </Card>
+    </>
   );
 }
 

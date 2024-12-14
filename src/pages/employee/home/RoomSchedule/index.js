@@ -20,22 +20,29 @@ const isWithinNextWeek = (startDate, endDate) => {
 function calculatePosition(start, end, startDate, endDate) {
     const filterStartDate = new Date(startDate || new Date()); 
     const filterEndDate = new Date(endDate || filterStartDate);
-    filterEndDate.setDate(filterStartDate.getDate() + 7); 
+    filterEndDate.setDate(filterStartDate.getDate() + 7);
 
+    // Chuyển start và end về timestamp
     const startDateAdjusted = new Date(start).getTime(); 
     const endDateAdjusted = new Date(end).getTime();
 
-    const totalDuration = (filterEndDate - filterStartDate) / (1000 * 60 * 60 * 24); 
+    // Tổng số ngày trong khoảng lọc
+    const totalDuration = (filterEndDate - filterStartDate) / (1000 * 60 * 60 * 24);
 
+    // Tính vị trí bắt đầu (khoảng cách từ ngày lọc đầu tiên)
     const daysFromStart = Math.max(0, (startDateAdjusted - filterStartDate.getTime()) / (1000 * 60 * 60 * 24));
 
-    const position = Math.min(100, (daysFromStart / totalDuration) * 100);
+    // Tính khoảng cách và độ dài item theo tỷ lệ %
+    let position = Math.min(100, (daysFromStart / totalDuration) * 100);
+    position = Math.min(100, position + 5);
 
-    const durationInHours = Math.max(0, (endDateAdjusted - startDateAdjusted) / (1000 * 60 * 60));
-    const width = Math.min(100 - position, (durationInHours / (24 * totalDuration)) * 100);
+    // Tính độ dài dựa trên số ngày giữa start và end
+    const durationInDays = Math.max(0, (endDateAdjusted - startDateAdjusted) / (1000 * 60 * 60 * 24));
+    const width = Math.min(100 - position, (durationInDays / totalDuration) * 100);
 
     return { position, width };
 }
+
 
 function RoomSchedule({ room, startDate, endDate }) {
     const [bookings, setBookings] = useState([]);
@@ -56,7 +63,7 @@ function RoomSchedule({ room, startDate, endDate }) {
         if (room?.id) {
             fetchBookings();
         }
-    }, [room,bookings,bookingDetail]);
+    }, [bookingDetail]);
     const handleShowModalDetail = (item) => {
         setbookingDetail(item);
         setShowModal(true);
@@ -84,17 +91,17 @@ function RoomSchedule({ room, startDate, endDate }) {
     const getStatusCss = (status) => {
         switch (status) {
             case 2: 
-                return 'badge text-bg-primary w-auto badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Khách hàng đã xác nhận
+                return 'badge text-bg-primary badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Khách hàng đã xác nhận
             case 4: 
-                return 'badge text-bg-info w-auto badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Đã đặt trước
+                return 'badge text-bg-info badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Đã đặt trước
             case 5: 
-                return 'badge text-bg-danger w-auto badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Quá hạn trả
+                return 'badge text-bg-danger badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Quá hạn trả
             case 6: 
-                return 'badge text-bg-danger w-auto badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Đã hủy
+                return 'badge text-bg-danger badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Đã hủy
             case 7: 
-                return 'badge text-bg-warning w-auto badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Trả phòng
+                return 'badge text-bg-warning badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Trả phòng
             default: 
-                return 'badge text-bg-success text-dark w-auto badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Mặc định
+                return 'badge text-bg-success text-dark badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Mặc định
         }
     };
 

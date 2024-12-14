@@ -14,6 +14,7 @@ import DatPhong from "../list-reservation/modalDatPhong";
 import { getByRoom } from "../../../services/employee/booking-room";
 import ConfirmBookingModal from "../list-reservation/modalXacNhan";
 import { getBookingId } from "../../../services/employee/booking-manager";
+import { cilBuilding } from "@coreui/icons";
 const FloorMap = () => {
     const { id } = useParams();
     const [rooms, setRooms] = useState([]);
@@ -229,7 +230,7 @@ const FloorMap = () => {
 
 
     return (
-        <Layoutemployee>
+        <Layoutemployee title={"Sơ đồ tầng"} icons={cilBuilding}>
             <div className="reception-wrapper min-height-400 container-fluid pb-3 ng-star-inserted">
                 {alert && <Alert type={alert.type} title={alert.title} />}
                 {isLoading && (

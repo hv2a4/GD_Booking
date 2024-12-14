@@ -33,14 +33,13 @@ const EditRoom = () => {
     const [searchValue, setSearchValue] = useState("");
     const [totalRoomPrice, setTotalRoomPrice] = useState(0);
     const [totalBookingRoom, setToltalBookingRoom] = useState(0);
-
+    const flag = [6, 8].includes(booking?.statusBookingDto?.id) || false;
     const handleSearchChange = (e) => {
         setSearchValue(e.target.value);
     };
     useEffect(() => {
         hanhdleBooking();
-        setTimeout(() => setAlert(null), 500);
-    }, [encodedIdBooking, selectedManualService, alert, totalBookingRoom]);
+    }, [encodedIdBooking, selectedManualService]);
 
     useEffect(() => {
         calculateTotalPrice();
@@ -51,7 +50,6 @@ const EditRoom = () => {
             if (idBookingRoom) {
                 setLoading(true);
                 const bookingRoom = await getByIdBookingRoom(idBookingRoom);
-                console.log(bookingRoom);
                 const booking = await getBookingId(bookingRoom.booking.id);
                 setBookingRoom(bookingRoom);
                 const data = await getBookingRoomInformation([bookingRoom?.id]);
@@ -116,7 +114,7 @@ const EditRoom = () => {
         const totalManualServicePrice = selectedManualService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
         const totalApiServicePrice = selectedApiService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
         const total = totalManualServicePrice + totalApiServicePrice + (bookingRoom?.price || 0);
-        setToltalBookingRoom(total);
+        setToltalBookingRoom(flag ? bookingRoom?.price : total);
     };
 
     const handleSelectService = async (service) => {
@@ -704,13 +702,28 @@ const EditRoom = () => {
                                                         </td>
                                                         <td className="col-4 col-lg-2 text-center">
                                                             <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
-                                                                <input type="text" className="form-control mx-1 text-center" value={calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)} style={{ maxWidth: "50px", borderBottom: "none" }} />
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control mx-1 text-center"
+                                                                    value={calculateDuration(
+                                                                        bookingRoom?.booking?.startAt,
+                                                                        (booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8)
+                                                                            ? bookingRoom?.checkOut
+                                                                            : bookingRoom?.booking?.endAt
+                                                                    )}
+                                                                    style={{ maxWidth: "50px", borderBottom: "none" }}
+                                                                />
                                                             </div>
                                                         </td>
                                                         <td className="col-5 col-lg-3 d-flex justify-content-center">
                                                             <span className="w-auto">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price)}</span>
                                                         </td>
-                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price * calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt))}</td>
+                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price * calculateDuration(
+                                                            bookingRoom?.booking?.startAt,
+                                                            (booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8)
+                                                                ? bookingRoom?.checkOut
+                                                                : bookingRoom?.booking?.endAt
+                                                        ))}</td>
                                                         <td className="col-auto"></td>
                                                     </tr>
                                                     {selectedManualService && selectedManualService.length > 0 ? (
@@ -839,7 +852,7 @@ const EditRoom = () => {
             </div>
             {modalCancel && <CancelBookingModal handleClose={handleCloseCancel} booking={booking} />}
             {showModalInsertCustomer && <TTNhanPhong onHide={handleCloseModalInsertCustomer} bookingRoomIds={booking.bookingRooms.map((e) => e.id)} />}
-            
+
         </Layoutemployee >
     )
 }

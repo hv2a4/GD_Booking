@@ -194,7 +194,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
             {/* Modal xác nhận đặt phòng */}
             <Modal show={showModal1} onHide={handleCloseModal1} backdrop="static" centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Xác nhận đặt phòng</Modal.Title>
+                    <Modal.Title>Nhận phòng</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
