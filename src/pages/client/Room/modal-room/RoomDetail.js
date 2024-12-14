@@ -43,14 +43,6 @@ const RoomDetail = ({ show, onClose, room }) => {
                                     </div>
                                 ))}
                             </div>
-
-                            {/* Mô tả phòng */}
-                            <div className="room-detail-description">
-                                {!(room.describes && room.describes.trim())
-                                    ? <p className="no-description">Chưa có mô tả</p>
-                                    : <p className="no-description">{room.describes}</p>
-                                }
-                            </div>
                         </div>
 
                     </Col>

@@ -4,7 +4,7 @@ import RoomDetailModal from "../../pages/client/Room/modal-room";
 import { getDetailTypeRoom, getTypeRoomTop3 } from "../../services/client/home";
 import Alert from "../../config/alert";
 import { Button } from "react-bootstrap";
-import { FaWifi, FaTv, FaRegSnowflake, FaTshirt, FaConciergeBell, FaCoffee, FaTaxi, FaStar, FaRegStar } from "react-icons/fa";
+import { FaStar, FaRegStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 export default function Rooms() {
@@ -30,29 +30,6 @@ export default function Rooms() {
       setAlert({ type: "error", title: error.message });
     }
   }
-
-  const getAmenityIcon = (amenityName) => {
-    switch (amenityName) {
-      case "WiFi":
-        return <FaWifi style={{ color: '#FEA116' }} />;
-      case "Điều Hoà":
-        return <FaRegSnowflake style={{ color: '#FEA116' }} />;
-      case "TV":
-        return <FaTv style={{ color: '#FEA116' }} />;
-      case "Mini Bar":
-        return <FaTshirt style={{ color: '#FEA116' }} />;
-      case "Dịch Vụ Phòng":
-        return <FaConciergeBell style={{ color: '#FEA116' }} />;
-      case "Bữa sáng miễn phí":
-        return <FaCoffee style={{ color: '#FEA116' }} />;
-      case "Giặt ủi":
-        return <FaTshirt style={{ color: '#FEA116' }} />;
-      case "Đưa Đón":
-        return <FaTaxi style={{ color: '#FEA116' }} />;
-      default:
-        return <span>No icon</span>;
-    }
-  };
 
   const getDataDetail = async (id) => {
     try {
@@ -124,7 +101,6 @@ export default function Rooms() {
                         key={index}
                         style={{ fontSize: "1.2rem" }}
                       >
-                        {getAmenityIcon(amenity?.amenitiesTypeRoomDto?.amenitiesTypeRoomName)}{" "}
                         <span style={{ fontSize: "1rem" }}> &nbsp;{amenity?.amenitiesTypeRoomDto?.amenitiesTypeRoomName}</span>
                       </small>
                     ))}

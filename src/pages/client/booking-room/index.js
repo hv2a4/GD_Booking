@@ -116,7 +116,7 @@ const PageBookRoom = () => {
             } else {
                 const result = await Swal.fire({
                     title: 'Xác nhận đặt phòng',
-                    text: 'Bạn đã chọn thanh toán tại quầy lễ tân. Nhấn "Tiếp tục" để xác nhận đặt phòng.',
+                    text: 'Bạn đã chọn thanh toán khi trả phòng. Nhấn "Tiếp tục" để xác nhận đặt phòng.',
                     icon: 'info',
                     confirmButtonText: 'Tiếp tục',
                     cancelButtonText: 'Hủy',

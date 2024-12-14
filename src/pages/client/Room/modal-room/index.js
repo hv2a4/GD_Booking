@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Image, ListGroup, Row, Col, Carousel, Card, Pagination } from 'react-bootstrap';
 import './style.css'; // Import CSS file
 import { FaStar, FaRegStar } from 'react-icons/fa'; // For star icons
@@ -36,7 +36,9 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
 
   // Tổng số trang
   const totalPages = room.feedBack ? Math.ceil(room.feedBack.length / reviewsPerPage) : 1;
-
+  useEffect(() => {
+    console.log(room);
+  }, [room]);
   return (
     <Modal show={show} onHide={onClose} centered className="room-detail-modal" size="lg">
       <Modal.Header closeButton>
@@ -119,19 +121,20 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
                         {/* Ảnh đại diện */}
                         <div className="col-auto">
                           <img
-                            src={room.image[index % room.image.length]}
-                            alt={`Ảnh của ${room.accountName[index]}`}
+                            src={room.image && room.image.length > 0 ? room.image[index % room.image.length] : 'default-image.jpg'}
+                            alt={`Ảnh của ${room.accountNames && room.accountNames[index] ? room.accountNames[index] : 'Khách hàng ẩn danh'}`}
                             className="rounded-circle"
                             style={{ width: '60px', height: '60px', objectFit: 'cover' }}
-                          />
+                          />    
                         </div>
+
                         {/* Tên và ngày */}
                         <div className="col">
                           <Card.Title className="mb-1">
-                            <strong>{room.accountName[index] || 'Khách hàng ẩn danh'}</strong>
+                            <strong>{room.accountNames && room.accountNames[index] ? room.accountNames[index] : 'Khách hàng ẩn danh'}</strong>  {/* Tên khách hàng */}
                           </Card.Title>
                           <Card.Text className="text-muted mb-0">
-                            {new Date(feedback.createAt).toLocaleDateString('vi-VN')}
+                            {feedback.createAt ? new Date(feedback.createAt).toLocaleDateString('vi-VN') : 'Ngày không xác định'}  {/* Kiểm tra ngày */}
                           </Card.Text>
                         </div>
                       </div>
