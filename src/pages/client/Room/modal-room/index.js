@@ -23,7 +23,6 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
     });
   };
 
-
   // Tính toán chỉ số bắt đầu và kết thúc cho các đánh giá ở trang hiện tại
   const indexOfLastReview = currentPage * reviewsPerPage;
   const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
@@ -36,9 +35,11 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
 
   // Tổng số trang
   const totalPages = room.feedBack ? Math.ceil(room.feedBack.length / reviewsPerPage) : 1;
+
   useEffect(() => {
     console.log(room);
   }, [room]);
+
   return (
     <Modal show={show} onHide={onClose} centered className="room-detail-modal" size="lg">
       <Modal.Header closeButton>
@@ -153,20 +154,22 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
             <p className="text-muted">Chưa có đánh giá nào.</p>
           )}
 
-          {/* Phân trang */}
-          <Pagination>
-            <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-            {[...Array(totalPages)].map((_, index) => (
-              <Pagination.Item
-                key={index + 1}
-                active={index + 1 === currentPage}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-          </Pagination>
+          {/* Chỉ hiển thị phân trang nếu reviewsPerPage lớn hơn 1 */}
+          {reviewsPerPage > 1 && room.feedBack && room.feedBack.length > reviewsPerPage && (
+            <Pagination>
+              <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+              {[...Array(totalPages)].map((_, index) => (
+                <Pagination.Item
+                  key={index + 1}
+                  active={index + 1 === currentPage}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+            </Pagination>
+          )}
         </div>
       </Modal.Body>
       <Modal.Footer>

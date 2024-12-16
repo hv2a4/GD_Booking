@@ -24,6 +24,7 @@ const ListRooms = ({ item, selectedRooms, handleSelectRoom, handleDeselectRoom }
             }
         }
     };
+
     return (
         <div className="col-12 col-md-8">
             <div className="row">
@@ -90,32 +91,34 @@ const ListRooms = ({ item, selectedRooms, handleSelectRoom, handleDeselectRoom }
                                     </li>
                                 )}
                             </ul>
-                            {/* Pagination Controls */}
-                            <div className="pagination-controls mt-3 d-flex justify-content-center">
-                                <button
-                                    className="btn btn-primary me-2"
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                >
-                                    Trước
-                                </button>
-                                {Array.from({ length: totalPages }, (_, index) => (
+                            {/* Check if there are more than 5 rooms before displaying pagination */}
+                            {item?.roomId?.length > 5 && (
+                                <div className="pagination-controls mt-3 d-flex justify-content-center">
                                     <button
-                                        key={index + 1}
-                                        className={`btn ${currentPage === index + 1 ? "btn-primary" : "btn-outline-warning"} mx-1`}
-                                        onClick={() => handlePageChange(index + 1)}
+                                        className="btn btn-primary me-2"
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
                                     >
-                                        {index + 1}
+                                        Trước
                                     </button>
-                                ))}
-                                <button
-                                    className="btn btn-primary ms-2"
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                >
-                                    Sau
-                                </button>
-                            </div>
+                                    {Array.from({ length: totalPages }, (_, index) => (
+                                        <button
+                                            key={index + 1}
+                                            className={`btn ${currentPage === index + 1 ? "btn-primary" : "btn-outline-warning"} mx-1`}
+                                            onClick={() => handlePageChange(index + 1)}
+                                        >
+                                            {index + 1}
+                                        </button>
+                                    ))}
+                                    <button
+                                        className="btn btn-primary ms-2"
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Sau
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
