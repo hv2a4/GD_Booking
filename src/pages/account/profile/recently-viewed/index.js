@@ -81,10 +81,10 @@ const RecentlyViewed = () => {
                             <div className="card-body">
                                 <h5 className="card-title">{booking.bkFormat}</h5>
                                 <p className="card-text">
-                                    <strong>Nhận phòng:</strong> {booking.startAt}
+                                    <strong>Nhận phòng:</strong> {booking.startAt} 14:00
                                 </p>
                                 <p className="card-text">
-                                    <strong>Trả phòng:</strong> {booking.endAt}
+                                    <strong>Trả phòng:</strong> {booking.endAt} 12:00
                                 </p>
                                 <p className="custom-price-text">
                                     <strong>Tổng giá:</strong> {booking.totalBooking.toLocaleString()}  VND
@@ -140,9 +140,9 @@ const RecentlyViewed = () => {
                                                     <h5>Thông tin đặt phòng</h5>
                                                     <br />
                                                     <p><strong>Mã Đặt Phòng:</strong> {booking.bkFormat}</p>
-                                                    <p><strong>Ngày đặt:</strong> {booking.createAt}</p>
-                                                    <p><strong>Nhận phòng:</strong> {booking.startAt}</p>
-                                                    <p><strong>Trả phòng:</strong> {booking.endAt}</p>
+                                                    <p><strong>Ngày đặt:</strong> {booking.createAt} </p>
+                                                    <p><strong>Nhận phòng:</strong> {booking.startAt} 14:00</p>
+                                                    <p><strong>Trả phòng:</strong> {booking.endAt} 12:00</p>
                                                     <p><strong>Trạng thái:</strong> <span style={{ color: '#FEA116' }}>{booking.statusBkName}</span></p>
                                                 </div>
                                                 <div className="col-md-8">

@@ -209,6 +209,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                         <label className="form-label">Thời gian tạo HĐ</label>
                                         <input
                                             type="datetime-local"
+                                            disabled
                                             value={dateTime}
                                             onChange={(e) => setDateTime(e.target.value)}
                                             className="form-control"
@@ -247,7 +248,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                     </div>
                                     <div className="mb-3">
                                         <div className="d-flex justify-content-between">
-                                            <strong>Còn cần trả</strong>
+                                            <strong>Còn lại</strong>
                                             <strong>
                                                 {bookings.methodPaymentDto?.id === 2
                                                     ? formatCurrency(calculateTotal() - tatolRoom())

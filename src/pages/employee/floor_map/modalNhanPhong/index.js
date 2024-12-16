@@ -37,10 +37,10 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         return;
     }
 
-    if (new Date() < bookingCreateAt) {
-        setAlert({ type: "error", title: "Chưa tới ngày nhận phòng" });
-        return;
-    }
+    // if (new Date() < bookingCreateAt) {
+    //     setAlert({ type: "error", title: "Chưa tới ngày nhận phòng" });
+    //     return;
+    // }
         const roomId = checkBoxSelected.map((e) => e.roomId);
         const RoomIdsString = roomId.join(',');
         const occupiedRoom = filteredBookingRoom?.some((d) => {

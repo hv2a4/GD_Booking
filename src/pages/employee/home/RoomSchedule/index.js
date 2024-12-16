@@ -34,7 +34,7 @@ function calculatePosition(start, end, startDate, endDate) {
 
     // Tính khoảng cách và độ dài item theo tỷ lệ %
     let position = Math.min(100, (daysFromStart / totalDuration) * 100);
-    position = Math.min(100, position + 5);
+    position = Math.min(100, position + 2);
 
     // Tính độ dài dựa trên số ngày giữa start và end
     const durationInDays = Math.max(0, (endDateAdjusted - startDateAdjusted) / (1000 * 60 * 60 * 24));

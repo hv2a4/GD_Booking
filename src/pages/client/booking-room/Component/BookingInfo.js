@@ -68,7 +68,7 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
                                         </div>
                                     </td>
                                     <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                        <div className="info-right">{rooms.startDate ? formatDate(rooms.startDate) : "N/A"}</div>
+                                        <div className="info-right">{rooms.startDate ? formatDate(rooms.startDate) : "N/A"} 14:00</div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -78,7 +78,7 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
                                         </div>
                                     </td>
                                     <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
-                                        <div className="info-right">{rooms.endDate ? formatDate(rooms.endDate) : "N/A"}</div>
+                                        <div className="info-right">{rooms.endDate ? formatDate(rooms.endDate) : "N/A"} 12:00</div>
                                     </td>
                                 </tr>
                             </tbody>
