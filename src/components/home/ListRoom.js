@@ -142,11 +142,11 @@ export default function ListRoom() {
         // Lấy thông tin phòng
         const roomDetails = {
             roomId: roomId,
-            roomName: Object.roomName[selectedRoomIndex],
-            price: Object.price,
-            typeRoomName: Object.typeRoomName,
-            description: Object.description,
-            imageList: Object.imageList,
+            roomName: Object?.roomName[selectedRoomIndex],
+            price: Object?.price,
+            typeRoomName: Object?.typeRoomName,
+            description: Object?.description ?? "",
+            imageList: Object?.imageList,
         };
 
         console.log("Thông tin phòng đã chọn: ", roomDetails);
