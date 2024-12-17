@@ -11,4 +11,13 @@ const addInvoice = async (data, token) => {
     return res;
 }
 
-export {addInvoice};
+const maintenanceScheduleSuccess = async (data) => {
+    const res = await request({
+        method: "POST",
+        path: `api/invoice/maintenance`,
+        data: data
+    });
+    return res;
+}
+
+export {addInvoice,maintenanceScheduleSuccess};

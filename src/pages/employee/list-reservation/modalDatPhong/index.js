@@ -154,8 +154,6 @@ const DatPhong = ({ onClose, room }) => {
             endDate: checkOutDate,
             roomId: idRoom
         }
-        console.log(orderData);
-        
         const response = await addBookingOffline(orderData);
         if (response) {
             setAlert({ type: response.status , title: response.message });

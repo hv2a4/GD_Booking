@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Alert from "../../../../config/alert";
 import { getBookingId, updateStatusBooking } from "../../../../services/employee/booking-manager";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode as jwt_decode } from "jwt-decode";
 import { Cookies } from 'react-cookie';
 import { getIdBooking } from "../../../../config/idBooking";
@@ -17,6 +17,7 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
         startAt: null,
         endAt: null,
     });
+    const navigate = useNavigate();
     const cookies = new Cookies();
     const token = cookies.get('token');
     const decodedToken = token ? jwt_decode(token) : null;
@@ -72,6 +73,7 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
             const data = await updateStatusBooking(booking.id, 4, newBooking);
             setAlert({ type: data.status, title: data.message });
             onClose();
+            navigate(`/employee/list-booking-room`);
         } catch (error) {
             setAlert({ type: "error", title: error.message });
         }

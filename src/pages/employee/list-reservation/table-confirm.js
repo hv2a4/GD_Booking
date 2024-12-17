@@ -7,6 +7,7 @@ import ProductServiceModal from "./serviceInsert";
 import CancelBookingModal from "./modalCancel";
 import ConfirmBookingModal from "./modalXacNhan";
 import { getIdBooking } from "../../../config/idBooking";
+import { bookingServiceRoom } from "../../../services/employee/service";
 
 const Confirm = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -14,6 +15,7 @@ const Confirm = ({ item }) => {
     const [booking, setBooking] = useState({});
     const [modalService, setModalService] = useState(false);
     const [modalCancel, setModalCancel] = useState(false);
+    const [bookingsWithPrices, setBookingsWithPrices] = useState([]);
     const [modalConfirm, setModalConfirm] = useState(false);
     const totalPages = Math.ceil(item?.length / itemsPerPage);
 
@@ -25,9 +27,45 @@ const Confirm = ({ item }) => {
     const getCurrentPageItems = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return item?.slice(startIndex, endIndex) || [];
+        return bookingsWithPrices?.slice(startIndex, endIndex) || [];
     };
 
+    const getPriceService = async (idBookingRooms) => {
+        try {
+            const services = await bookingServiceRoom(idBookingRooms);
+            // Calculate the total service price
+            const totalPriceService = services.reduce((total, item) => {
+                return total + (item.price || 0) * (item.quantity || 0);
+            }, 0);
+
+            return totalPriceService;
+        } catch (error) {
+            console.error("Error fetching service price:", error);
+            return 0; // Return 0 if there's an error
+        }
+    };
+    const prepareBookingsWithPrices = async () => {
+        const updatedBookings = await Promise.all(
+            item.map(async (booking) => {
+                const roomPrice = booking.bookingRooms?.reduce(
+                    (total, room) => total + (room.price || 0),
+                    0
+                );
+                const idBookingRooms = booking.bookingRooms.map((room) => room.id);
+                const servicePrice = await getPriceService(idBookingRooms);
+                console.log(servicePrice);
+
+                return {
+                    ...booking,
+                    totalPriceBooking: roomPrice + servicePrice,
+                };
+            })
+        );
+        setBookingsWithPrices(updatedBookings);
+    };
+    useEffect(() => {
+        prepareBookingsWithPrices();
+    }, [item]);
     // Xử lý khi chuyển trang
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -96,10 +134,6 @@ const Confirm = ({ item }) => {
                         const roomNames = booking.bookingRooms
                             .map(room => room.room?.roomName.replace("Phòng ", ""))
                             .join(", ");
-                        const totalPrice = booking.bookingRooms.reduce(
-                            (total, room) => total + (room.price || 0),
-                            0
-                        );
                         return (
                             <tr key={index} className="tr-center">
                                 <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -116,7 +150,7 @@ const Confirm = ({ item }) => {
                                 </td>
                                 <td>{formatDate(booking.startAt)}</td>
                                 <td>{formatDate(booking.endAt)}</td>
-                                <td>{formatCurrency(totalPrice)}</td>
+                                <td>{formatCurrency(booking.totalPriceBooking)}</td>
                                 <td style={{ color: booking.statusPayment ? "green" : "red" }}>
                                     {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                 </td>

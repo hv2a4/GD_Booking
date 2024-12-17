@@ -7,25 +7,35 @@ import { jwtDecode as jwt_decode } from "jwt-decode";
 import { addInvoice } from "../../../../services/employee/invoice";
 import Alert from "../../../../config/alert";
 import { useNavigate } from "react-router-dom";
+import { getIdBooking } from "../../../../config/idBooking";
+import { discountBooking } from "../../../../services/employee/discount";
 
 const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} } }) => {
+    const localDatetime = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
     const [show, setShow] = useState(false);
     const [bookingRooms, setBookingRooms] = useState([]);
     const [services, setServices] = useState([]);
     const [alert, setAlert] = useState(null);
-    const [dateTime, setDateTime] = useState(new Date().toISOString().slice(0, 16));
+    const [dateTime, setDateTime] = useState(localDatetime);
+    const [priceDiscount, setPriceDiscount] = useState(0);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const cookieToken = Cookies.get("token") ? Cookies.get("token") : null;
     const decodedToken = jwt_decode(cookieToken);
     const navigate = useNavigate();
     useEffect(() => {
+        console.log(bookings);
+        
         if (bookings?.bookingRooms) {
             setBookingRooms(bookings.bookingRooms);
             handleService();
+            handlediscountBooking();
         }
         setTimeout(() => setAlert(null), 500);
     }, [bookings]);
+
 
     const handleService = async () => {
         const idBookingRoom = bookingRooms.map((e) => e.id);
@@ -66,6 +76,24 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
         return totalRoomCost + totalServiceCost;
     };
 
+    const handlediscountBooking = async () => {
+        if (bookings.disCountName) {
+            // Gọi service hoặc API để lấy dữ liệu giảm giá
+            const data = await discountBooking(bookings.disCountName);
+            if (data) {
+                const validBookingRooms = Array.isArray(bookingRooms) ? bookingRooms : [];
+                const totalRoomCost = validBookingRooms.reduce((acc, item) => {
+                    const duration = calculateDuration(item.checkIn, new Date());
+                    const roomCost = (item.room?.typeRoomDto?.price || 0) * duration;
+                    return acc + roomCost;
+                }, 0);
+    
+                // Tính giá giảm dựa trên phần trăm giảm giá
+                const priceDiscount = (totalRoomCost * data[0].percent) / 100;
+                setPriceDiscount(priceDiscount);
+            }
+        }
+    };
     const tatolRoom = () => {
         const totalRoomCost = bookingRooms.reduce((acc, item) => {
             const duration = calculateDuration(item.checkIn, new Date());
@@ -85,7 +113,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
         const res = await addInvoice(data, cookieToken);
         if (res) {
             setAlert({ type: res.status, title: res.message });
-            setTimeout(() => navigate("/employee/home"), 3000);
+            setTimeout(() => navigate("/employee/list-booking-room"), 3000);
         }
     }
 
@@ -117,7 +145,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
             >
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
-                    <Modal.Title>Thanh toán hóa đơn {bookings?.id} - {bookings?.accountDto?.fullname}</Modal.Title>
+                    <Modal.Title>Thanh toán hóa đơn {getIdBooking(bookings?.id, bookings?.createAt)} - {bookings?.accountDto?.fullname}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="container-fluid">
@@ -224,7 +252,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                     <div className="mb-3">
                                         <div className="d-flex justify-content-between">
                                             <span>Giảm giá</span>
-                                            <strong>0</strong>
+                                            <strong>{formatCurrency(priceDiscount)} VNĐ</strong>
                                         </div>
                                     </div>
                                     <div className="mb-3">
@@ -251,8 +279,8 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                             <strong>Còn lại</strong>
                                             <strong>
                                                 {bookings.methodPaymentDto?.id === 2
-                                                    ? formatCurrency(calculateTotal() - tatolRoom())
-                                                    : formatCurrency(calculateTotal())} VNĐ
+                                                    ? formatCurrency(calculateTotal() - tatolRoom() - priceDiscount)
+                                                    : formatCurrency(calculateTotal() - priceDiscount)} VNĐ
                                             </strong>
                                         </div>
                                     </div>

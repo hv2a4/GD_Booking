@@ -372,10 +372,6 @@ export default function ListRoomEmployee() {
                                                                 <span
                                                                     style={{
                                                                         fontSize: "1rem",
-                                                                        maxWidth: "82px",
-                                                                        whiteSpace: "nowrap",
-                                                                        overflow: "hidden",
-                                                                        textOverflow: "ellipsis"
                                                                     }}
                                                                     title={amenity}
                                                                 >

@@ -149,7 +149,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
     return (
         <div className="container-fluid booking pb-5 wow fadeIn" data-wow-delay="0.1s">
             <div className="container">
-                <div className="bg-white shadow" style={{ padding: "35px" }}>
+                <div className="bg-white shadow" style={{ padding: "35px", borderRadius: "10px" }}>
                     <div className="row g-2">
                         <div className="col-md-10">
                             <div className="row g-2">
