@@ -15,12 +15,12 @@ const RoomServiceRoomFormModal = ({ item, refreshData }) => {
     const cookie = new Cookies();
     const token = cookie.get("token");
 
-    useEffect(() => {
-        if (item) {
-            setValue("id", item.id);
-            setValue("serviceRoomName", item.serviceRoomName);
-        }
-    }, [item, setValue]);
+    // useEffect(() => {
+    //     if (item) {
+    //         setValue("id", item.id);
+    //         setValue("serviceRoomName", item.serviceRoomName);
+    //     }
+    // }, [item, setValue]);
 
     const handleShow = () => { if (!show) { setShow(true) } };
     const handleClose = () => {

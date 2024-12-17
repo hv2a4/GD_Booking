@@ -44,7 +44,7 @@ const RecentlyViewed = () => {
         };
 
         fetchBookings();
-    }, [decodedToken]);
+    }, []);
 
     // Xử lý khi người dùng đổi trang
     const handlePageClick = (event) => {
