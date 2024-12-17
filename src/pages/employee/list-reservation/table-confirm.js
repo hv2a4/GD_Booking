@@ -51,7 +51,7 @@ const Confirm = ({ item }) => {
                     (total, room) => total + (room.price || 0),
                     0
                 );
-                const idBookingRooms = booking.bookingRooms.map((room) => room.id);
+                const idBookingRooms = booking.bookingRooms.map((room) => room?.id);
                 const servicePrice = await getPriceService(idBookingRooms);
                 console.log(servicePrice);
 

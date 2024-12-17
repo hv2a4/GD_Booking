@@ -60,14 +60,14 @@ export default function ListRoomEmployee() {
     const token = cookies.get('token');
     // Hàm gọi API danh sách phòng
     const fetchRooms = async () => {
-        try {
-            const res = await getListRoom(currentPage - 1, pageSize); // Lấy phòng dựa trên trang hiện tại
-            setTypeRoom(res.rooms);
-            setTotalPages(res.totalPages); // Tổng số trang từ API
-        } catch (error) {
-            console.log("Lỗi API trả về: ", error);
-        }
-    };
+            try {
+                const res = await getListRoom(currentPage, pageSize); // Lấy phòng dựa trên trang hiện tại
+                setTypeRoom(res.content);
+                setTotalPages(res.totalPages); // Tổng số trang từ API
+            } catch (error) {
+                console.log("Lỗi API trả về: ", error);
+            }
+        };
 
 
     // Effect để gọi API khi trang thay đổi
@@ -310,138 +310,138 @@ export default function ListRoomEmployee() {
 
     return (
         <Layoutemployee title={"Danh sách đặt phòng trực tiếp"} icons={cilSpreadsheet}>
-            <div className="container-xxl py-5 mt-5">
-                <div className="container">
-                    <BookingFillter onFilter={handleDataFilter} onSendDates={handleDatesFromChild} />
-                    {renderAlert}
-                    <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                        {typeRoom.length === 0 ? (
-                            <div className="col-12 text-center">Không có phòng nào để hiển thị.</div>
-                        ) : (
-                            typeRoom.map((item, key) => (
-                                <div className="col-lg-12 col-md-12 col-sm-12 wow fadeInUp" data-wow-delay="0.1s" key={key}>
-                                    <div className="row border-cutom">
-                                        {/* Phần hiển thị phòng */}
-                                        <div className="room-item rounded overflow-hidden col-md-4 mt-2" style={{}}>
-                                            <div className="position-relative">
-                                                <img
-                                                    className="img-fluid w-100 rounded-3"
-                                                    style={{ height: '271px', boxShadow: ' 0 4px 6px rgba(0, 0, 0, 0.1)' }}
-                                                    src={item?.imageList?.[0]}
-                                                    alt={item?.typeRoomName || "Room Image"}
-                                                />
-                                                <div className="d-flex flex-column align-items-start position-absolute start-0 top-100 translate-middle-y ms-4">
-                                                    {/* Giá hiện tại */}
-                                                    <small className="bg-warning text-white rounded py-1 px-3 mb-2">
-                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
-                                                    </small>
-                                                </div>
+            <div className="container-xxl py-5">
+            <div className="container">
+                <BookingFillter onFilter={handleDataFilter} onSendDates={handleDatesFromChild} />
+                {renderAlert}
 
+                <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {typeRoom.length === 0 ? (
+                        <div className="col-12 text-center">Không có phòng nào để hiển thị.</div>
+                    ) : (
+                        typeRoom.map((item, key) => (
+                            <div className="col-lg-12 col-md-12 col-sm-12 wow fadeInUp" data-wow-delay="0.1s" key={key}>
+                                <div className="row border-cutom">
+                                    {/* Phần hiển thị phòng */}
+                                    <div className="room-item rounded overflow-hidden col-md-4 mt-2" style={{}}>
+                                        <div className="position-relative">
+                                            <img
+                                                className="img-fluid w-100 rounded-3"
+                                                style={{ height: '271px', boxShadow: ' 0 4px 6px rgba(0, 0, 0, 0.1)' }}
+                                                src={item?.imageList?.[0]}
+                                                alt={item?.typeRoomName || "Room Image"}
+                                            />
+                                            <div className="d-flex flex-column align-items-start position-absolute start-0 top-100 translate-middle-y ms-4">
+                                                {/* Giá hiện tại */}
+                                                <small className="bg-warning text-white rounded py-1 px-3 mb-2">
+                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
+                                                </small>
                                             </div>
 
-                                            {/* Thông tin phòng */}
-                                            <div className="p-4 mt-2" style={{ borderRight: '1px soild' }}>
-                                                <h5 className="mb-3"><strong>{item?.typeRoomName}</strong></h5>
-                                                {/* Chi phí dự kiến */}
-                                                {item?.estCost && (
-                                                    <div className="">
-                                                        <p className="text-danger fw-bold mb-0">
-                                                            <strong>Chi phí dự kiến:</strong>
-                                                            <span className="ms-2">
-                                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.estCost)}
-                                                            </span>
-                                                        </p>
-                                                    </div>
-                                                )}
+                                        </div>
 
-                                                <div className="mb-3 mt-2" style={{ fontSize: "1rem" }}>
-                                                    <strong>Sức chứa: </strong>Tối đa {item?.guestLimit} người
+                                        {/* Thông tin phòng */}
+                                        <div className="p-4 mt-2" style={{ borderRight: '1px soild' }}>
+                                            <h5 className="mb-3"><strong>{item?.typeRoomName}</strong></h5>
+                                            {/* Chi phí dự kiến */}
+                                            {item?.estCost && (
+                                                <div className="">
+                                                    <p className="text-danger fw-bold mb-0">
+                                                        <strong>Chi phí dự kiến:</strong>
+                                                        <span className="ms-2">
+                                                            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.estCost)}
+                                                        </span>
+                                                    </p>
                                                 </div>
+                                            )}
 
-                                                {/* Tiện nghi phòng */}
-                                                <div className="mb-3">
-                                                    <strong>Tiện nghi phòng:</strong>
-                                                    <div className="d-flex flex-wrap mt-2">
-                                                        {item?.amenitiesDetails?.slice(0, 3).map((amenity, idx) => (
-                                                            <small
-                                                                className="border-end me-3 pe-3 d-flex align-items-center mb-2"
-                                                                key={idx}
-                                                                style={{ fontSize: "1.2rem" }}
+                                            <div className="mb-3 mt-2" style={{ fontSize: "1rem" }}>
+                                                <strong>Sức chứa: </strong>Tối đa {item?.guestLimit} người
+                                            </div>
+
+                                            {/* Tiện nghi phòng */}
+                                            <div className="mb-3">
+                                                <strong>Tiện nghi phòng:</strong>
+                                                <div className="d-flex flex-wrap mt-2">
+                                                    {item?.amenitiesDetails?.slice(0, 3).map((amenity, idx) => (
+                                                        <small
+                                                            className="border-end me-3 pe-3 d-flex align-items-center mb-2"
+                                                            key={idx}
+                                                            style={{ fontSize: "1.2rem" }}
+                                                        >
+                                                            <span
+                                                                style={{
+                                                                    fontSize: "1rem"
+                                                                }}
+                                                                title={amenity}
                                                             >
-                                                                {amenityIcons[amenity]}
-                                                                <span
-                                                                    style={{
-                                                                        fontSize: "1rem",
-                                                                    }}
-                                                                    title={amenity}
-                                                                >
-                                                                    &nbsp;{amenity}
-                                                                </span>
-                                                            </small>
-                                                        ))}
-                                                        {item?.amenitiesDetails?.length > 3 && (
-                                                            <small
-                                                                className="more-amenities"
-                                                                style={{ fontSize: "1.2rem", color: "#FEA116" }}
-                                                                title="Click to see more amenities"
-                                                            >
-                                                                &nbsp;...
-                                                            </small>
-                                                        )}
-                                                    </div>
-                                                    <div className="d-flex justify-content-between mt-4">
-                                                        <Button className="btn btn-sm btn-primary rounded py-2 px-4" onClick={() => getDataDetail(item.typeRoomId)}>
-                                                            Chi tiết
-                                                        </Button>
-                                                    </div>
+                                                                &nbsp;{amenity}
+                                                            </span>
+                                                        </small>
+                                                    ))}
+                                                    {item?.amenitiesDetails?.length > 3 && (
+                                                        <small
+                                                            className="more-amenities"
+                                                            style={{ fontSize: "1.2rem", color: "#FEA116" }}
+                                                            title="Click to see more amenities"
+                                                        >
+                                                            &nbsp;...
+                                                        </small>
+                                                    )}
+                                                </div>
+                                                <div className="d-flex justify-content-between mt-4">
+                                                    <Button className="btn btn-sm btn-primary rounded py-2 px-4" onClick={() => getDataDetail(item.typeRoomId)}>
+                                                        Chi tiết
+                                                    </Button>
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {/* Danh sách đặt phòng */}
-                                        <ListRooms
-                                            item={item}
-                                            selectedRooms={selectedRooms}
-                                            handleSelectRoom={handleSelectRoom}
-                                            handleDeselectRoom={handleDeselectRoom}
-                                        />
                                     </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
 
-                    {/* Pagination buttons */}
-                    <div className="pagination mt-4 d-flex justify-content-center">
-                        <Button
-                            className="btn btn-secondary me-2"
-                            disabled={currentPage === 1}
-                            onClick={() => handlePageChange(currentPage - 1)}
-                        >
-                            Trước
-                        </Button>
-                        <span className="d-flex align-items-center">
-                            Trang {currentPage} trên {totalPages}
-                        </span>
-                        <Button
-                            className="btn btn-secondary ms-2"
-                            disabled={currentPage === totalPages}
-                            onClick={() => handlePageChange(currentPage + 1)}
-                        >
-                            Tiếp theo
-                        </Button>
-                    </div>
+                                    {/* Danh sách đặt phòng */}
+                                    <ListRooms
+                                        item={item}
+                                        selectedRooms={selectedRooms}
+                                        handleSelectRoom={handleSelectRoom}
+                                        handleDeselectRoom={handleDeselectRoom}
+                                    />
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
-                {/* Sticky Selected Room Bar */}
-                <FloatingBubble
-                    selectedRooms={selectedRooms}
-                    handleRemoveRoom={handleRemoveRoom}
-                    calculateTotalPrice={calculateTotalPrice}
-                    loading={loading}
-                    handleBooking={handleBooking}
-                />
-                <RoomDetail show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
+
+                {/* Pagination buttons */}
+                <div className="pagination mt-4 d-flex justify-content-center">
+                    <Button
+                        className="btn btn-secondary me-2"
+                        disabled={currentPage === 1}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                    >
+                        Trước
+                    </Button>
+                    <span className="d-flex align-items-center">
+                        Trang {currentPage} trên {totalPages}
+                    </span>
+                    <Button
+                        className="btn btn-secondary ms-2"
+                        disabled={currentPage === totalPages}
+                        onClick={() => handlePageChange(currentPage + 1)}
+                    >
+                        Tiếp theo
+                    </Button>
+                </div>
             </div>
+            {/* Sticky Selected Room Bar */}
+            <FloatingBubble
+                selectedRooms={selectedRooms}
+                handleRemoveRoom={handleRemoveRoom}
+                calculateTotalPrice={calculateTotalPrice}
+                loading={loading}
+                handleBooking={handleBooking}
+            />
+            <RoomDetail show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
+        </div >
         </Layoutemployee>
     );
 }

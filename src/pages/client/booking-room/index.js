@@ -256,13 +256,6 @@ const PageBookRoom = () => {
     // Function to calculate the total price with discount applied
     const calculateTotalPrice = () => {
         let total = selectedRooms.reduce((acc, item) => acc + item.price, 0);
-
-        // Apply discount if available and valid
-        if (discountName && discountName.percent > 0) {
-            const discountPercent = discountName.percent;
-            total = total - (total * discountPercent / 100);
-        }
-
         setTotalPrice(total);
     };
 

@@ -46,19 +46,22 @@ const MaintenanceModal = ({ handleClose }) => {
         const selectedRoomIds = selectedRooms.map(room => room.id);
         const decodedToken = token ? jwt_decode(token) : null;
         const orderData = {
-            userName: "baotri",
+            userName: decodedToken.username,
             startDate: String(receiveDate),
             endDate: String(returnDate),
             roomId: selectedRoomIds
         }
+    
         const convertedOrderData = {
             ...orderData,
             startDate: formatDateToISO(orderData.startDate),
             endDate: formatDateToISO(orderData.endDate),
         };
+        console.log(convertedOrderData);
+        
         const data = await postMaintenanceSchedule(convertedOrderData, decodedToken.username);
-        setAlert({ type: data.status, title: data.message });
-        if (data.status === "success") {
+        setAlert({ type: data?.status, title: data?.message });
+        if (data?.status === "success") {
             setTimeout(() => {
                 handleClose();
             }, 3000);

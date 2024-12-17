@@ -12,12 +12,12 @@ const RecentlyViewed = () => {
     const [review, setReview] = useState(""); // Để lưu nội dung đánh giá
     const [hoveredRating, setHoveredRating] = useState(0);
     const [mockBookings, setMockBookings] = useState([]);
-   
+
     // Lấy token từ cookies và decode
     const intervalRef = useRef(null);
     const tokens = Cookies.get("token") || null;
     const decodedToken = tokens ? jwt_decode(tokens) : null;
-    
+
     useEffect(() => {
         const fetchBookings = async () => {
             if (!decodedToken?.id) {
@@ -43,8 +43,8 @@ const RecentlyViewed = () => {
                 setMockBookings([]);
             }
         };
-         // Cleanup interval nếu decodedToken thay đổi
-         if (intervalRef.current) {
+        // Cleanup interval nếu decodedToken thay đổi
+        if (intervalRef.current) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
         }
@@ -106,7 +106,7 @@ const RecentlyViewed = () => {
                                     <strong>Trả phòng:</strong> {booking.endAt} 12:00
                                 </p>
                                 <p className="custom-price-text">
-                                    <strong>Tổng giá:</strong> {booking.totalBooking.toLocaleString()}  VND
+                                <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
                                 </p>
                                 <p className="card-text">
                                     <strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}
@@ -168,10 +168,10 @@ const RecentlyViewed = () => {
                                                     <h5>Chi tiết phòng</h5>
                                                     <br />
                                                     <p><strong>Phòng:</strong> {booking.roomInfo}</p>
-                                                    <p><strong>Tiền Phòng:</strong> {booking.totalRoom.toLocaleString()} VND </p>
+                                                    <p><strong>Tiền Phòng:</strong>  {booking.totalRoom ? booking.totalRoom.toLocaleString() : "0"} VND </p>
                                                     <p><strong>Dịch vụ:</strong> {booking.combinedServiceNames || "Chưa sử dụng dịch vụ"}</p>
                                                     <p><strong>Tiền Dịch Vụ:</strong> {booking.combinedTotalServices ? booking.combinedTotalServices.toLocaleString() : "0"} VND</p>
-                                                    <p><strong>Tổng giá:</strong> <span style={{ color: '#E60000 ' }}>{booking.totalBooking.toLocaleString()} VND</span> </p>
+                                                    <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
                                                 </div>
                                             </div>
                                             {/* Row 6: Đánh giá */}

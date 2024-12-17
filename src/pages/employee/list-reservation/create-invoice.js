@@ -68,7 +68,7 @@ const CreateInvoice = ({ item }) => {
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
-                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
+                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0]?.id);
 
                             return (
                                 <tr key={index} className="tr-center">

@@ -6,6 +6,7 @@ import { Cookies } from "react-cookie";
 import { format } from "date-fns";
 import { formatCurrency } from "../../../../../../config/formatPrice";
 import Alert from "../../../../../../config/alert";
+import { getIdBooking } from "../../../../../../config/idBooking";
 
 const BookingHistory = ({ id }) => {
     const [bookings, setBookings] = useState([]);
@@ -69,7 +70,7 @@ const BookingHistory = ({ id }) => {
 
                         return (
                             <tr key={index}>
-                                <th scope="row">{booking.id}</th>
+                                <th scope="row">{getIdBooking(booking.id,booking.createAt)}</th>
                                 <td>{roomNames}</td>
                                 <td>{formatDate(booking.createAt)}</td>
                                 <td>{booking.accountDto?.fullname || "N/A"}</td>

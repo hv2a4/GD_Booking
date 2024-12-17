@@ -95,19 +95,20 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
         }
     };
     const tatolRoom = () => {
+        const duration = calculateDuration(bookings.startAt, bookings.endAt);
         const totalRoomCost = bookingRooms.reduce((acc, item) => {
-            const duration = calculateDuration(item.checkIn, new Date());
+            
             const roomCost = item.room?.typeRoomDto?.price * duration || 0;
             return acc + roomCost;
         }, 0);
-        return totalRoomCost;
+        return totalRoomCost - priceDiscount;
     }
 
     const handleAddInvoice = async () => {
         const data = {
             createAt: new Date(dateTime),
             invoiceStatus: true,
-            totalAmount: calculateTotal(),
+            totalAmount: calculateTotal() - priceDiscount,
             bookingId: bookings?.id
         }
         const res = await addInvoice(data, cookieToken);
@@ -253,12 +254,6 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                         <div className="d-flex justify-content-between">
                                             <span>Giảm giá</span>
                                             <strong>{formatCurrency(priceDiscount)} VNĐ</strong>
-                                        </div>
-                                    </div>
-                                    <div className="mb-3">
-                                        <div className="d-flex justify-content-between">
-                                            <span>Thu khác</span>
-                                            <strong>0</strong>
                                         </div>
                                     </div>
                                     <div className="mb-3">
