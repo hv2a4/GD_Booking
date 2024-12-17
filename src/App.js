@@ -52,6 +52,8 @@ import ChangePassword from "./pages/admin/ChangePassword";
 import ForgotPasswordEmail from "./pages/account/ForgotPassword/ForgotPassword";
 import FloorPage from "./pages/admin/home/Floor";
 import ListRoomEmployee from "./pages/employee/booking-offline";
+import FeedbackPageComponent from "./pages/admin/Admin_Hotel_Ower/page_admin/feedback";
+import FeedbackPage from "./pages/admin/home/Feedback";
 function App() {
 
   const getUserRole = () => {
@@ -142,6 +144,7 @@ function App() {
           <Route path="room-class-report" element={<RoomClassReport />} />
           <Route path="employee-report" element={<EmployeeReport />} />
           <Route path="floor" element={<FloorPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
         </Route>
 
         <Route path="account" element={<Login />} />

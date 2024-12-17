@@ -11,6 +11,7 @@ import {
   cilRoom,
   cilCloud,
   cilStar,
+  cilSpeech,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 
@@ -103,6 +104,12 @@ const _nav = [
         to: '/admin/account-employee',
       },
     ],
+  },
+  {
+    component: CNavItem,
+    name: 'Quản lý đánh giá',
+    to: '/admin/feedback',
+    icon: <CIcon icon={cilSpeech} customClassName="nav-icon" />
   },
   {
     component: CNavGroup,
