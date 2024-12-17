@@ -7,13 +7,7 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
   // Số lượng đánh giá hiển thị trên mỗi trang
   const reviewsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const indexOfLastReview = currentPage * reviewsPerPage;
-  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-  const currentReviews = room?.feedBack ? room?.feedBack?.slice(indexOfFirstReview, indexOfLastReview) : [];
 
-  useEffect(() => {
-    console.log(room);
-  }, [room]);
   // Helper function to render star ratings
   const renderStars = (stars) => {
     return [...Array(5)].map((_, i) => {
@@ -146,19 +140,15 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
                         </div>
                       </div>
 
-                        {/* Nội dung phản hồi */}
-                        <div className="mt-3">
-                          <p className="mb-2">{feedback.content}</p>
-                          <div>{renderStars(feedback.stars)}</div>
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted">Chưa có đánh giá nào.</p>
-              )}
-
+                      {/* Nội dung phản hồi */}
+                      <div className="mt-3">
+                        <p className="mb-2">{feedback.content}</p>
+                        <div>{renderStars(feedback.stars)}</div>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-muted">Chưa có đánh giá nào.</p>
