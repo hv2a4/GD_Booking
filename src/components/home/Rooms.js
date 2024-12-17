@@ -49,12 +49,6 @@ export default function Rooms() {
       setAlert({ type: "error", title: error.message });
     }
   };
-
-  const handleHref = () => {
-    navigate("/client/rooms");
-    window.scrollTo(0, 0);
-  }
-
   return (
     <div className="container-xxl py-5">
       {alert && <Alert type={alert.type} title={alert.title} />}
@@ -126,7 +120,6 @@ export default function Rooms() {
                     >
                       Chi tiết
                     </Button>
-                    <Button className="btn btn-sm btn-primary rounded py-2 px-4" onClick={handleHref}> Xem thêm</Button>
                   </div>
                 </div>
               </div>

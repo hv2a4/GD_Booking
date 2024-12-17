@@ -1,3 +1,4 @@
+import { data } from "jquery";
 import { request } from "../../../../config/configApi"
 import Swal from 'sweetalert2';
 
@@ -23,6 +24,11 @@ const getDataListTypeRoom = async (roomIds) => {
 
 const bookingRoom = async (bookingData, navigate) => {
     try {
+        // Kiểm tra dữ liệu đầu vào
+        if (!bookingData.userName || !bookingData.startDate || !bookingData.endDate || !Array.isArray(bookingData.roomId) || bookingData.roomId.length === 0 || typeof bookingData.methodPayment !== 'number') {
+            throw new Error("Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.");
+        }
+
         const isCarhPayment = bookingData.methodPayment === 1;
 
         if (isCarhPayment) {
@@ -54,19 +60,20 @@ const bookingRoom = async (bookingData, navigate) => {
                     clearInterval(timerInterval);
                 }
             }).then((result) => {
-                // Sau khi thông báo tự động đóng, đóng modal
                 if (result.dismiss === Swal.DismissReason.timer) {
                     console.log("Thông báo đã đóng tự động.");
                 }
             });
         }
 
+        // Gửi yêu cầu đến API
         const res = await request({
             method: "POST",
             path: `/api/booking/sendBooking`,
             data: bookingData
         });
 
+        // Đóng loading nếu thanh toán bằng thẻ
         if (isCarhPayment) Swal.close();
 
         if (!res || typeof res !== 'object') {
@@ -75,8 +82,8 @@ const bookingRoom = async (bookingData, navigate) => {
 
         if (res.status !== 'success') {
             throw new Error(res.message || "Phản hồi không hợp lệ từ server.");
-        } else {
         }
+
         if (res.vnPayURL) {
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             await delay(2000);
@@ -108,6 +115,7 @@ const bookingRoom = async (bookingData, navigate) => {
         throw error;
     }
 };
+
 
 const fetchDiscounts = async (username) => {
     const res = await request({

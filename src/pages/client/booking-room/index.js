@@ -127,10 +127,10 @@ const PageBookRoom = () => {
                 // Người dùng hủy thanh toán
                 if (!result.isConfirmed) {
                     return;
-                }else{
+                } else {
                     const isChecked = true;
-                    localStorage.setItem("status",JSON.stringify(isChecked));
-                    sessionStorage.clear();
+                    localStorage.setItem("status", JSON.stringify(isChecked));
+                    ["bookedRooms", "booking"].forEach(item => sessionStorage.removeItem(item));
                 }
             }
 
@@ -138,13 +138,13 @@ const PageBookRoom = () => {
 
             // Tạo payload để gửi đi
             const payload = {
-                userName: token.username + "",
-                startDate: rooms.startDate,
-                endDate: rooms.endDate,
-                roomId: roomIdArray,
-                discountName: finalDiscountName ?? null,
-                methodPayment: parseInt(PaymentMethodId)
-            };
+                userName: token.username ? token.username.toString() : "", // Đảm bảo username là chuỗi
+                startDate: rooms.startDate, // Đảm bảo giá trị startDate hợp lệ
+                endDate: rooms.endDate, // Đảm bảo giá trị endDate hợp lệ
+                roomId: Array.isArray(roomIdArray) ? roomIdArray : [], // Kiểm tra roomIdArray có phải là mảng không
+                discountName: finalDiscountName || null, // Sử dụng || để đảm bảo null nếu không có giá trị
+                methodPayment: PaymentMethodId ? parseInt(PaymentMethodId) : null // Chuyển đổi PaymentMethodId thành số nguyên nếu hợp lệ
+            };            
 
             console.log("Payload trước khi gửi:", payload);
 
@@ -171,7 +171,7 @@ const PageBookRoom = () => {
                 confirmButtonText: 'OK',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    sessionStorage.clear();
+                    ["bookedRooms", "booking"].forEach(item => sessionStorage.removeItem(item));
                     const isChecked = true;
                     localStorage.setItem("status", JSON.stringify(isChecked));
                     console.log("Thành công rồi nha");
@@ -326,28 +326,14 @@ const PageBookRoom = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Xóa toàn bộ dữ liệu trong sessionStorage
-                sessionStorage.clear();
+                ["bookedRooms", "booking"].forEach(item => sessionStorage.removeItem(item));
                 const isChecked = true;
-                localStorage.setItem("status", JSON.stringify(isChecked));  
+                localStorage.setItem("status", JSON.stringify(isChecked));
                 // Điều hướng về trang phòng
                 navigate("/client/rooms");
             }
         });
     }
-
-    const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
-
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
-        const year = date.getFullYear();
-
-        return `${day}/${month}/${year}`;
-    };
-
-    console.log(discounts);
-
     return (
         <LayoutClient>
             <div className="page-box-content page-hotel">

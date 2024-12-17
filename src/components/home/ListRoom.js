@@ -59,12 +59,15 @@ export default function ListRoom() {
             console.log("checkOut: ", checkOut);
             console.log("guest: ", guest);
             console.log("typeRoomID: ", typeRoomID);
-            setDates({checkin: checkIn, checkout: checkOut})
+            setDates({ checkin: checkIn, checkout: checkOut })
             // Gọi filterBooking thay vì handleDataFilter nếu dữ liệu có từ sessionStorage
             filterBooking(checkIn, checkOut, guest, currentPage, pageSize);
         } else if (!location.state) {
-            // Nếu không có dữ liệu từ sessionStorage và location.state không có dữ liệu, gọi fetchRooms
-            fetchRooms();
+            if (dataFilterBook.startDate || dataFilterBook.endDate || dataFilterBook.guestLimit) {
+                filterBooking(dataFilterBook.startDate, dataFilterBook.endDate, dataFilterBook.guestLimit, currentPage, pageSize);
+            } else {
+                fetchRooms();
+            }
         } else {
             // Nếu có dữ liệu từ location.state, kiểm tra và gọi filterBooking
             const { checkIn, checkOut, guest, typeRoomID } = location.state;

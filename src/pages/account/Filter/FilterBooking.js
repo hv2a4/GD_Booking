@@ -25,7 +25,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
         }
 
     }
-    
+
     useEffect(() => {
         getListTypeRoomName();
         const data = sessionStorage.getItem('valueFillter');
@@ -135,6 +135,14 @@ export default function BookingFillter({ onFilter, onSendDates }) {
         }
         // Gửi giá trị thời gian và số khách cho hàm lọc
         onFilter(formatDateToYYYYMMDD(checkinDate), formatDateToYYYYMMDD(checkoutDate), adultCount, setSelectedTypeName);
+        const data = {
+            checkIn: formatDateToYYYYMMDD(checkinDate),
+            checkOut: formatDateToYYYYMMDD(checkoutDate),
+            guest: adultCount,
+            typeRoomID: setSelectedTypeName,
+        };
+
+        sessionStorage.setItem("valueFillter", JSON.stringify(data));
 
     };
 
