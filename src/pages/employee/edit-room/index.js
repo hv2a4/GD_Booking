@@ -14,6 +14,7 @@ import AlertComfirm from "../../../config/alert/comfirm";
 import TTNhanPhong from "../list-reservation/modalTTNP";
 import { Modal } from "react-bootstrap";
 import CancelBookingModal from "../list-reservation/modalCancel";
+import { cilColorBorder } from "@coreui/icons";
 
 const EditRoom = () => {
     const encodedIdBooking = useGetParams("idBookingRoom");
@@ -318,8 +319,8 @@ const EditRoom = () => {
             </div>
             <div className="product-item-info">
                 <h6 className="product-item-name">{service.serviceRoomName}</h6>
-                <span className="product-item-price">
-                    {service.price ? `${formatCurrency(service.price)}` : "Liên hệ"}
+                <span className="product-item-price text-danger">
+                    {service.price ? `${formatCurrency(service.price)}` : "miễn phí"}
                 </span>
             </div>
         </div>
@@ -410,7 +411,7 @@ const EditRoom = () => {
         const diffMs = end - start; // Khoảng thời gian thuê tính bằng milliseconds
         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)); // Số ngày (làm tròn lên để tính ngày lẻ)
 
-        return diffDays > 0 ? diffDays : 0; // Nếu ngày <= 0, trả về 0
+        return diffDays > 0 ? diffDays : 1; // Nếu ngày <= 0, trả về 0
     };
 
     const handleShowModalInsertCustomer = () => {
@@ -420,7 +421,7 @@ const EditRoom = () => {
         setShowModalInsertCustomer(false);
     }
     return (
-        <Layoutemployee>
+        <Layoutemployee title={"Cập nhật đặt phòng"} icons={cilColorBorder}>
             <div className="mb-3">
                 {/* {loading ? (
                     <div className="overlay-loading">
@@ -627,10 +628,6 @@ const EditRoom = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="cart-item-note">
-                                                <i className="fa fa-pen icon-xs icon-mask mr-1"></i>
-                                                <span> Nhập ghi chú ... </span>
-                                            </div>
                                         </div>
                                     </div>
 
@@ -780,6 +777,7 @@ const EditRoom = () => {
                                                                     <td className="col-2 col-lg-1 text-start">{index + 2 + selectedManualService.length}</td>
                                                                     <td className="col-5 col-lg-3">
                                                                         <h6 className="cart-item-name mb-0">{item.serviceRoomDto.serviceRoomName} ({item.serviceRoomDto.typeServiceRoomDto.duration})</h6>
+                                                                        <span className="text-neutral">{formatDateTime(item.createAt)}</span>
                                                                     </td>
                                                                     <td className="col-4 col-lg-2 text-center">
                                                                         <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
@@ -811,7 +809,7 @@ const EditRoom = () => {
                                                                     </td>
                                                                     <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.serviceRoomDto.price * item.quantity)}</td>
                                                                     <td className="col-auto">
-                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleDeleteService(item)}>
+                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleDeleteService(item)} hidden={booking?.statusBookingDto?.id === 8}>
                                                                             <i className="fa fa-trash-alt"></i>
                                                                         </button>
                                                                     </td>
@@ -826,7 +824,7 @@ const EditRoom = () => {
                                         <div className="cart-footer">
                                             <div className="text-success fw-bold font-semibold d-flex">
                                                 <div className="text-right me-2">Tổng tiền: </div>
-                                                <div className="text-right">{formatCurrency(totalBookingRoom)} VNĐ</div>
+                                                <div className="text-right">{formatCurrency(booking?.statusBookingDto?.id === 8 ? booking?.invoiceDtos[0]?.totalAmount :totalBookingRoom)} VNĐ</div>
                                             </div>
                                         </div>
                                     </div>

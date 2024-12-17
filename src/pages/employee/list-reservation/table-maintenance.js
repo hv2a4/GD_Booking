@@ -1,21 +1,70 @@
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { formatCurrency, formatDate } from "../../../config/formatPrice";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import { getIdBooking } from "../../../config/idBooking";
+import { bookingServiceRoom } from "../../../services/employee/service";
+import { maintenanceScheduleSuccess } from "../../../services/employee/invoice";
+import Alert from "../../../config/alert";
+import AlertComfirm from "../../../config/alert/comfirm";
 
-const CheckedOut = ({ item }) => {
-    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+const Maintenance = ({ item }) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [bookingsWithPrices, setBookingsWithPrices] = useState([]);
     const itemsPerPage = 10; // Số lượng bản ghi trên mỗi trang
     const totalPages = Math.ceil(item?.length / itemsPerPage); // Tổng số trang
+    const [alert, setAlert] = useState(null);
+    const navigate = useNavigate();
+
+
+    const formatDate = (dateString) => {
+        return format(new Date(dateString), "dd-MM-yyyy HH:mm:ss");
+    };
 
     // Lấy dữ liệu của trang hiện tại
     const getCurrentPageItems = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return item?.slice(startIndex, endIndex) || [];
+        return bookingsWithPrices?.slice(startIndex, endIndex) || [];
     };
+
+    const getPriceService = async (idBookingRooms) => {
+        try {
+            const services = await bookingServiceRoom(idBookingRooms);
+            // Calculate the total service price
+            const totalPriceService = services.reduce((total, item) => {
+                return total + (item.price || 0) * (item.quantity || 0);
+            }, 0);
+
+            return totalPriceService;
+        } catch (error) {
+            console.error("Error fetching service price:", error);
+            return 0; // Return 0 if there's an error
+        }
+    };
+    const prepareBookingsWithPrices = async () => {
+        const updatedBookings = await Promise.all(
+            item.map(async (booking) => {
+                const roomPrice = booking.bookingRooms?.reduce(
+                    (total, room) => total + (room.price || 0),
+                    0
+                );
+                const idBookingRooms = booking.bookingRooms.map((room) => room.id);
+                const servicePrice = await getPriceService(idBookingRooms);
+                console.log(servicePrice);
+
+                return {
+                    ...booking,
+                    totalPriceBooking: roomPrice + servicePrice,
+                };
+            })
+        );
+        setBookingsWithPrices(updatedBookings);
+    };
+    useEffect(() => {
+        prepareBookingsWithPrices();
+        setTimeout(() => setAlert(null), 500);
+    }, [item]);
 
     // Xử lý khi chuyển trang
     const handlePageChange = (page) => {
@@ -40,18 +89,38 @@ const CheckedOut = ({ item }) => {
         }
         return range;
     };
+
+    const handleChange = async (booking) => {
+        const data = {
+            createAt: new Date().toISOString(),
+            bookingId: booking.id
+        }
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận",
+            text: "Hoàn tất bảo trì",
+            confirmButtonText: "OK",
+            cancelButtonText: "Hủy",
+        });
+        if (confirmation) {
+            const res = await maintenanceScheduleSuccess(data);
+            setAlert({ type: res.status, title: res.message });
+            navigate(`/employee/list-booking-room`);
+        }
+
+    }
     return (
         <div>
+            {alert && <Alert type={alert.type} title={alert.title} />}
             <Table bordered hover>
                 <thead>
                     <tr>
                         <th>STT</th>
                         <th>Mã đặt phòng</th>
                         <th>Phòng</th>
-                        <th>Khách hàng</th>
-                        <th>Giờ nhận</th>
-                        <th>Giờ trả</th>
-                        <th>Tổng cộng</th>
+                        <th>Nhân viên tạo lịch</th>
+                        <th>Giờ bắt đầu</th>
+                        <th>Giờ kết thúc</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
@@ -60,34 +129,21 @@ const CheckedOut = ({ item }) => {
                     {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
                         getCurrentPageItems().map((booking, index) => {
                             const roomNames = booking.bookingRooms
-                                .map(room => room?.room?.roomName.replace("Phòng ", ""))
+                                .map(room => room.room?.roomName.replace("Phòng ", ""))
                                 .join(", ");
-                           
-                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0]?.id);
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
+                                    <td>{getIdBooking(booking?.id, booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
-                                    <td>
-                                        <strong style={{fontWeight: "500"}}>{booking.accountDto.fullname}</strong>
-                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px', }} >
-                                            <i className="fa fa-pen" style={{ fontSize: '10px', marginRight: '6px', color: 'gray' }}></i>
-                                            <span style={{ fontSize: '14px', color: 'gray', }} >
-                                                {booking.descriptions || "Mô tả....."}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>{formatDate(booking.bookingRooms[0]?.checkIn)}</td>
-                                    <td>{formatDate(booking.bookingRooms[0]?.checkOut)}</td>
-                                    <td>{formatCurrency(booking?.invoiceDtos[0]?.totalAmount)}</td>
-                                    <td style={{ color: booking.statusPayment ? "green" : "red" }}>
-                                        {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
+                                    <td>{booking?.bookingRooms[0]?.accountDto?.fullname}</td>
+                                    <td>{formatDate(booking.startAt)}</td>
+                                    <td>{formatDate(booking.endAt)}</td>
+                                    <td style={{ color: "red" }}>
+                                        Bảo trì
                                     </td>
                                     <td>
-                                        <Link to={`/employee/edit-room?idBookingRoom=${encodedIdBookingRoom}`}>
-                                            <Button variant="outline-success">Chi tiết</Button>
-                                        </Link>
+                                        <Button variant="outline-success" onClick={() => handleChange(booking)}>Hoàn tất</Button>
                                     </td>
                                 </tr>
                             );
@@ -136,4 +192,4 @@ const CheckedOut = ({ item }) => {
     )
 }
 
-export default CheckedOut;
+export default Maintenance;

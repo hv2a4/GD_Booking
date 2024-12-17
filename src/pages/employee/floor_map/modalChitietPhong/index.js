@@ -8,19 +8,29 @@ import { format } from "date-fns";
 import { formatCurrency } from "../../../../config/formatPrice";
 import NhanPhong from "../modalNhanPhong";
 import ConfirmBookingModal from "../../list-reservation/modalXacNhan";
+import { bookingServiceRoom } from "../../../../services/employee/service";
 const ModalDetailFloor = ({ onClose, item, booking }) => {
     const [bookingRoom, setBookingRoom] = useState({});
     const [customer, setCustomer] = useState([]);
+    const [services, setServices] = useState([]);
     const encodedIdBookingRoom = item ? btoa(bookingRoom.id) : btoa(booking?.bookingRooms[0]?.id);
     const cookie = new Cookies();
     const token = cookie.get("token");
     useEffect(() => {
-        console.log(booking);
         if (item && token) {
             handleDetail(item?.id, item?.statusRoomDto?.id, token);
             handleCustomerInfo(item?.id, token);
         }
-    }, [item, booking])
+        handleService()
+    }, [item, booking]);
+
+    const handleService = async () => {
+        if (booking && booking.bookingRooms && booking.bookingRooms.length > 0) {
+            const idBookingRoom = booking.bookingRooms.map(e => e.id);
+            const services = await bookingServiceRoom(idBookingRoom);
+            setServices(services);
+        }
+    }
 
     const handleCustomerInfo = async (id, token) => {
         try {
@@ -88,7 +98,12 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
         if (booking && booking.bookingRooms && booking.bookingRooms.length > 0) {
             const totalPriceBookingRoom = booking.bookingRooms.map((e) => e.price || 0);
             const totalBookingRoomPrice = totalPriceBookingRoom.reduce((sum, price) => sum + price, 0);
-            return totalBookingRoomPrice;
+            const totalPriceService = services.reduce((total, item) => {
+                return total + (item.price || 0) * (item.quantity || 0);
+            }, 0);
+            console.log(totalPriceService);
+
+            return totalBookingRoomPrice + totalPriceService;
         }
         return 0;
     }
@@ -102,7 +117,7 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
                 <div className="boxster">
                     <div className="d-flex align-items-center mb-3">
                         <h3 className="font-weight-bold mb-0">{item?.roomName || dataRooms()}</h3>
-                        <span className={item ? "text-success ms-auto" : booking?.statusBookingDto?.id === 6 ? "text-danger ms-auto":"text-success ms-auto"}>{item?.statusRoomDto?.statusRoomName || booking?.statusBookingDto?.statusBookingName == "trả phòng" ? "Đang sử dụng" : booking?.statusBookingDto?.statusBookingName}</span>
+                        <span className={item ? "text-success ms-auto" : booking?.statusBookingDto?.id === 6 ? "text-danger ms-auto" : "text-success ms-auto"}>{item?.statusRoomDto?.statusRoomName || booking?.statusBookingDto?.statusBookingName == "trả phòng" ? "Đang sử dụng" : booking?.statusBookingDto?.statusBookingName}</span>
                     </div>
                     <hr />
                     <div className="row mb-3">

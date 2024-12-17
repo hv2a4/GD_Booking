@@ -1745,7 +1745,6 @@ textarea {
 }
 
 .date {
-    flex: 1;
     text-align: center;
     padding: 5px;
     border-right: 1px solid #ccc;
@@ -1878,7 +1877,6 @@ textarea {
 }
 
 .header .dates .date {
-    flex: 1;
     text-align: center;
     font-weight: bold;
     font-size: 14px;
@@ -1903,9 +1901,9 @@ textarea {
 }
 
 .room-schedule .room-name {
-    flex: 1;
     font-weight: bold;
     text-align: center;
+    margin-right: 10px;
 }
 
 .room-schedule .reservations {

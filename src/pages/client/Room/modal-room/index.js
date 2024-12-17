@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Image, ListGroup, Row, Col, Carousel, Card, Pagination } from 'react-bootstrap';
 import './style.css'; // Import CSS file
 import { FaStar, FaRegStar } from 'react-icons/fa'; // For star icons
@@ -7,7 +7,13 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
   // Số lượng đánh giá hiển thị trên mỗi trang
   const reviewsPerPage = 2;
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = room?.feedBack ? room?.feedBack?.slice(indexOfFirstReview, indexOfLastReview) : [];
 
+  useEffect(() => {
+    console.log(room);
+  }, [room]);
   // Helper function to render star ratings
   const renderStars = (stars) => {
     return [...Array(5)].map((_, i) => {
@@ -22,13 +28,6 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
       );
     });
   };
-
-
-  // Tính toán chỉ số bắt đầu và kết thúc cho các đánh giá ở trang hiện tại
-  const indexOfLastReview = currentPage * reviewsPerPage;
-  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-  const currentReviews = room.feedBack ? room.feedBack.slice(indexOfFirstReview, indexOfLastReview) : [];
-
   // Hàm xử lý khi thay đổi trang
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -111,40 +110,45 @@ const RoomDetailModal = ({ show, onClose, room, avgStart }) => {
           {room.feedBack && room.feedBack.length > 0 ? (
             <div className="feedback-container">
               {/* Duyệt qua mỗi phản hồi */}
-              {currentReviews.map((feedback, index) => (
-                <div key={feedback.id || index} className="mb-3">
-                  <Card className="feedback-card shadow-sm">
-                    <Card.Body>
-                      <div className="row align-items-center">
-                        {/* Ảnh đại diện */}
-                        <div className="col-auto">
-                          <img
-                            src={room.image[index % room.image.length]}
-                            alt={`Ảnh của ${room.accountName[index]}`}
-                            className="rounded-circle"
-                            style={{ width: '60px', height: '60px', objectFit: 'cover' }}
-                          />
+              {currentReviews && currentReviews.length > 0 ? (
+                currentReviews.map((feedback, index) => (
+                  <div key={index} className="mb-3">
+                    <Card className="feedback-card shadow-sm">
+                      <Card.Body>
+                        <div className="row align-items-center">
+                          {/* Ảnh đại diện */}
+                          <div className="col-auto">
+                            <img
+                              src={room.image && room.image[index] ? room.image[index] : ""}  // Fallback if image is null
+                              alt={`Ảnh của ${room?.accountNames[index] || 'Khách hàng ẩn danh'}`}
+                              className="rounded-circle"
+                              style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                            />
+                          </div>
+                          {/* Tên và ngày */}
+                          <div className="col">
+                            <Card.Title className="mb-1">
+                              <strong>{room?.accountNames[index] || 'Khách hàng ẩn danh'}</strong>
+                            </Card.Title>
+                            <Card.Text className="text-muted mb-0">
+                              {new Date(feedback?.createAt).toLocaleDateString('vi-VN')}
+                            </Card.Text>
+                          </div>
                         </div>
-                        {/* Tên và ngày */}
-                        <div className="col">
-                          <Card.Title className="mb-1">
-                            <strong>{room.accountName[index] || 'Khách hàng ẩn danh'}</strong>
-                          </Card.Title>
-                          <Card.Text className="text-muted mb-0">
-                            {new Date(feedback.createAt).toLocaleDateString('vi-VN')}
-                          </Card.Text>
-                        </div>
-                      </div>
 
-                      {/* Nội dung phản hồi */}
-                      <div className="mt-3">
-                        <p className="mb-2">{feedback.content}</p>
-                        <div>{renderStars(feedback.stars)}</div>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </div>
-              ))}
+                        {/* Nội dung phản hồi */}
+                        <div className="mt-3">
+                          <p className="mb-2">{feedback.content}</p>
+                          <div>{renderStars(feedback.stars)}</div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted">Chưa có đánh giá nào.</p>
+              )}
+
             </div>
           ) : (
             <p className="text-muted">Chưa có đánh giá nào.</p>
