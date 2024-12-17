@@ -130,7 +130,8 @@ const Confirm = ({ item }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {getCurrentPageItems().map((booking, index) => {
+                {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
+                    getCurrentPageItems().map((booking, index) => {
                         const roomNames = booking.bookingRooms
                             .map(room => room.room?.roomName.replace("Phòng ", ""))
                             .join(", ");
@@ -158,7 +159,7 @@ const Confirm = ({ item }) => {
                                     <div className="d-flex">
                                         <Button
                                             variant="outline-secondary"
-                                            onClose={handleCloseModalConfirm} 
+                                            onClose={handleCloseModalConfirm}
                                             onClick={() => handleShowModalConfirm(booking)}>
                                             Xác nhận
                                         </Button>
@@ -180,7 +181,12 @@ const Confirm = ({ item }) => {
                                 </td>
                             </tr>
                         );
-                    })}
+                    })) : (
+                        <tr>
+                            <td colSpan="9" className="text-center">Không có dữ liệu đặt phòng.</td>
+                        </tr>
+                    )}
+
                 </tbody>
             </Table>
             {/* Hiển thị phân trang */}

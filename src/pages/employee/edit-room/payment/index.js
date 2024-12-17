@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
-import { formatCurrency } from "../../../../config/formatPrice";
+import { formatCurrency, formatDateTime } from "../../../../config/formatPrice";
 import { getBookingRoomServiceRoom } from "../../../../services/admin/account-manager";
 import Cookies from 'js-cookie';
 import { jwtDecode as jwt_decode } from "jwt-decode";
@@ -26,15 +26,13 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
     const decodedToken = jwt_decode(cookieToken);
     const navigate = useNavigate();
     useEffect(() => {
-        console.log(bookings);
-        
         if (bookings?.bookingRooms) {
             setBookingRooms(bookings.bookingRooms);
             handleService();
             handlediscountBooking();
         }
         setTimeout(() => setAlert(null), 500);
-    }, [bookings]);
+    }, [bookings,services]);
 
 
     const handleService = async () => {
@@ -130,7 +128,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
     return (
         <>
             <button
-                className="btn btn-outline-success"
+                className="btn btn-outline-primary"
                 type="button"
                 onClick={handleShow}
                 disabled={bookings?.statusBookingDto?.id === 6 || bookings?.statusBookingDto?.id === 8}
@@ -209,7 +207,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                                                 <td className="text-center">{index + 1}</td>
                                                                 <td className="fw-semibold">{item.serviceRoomDto?.serviceRoomName} ({item.serviceRoomDto?.typeServiceRoomDto?.duration})
                                                                     <br />
-                                                                    <small className="text-muted">{item.bookingRoomDto?.room?.roomName}</small>
+                                                                    <small className="text-muted">{item.bookingRoomDto?.room?.roomName} - {formatDateTime(item.createAt)}</small>
                                                                 </td>
                                                                 <td className="text-center">{item.quantity}</td>
                                                                 <td className="text-end">{formatCurrency(item.price)}</td>
@@ -263,9 +261,9 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                                 ? bookings.methodPaymentDto.id === 1
                                                     ? 0
                                                     : bookings.methodPaymentDto.id === 2
-                                                        ? formatCurrency(tatolRoom()) + " VNĐ"
-                                                        : 0
-                                                : 0}
+                                                        ? formatCurrency(tatolRoom())
+                                                        : 0 
+                                                : 0} VNĐ
                                             </strong>
                                         </div>
                                     </div>

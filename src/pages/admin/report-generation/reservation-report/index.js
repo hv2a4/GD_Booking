@@ -118,7 +118,7 @@ const ReservationReport = () => {
             </div>
 
             {view === 'chart' ? (
-                <ReservationChart booking={bookings}/>
+                <ReservationChart booking={bookings} startDate={checkinDate} endDate={checkoutDate}/>
             ) : (
                 <ReservationTable booking={bookings} checkinDate={checkinDate} checkoutDate={checkoutDate}/>
             )}

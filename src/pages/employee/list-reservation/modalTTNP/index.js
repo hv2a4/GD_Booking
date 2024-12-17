@@ -92,15 +92,15 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = customerInformation.slice(indexOfFirstItem, indexOfLastItem);
     const roomNames = bookingRoom
-    .map(room => room.room?.roomName.replace("Phòng ", ""))
-    .join(", ");
+        .map(room => room.room?.roomName.replace("Phòng ", ""))
+        .join(", ");
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     return (
         <>
             <Modal show={true} onHide={onHide} backdrop="static" centered size="xl">
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
-                    <Modal.Title id="exampleModalLabel">Thông tin nhận phòng - {getIdBooking(bookingRoom[0]?.booking.id,bookingRoom[0]?.booking.createAt)}</Modal.Title>
+                    <Modal.Title id="exampleModalLabel">Thông tin nhận phòng - {getIdBooking(bookingRoom[0]?.booking.id, bookingRoom[0]?.booking.createAt)}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ overflowY: "auto", maxHeight: "500px" }}>
                     <div className="boxster ng-star-inserted">
@@ -108,13 +108,18 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
                             <div className="col-md-6 col-lg-4">
                                 <label className="text-neutral font-sm mb-1">Khách hàng</label>
                                 <div className="font-medium">
-                                    <span className="ng-star-inserted">{bookingRoom[0]?.booking?.accountDto?.fullname}</span>
+                                    <span className="ng-star-inserted">
+                                        {bookingRoom[0]?.booking?.descriptions === "Đặt trực tiếp"
+                                            ? `${customerInformation[0]?.customerInformationDto?.fullname || ''}`
+                                            : `${bookingRoom[0]?.booking?.accountDto?.fullname || ''}`
+                                        }
+                                    </span>
                                 </div>
                             </div>
                             <div className="col-md-6 col-lg-4">
                                 <label className="text-neutral font-sm mb-1">Khách lưu trú</label>
                                 <div className="font-medium">
-                                    <span className="ng-star-inserted">{customerInformation.length} người</span>
+                                    <span className="ng-star-inserted">{customerInformation.length > 0 ? customerInformation.length : 1} người</span>
                                 </div>
                             </div>
                             <div className="col-12 col-lg-4">

@@ -39,6 +39,7 @@ const FillterDateHome = ({ onDatesChange }) => {
                     startDate={startDate}
                     endDate={endDate}
                     isClearable
+                    dateFormat="dd-MM-yyyy"
                     placeholderText="Chọn ngày bắt đầu"
                     className="date-filter-input"
                 />

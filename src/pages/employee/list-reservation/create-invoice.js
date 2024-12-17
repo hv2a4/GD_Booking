@@ -60,9 +60,7 @@ const CreateInvoice = ({ item }) => {
                     {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
                         getCurrentPageItems().map((booking, index) => {
                             const roomNames = booking.bookingRooms
-                                .filter(room => room.checkIn)
                                 .map(room => room.room?.roomName.replace("Phòng ", ""))
-                                .filter(Boolean)
                                 .join(", ");
                             const totalPrice = booking.bookingRooms?.reduce(
                                 (total, room) => total + (room.price || 0),
