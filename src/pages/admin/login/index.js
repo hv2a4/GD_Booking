@@ -12,7 +12,7 @@ const LoginAdmin = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const [alertData, setAlertData] = useState(null);
-  const handleLoginSimple = async (event) => {
+  const handleLoginAdmin = async (event) => {
         event.preventDefault();
         try {
             const response = await fetch('http://localhost:8080/api/account/loginToken', {
@@ -95,7 +95,7 @@ const LoginAdmin = () => {
                 </span>
             </div> */}
             <div className="submit-container">
-                <button className="submit" onClick={handleLoginSimple}>
+                <button className="submit" onClick={handleLoginAdmin}>
                     Đăng Nhập
                 </button>
             </div>
