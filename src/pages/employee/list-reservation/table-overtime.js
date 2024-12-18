@@ -72,6 +72,7 @@ const OverTime = ({ item }) => {
                                 0
                             ) || 0;
                             const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
+                            const priceDiscount = booking.discountPercent !== null? ( totalPrice * booking.discountPercent ) / 100 : 0;
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -88,7 +89,7 @@ const OverTime = ({ item }) => {
                                     </td>
                                     <td>{formatDate(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
-                                    <td>{formatCurrency(totalPrice)}</td>
+                                    <td>{formatCurrency(totalPrice - priceDiscount)}</td>
                                     <td style={{ color: booking.statusPayment ? "green" : "red" }}>
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>

@@ -67,6 +67,7 @@ const CreateInvoice = ({ item }) => {
                                 0
                             ) || 0;
                             const encodedIdBookingRoom = btoa(booking.bookingRooms[0]?.id);
+                            const priceDiscount = booking.discountPercent !== null? ( totalPrice * booking.discountPercent ) / 100 : 0;
 
                             return (
                                 <tr key={index} className="tr-center">
@@ -84,7 +85,7 @@ const CreateInvoice = ({ item }) => {
                                     </td>
                                     <td>{formatDateTime(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
-                                    <td>{formatCurrency(totalPrice)}</td>
+                                    <td>{formatCurrency(totalPrice - priceDiscount)}</td>
                                     <td style={{ color: "red" }}>
                                         {booking.statusBookingDto.statusBookingName}
                                     </td>

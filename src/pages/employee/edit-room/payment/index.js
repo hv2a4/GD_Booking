@@ -32,7 +32,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
             handlediscountBooking();
         }
         setTimeout(() => setAlert(null), 500);
-    }, [bookings,services]);
+    }, [bookings, services]);
 
 
     const handleService = async () => {
@@ -75,27 +75,21 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
     };
 
     const handlediscountBooking = async () => {
-        if (bookings.disCountName) {
-            // Gọi service hoặc API để lấy dữ liệu giảm giá
-            const data = await discountBooking(bookings.disCountName);
-            if (data) {
-                const validBookingRooms = Array.isArray(bookingRooms) ? bookingRooms : [];
-                const totalRoomCost = validBookingRooms.reduce((acc, item) => {
-                    const duration = calculateDuration(item.checkIn, new Date());
-                    const roomCost = (item.room?.typeRoomDto?.price || 0) * duration;
-                    return acc + roomCost;
-                }, 0);
-    
-                // Tính giá giảm dựa trên phần trăm giảm giá
-                const priceDiscount = (totalRoomCost * data[0].percent) / 100;
-                setPriceDiscount(priceDiscount);
-            }
-        }
+        const validBookingRooms = Array.isArray(bookingRooms) ? bookingRooms : [];
+        const totalRoomCost = validBookingRooms.reduce((acc, item) => {
+            const duration = calculateDuration(item.checkIn, new Date());
+            const roomCost = (item.room?.typeRoomDto?.price || 0) * duration;
+            return acc + roomCost;
+        }, 0);
+
+        // Tính giá giảm dựa trên phần trăm giảm giá
+        const priceDiscount = (totalRoomCost * bookingRooms[0]?.booking?.discountPercent) / 100;
+        setPriceDiscount(priceDiscount);
     };
     const tatolRoom = () => {
         const duration = calculateDuration(bookings.startAt, bookings.endAt);
         const totalRoomCost = bookingRooms.reduce((acc, item) => {
-            
+
             const roomCost = item.room?.typeRoomDto?.price * duration || 0;
             return acc + roomCost;
         }, 0);
@@ -262,7 +256,7 @@ const PopupPayment = ({ bookings = { bookingRooms: [], id: null, accountDto: {} 
                                                     ? 0
                                                     : bookings.methodPaymentDto.id === 2
                                                         ? formatCurrency(tatolRoom())
-                                                        : 0 
+                                                        : 0
                                                 : 0} VNĐ
                                             </strong>
                                         </div>

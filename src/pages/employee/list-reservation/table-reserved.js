@@ -53,8 +53,6 @@ const Reserved = ({ item }) => {
                 );
                 const idBookingRooms = booking.bookingRooms.map((room) => room.id);
                 const servicePrice = await getPriceService(idBookingRooms);
-                console.log(servicePrice);
-
                 return {
                     ...booking,
                     totalPriceBooking: roomPrice + servicePrice,
@@ -133,9 +131,12 @@ const Reserved = ({ item }) => {
                                 .map(room => room.room?.roomName.replace("Phòng ", ""))
                                 .filter(Boolean)
                                 .join(", ");
-
+                                const totalPrice = booking.bookingRooms?.reduce(
+                                    (total, room) => total + (room.price || 0),
+                                    0
+                                ) || 0;
                             const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
-
+                            const priceDiscount = booking.discountPercent !== null? ( totalPrice * booking.discountPercent ) / 100 : 0;
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -152,7 +153,7 @@ const Reserved = ({ item }) => {
                                     </td>
                                     <td>{formatDate(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
-                                    <td>{formatCurrency(booking.totalPriceBooking)}</td>
+                                    <td>{formatCurrency(booking.totalPriceBooking - priceDiscount)}</td>
                                     <td style={{ color: booking.statusPayment ? "green" : "red" }}>
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
