@@ -25,4 +25,12 @@ const getAllRoom = async (startDate, endDate, guestLimit = 1, page = 0, size) =>
     return res;
 }
 
-export {getRoomByFloorId, updateStatusRoom, getAllRoom}
+const getAllRooms = async () => {
+    const res = await request({
+        method: "GET",
+        path: `/api/room/getAll`
+    });
+    return res;
+} 
+
+export {getRoomByFloorId, updateStatusRoom, getAllRoom,getAllRooms}

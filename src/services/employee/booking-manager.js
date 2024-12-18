@@ -57,4 +57,13 @@ const getBookingByRoom = async (id) => {
     return res;
 }
 
-export {updateStatusBooking,updateStatusCheckInBooking,getBookingRoomInformation,getBookingRoomIds,getBookingId,cancelBooking,getBookingByRoom};
+const postMaintenanceSchedule = async (data, username) => {
+    const res = await request({
+        method: "POST",
+        path: `api/booking/booking-maintenance?userName=${username}`,
+        data: data
+    });
+    return res;
+}
+
+export {updateStatusBooking,updateStatusCheckInBooking,getBookingRoomInformation,getBookingRoomIds,getBookingId,cancelBooking,getBookingByRoom,postMaintenanceSchedule};

@@ -17,6 +17,7 @@ import { getAllBooking } from "../../../services/employee/order-room-manager";
 import { Link, useLocation } from 'react-router-dom';
 import "../home/FillterDate/style.css"
 import { cilList } from "@coreui/icons";
+import Maintenance from "./table-maintenance";
 
 const ListReservation = () => {
     const [filterType, setFilterType] = useState(null);
@@ -76,7 +77,7 @@ const ListReservation = () => {
     }
 
     const handleBooking = async (filterType, startDate, endDate, token) => {
-        const data = await getAllBooking(filterType, startDate, endDate, token);
+        const data = await getAllBooking(startDate, endDate, token);
         if (data) {
             setBookings(data);
             setFilteredBookings(filterBookings(filteredAndSearchedBookings));
@@ -124,7 +125,9 @@ const ListReservation = () => {
             case "chotaohoadon":
                 bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 6);
                 break;
-
+            case "baotri":
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 10);
+                break;
             default:
                 return <p>Không có dữ liệu</p>;
         }
@@ -144,8 +147,10 @@ const ListReservation = () => {
                 return <InUse item={bookingsForTab} />;
             case "quagio":
                 return <OverTime item={bookingsForTab} />;
-            default:
+            case "chotaohoadon":
                 return <CreateInvoice item={bookingsForTab} />;
+            default:
+                return <Maintenance item={bookingsForTab}/>;
         }
     };
 
@@ -173,7 +178,7 @@ const ListReservation = () => {
                     </div>
                 </div>
                 <div className="toolbar-item justify-content-end mb-3 d-flex align-items-center" style={{ flexWrap: "wrap" }}>
-                    <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
+                    {/* <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
                         <select
                             className="date-filter-input"
                             value={filterType}
@@ -182,10 +187,10 @@ const ListReservation = () => {
                         >
                             <option value="">Chọn thời gian</option>
                             <option value="1">Ngày</option>
-                            <option value="2">Tuần</option>
-                            <option value="3">Tháng</option>
+                            <option value="7">Tuần</option>
+                            <option value="30">Tháng</option>
                         </select>
-                    </div>
+                    </div> */}
                     <div className="date-picker-container mb-2 me-2" style={{ flex: "0 1 auto" }}>
                         <DatePicker
                             id="date-picker"
@@ -193,6 +198,7 @@ const ListReservation = () => {
                             placeholderText="Chọn ngày bắt đầu"
                             onChange={handleStartDateChange}
                             className="date-filter-input"
+                            dateFormat="dd/MM/yyyy"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -203,6 +209,7 @@ const ListReservation = () => {
                             placeholderText="Chọn ngày kết thúc"
                             onChange={handleEndDateChange}
                             className="date-filter-input"
+                            dateFormat="dd/MM/yyyy"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -244,6 +251,10 @@ const ListReservation = () => {
                             data-bs-target="#pills-chotaohoadon" type="button"
                             role="tab" aria-controls="pills-chotaohoadon"
                             aria-selected="false" onClick={handleReload}>Đã hủy</button>
+                        <button class="nav-link" id="pills-baotri-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-baotri" type="button"
+                            role="tab" aria-controls="pills-baotri"
+                            aria-selected="false" onClick={handleReload}>Bảo trì</button>
 
                     </div>
                 </nav>
@@ -272,6 +283,10 @@ const ListReservation = () => {
                         role="tabpanel" aria-labelledby="pills-chotaohoadon-tab">
                         {renderTabContent("chotaohoadon")}
                     </div>
+                    <div className="tab-pane fade" id="pills-baotri"
+                        role="tabpanel" aria-labelledby="pills-baotri-tab">
+                        {renderTabContent("baotri")}
+                    </div>
                 </div>
 
 
@@ -280,7 +295,7 @@ const ListReservation = () => {
                 </div>
                 <div className="d-flex spacer pb-4 pt-4 flex-center-between ng-star-inserted">
                     <div className="spacer align-items-center">
-                        <span>Tổng <strong className="text-success">{filteredAndSearchedBookings.length}</strong> đặt phòng</span>
+                        {/* <span>Tổng <strong className="text-success">{filteredAndSearchedBookings.length}</strong> đặt phòng</span> */}
                         <button className="btn btn-sm btn-outline-success" onClick={handleReload}>
                             <i className="fa fa-rotate icon-btn"></i>
                             <span>Tải lại</span>

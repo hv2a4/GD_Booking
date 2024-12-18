@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Form, InputGroup, Button, Dropdown, Row, Col } from 'react-bootstrap';
 
 import { useNavigate } from 'react-router-dom';
+import { getListTypeRoomId } from '../../services/client/home';
 
 export default function Booking() {
   const [checkinDate, setCheckinDate] = useState(null);
@@ -13,7 +14,22 @@ export default function Booking() {
   const [guestSummary, setGuestSummary] = useState("1 khách");
   const [isCheckinOpen, setIsCheckinOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [typeRoomOptions, setTypeRoomOptions] = useState([]); // Lưu danh sách loại phòng
+  const [selectedTypeRoom, setSelectedTypeRoom] = useState(0);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const getListTypeRoomName = async () => {
+    try {
+      const res = await getListTypeRoomId();
+      setTypeRoomOptions(res);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getListTypeRoomName();
+  }, []);
 
   // Format ngày về yyyy-MM-dd
   const formatDateToYYYYMMDD = (date) => {
@@ -42,7 +58,7 @@ export default function Booking() {
     setGuestDropdownVisible(false);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(async () => {
     if (!checkinDate) {
       setIsCheckinOpen(true); // Mở lịch chọn ngày nhận khách
       return;
@@ -52,18 +68,26 @@ export default function Booking() {
       setIsCheckoutOpen(true); // Mở lịch chọn ngày trả khách
       return;
     }
-    // Sử dụng giá trị từ state hoặc fallback vào giá trị mặc định trong useEffect
+
     const filterData = {
-      checkIn: formatDateToYYYYMMDD(checkinDate), // Nếu chưa có ngày nhận phòng, lấy ngày hiện tại
-      checkOut: formatDateToYYYYMMDD(
-        checkoutDate),
+      checkIn: formatDateToYYYYMMDD(checkinDate),
+      checkOut: formatDateToYYYYMMDD(checkoutDate),
       guest: adultCount,
+      typeRoomID: selectedTypeRoom,
     };
-    sessionStorage.setItem('valueFillter', JSON.stringify(filterData));
-    setTimeout(navigate("/client/rooms", { state: filterData }), 10000);
-  };
 
+    sessionStorage.setItem("valueFillter", JSON.stringify(filterData));
 
+    // Bật trạng thái loading
+    setIsLoading(true);
+
+    // Điều hướng sau khi đảm bảo mọi thứ đã sẵn sàng
+    navigate("/client/rooms", { state: filterData });
+
+    // Tắt trạng thái loading sau khi điều hướng
+    setIsLoading(false);
+  }, [checkinDate, checkoutDate, adultCount, selectedTypeRoom, navigate]);
+  
   // Xử lý khi thay đổi ngày nhận phòng
   const handleCheckinChange = (date) => {
     setCheckinDate(date);
@@ -97,6 +121,22 @@ export default function Booking() {
             <div className="row g-2">
               <div className="col-md-10">
                 <div className="row g-2">
+                  <div className="col-md-3">
+                    <label htmlFor="typeRoom" className="form-label">Loại phòng</label>
+                    <select
+                      id="typeRoom"
+                      className="form-select"
+                      value={selectedTypeRoom}
+                      onChange={(e) => setSelectedTypeRoom(e.target.value)} // Lưu ID của loại phòng
+                    >
+                      <option value={0}>Tất cả</option>
+                      {typeRoomOptions.map((room) => (
+                        <option key={room.id} value={room.id}>
+                          {room.typeRoomName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="col-md-3">
                     <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                     <div className="input-group flex-nowrap">
@@ -137,7 +177,7 @@ export default function Booking() {
                       />
                     </div>
                   </div>
-                  <Col md={6} className="position-relative">
+                  <Col md={3} className="position-relative">
                     <Form.Group controlId="guests">
                       <Form.Label>Số khách</Form.Label>
                       <InputGroup className="flex-nowrap">

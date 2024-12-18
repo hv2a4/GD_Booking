@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { getAllService } from "../../../../services/employee/type-room-service";
 import { formatCurrency } from "../../../../config/formatPrice";
-import { addServiceNew } from "../../../../services/employee/service";
+import { addServiceNew, bookingServiceRoom, serviceRoomBookingRoom } from "../../../../services/employee/service";
 import Alert from "../../../../config/alert";
+import AlertComfirm from "../../../../config/alert/comfirm";
+import { deleteService } from "../../../../services/employee/booking-room";
 
 const ProductServiceModal = ({ handleClose, booking }) => {
     const [typeServiceRoom, setTypeServiceRoom] = useState([]);
@@ -12,12 +14,21 @@ const ProductServiceModal = ({ handleClose, booking }) => {
     const [selectedManualService, setSelectedManualService] = useState([]);
     const [searchValue, setSearchValue] = useState("");
     const [selectedRoomIds, setSelectedRoomIds] = useState([]);
+    const [selectedApiService, setSelectedApiService] = useState([]);
     const [totalRoomPrice, setTotalRoomPrice] = useState(0);
     const [totalBookingRoom, setToltalBookingRoom] = useState(0);
     const [alert, setAlert] = useState(null);
 
     useEffect(() => {
         hanhdleBooking();
+        
+        if (booking) {
+            const idBookingRooms = booking?.bookingRooms?.map(e => e.id);
+            console.log(idBookingRooms);
+            const idBookingRoom = selectedRoomIds.length > 0 ? selectedRoomIds : idBookingRooms;
+            handleServiceApi(idBookingRoom);
+        }
+
         setTimeout(() => setAlert(null), 500);
     }, [booking, selectedRoomIds, selectedManualService, alert]);
     const handleSearchChange = (e) => {
@@ -30,6 +41,13 @@ const ProductServiceModal = ({ handleClose, booking }) => {
         } catch (error) {
             setAlert({ type: "error", title: "Lỗi khi tải dữ liệu" });
         }
+    }
+
+    const handleServiceApi = async (id) => {
+        const data = await bookingServiceRoom(id);
+        console.log(data);
+        
+        setSelectedApiService(data);
     }
     const handleAddService = async () => {
         const date = new Date();
@@ -118,6 +136,26 @@ const ProductServiceModal = ({ handleClose, booking }) => {
             );
         });
     };
+    const handleDeleteService = async (item) => {
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa dịch vụ này không?",
+            confirmButtonText: "Xóa",
+            cancelButtonText: "Hủy",
+        });
+        if (confirmation) {
+            try {
+                const response = await deleteService(item.id);
+                if (response) {
+                    setAlert({ type: response.status, title: response.message });
+                    hanhdleBooking();
+                }
+            } catch (error) {
+                setAlert({ type: "error", title: "Đã xảy ra lỗi khi xóa!" });
+            }
+        }
+    }
 
     const renderServiceItem = (service) => (
         <div
@@ -342,7 +380,7 @@ const ProductServiceModal = ({ handleClose, booking }) => {
                             <div className="col-md-12">
                                 <table className="table" style={{ margin: "12px" }}>
                                     <thead className="cart-item cart-list-head px-3 font-semibold">
-                                        {selectedManualService && selectedManualService.length > 0 &&
+                                        {(selectedManualService || selectedApiService) && (selectedManualService.length > 0 || selectedApiService.length > 0) &&
                                             <tr className="row font-weight-bold align-items-center">
                                                 <th className="col-2 col-lg-1 text-start">STT</th>
                                                 <th className="col-5 col-lg-3">Hạng mục</th>
@@ -393,6 +431,54 @@ const ProductServiceModal = ({ handleClose, booking }) => {
                                                         <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.price * item.quantity) || 0}</td>
                                                         <td className="col-auto">
                                                             <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleRemoveService(index)}>
+                                                                <i className="fa fa-trash-alt"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })
+
+                                        ) : ""}
+                                        {selectedApiService && selectedApiService.length > 0 ? (
+                                            selectedApiService.map((item, index) => {
+                                                return (
+                                                    <tr className="cart-item row align-items-center" key={index}>
+                                                        <td className="col-2 col-lg-1 text-start">{index + 2 + selectedManualService.length}</td>
+                                                        <td className="col-5 col-lg-3">
+                                                            <h6 className="cart-item-name mb-0">{item.serviceRoomDto.serviceRoomName} ({item.serviceRoomDto.typeServiceRoomDto.duration})</h6>
+                                                            <span>{item.bookingRoomDto.room.roomName}</span>
+                                                        </td>
+                                                        <td className="col-4 col-lg-2 text-center">
+                                                            <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-icon-only btn-text-neutral btn-circle down"
+                                                                    onClick={() => handleDecreaseQuantity(item)}
+                                                                >
+                                                                    <i className="fa fa-minus-circle icon-btn"></i>
+                                                                </button>
+                                                                <input
+                                                                    type="number"
+                                                                    className="form-control mx-1 text-center"
+                                                                    value={item.quantity}
+                                                                    onChange={(e) => handleUpdateQuantity(item, parseInt(e.target.value) || 1)}
+                                                                    style={{ maxWidth: "70px" }}
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-icon-only btn-text-neutral btn-circle up"
+                                                                    onClick={() => handleIncreaseQuantity(item)}
+                                                                >
+                                                                    <i className="fa fa-plus-circle icon-btn"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td className="col-5 col-lg-3 d-flex justify-content-center">
+                                                            <span className="w-auto">{formatCurrency(item.serviceRoomDto.price)}</span>
+                                                        </td>
+                                                        <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.serviceRoomDto.price * item.quantity)}</td>
+                                                        <td className="col-auto">
+                                                            <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleDeleteService(item)} hidden={booking?.statusBookingDto?.id === 8}>
                                                                 <i className="fa fa-trash-alt"></i>
                                                             </button>
                                                         </td>

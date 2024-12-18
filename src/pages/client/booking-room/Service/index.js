@@ -1,5 +1,7 @@
+import { data } from "jquery";
 import { request } from "../../../../config/configApi"
 import Swal from 'sweetalert2';
+import axios from "axios";
 
 
 /**
@@ -21,8 +23,16 @@ const getDataListTypeRoom = async (roomIds) => {
  * @returns {Object} - Phản hồi từ API
  */
 
+
 const bookingRoom = async (bookingData, navigate) => {
     try {
+        console.log('Dữ liệu gửi đi: ', JSON.stringify(bookingData));
+
+        // Kiểm tra dữ liệu đầu vào
+        if (!bookingData.userName || !bookingData.startDate || !bookingData.endDate || !Array.isArray(bookingData.roomId) || bookingData.roomId.length === 0 || typeof bookingData.methodPayment !== 'number') {
+            throw new Error("Dữ liệu đầu vào không hợp lệ. Vui lòng kiểm tra lại.");
+        }
+
         const isCarhPayment = bookingData.methodPayment === 1;
 
         if (isCarhPayment) {
@@ -54,37 +64,36 @@ const bookingRoom = async (bookingData, navigate) => {
                     clearInterval(timerInterval);
                 }
             }).then((result) => {
-                // Sau khi thông báo tự động đóng, đóng modal
                 if (result.dismiss === Swal.DismissReason.timer) {
                     console.log("Thông báo đã đóng tự động.");
                 }
             });
         }
 
-        const res = await request({
-            method: "POST",
-            path: `/api/booking/sendBooking`,
-            data: bookingData
-        });
+        // Gửi yêu cầu đến API với axios
+        const res = await axios.post('http://localhost:8080/api/booking/sendBooking', bookingData);
 
+        console.log("ABC: ", res.data);
+
+        // Đóng loading nếu thanh toán bằng thẻ
         if (isCarhPayment) Swal.close();
 
-        if (!res || typeof res !== 'object') {
+        if (!res || typeof res.data !== 'object') {
             throw new Error("Phản hồi từ server không hợp lệ.");
         }
 
-        if (res.status !== 'success') {
-            throw new Error(res.message || "Phản hồi không hợp lệ từ server.");
-        } else {
+        if (res.data.status !== 'success') {
+            throw new Error(res.data.message || "Phản hồi không hợp lệ từ server.");
         }
-        if (res.vnPayURL) {
+
+        if (res.data.vnPayURL) {
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             await delay(2000);
-            window.location.href = res.vnPayURL;
+            window.location.href = res.data.vnPayURL;
         } else {
             await Swal.fire({
                 title: 'Đặt phòng thành công!',
-                text: `${res.message || 'Chúc bạn có kỳ nghỉ vui vẻ!'}`,
+                text: `${res.data.message || 'Chúc bạn có kỳ nghỉ vui vẻ!'}`,
                 icon: 'success',
                 confirmButtonText: 'OK',
                 allowOutsideClick: false,  // Chặn click ra ngoài
@@ -97,17 +106,18 @@ const bookingRoom = async (bookingData, navigate) => {
         }
 
     } catch (error) {
-        console.error("Đặt phòng thất bại: ", error.message || error);
-        console.log("Dữ liệu đặt phòng: ", bookingData);
+        console.error("Đặt phòng thất bại: ", error.response ? error.response.data : error.message);
         await Swal.fire({
             title: 'Đặt phòng thất bại!',
-            text: error.message || 'Đã xảy ra lỗi không xác định.',
+            text: error.response ? error.response.data.message || 'Đã xảy ra lỗi không xác định.' : 'Lỗi không xác định.',
             icon: 'error',
             confirmButtonText: 'OK'
         });
         throw error;
     }
 };
+
+
 
 const fetchDiscounts = async (username) => {
     const res = await request({

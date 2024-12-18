@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactPaginate from 'react-paginate';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './RecentlyViewed.css';
@@ -14,6 +14,7 @@ const RecentlyViewed = () => {
     const [mockBookings, setMockBookings] = useState([]);
 
     // Lấy token từ cookies và decode
+    const intervalRef = useRef(null);
     const tokens = Cookies.get("token") || null;
     const decodedToken = tokens ? jwt_decode(tokens) : null;
 
@@ -42,9 +43,27 @@ const RecentlyViewed = () => {
                 setMockBookings([]);
             }
         };
+        // Cleanup interval nếu decodedToken thay đổi
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
 
-        fetchBookings();
-    }, [decodedToken]);
+        // Gọi API ngay lần đầu
+        if (decodedToken?.id) {
+            fetchBookings();
+            // Thiết lập interval gọi API mỗi 15 giây
+            intervalRef.current = setInterval(() => {
+                console.log("Gọi API sau 15 giây...");
+                fetchBookings();
+            }, 15000); // 15 giây
+        }
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, [decodedToken?.id]);
 
     // Xử lý khi người dùng đổi trang
     const handlePageClick = (event) => {
@@ -81,13 +100,13 @@ const RecentlyViewed = () => {
                             <div className="card-body">
                                 <h5 className="card-title">{booking.bkFormat}</h5>
                                 <p className="card-text">
-                                    <strong>Nhận phòng:</strong> {booking.startAt}
+                                    <strong>Nhận phòng:</strong> {booking.startAt} 14:00
                                 </p>
                                 <p className="card-text">
-                                    <strong>Trả phòng:</strong> {booking.endAt}
+                                    <strong>Trả phòng:</strong> {booking.endAt} 12:00
                                 </p>
                                 <p className="custom-price-text">
-                                    <strong>Tổng giá:</strong> {booking.totalBooking.toLocaleString()}  VND
+                                <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
                                 </p>
                                 <p className="card-text">
                                     <strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}
@@ -140,19 +159,19 @@ const RecentlyViewed = () => {
                                                     <h5>Thông tin đặt phòng</h5>
                                                     <br />
                                                     <p><strong>Mã Đặt Phòng:</strong> {booking.bkFormat}</p>
-                                                    <p><strong>Ngày đặt:</strong> {booking.createAt}</p>
-                                                    <p><strong>Nhận phòng:</strong> {booking.startAt}</p>
-                                                    <p><strong>Trả phòng:</strong> {booking.endAt}</p>
+                                                    <p><strong>Ngày đặt:</strong> {booking.createAt} </p>
+                                                    <p><strong>Nhận phòng:</strong> {booking.startAt} 14:00</p>
+                                                    <p><strong>Trả phòng:</strong> {booking.endAt} 12:00</p>
                                                     <p><strong>Trạng thái:</strong> <span style={{ color: '#FEA116' }}>{booking.statusBkName}</span></p>
                                                 </div>
                                                 <div className="col-md-8">
                                                     <h5>Chi tiết phòng</h5>
                                                     <br />
                                                     <p><strong>Phòng:</strong> {booking.roomInfo}</p>
-                                                    <p><strong>Tiền Phòng:</strong> {booking.totalRoom.toLocaleString()} VND </p>
+                                                    <p><strong>Tiền Phòng:</strong>  {booking.totalRoom ? booking.totalRoom.toLocaleString() : "0"} VND </p>
                                                     <p><strong>Dịch vụ:</strong> {booking.combinedServiceNames || "Chưa sử dụng dịch vụ"}</p>
                                                     <p><strong>Tiền Dịch Vụ:</strong> {booking.combinedTotalServices ? booking.combinedTotalServices.toLocaleString() : "0"} VND</p>
-                                                    <p><strong>Tổng giá:</strong> <span style={{ color: '#E60000 ' }}>{booking.totalBooking.toLocaleString()} VND</span> </p>
+                                                    <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
                                                 </div>
                                             </div>
                                             {/* Row 6: Đánh giá */}

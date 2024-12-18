@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 import "../../../assets/css/account/profile/style.css"
 import ChangePassword from "../../admin/ChangePassword";
+import Discount from "./discount";
 const Profile = () => {
     const navigate = useNavigate();
     const handleLogout = () => {
@@ -36,6 +37,9 @@ const Profile = () => {
                                         <a href="#tab-recently-viewed" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Lịch sử đặt phòng</a>
                                     </li>
                                     <li className="nav-item mb-2">
+                                        <a href="#tab-discount" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Giảm giá</a>
+                                    </li>
+                                    <li className="nav-item mb-2">
                                         <a href="#tab-favourites" className="nav-link nav-link-profile" data-bs-toggle="tab" role="tab">Đổi mật khẩu</a>
                                     </li>
                                 </ul>
@@ -53,6 +57,9 @@ const Profile = () => {
                                 </div>
                                 <div className="tab-pane fade" id="tab-recently-viewed" role="tabpanel">
                                     <RecentlyViewed />
+                                </div>
+                                <div className="tab-pane fade" id="tab-discount" role="tabpanel">
+                                    <Discount />
                                 </div>
                                 <div className="tab-pane fade" id="tab-favourites" role="tabpanel">
                                     <ChangePassword />

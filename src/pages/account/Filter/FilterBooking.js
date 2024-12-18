@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Form, InputGroup, Button, Dropdown, Row, Col } from 'react-bootstrap';
+import { getListTypeRoomId } from '../../../services/client/home';
 
 export default function BookingFillter({ onFilter, onSendDates }) {
     const [checkinDate, setCheckinDate] = useState(null);
@@ -12,8 +13,21 @@ export default function BookingFillter({ onFilter, onSendDates }) {
     const [isCheckinOpen, setIsCheckinOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [dataFilter, setDataFilter] = useState({})
+    const [typeRoomOptions, setTypeRoomOptions] = useState([]); // Lưu danh sách loại phòng
+    const [setSelectedTypeName, setSelectedTypeNames] = useState(0);
+    // Dữ liệu mẫu
+    const getListTypeRoomName = async () => {
+        try {
+            const res = await getListTypeRoomId();
+            setTypeRoomOptions(res);
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
 
     useEffect(() => {
+        getListTypeRoomName();
         const data = sessionStorage.getItem('valueFillter');
         if (data) {
             const parsedData = JSON.parse(data);
@@ -22,6 +36,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
             setCheckoutDate((parsedData.checkOut ? new Date(parsedData.checkOut) : null));
             setAdultCount(parsedData.guest || 1);
             setGuestSummary(`${parsedData.guest || 1} khách`);
+            setSelectedTypeNames(parsedData.typeRoomID ?? 0);
         } else {
             setCheckinDate(null);
             setCheckoutDate(null);
@@ -118,18 +133,42 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                 formatDateToYYYYMMDD(checkoutDate)
             );
         }
-
         // Gửi giá trị thời gian và số khách cho hàm lọc
-        onFilter(formatDateToYYYYMMDD(checkinDate), formatDateToYYYYMMDD(checkoutDate), adultCount);
+        onFilter(formatDateToYYYYMMDD(checkinDate), formatDateToYYYYMMDD(checkoutDate), adultCount, setSelectedTypeName);
+        const data = {
+            checkIn: formatDateToYYYYMMDD(checkinDate),
+            checkOut: formatDateToYYYYMMDD(checkoutDate),
+            guest: adultCount,
+            typeRoomID: setSelectedTypeName,
+        };
+
+        sessionStorage.setItem("valueFillter", JSON.stringify(data));
+
     };
 
     return (
         <div className="container-fluid booking pb-5 wow fadeIn" data-wow-delay="0.1s">
             <div className="container">
-                <div className="bg-white shadow" style={{ padding: "35px" }}>
+                <div className="bg-white shadow" style={{ padding: "35px", borderRadius: "10px" }}>
                     <div className="row g-2">
                         <div className="col-md-10">
                             <div className="row g-2">
+                                <div className="col-md-3">
+                                    <label htmlFor="typeRoom" className="form-label">Loại phòng</label>
+                                    <select
+                                        id="typeRoom"
+                                        className="form-select"
+                                        value={setSelectedTypeName}
+                                        onChange={(e) => setSelectedTypeNames(e.target.value)} // Lưu ID của loại phòng
+                                    >
+                                        <option value={0}>Tất cả</option>
+                                        {typeRoomOptions.map((room) => (
+                                            <option key={room.id} value={room.id}>
+                                                {room.typeRoomName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <div className="col-md-3">
                                     <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                                     <div className="input-group flex-nowrap">
@@ -166,7 +205,7 @@ export default function BookingFillter({ onFilter, onSendDates }) {
                                         />
                                     </div>
                                 </div>
-                                <Col md={6} className="position-relative">
+                                <Col md={3} className="position-relative">
                                     <Form.Group controlId="guests">
                                         <Form.Label>Số khách</Form.Label>
                                         <InputGroup className="flex-nowrap">

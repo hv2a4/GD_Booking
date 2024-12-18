@@ -9,14 +9,14 @@ import { useNavigate } from "react-router-dom";
 
 export default function Rooms() {
   const [showModal, setShowModal] = useState(false);
-  const [roomItem, setRoomItem] = useState([]);
+  const [roomItem, setRoomItem] = useState({});
   const [typeRoom, setTypeRoom] = useState([]);
   const [alert, setAlert] = useState(null);
   const [avg, setAvg] = useState({});
   const navigate = useNavigate();
   useEffect(() => {
     handleTypeRoom();
-  }, []);
+  }, [roomItem]);
 
   const handleTypeRoom = async () => {
     try {
@@ -35,13 +35,8 @@ export default function Rooms() {
     try {
       setAvg(id);
       const res = await getDetailTypeRoom(id.roomTypeId);
-
-      if (Array.isArray(res) && res.length > 0) {
-        setRoomItem(res[0]); // Assuming you want to show details of the first item in the list
-      } else {
-        setAlert({ type: "error", title: "Không tìm thấy dữ liệu chi tiết phòng" });
-      }
-
+      console.log(res[0]);
+      setRoomItem(res[0]); 
       setShowModal(true);
       console.log("Dữ liệu được lấy ra từ server là: ", res);
     } catch (error) {
@@ -49,12 +44,6 @@ export default function Rooms() {
       setAlert({ type: "error", title: error.message });
     }
   };
-
-  const handleHref = () => {
-    navigate("/client/rooms");
-    window.scrollTo(0, 0);
-  }
-
   return (
     <div className="container-xxl py-5">
       {alert && <Alert type={alert.type} title={alert.title} />}
@@ -126,7 +115,6 @@ export default function Rooms() {
                     >
                       Chi tiết
                     </Button>
-                    <Button className="btn btn-sm btn-primary rounded py-2 px-4" onClick={handleHref}> Xem thêm</Button>
                   </div>
                 </div>
               </div>
@@ -134,7 +122,7 @@ export default function Rooms() {
           ))}
         </div>
       </div>
-      <RoomDetailModal show={showModal} onClose={() => setShowModal(false)} room={roomItem} avgStart={avg} />
+      <RoomDetailModal room={roomItem} show={showModal} onClose={() => setShowModal(false)}  avgStart={avg} />
     </div>
   );
 }

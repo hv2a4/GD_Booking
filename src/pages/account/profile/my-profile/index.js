@@ -12,7 +12,6 @@ import { v4 } from "uuid";
 import { useForm } from 'react-hook-form';
 
 const MyProfile = () => {
-    const [userData, setUserData] = useState(null);
     const [id, setId] = useState('');
     const [username, setUsername] = useState('');
     const [fullname, setFullname] = useState('');
@@ -28,7 +27,6 @@ const MyProfile = () => {
     const [loading, setLoading] = useState(false); // Trạng thái loading
     const [preview, setPreview] = useState("");
     const [img, setImg] = useState('');
-    const [imgUrl, setImgUrl] = useState([]);
     const [updateImage, setUpdateImage] = useState(false);
     const navigate = useNavigate();
     const handleFileChange = (event) => {
@@ -49,9 +47,9 @@ const MyProfile = () => {
         reset,
         formState: { errors },
         clearErrors,
-      } = useForm({
+    } = useForm({
         mode: "onBlur", // Xác thực khi mất tiêu điểm
-      });
+    });
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -86,13 +84,6 @@ const MyProfile = () => {
             console.log("ảnh cũ: " + avatar)
         }
 
-
-
-        // setLoading(true); // Bắt đầu loading
-        // setTimeout(() => {
-        //     setLoading(false); // Kết thúc loading sau 2 giây giả lập
-        //     console.log(user); // In ra thông tin người dùng (có thể thay đổi)
-        // }, 2000)
 
         try {
             const response = await fetch('http://localhost:8080/api/account/updateAccount', {
@@ -139,7 +130,6 @@ const MyProfile = () => {
             try {
                 const decodedTokens = jwt_decode(token);
                 console.log("id người dùng: " + decodedTokens.id);
-                setUserData(decodedTokens);
                 setId(decodedTokens.id || '');
                 setUsername(decodedTokens.username || '');
                 setFullname(decodedTokens.fullname || '');
@@ -209,46 +199,49 @@ const MyProfile = () => {
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputUsername" className="form-label">Tên tài khoản: </label>
-                    <input type="text" className="form-control" 
-                     {...register("username", { required: "Tài khoản là bắt buộc" })}
-                     id="inputUsername" value={username}
-                        onChange={(e) =>{setUsername(e.target.value)
+                    <input type="text" className="form-control"
+                        {...register("username", { required: "Tài khoản là bắt buộc" })}
+                        id="inputUsername" value={username}
+                        onChange={(e) => {
+                            setUsername(e.target.value)
                             if (errors.username) {
                                 clearErrors("username");
-                              }
-                        }}  disabled />
-                         {errors.username && <small className="text-orange">{errors.username.message}</small>}
+                            }
+                        }} disabled />
+                    {errors.username && <small className="text-orange">{errors.username.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputFullname" className="form-label">Họ và tên: </label>
                     <input type="text"  {...register("fullname", { required: "Họ Tên là bắt buộc" })} className="form-control" id="inputFullname" value={fullname}
-                        onChange={(e) =>{setFullname(e.target.value)
+                        onChange={(e) => {
+                            setFullname(e.target.value)
                             if (errors.fullname) {
                                 clearErrors("fullname");
-                              }
-                        }}  />
-                        {errors.fullname && <small className="text-orange">{errors.fullname.message}</small>}
+                            }
+                        }} />
+                    {errors.fullname && <small className="text-orange">{errors.fullname.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label htmlFor="inputEmail" className="form-label">Email</label>
                     <input type="email" {...register("email", { required: "Email là bắt buộc" })} className="form-control" id="inputEmail" value={email}
-                        onChange={(e) =>{ setEmail(e.target.value)
+                        onChange={(e) => {
+                            setEmail(e.target.value)
                             if (errors.email) {
                                 clearErrors("email");
-                              }
+                            }
                         }} />
-                          {errors.email && <small className="text-orange">{errors.email.message}</small>}
+                    {errors.email && <small className="text-orange">{errors.email.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label for="inputPhone" className="form-label">Phone</label>
                     <input type="text" {...register("phone", { required: "Số điện thoại là bắt buộc" })} className="form-control" id="inputPhone" value={phone}
-                        onChange={(e) =>{
+                        onChange={(e) => {
                             setPhone(e.target.value)
                             if (errors.phone) {
                                 clearErrors("phone");
-                              }
-                        } } />
-                        {errors.phone && <small className="text-orange">{errors.phone.message}</small>}
+                            }
+                        }} />
+                    {errors.phone && <small className="text-orange">{errors.phone.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputGender" className="form-label">Giới tính</label><br />

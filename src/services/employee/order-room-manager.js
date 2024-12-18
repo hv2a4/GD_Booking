@@ -1,9 +1,7 @@
 import { request } from "../../config/configApi";
 
-const getAllBooking = async (filterType, startDate, endDate, token) => {
+const getAllBooking = async (startDate, endDate, token) => {
     const params = new URLSearchParams();
-
-    if (filterType) params.append("filterType", filterType); // Chỉ thêm nếu có giá trị
     if (startDate) params.append("startDate", startDate);   // Thêm nếu có giá trị
     if (endDate) params.append("endDate", endDate);         // Thêm nếu có giá trị
 

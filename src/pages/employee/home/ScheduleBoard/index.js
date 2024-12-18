@@ -56,7 +56,6 @@ function ScheduleBoard() {
       <FillterDateHome onDatesChange={handleDateFilterChange} />
       <div className="schedule-board">
         <div className="header">
-          <div className="floor">Tầng</div>
           <div className="dates">
             {dates.map((date, index) => (
               <div className="date" key={index}>{date}</div>

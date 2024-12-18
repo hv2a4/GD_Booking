@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal } from 'react-bootstrap';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getBookingRoomIds, getBookingRoomInformation } from "../../../../services/employee/booking-manager";
 import Alert from "../../../../config/alert";
 import { formatDate, formatDateTime } from "../../../../config/formatPrice";
@@ -20,6 +20,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(2);
     const encodedIdBookingRoom = btoa(bookingRoomIds[0]);
+    const navigate = useNavigate();
     useEffect(() => {
         handleCustomer();
         handleBookingRoom();
@@ -67,6 +68,7 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
 
     const handleCloseTTNhanPhong = () => {
         onHide();
+        navigate(`/employee/list-booking-room`);
     }
     const handleBookingRoom = async () => {
         const idBookingRoom = bookingRoomIds.join(',');
@@ -89,7 +91,9 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = customerInformation.slice(indexOfFirstItem, indexOfLastItem);
-
+    const roomNames = bookingRoom
+    .map(room => room.room?.roomName.replace("Phòng ", ""))
+    .join(", ");
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     return (
         <>
@@ -114,9 +118,9 @@ const TTNhanPhong = ({ onHide, bookingRoomIds }) => {
                                 </div>
                             </div>
                             <div className="col-12 col-lg-4">
-                                <label className="text-neutral font-sm mb-1">Số phòng nhận</label>
+                                <label className="text-neutral font-sm mb-1">Phòng nhận</label>
                                 <div className="font-medium d-flex">
-                                    <span className="text-clamp-1 ng-star-inserted" title="P.301">{bookingRoom.length} phòng</span>
+                                    <span className="text-clamp-1 ng-star-inserted" title="P.301">Phòng {roomNames}</span>
                                 </div>
                             </div>
                         </div>

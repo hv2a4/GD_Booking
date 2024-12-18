@@ -16,31 +16,24 @@ const isWithinNextWeek = (startDate, endDate) => {
         (start < now && end > nextWeek)        // Bao trùm cả tuần tiếp theo
     );
 };
-
 function calculatePosition(start, end, startDate, endDate) {
-    const filterStartDate = new Date(startDate || new Date()); 
-    const filterEndDate = new Date(endDate || filterStartDate);
-    filterEndDate.setDate(filterStartDate.getDate() + 7);
+    const filterStartDate = new Date(startDate || new Date());
+    const filterEndDate = new Date(filterStartDate);
+    filterEndDate.setDate(filterStartDate.getDate() + 7); // Ensures a 7-day range
 
-    // Chuyển start và end về timestamp
-    const startDateAdjusted = new Date(start).getTime(); 
-    const endDateAdjusted = new Date(end).getTime();
+    const totalDuration = Math.max(1, filterEndDate - filterStartDate); // Total range in milliseconds
 
-    // Tổng số ngày trong khoảng lọc
-    const totalDuration = (filterEndDate - filterStartDate) / (1000 * 60 * 60 * 24);
+    // Ensure boundaries are clipped to the filter range
+    const startTime = Math.max(new Date(start).getTime(), filterStartDate.getTime());
+    const endTime = Math.min(new Date(end).getTime(), filterEndDate.getTime());
 
-    // Tính vị trí bắt đầu (khoảng cách từ ngày lọc đầu tiên)
-    const daysFromStart = Math.max(0, (startDateAdjusted - filterStartDate.getTime()) / (1000 * 60 * 60 * 24));
+    // Ensure valid range
+    if (endTime < startTime) return { position: 0, width: 0 };
 
-    // Tính khoảng cách và độ dài item theo tỷ lệ %
-    let position = Math.min(100, (daysFromStart / totalDuration) * 100);
-    position = Math.min(100, position + 5);
+    const position = ((startTime - filterStartDate.getTime()) / totalDuration) * 100;
+    const width = ((endTime - startTime) / totalDuration) * 100;
 
-    // Tính độ dài dựa trên số ngày giữa start và end
-    const durationInDays = Math.max(0, (endDateAdjusted - startDateAdjusted) / (1000 * 60 * 60 * 24));
-    const width = Math.min(100 - position, (durationInDays / totalDuration) * 100);
-
-    return { position, width };
+    return { position: Math.max(0, position), width: Math.max(0, width) };
 }
 
 
@@ -49,12 +42,12 @@ function RoomSchedule({ room, startDate, endDate }) {
     const [bookingDetail, setbookingDetail] = useState({});
     const [showModal, setShowModal] = useState(false);
     useEffect(() => {
+        console.log(filteredBookings);
+        
         const fetchBookings = async () => {
             try {
                 const data = await getBookingByRoom(room?.id);
                 setBookings(data);
-                console.log(data);
-                
             } catch (error) {
                 console.error("Error fetching bookings:", error);
             }
@@ -100,6 +93,8 @@ function RoomSchedule({ room, startDate, endDate }) {
                 return 'badge text-bg-danger badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Đã hủy
             case 7: 
                 return 'badge text-bg-warning badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Trả phòng
+            case 10: 
+                return 'badge text-bg-danger badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Trả phòng
             default: 
                 return 'badge text-bg-success text-dark badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Mặc định
         }
@@ -127,7 +122,7 @@ function RoomSchedule({ room, startDate, endDate }) {
                             style={{
                                 left: `${position}%`,
                                 width: `${width}%`,
-                                maxWidth: '100%',
+                                maxWidth: "100%",
                                 position: 'absolute',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',

@@ -21,7 +21,7 @@ export default function Home() {
       <About />
       <Rooms />
       <Services />
-      <Sliders />
+      {/* <Sliders /> */}
       {decodedTokens && (
         <DiscountBanner id_account={decodedTokens.id} />
       )}
