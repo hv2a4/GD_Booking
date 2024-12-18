@@ -60,15 +60,14 @@ const CreateInvoice = ({ item }) => {
                     {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
                         getCurrentPageItems().map((booking, index) => {
                             const roomNames = booking.bookingRooms
-                                .filter(room => room.checkIn)
                                 .map(room => room.room?.roomName.replace("Phòng ", ""))
-                                .filter(Boolean)
                                 .join(", ");
                             const totalPrice = booking.bookingRooms?.reduce(
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
                             const encodedIdBookingRoom = btoa(booking.bookingRooms[0]?.id);
+                            const priceDiscount = booking.discountPercent !== null? ( totalPrice * booking.discountPercent ) / 100 : 0;
 
                             return (
                                 <tr key={index} className="tr-center">
@@ -86,7 +85,7 @@ const CreateInvoice = ({ item }) => {
                                     </td>
                                     <td>{formatDateTime(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
-                                    <td>{formatCurrency(totalPrice)}</td>
+                                    <td>{formatCurrency(totalPrice - priceDiscount)}</td>
                                     <td style={{ color: "red" }}>
                                         {booking.statusBookingDto.statusBookingName}
                                     </td>

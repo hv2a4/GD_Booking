@@ -6,7 +6,7 @@ import { addCustomer, updateCustomer } from '../../../../services/employee/custo
 import Alert from '../../../../config/alert';
 import { getBookingRoomInformation } from '../../../../services/admin/account-manager';
 
-const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
+const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData, bookingoff }) => {
     const { register, handleSubmit, control, setValue } = useForm();
     const [customerInformation, setCustomerInformation] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -46,8 +46,6 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
 
 
     const onSubmit = async (data) => {
-        console.log(data);
-
         // Validate dữ liệu đầu vào
         setIsLoading(true);
         if (!data.sodienthoai === 10) {
@@ -92,7 +90,12 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
         try {
             const customerData = item ? await updateCustomer(item.id, newCustomer, id[0]?.id) : await addCustomer(newCustomer, id[0]?.id);
             setAlert({ type: customerData.status, title: customerData.message });
-            fetchData();
+            if (bookingoff) {
+                onClose();
+            }else{
+                fetchData();
+            }
+            
         } catch (error) {
             setAlert({ type: "error", title: "Lỗi khi thêm khách hàng.", details: error.message });
         }
@@ -114,7 +117,7 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData }) => {
             <div className="modal-content modal-lg">
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
-                    <Modal.Title className="modal-title">Thông tin khách ở cùng</Modal.Title>
+                    <Modal.Title className="modal-title">Thông tin khách hàng</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit(onSubmit)}>

@@ -130,10 +130,16 @@ const Confirm = ({ item }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {getCurrentPageItems().map((booking, index) => {
+                {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
+                    getCurrentPageItems().map((booking, index) => {
                         const roomNames = booking.bookingRooms
                             .map(room => room.room?.roomName.replace("Phòng ", ""))
                             .join(", ");
+                            const totalPrice = booking.bookingRooms?.reduce(
+                                (total, room) => total + (room.price || 0),
+                                0
+                            ) || 0;
+                        const priceDiscount = booking.discountPercent !== null? ( totalPrice * booking.discountPercent ) / 100 : 0;
                         return (
                             <tr key={index} className="tr-center">
                                 <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -150,7 +156,7 @@ const Confirm = ({ item }) => {
                                 </td>
                                 <td>{formatDate(booking.startAt)}</td>
                                 <td>{formatDate(booking.endAt)}</td>
-                                <td>{formatCurrency(booking.totalPriceBooking)}</td>
+                                <td>{formatCurrency(booking.totalPriceBooking - priceDiscount)}</td>
                                 <td style={{ color: booking.statusPayment ? "green" : "red" }}>
                                     {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                 </td>
@@ -158,7 +164,7 @@ const Confirm = ({ item }) => {
                                     <div className="d-flex">
                                         <Button
                                             variant="outline-secondary"
-                                            onClose={handleCloseModalConfirm} 
+                                            onClose={handleCloseModalConfirm}
                                             onClick={() => handleShowModalConfirm(booking)}>
                                             Xác nhận
                                         </Button>
@@ -180,7 +186,12 @@ const Confirm = ({ item }) => {
                                 </td>
                             </tr>
                         );
-                    })}
+                    })) : (
+                        <tr>
+                            <td colSpan="9" className="text-center">Không có dữ liệu đặt phòng.</td>
+                        </tr>
+                    )}
+
                 </tbody>
             </Table>
             {/* Hiển thị phân trang */}

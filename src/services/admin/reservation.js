@@ -30,5 +30,19 @@ const getStatistics2 = async (startDate,endDate) => {
     });
     return res;
 }
+const getStatisticsAll = async () => {
+    const res = await request({
+        method: "GET",
+        path: `api/invoice/getAll-statistics`
+    });
+    return res;
+}
+const getInvoiceStatisticsAll = async () => {
+    const res = await request({
+        method: "GET",
+        path: `api/invoice/getAll-reservation`
+    });
+    return res;
+}
 
-export {getReservationReport,getStartDateWithInvoice,getStatistics,getStatistics2};
+export {getReservationReport,getStartDateWithInvoice,getStatistics,getStatistics2,getStatisticsAll,getInvoiceStatisticsAll};

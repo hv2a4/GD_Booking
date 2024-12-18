@@ -141,12 +141,13 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
                             ))}
                         </tbody>
                     </Table>
-                    <p className="text-muted mt-3">
-                        Sau khi xác nhận, các phòng sẽ chuyển về trạng thái đặt trước
+                    <p className="mt-3 mx-3 text-danger">
+                    {booking.statusBookingDto.id === 1 ? "Khách hàng chưa xác nhận qua email" : ""}
+                        
                     </p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="success" onClick={handleUpdateBooking}>
+                    <Button variant="success" onClick={handleUpdateBooking} disabled={booking.statusBookingDto.id === 1} >
                         Xác nhận
                     </Button>
                 </Modal.Footer>

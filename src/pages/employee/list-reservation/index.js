@@ -106,7 +106,7 @@ const ListReservation = () => {
         let bookingsForTab = [];
         switch (tab) {
             case "choxacnhan":
-                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 2);
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 2 || e.statusBookingDto?.id === 1);
                 break;
             case "datra":
                 bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 8);

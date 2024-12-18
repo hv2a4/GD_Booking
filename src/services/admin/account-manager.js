@@ -51,4 +51,20 @@ const getBookingRoomServiceRoom = async (id, token) => {
     return res;
 }
 
-export {getAllEmployee,updateActiveAccount,addEmployee,getBookingAccount,getBookingRoomInformation,getBookingRoomServiceRoom};
+const updateAccountEmployee = async (data) => {
+    const res = await request({
+        method: "PUT",
+        path: `api/account/updateAccount`,
+        data: data
+    });
+    return res;
+}
+const deleteAccountEmployee = async (id) => {
+    const res = await request({
+        method: "DELETE",
+        path: `api/account/deleteAccount/${id}`
+    });
+    return res;
+}
+
+export {getAllEmployee,updateActiveAccount,deleteAccountEmployee,addEmployee,getBookingAccount,getBookingRoomInformation,getBookingRoomServiceRoom,updateAccountEmployee};

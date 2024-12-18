@@ -12,6 +12,7 @@ const InUse = ({ item }) => {
     const [booking, setBooking] = useState({});
     const [bookingsWithPrices, setBookingsWithPrices] = useState([]);
     const [modalService, setModalService] = useState(false);
+    const [loading, setLoading] = useState(true);
     const itemsPerPage = 10; // Số lượng bản ghi trên mỗi trang
     const totalPages = Math.ceil(item?.length / itemsPerPage); // Tổng số trang
 
@@ -120,8 +121,12 @@ const InUse = ({ item }) => {
                                 .map(room => room.room?.roomName.replace("Phòng ", ""))
                                 .filter(Boolean)
                                 .join(", ");
+                                const totalPrice = booking.bookingRooms?.reduce(
+                                    (total, room) => total + (room.price || 0),
+                                    0
+                                ) || 0;
                             const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
-
+                            const priceDiscount = booking.discountPercent !== null? ( totalPrice * booking.discountPercent ) / 100 : 0;
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -138,7 +143,7 @@ const InUse = ({ item }) => {
                                     </td>
                                     <td>{formatDate(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
-                                    <td>{formatCurrency(booking.totalPriceBooking)}</td>
+                                    <td>{formatCurrency(booking.totalPriceBooking - priceDiscount)}</td>
                                     <td style={{ color: booking.statusPayment ? "green" : "red" }}>
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>
@@ -168,7 +173,7 @@ const InUse = ({ item }) => {
                         })
                     ) : (
                         <tr>
-                            <td colSpan="9" className="text-center">Không có dữ liệu đặt phòng.</td>
+                            <td colSpan="9" className="text-center">Đang tải...</td>
                         </tr>
                     )}
                 </tbody>

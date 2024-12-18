@@ -29,6 +29,8 @@ const RevenueReport = () => {
     };
 
     useEffect(() => {
+        console.log(bookings2);
+        
         if (!checkinDate && !checkoutDate) {
             const today = new Date();
             const sevenDaysAgo = new Date();
@@ -124,7 +126,7 @@ const RevenueReport = () => {
             </div>
 
             {view === 'chart' ? (
-                <RevenueChart booking={bookings2}/>
+                <RevenueChart booking={bookings2} startDate={checkinDate} endDate={checkoutDate}/>
             ) : (
                 <RevenueTable booking={bookings} bookings2={bookings2} checkinDate={checkinDate} checkoutDate={checkoutDate}/>
             )}

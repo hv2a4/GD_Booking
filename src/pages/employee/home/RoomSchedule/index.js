@@ -94,7 +94,7 @@ function RoomSchedule({ room, startDate, endDate }) {
             case 7: 
                 return 'badge text-bg-warning badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Trả phòng
             case 10: 
-                return 'badge text-bg-danger badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Trả phòng
+                return 'badge text-bg-secondary badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Trả phòng
             default: 
                 return 'badge text-bg-success text-dark badge text-nowrap ng-star-inserted col-md-4 col-4 mx-3'; // Mặc định
         }
@@ -130,7 +130,7 @@ function RoomSchedule({ room, startDate, endDate }) {
                             }}
                             title={`${reservation?.accountDto.fullname} ${formatDateTime(reservation.startAt)} - ${formatDateTime(reservation.endAt)}`}
                         >
-                            {reservation?.accountDto.fullname} {checkInTime} - {checkOutTime}
+                            {reservation.statusBookingDto.id === 10 ? "Bảo trì" : reservation?.accountDto.fullname} {checkInTime} - {checkOutTime}
                         </div>
                     );
                 })}
