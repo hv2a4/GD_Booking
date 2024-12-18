@@ -285,11 +285,11 @@ const RoomAndTypeRoom = () => {
                                         </th>
                                         <th>Mã loại phòng</th>
                                         <th>Tên loại phòng</th>
-                                        <th>Giá</th>
+                                        <th>Giá {'(VNĐ)'}</th>
                                         <th>Giường</th>
-                                        <th>Sức chứa</th>
+                                        <th>Sức chứa {'(người)'}</th>
                                         <th>Tiện nghi</th>
-                                        <th>Diện tích</th>
+                                        <th>Diện tích {'(m2)'}</th>
                                         <th>Hình ảnh</th>
 
                                     </tr>
@@ -316,16 +316,16 @@ const RoomAndTypeRoom = () => {
                                                 </td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{id}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{typeRoomName}</td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{formatCurrency(price)} VNĐ</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{formatCurrency(price)}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>{bedCount + ' ' + typeBedDto.bedName}</td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{guestLimit + ' người'}</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{guestLimit}</td>
                                                 <td onClick={() => handleTypeRoomSelect(id)}>
                                                     {(() => {
                                                         const labels = amenities.map(item => item.label).join(', ');
                                                         return labels;
                                                     })()}
                                                 </td>
-                                                <td onClick={() => handleTypeRoomSelect(id)}>{acreage} m2</td>
+                                                <td onClick={() => handleTypeRoomSelect(id)}>{acreage}</td>
                                                 <td onClick={(e) => {
                                                     e.stopPropagation();
                                                 }}>
