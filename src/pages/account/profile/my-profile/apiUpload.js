@@ -6,7 +6,7 @@ const uploadProfiles = async (datas) => {
     try {
       const res = await request({
         method: "PUT", // Phương thức HTTP GET
-        path: `/api/account/updateAccount`, // Truyền accountId thẳng trên URL
+        path: `/api/account/updateAccountCustomer`, // Truyền accountId thẳng trên URL
         data:datas
         //headers: { Authorization: `Bearer ${token}` }, // Thêm token vào header nếu cần
       });
