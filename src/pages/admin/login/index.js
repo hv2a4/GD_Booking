@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import './index.css';
+import './index.css';
 import user_icon from '../../../assets/images/person.png';
 import password_icon from '../../../assets/images/password.png';
 import { useNavigate } from 'react-router-dom';
@@ -63,7 +63,8 @@ const LoginAdmin = () => {
  
 
     return (
-        <div className='container'>
+        <div className='login-admin'>
+            <div className='container'>
             <div className="header">
                 <div className="text">Đăng Nhập Tài Khoản</div>
                 <div className="underline"></div>
@@ -88,18 +89,19 @@ const LoginAdmin = () => {
                     />
                 </div>
             </div>
-            <div className="forgot-password">
+            {/* <div className="forgot-password">
                 Quên mật khẩu?{' '}
                 <span onClick={() => navigate('/admin/forgot-password')}>
                     Bấm vào đây!
                 </span>
-            </div>
+            </div> */}
             <div className="submit-container">
                 <button className="submit" onClick={handleLoginSimple}>
                     Đăng Nhập
                 </button>
             </div>
             {alertData && <Alert type={alertData.type} title={alertData.title} />}
+        </div>
         </div>
     );
 };
