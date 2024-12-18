@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import LayoutCilent from '../../../components/layout/cilent';
 import MyProfile from "./my-profile";
 import RecentlyViewed from "./recently-viewed";
@@ -10,15 +10,29 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 import "../../../assets/css/account/profile/style.css"
 import ChangePassword from "../../admin/ChangePassword";
+import Swal from "sweetalert2";
+import Alert from "../../../config/alert";
 const Profile = () => {
     const navigate = useNavigate();
-    const handleLogout = () => {
-        toast.success("Đăng Xuất thành công!");
-        setTimeout(() => {
-            Cookies.remove('token'); // Nếu bạn dùng `js-cookie` để quản lý cookie
-            // Chuyển hướng về trang đăng nhập
-            navigate('/client/home');
-        }, 1200);
+    const [alertDatas, setAlertDatas] = useState(null);
+
+    const handleLogout = async  () => {
+        const result = await Swal.fire({
+            title: "Bạn có muốn đăng xuất?",
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+        });
+
+        if(result.isConfirmed){
+            setAlertDatas({ type: "success", title: "Đăng xuất thành công" });
+            setTimeout(() => {
+                Cookies.remove('token'); // Nếu bạn dùng `js-cookie` để quản lý cookie
+                // Chuyển hướng về trang đăng nhập
+                navigate('/client/home');
+            }, 1200);
+        }
+        
     };
 
     return (
@@ -26,7 +40,7 @@ const Profile = () => {
             <section className="my-profile-section" style={{ marginBottom: "30px" }}>
                 <div className="container mt-5">
                     <div className="row">
-                        <div className="col-md-4">
+                        <div className="col-md-4 col-sm-4">
                             <div className="d-flex flex-column p-3" style={{ width: "300px" }}>
                                 <h4 className="mb-4">Tài khoản của bạn</h4>
                                 <ul className="nav flex-column nav-tabs mb-2" role="tablist">
@@ -48,7 +62,7 @@ const Profile = () => {
                                 </ul>
                             </div>
                         </div>
-                        <div className="col-md-8">
+                        <div className="col-md-8 col-sm-8">
                             <div className="tab-content">
                                 <div className="tab-pane fade show active" id="tab-my-profile" role="tabpanel">
                                     <MyProfile />
@@ -57,12 +71,13 @@ const Profile = () => {
                                     <RecentlyViewed />
                                 </div>
                                 <div className="tab-pane fade" id="tab-favourites" role="tabpanel">
-                                  <ChangePassword />
+                                    <ChangePassword />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                {alertDatas && <Alert type={alertDatas.type} title={alertDatas.title} />}
             </section>
         </LayoutCilent>
     )

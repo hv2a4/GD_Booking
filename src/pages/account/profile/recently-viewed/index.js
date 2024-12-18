@@ -109,7 +109,7 @@ const RecentlyViewed = () => {
           title: "Bạn đã xác nhận sẽ đánh giá ?",
           showDenyButton: false,
           showCancelButton: true,
-          confirmButtonText: "Gửi Đánh Giá",
+          confirmButtonText: "Yes",
         });
       
         if (result.isConfirmed) {
@@ -141,7 +141,7 @@ const RecentlyViewed = () => {
         title: "Bạn có chắc chắn muốn hủy đơn đặt phòng này? Hãy cân nhắc kỹ trước khi quyết định nhé",
         showDenyButton: false,
         showCancelButton: true,
-        confirmButtonText: "Hủy Đặt Phòng",
+        confirmButtonText: "Yes",
       });
       if(result.isConfirmed){
         try {
