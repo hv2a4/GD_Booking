@@ -7,6 +7,7 @@ import Alert from "../../../../config/alert";
 import { postMaintenanceSchedule } from "../../../../services/employee/booking-manager";
 import { Cookies } from 'react-cookie';
 import { jwtDecode as jwt_decode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const MaintenanceModal = ({ handleClose }) => {
     const [receiveDate, setReceiveDate] = useState();
@@ -16,10 +17,11 @@ const MaintenanceModal = ({ handleClose }) => {
     const [alert, setAlert] = useState(null);
     const cookies = new Cookies();
     const token = cookies.get('token');
+    const navigate = useNavigate();
 
     useEffect(() => {
         handleGetRoom();
-        setTimeout(() => setAlert(null), 1000);
+        setTimeout(() => setAlert(null), 500);
     }, [roomOptions, alert])
 
     const handleGetRoom = async () => {
@@ -57,14 +59,11 @@ const MaintenanceModal = ({ handleClose }) => {
             startDate: formatDateToISO(orderData.startDate),
             endDate: formatDateToISO(orderData.endDate),
         };
-        console.log(convertedOrderData);
-        
         const data = await postMaintenanceSchedule(convertedOrderData, decodedToken.username);
-        setAlert({ type: data?.status, title: data?.message });
+        setAlert({ type: data.status, title: data.message });
         if (data?.status === "success") {
-            setTimeout(() => {
-                handleClose();
-            }, 3000);
+            navigate(`/employee/home`);
+            handleClose();
         }
     };
 
