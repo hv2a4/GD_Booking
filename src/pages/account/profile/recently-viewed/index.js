@@ -109,7 +109,7 @@ const RecentlyViewed = () => {
             title: "Bạn đã xác nhận sẽ đánh giá ?",
             showDenyButton: false,
             showCancelButton: true,
-            confirmButtonText: "Yes",
+            confirmButtonText: "OK",
         });
 
         if (result.isConfirmed) {
@@ -138,11 +138,15 @@ const RecentlyViewed = () => {
             descriptions: descriptions // Nội dung đánh giá
         };
         const result = await Swal.fire({
-            title: "Bạn có chắc chắn muốn hủy đơn đặt phòng này? Hãy cân nhắc kỹ trước khi quyết định nhé",
+            html: `<p style="font-size: 17px; font-family: Arial, sans-serif; color: #333;">
+                      Bạn có chắc chắn muốn hủy đơn đặt phòng này? 
+                      <br>Hãy cân nhắc kỹ trước khi quyết định nhé.
+                  </p>`,
             showDenyButton: false,
             showCancelButton: true,
-            confirmButtonText: "Yes",
+            confirmButtonText: "OK",
         });
+
         if (result.isConfirmed) {
             try {
                 // Gọi API lấy lịch sử đặt phòng
@@ -229,14 +233,17 @@ const RecentlyViewed = () => {
                                     >
                                         xem Đánh giá
                                     </button>
-                                    <button
-                                        className="btn btn-primary ms-1  btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target={`#deleteBookingModal-${booking.bkId}`}
-                                        disabled={booking.statusBookingID != 1 && booking.statusBookingID != 2}
-                                    >
-                                        Hủy
-                                    </button>
+
+                                    {(booking.statusBookingID === 1 || booking.statusBookingID === 2) && (
+                                        <button
+                                            className="btn btn-primary ms-1  btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target={`#deleteBookingModal-${booking.bkId}`}
+                                        >
+                                            Hủy
+                                        </button>
+                                    )}
+    
                                 </div>
                             </div>
                         </div>

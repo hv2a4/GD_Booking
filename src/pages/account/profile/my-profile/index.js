@@ -106,10 +106,11 @@ const MyProfile = () => {
             console.log("API response:", response);
 
             if (response.code == "201") {
+                Cookies.set("token", response.token, { expires: 6 / 24 });
                 setAlertData({ type: response.status, title: response.message });
-                setTimeout(() => {
-                    window.location.href = "http://localhost:3000/client/profile";
-                }, 1700);
+                // setTimeout(() => {
+                //     window.location.href = "http://localhost:3000/client/profile";
+                // }, 1700);
             } else {
                 setAlertData({ type: response.status, title: response.message });
                 navigate("/client/profile");
