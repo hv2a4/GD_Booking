@@ -230,7 +230,7 @@ const AuthForm = () => {
                                             clearErrors("username");
                                         }
                                     }} />
-                                {errors.username && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }}>{errors.username.message}</small>}
+                                {errors.username && <small className="text-danger" style={{ textAlign: 'left', display: 'block' }}>{errors.username.message}</small>}
                             </div>
 
                             <div className="col-md-6">
@@ -241,7 +241,7 @@ const AuthForm = () => {
                                             clearErrors("fullname");
                                         }
                                     }} />
-                                {errors.fullname && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }}>{errors.fullname.message}</small>}
+                                {errors.fullname && <small className="text-danger" style={{ textAlign: 'left', display: 'block' }}>{errors.fullname.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="email" className="form-control"  {...register("email", {
@@ -257,7 +257,7 @@ const AuthForm = () => {
                                             clearErrors("email");
                                         }
                                     }} />
-                                {errors.email && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }}>{errors.email.message}</small>}
+                                {errors.email && <small className="text-danger" style={{ textAlign: 'left', display: 'block' }}>{errors.email.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="text"  {...register("phone", {
@@ -272,7 +272,7 @@ const AuthForm = () => {
                                             clearErrors("phone");
                                         }
                                     }} />
-                                {errors.phone && <small className="text-orange" style={{ textAlign: 'left', display: 'block' }} >{errors.phone.message}</small>}
+                                {errors.phone && <small className="text-danger" style={{ textAlign: 'left', display: 'block' }} >{errors.phone.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input
@@ -289,7 +289,7 @@ const AuthForm = () => {
                                     })}
                                     required
                                 />
-                                {errors.password && <small style={{ textAlign: 'left', display: 'block' }} className="text-orange">{errors.password.message}</small>}
+                                {errors.password && <small style={{ textAlign: 'left', display: 'block' }} className="text-danger">{errors.password.message}</small>}
                             </div>
                             <div className="col-md-6">
                                 <input type="password" className="form-control" placeholder="Xác nhận mật khẩu" name="confirmPassword"
@@ -299,7 +299,7 @@ const AuthForm = () => {
                                             value === getValues("password") || "Mật khẩu và xác nhận mật khẩu không khớp",
                                     })} />
                                 {errors.configPassword &&
-                                    <small className="text-orange" style={{ textAlign: 'left', display: 'block' }} >{errors.configPassword.message}</small>
+                                    <small className="text-danger" style={{ textAlign: 'left', display: 'block' }} >{errors.configPassword.message}</small>
                                 }
                             </div>
                         </div>
@@ -338,8 +338,8 @@ const AuthForm = () => {
                             </button>
                             <button type="submit" className="btn btn-primary mt-3" onClick={handleLoginSimple} style={{ width: '100%' }} >Đăng nhập</button>
                             <span>Hoặc sử dụng tài khoản của bạn</span>
-                            <div className="d-flex gap-2 mt-3">
-                                <a className="btn d-flex align-items-center" style={{ width: '100%', background: '#ffff' }} href="#" role="button">
+                            <div className="d-flex gap-2 mt-3 justify-content-center">
+                                <a className="btn d-flex align-items-center" style={{background: '#ffff' }} href="#" role="button">
                                     <i className="bi bi-google me-2"></i><GoogleLogin onSuccess={handleLoginSuccess} />
                                 </a>
                             </div>

@@ -15,7 +15,7 @@ const RecentlyViewed = () => {
     const roomsPerPage = 2;
     const [rating, setRating] = useState(0); // Để lưu sao đánh giá của người dùng
     const [review, setReview] = useState(""); // Để lưu nội dung đánh giá
-    const[descriptions,setDescriptions] = useState("");
+    const [descriptions, setDescriptions] = useState("");
     const [hoveredRating, setHoveredRating] = useState(0);
     const [mockBookings, setMockBookings] = useState([]);
     const navigate = useNavigate();
@@ -100,71 +100,71 @@ const RecentlyViewed = () => {
     };
     const handleSubmitReview = async (invoiceIds) => {
         const reviewData = {
-          idInvoice: invoiceIds,
-          stars: rating,
-          content: review,
+            idInvoice: invoiceIds,
+            stars: rating,
+            content: review,
         };
-      
+
         const result = await Swal.fire({
-          title: "Bạn đã xác nhận sẽ đánh giá ?",
-          showDenyButton: false,
-          showCancelButton: true,
-          confirmButtonText: "Yes",
+            title: "Bạn đã xác nhận sẽ đánh giá ?",
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Yes",
         });
-      
+
         if (result.isConfirmed) {
-          try {
-            const response = await postFeedBack(reviewData);
-            console.log("API response:", response);
-      
-            if (response.code == "201") {
-              setAlertData({ type: response.status, title: response.message });
-              setTimeout(() => {
-                window.location.href = "http://localhost:3000/client/profile";
-              }, 1700);
-            } else {
-              setAlertData({ type: response.status, title: response.message });
-              navigate("/client/profile");
+            try {
+                const response = await postFeedBack(reviewData);
+                console.log("API response:", response);
+
+                if (response.code == "201") {
+                    setAlertData({ type: response.status, title: response.message });
+                    setTimeout(() => {
+                        window.location.href = "http://localhost:3000/client/profile";
+                    }, 1700);
+                } else {
+                    setAlertData({ type: response.status, title: response.message });
+                    navigate("/client/profile");
+                }
+            } catch (error) {
+                console.error("Error fetching booking history:", error);
             }
-          } catch (error) {
-            console.error("Error fetching booking history:", error);
-          }
-        } 
-      };
-    const handleSubmitDeleteBooking = async (bookingIds) => {
-       
-       const bookingData = {
-        bookingId: bookingIds, // Lấy từ booking
-        descriptions: descriptions // Nội dung đánh giá
-       };
-       const result = await Swal.fire({
-        title: "Bạn có chắc chắn muốn hủy đơn đặt phòng này? Hãy cân nhắc kỹ trước khi quyết định nhé",
-        showDenyButton: false,
-        showCancelButton: true,
-        confirmButtonText: "Yes",
-      });
-      if(result.isConfirmed){
-        try {
-            // Gọi API lấy lịch sử đặt phòng
-            const response = await deleteBooking(bookingData);
-            console.log("API response:", response);
-    
-            // Kiểm tra nếu API trả về mảng, lưu vào state
-            if (response.code == "201") {
-                setAlertData({ type: response.status, title: response.message });
-                setTimeout(() => {
-                    window.location.href = "http://localhost:3000/client/profile";
-                  }, 1700);
-            } else {
-                setAlertData({ type: response.status, title: response.message });
-                navigate('/client/profile');
-            }
-        } catch (error) {
-            console.error("Error fetching booking delete:", error);
         }
-      }
-       
-       
+    };
+    const handleSubmitDeleteBooking = async (bookingIds) => {
+
+        const bookingData = {
+            bookingId: bookingIds, // Lấy từ booking
+            descriptions: descriptions // Nội dung đánh giá
+        };
+        const result = await Swal.fire({
+            title: "Bạn có chắc chắn muốn hủy đơn đặt phòng này? Hãy cân nhắc kỹ trước khi quyết định nhé",
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+        });
+        if (result.isConfirmed) {
+            try {
+                // Gọi API lấy lịch sử đặt phòng
+                const response = await deleteBooking(bookingData);
+                console.log("API response:", response);
+
+                // Kiểm tra nếu API trả về mảng, lưu vào state
+                if (response.code == "201") {
+                    setAlertData({ type: response.status, title: response.message });
+                    setTimeout(() => {
+                        window.location.href = "http://localhost:3000/client/profile";
+                    }, 1700);
+                } else {
+                    setAlertData({ type: response.status, title: response.message });
+                    navigate('/client/profile');
+                }
+            } catch (error) {
+                console.error("Error fetching booking delete:", error);
+            }
+        }
+
+
     };
     return (
         <div className="container mt-3">
@@ -195,25 +195,25 @@ const RecentlyViewed = () => {
                                     <strong>Trả phòng:</strong> {booking.endAt} 12:00
                                 </p>
                                 <p className="card-text">
-                                    <strong>Trạng thái đặt phòng:</strong> {booking.statusBkName} 
+                                    <strong>Trạng thái đặt phòng:</strong> {booking.statusBkName}
                                 </p>
                                 <p className="custom-price-text">
                                     <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
                                 </p>
-                                <p className="card-text">
-                                    <strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}
-                                </p>
+
                                 <div className="text-start">
-                                
-                                    <button
-                                        className="btn btn-primary  btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target={`#reviewModal-${booking.bkId}`}
-                                        disabled={booking.ivId == null || (booking.ivId != null && booking.fbId != null)}
-                                    >
-                                        Đánh giá
-                                    </button>
-                                    
+
+                                    {booking.ivId && (
+                                        <button
+                                            className="btn btn-primary  btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target={`#reviewModal-${booking.bkId}`}
+                                            disabled={booking.ivId !== null}
+                                        >
+                                            Đánh giá
+                                        </button>
+                                    )}
+
                                     <button
                                         className="btn btn-primary ms-1 btn-sm"
                                         data-bs-toggle="modal"
@@ -225,15 +225,15 @@ const RecentlyViewed = () => {
                                         className="btn btn-primary ms-1 btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#detailViewFeedbackModal-${booking.bkId}`}
-                                        disabled={booking.fbId == null }
+                                        disabled={booking.fbId == null}
                                     >
-                                       xem Đánh giá
+                                        xem Đánh giá
                                     </button>
                                     <button
                                         className="btn btn-primary ms-1  btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#deleteBookingModal-${booking.bkId}`}
-                                        disabled={booking.statusBookingID != 1 &&  booking.statusBookingID != 2}
+                                        disabled={booking.statusBookingID != 1 && booking.statusBookingID != 2}
                                     >
                                         Hủy
                                     </button>
@@ -277,7 +277,7 @@ const RecentlyViewed = () => {
                                                     <p><strong>Trả phòng:</strong> {booking.endAt} 12:00</p>
                                                     <p><strong>Thanh toán:</strong> {booking.methodPaymentName} </p>
                                                     <p><strong>Trạng thái đặt phòng:</strong> <span style={{ color: '#FEA116' }}>{booking.statusBkName}</span></p>
-                                               </div>
+                                                </div>
                                                 <div className="col-md-1"></div>
                                                 <div className="col-md-6">
                                                     <h5>Chi tiết phòng</h5>
@@ -286,14 +286,7 @@ const RecentlyViewed = () => {
                                                     <p><strong>Dịch vụ:</strong> {booking.combinedServiceNames || "Chưa sử dụng dịch vụ"}</p>
                                                     <p><strong>Tiền Dịch Vụ:</strong> {booking.combinedTotalServices ? booking.combinedTotalServices.toLocaleString() : "0"} VND</p>
                                                     <p><strong>Giảm giá:</strong> Đã giảm giá 10%</p>
-                                                    <strong>Tổng giá:</strong> <span style={{ color: '#E60000 ' }}>{booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND</span>VND
-                                                </div>
-                                            </div>
-                                            {/* Row 6: Đánh giá */}
-                                            <div className="row mb-4">
-                                                <div className="col-md-12 col-sm-12">
-                                                    <p><strong>Nội dung đánh giá:</strong> {booking.content || "Chưa đánh giá"}</p>
-                                                    <p><strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}</p>
+                                                    <strong>Tổng giá:</strong> <span style={{ color: '#E60000 ' }}>{booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -421,8 +414,8 @@ const RecentlyViewed = () => {
                                 </div>
                             </div>
                         </div>
-                         {/* Modal hủy đặt phòng */}
-                         <div className="modal fade" id={`deleteBookingModal-${booking.bkId}`} tabIndex="-1" aria-labelledby={`deleteBookingModalLabel-${booking.bkId}`} aria-hidden="true">
+                        {/* Modal hủy đặt phòng */}
+                        <div className="modal fade" id={`deleteBookingModal-${booking.bkId}`} tabIndex="-1" aria-labelledby={`deleteBookingModalLabel-${booking.bkId}`} aria-hidden="true">
                             <div className="modal-dialog">
                                 <div className="modal-content">
                                     <div className="modal-headers modal-header">
@@ -442,7 +435,7 @@ const RecentlyViewed = () => {
                                         {/* Sao đánh giá */}
                                         <div>
                                             <h6>Lý do hủy:</h6>
-                                           
+
                                         </div>
                                         {/* Nội dung đánh giá */}
                                         <div className="mt-3">
@@ -455,7 +448,7 @@ const RecentlyViewed = () => {
                                         </div>
                                     </div>
                                     <div className="modal-footers modal-footer">
-                                    <button type="button" className="btn btn-primary" onClick={() => handleSubmitDeleteBooking(booking.bkId)}>Hủy đặt phòng</button>
+                                        <button type="button" className="btn btn-primary" onClick={() => handleSubmitDeleteBooking(booking.bkId)}>Hủy đặt phòng</button>
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                     </div>
                                 </div>
