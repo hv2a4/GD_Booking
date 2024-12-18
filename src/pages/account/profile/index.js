@@ -20,7 +20,8 @@ const Profile = () => {
             title: "Bạn có muốn đăng xuất?",
             showDenyButton: false,
             showCancelButton: true,
-            confirmButtonText: "Yes",
+            confirmButtonText: "Đăng xuất",
+            cancelButtonText: "Hủy"
         });
 
         if(result.isConfirmed){
