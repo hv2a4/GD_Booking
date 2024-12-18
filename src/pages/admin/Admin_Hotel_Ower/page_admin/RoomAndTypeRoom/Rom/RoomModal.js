@@ -21,6 +21,7 @@ const UpdateRoomModal = ({ idRoom }) => {
     const [floors, setFloors] = useState([]);
     const [roomTypes, setRoomTypes] = useState([]);
     const [statusRooms, setSatusRooms] = useState([]);
+    const [statusRoom, setSatusRoom] = useState(null);
     const [alert, setAlert] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
@@ -33,7 +34,7 @@ const UpdateRoomModal = ({ idRoom }) => {
     const handleShow = () => {
         if (!show) { // Chỉ mở modal nếu nó đang đóng
             setShow(true);
-        }  
+        }
         setAlert(null);
     };
 
@@ -51,7 +52,7 @@ const UpdateRoomModal = ({ idRoom }) => {
             });
 
             if (response && response.length > 0) {
-                
+
                 setRoomTypes(response);
             }
         };
@@ -80,10 +81,10 @@ const UpdateRoomModal = ({ idRoom }) => {
                         return name === 'phòng trống' || name === 'bảo trì';
                     }
                 );
-            
+
                 setSatusRooms(filteredStatusRooms);
             }
-            
+
         };
         const fetchRoom = async () => {
             const response = await request({
@@ -98,6 +99,7 @@ const UpdateRoomModal = ({ idRoom }) => {
                 setValue('floor', response.floorDto.id);
                 setValue('roomType', response.typeRoomDto.id);
                 setValue('status', response.statusRoomDto.id);
+                setSatusRoom(response.statusRoomDto.statusRoomName);
             }
         };
         fetchRoom();
@@ -234,25 +236,28 @@ const UpdateRoomModal = ({ idRoom }) => {
                                         </Col>
                                     </Form.Group>
 
-                                    <Form.Group as={Row} controlId="formRoomStatus" className="mt-3">
-                                        <Form.Label column sm={4}>
-                                            Trạng thái
-                                        </Form.Label>
-                                        <Col sm={8}>
-                                            <Form.Control
-                                                as="select"
-                                                {...register('status', { required: 'Vui lòng chọn trạng thái' })}
-                                            >
-                                                <option value="">--Lựa chọn trạng thái--</option>
-                                                {statusRooms.map((statusRoom) => (
-                                                    <option key={statusRoom.id} value={statusRoom.id}>
-                                                        {statusRoom.statusRoomName}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                            {errors.status && <span className="text-danger">{errors.status.message}</span>}
-                                        </Col>
-                                    </Form.Group>
+
+                                    {(statusRoom === 'phòng trống' || statusRoom === 'bảo trì') && (
+                                        <Form.Group as={Row} controlId="formRoomStatus" className="mt-3">
+                                            <Form.Label column sm={4}>
+                                                Trạng thái
+                                            </Form.Label>
+                                            <Col sm={8}>
+                                                <Form.Control
+                                                    as="select"
+                                                    {...register('status', { required: 'Vui lòng chọn trạng thái' })}
+                                                >
+                                                    <option value="">--Lựa chọn trạng thái--</option>
+                                                    {statusRooms.map((statusRoom) => (
+                                                        <option key={statusRoom.id} value={statusRoom.id}>
+                                                            {statusRoom.statusRoomName}
+                                                        </option>
+                                                    ))}
+                                                </Form.Control>
+                                                {errors.status && <span className="text-danger">{errors.status.message}</span>}
+                                            </Col>
+                                        </Form.Group>
+                                    )}
                                 </Form>
 
                                 {/* <Col md={6}>
@@ -375,10 +380,10 @@ const AddRoomModal = () => {
                         return name === 'phòng trống' || name === 'bảo trì';
                     }
                 );
-            
+
                 setSatusRooms(filteredStatusRooms);
             }
-            
+
         };
         fetchStatusRooms();
         fetchFloors();
