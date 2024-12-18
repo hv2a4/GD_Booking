@@ -43,6 +43,7 @@ const AuthForm = () => {
     const navigate = useNavigate();
     const handleLoginSuccess = async (credentialResponse) => {
         const tokenGG = credentialResponse.credential;
+        console.log(tokenGG);
         // Gửi token lên API
         setLoading(true); // Bắt đầu loading
         try {
@@ -131,7 +132,7 @@ const AuthForm = () => {
 
             } else {
                 setLoading(false);
-                toast.error("Đăng Ký thất bại!")
+                toast.error(result.message);
             }
         } catch (error) {
             setLoading(false);
@@ -338,9 +339,6 @@ const AuthForm = () => {
                             <button type="submit" className="btn btn-primary mt-3" onClick={handleLoginSimple} style={{ width: '100%' }} >Đăng nhập</button>
                             <span>Hoặc sử dụng tài khoản của bạn</span>
                             <div className="d-flex gap-2 mt-3">
-                                <a className="btn d-flex align-items-center" style={{ width: '100%', background: '#ffff' }} href="#" role="button">
-                                    <i className="bi bi-facebook me-2"></i>Facebook
-                                </a>
                                 <a className="btn d-flex align-items-center" style={{ width: '100%', background: '#ffff' }} href="#" role="button">
                                     <i className="bi bi-google me-2"></i><GoogleLogin onSuccess={handleLoginSuccess} />
                                 </a>

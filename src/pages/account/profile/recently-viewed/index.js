@@ -5,14 +5,21 @@ import './RecentlyViewed.css';
 import Cookies from "js-cookie";
 import { jwtDecode as jwt_decode } from "jwt-decode";
 import HistoryBookings from "./callApi";
+import postFeedBack from "./postFeedBackApi";
+import Alert from "../../../../config/alert";
+import { useNavigate } from 'react-router-dom';
+import deleteBooking from "./deleteBooking";
+import Swal from "sweetalert2";
 const RecentlyViewed = () => {
     const [currentPage, setCurrentPage] = useState(0);
-    const roomsPerPage = 3;
+    const roomsPerPage = 2;
     const [rating, setRating] = useState(0); // Để lưu sao đánh giá của người dùng
     const [review, setReview] = useState(""); // Để lưu nội dung đánh giá
+    const[descriptions,setDescriptions] = useState("");
     const [hoveredRating, setHoveredRating] = useState(0);
     const [mockBookings, setMockBookings] = useState([]);
-
+    const navigate = useNavigate();
+    const [alertData, setAlertData] = useState(null);
     // Lấy token từ cookies và decode
     const intervalRef = useRef(null);
     const tokens = Cookies.get("token") || null;
@@ -88,16 +95,98 @@ const RecentlyViewed = () => {
         setReview(event.target.value);
     };
 
-
+    const handleDescriptionsChange = (event) => {
+        setDescriptions(event.target.value);
+    };
+    const handleSubmitReview = async (invoiceIds) => {
+        const reviewData = {
+          idInvoice: invoiceIds,
+          stars: rating,
+          content: review,
+        };
+      
+        const result = await Swal.fire({
+          title: "Bạn đã xác nhận sẽ đánh giá ?",
+          showDenyButton: false,
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+        });
+      
+        if (result.isConfirmed) {
+          try {
+            const response = await postFeedBack(reviewData);
+            console.log("API response:", response);
+      
+            if (response.code == "201") {
+              setAlertData({ type: response.status, title: response.message });
+              setTimeout(() => {
+                window.location.href = "http://localhost:3000/client/profile";
+              }, 1700);
+            } else {
+              setAlertData({ type: response.status, title: response.message });
+              navigate("/client/profile");
+            }
+          } catch (error) {
+            console.error("Error fetching booking history:", error);
+          }
+        } 
+      };
+    const handleSubmitDeleteBooking = async (bookingIds) => {
+       
+       const bookingData = {
+        bookingId: bookingIds, // Lấy từ booking
+        descriptions: descriptions // Nội dung đánh giá
+       };
+       const result = await Swal.fire({
+        title: "Bạn có chắc chắn muốn hủy đơn đặt phòng này? Hãy cân nhắc kỹ trước khi quyết định nhé",
+        showDenyButton: false,
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      });
+      if(result.isConfirmed){
+        try {
+            // Gọi API lấy lịch sử đặt phòng
+            const response = await deleteBooking(bookingData);
+            console.log("API response:", response);
+    
+            // Kiểm tra nếu API trả về mảng, lưu vào state
+            if (response.code == "201") {
+                setAlertData({ type: response.status, title: response.message });
+                setTimeout(() => {
+                    window.location.href = "http://localhost:3000/client/profile";
+                  }, 1700);
+            } else {
+                setAlertData({ type: response.status, title: response.message });
+                navigate('/client/profile');
+            }
+        } catch (error) {
+            console.error("Error fetching booking delete:", error);
+        }
+      }
+       
+       
+    };
     return (
-        <div className="container mt-5">
+        <div className="container mt-3">
             <h2 className="text-center text-warning mb-4">Lịch sử đặt phòng</h2>
             <div className="row mt-3">
                 {currentRooms.map((booking) => (
-                    <div key={booking.id} className="col-md-4 mb-4">
-                        <div className="card shadow-sm">
-                            <img src={booking.image} className="card-img-top" alt={booking.fullname} />
-                            <div className="card-body">
+                    <div key={booking.id} className="col-md-12 col-sm-12 mb-4">
+                        <div className="card shadow-sm d-flex flex-row"> {/* Horizontal Layout */}
+                            {/* Image Section */}
+                            <img
+                                src={booking.image}
+                                className="card-img-left"
+                                alt={booking.fullname}
+                                style={{ width: "50%", objectFit: "cover" }} // Adjust image width
+                            />
+
+                            {/* Card Body Section */}
+                            <div className="card-body" style={{
+                                paddingLeft: '30px', // Điều chỉnh padding nếu cần
+                                width: 'auto',   // Đặt width tự động
+                                overflow: 'hidden' // Ẩn phần thừa nếu cần
+                            }}>
                                 <h5 className="card-title">{booking.bkFormat}</h5>
                                 <p className="card-text">
                                     <strong>Nhận phòng:</strong> {booking.startAt} 14:00
@@ -105,23 +194,48 @@ const RecentlyViewed = () => {
                                 <p className="card-text">
                                     <strong>Trả phòng:</strong> {booking.endAt} 12:00
                                 </p>
+                                <p className="card-text">
+                                    <strong>Trạng thái đặt phòng:</strong> {booking.statusBkName} 
+                                </p>
                                 <p className="custom-price-text">
-                                <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
+                                    <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
                                 </p>
                                 <p className="card-text">
                                     <strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}
                                 </p>
-                                <div className="text-center">
+                                <div className="text-start">
+                                
                                     <button
-                                        className="btn btn-primary btn-sm"
+                                        className="btn btn-primary  btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#reviewModal-${booking.bkId}`}
-                                        disabled={booking.ivId == null} // Disable button if booking.ivId is null
+                                        disabled={booking.ivId == null || (booking.ivId != null && booking.fbId != null)}
                                     >
                                         Đánh giá
                                     </button>
-                                    <button className="btn btn-primary ms-2 btn-sm" data-bs-toggle="modal" data-bs-target={`#detailModal-${booking.bkId}`}>
+                                    
+                                    <button
+                                        className="btn btn-primary ms-1 btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target={`#detailModal-${booking.bkId}`}
+                                    >
                                         Chi tiết
+                                    </button>
+                                    <button
+                                        className="btn btn-primary ms-1 btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target={`#detailViewFeedbackModal-${booking.bkId}`}
+                                        disabled={booking.fbId == null }
+                                    >
+                                       xem Đánh giá
+                                    </button>
+                                    <button
+                                        className="btn btn-primary ms-1  btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target={`#deleteBookingModal-${booking.bkId}`}
+                                        disabled={booking.statusBookingID != 1 &&  booking.statusBookingID != 2}
+                                    >
+                                        Hủy
                                     </button>
                                 </div>
                             </div>
@@ -135,7 +249,7 @@ const RecentlyViewed = () => {
                             aria-labelledby={`detailModalLabel-${booking.bkId}`}
                             aria-hidden="true"
                         >
-                            <div className="modal-dialog modal-xl">
+                            <div className="modal-dialog modal-sm">
                                 <div className="modal-content">
                                     {/* Modal Header */}
                                     <div className="modal-headers modal-header">
@@ -151,32 +265,33 @@ const RecentlyViewed = () => {
                                     </div>
 
                                     {/* Modal Body */}
-                                    <div className="modal-body">
+                                    <div className="modal-body" style={{ padding: '15px' }}>
                                         <div className="container">
                                             {/* Row 1: Thông tin phòng */}
                                             <div className="row mb-4">
-                                                <div className="col-md-4">
+                                                <div className="col-md-5">
                                                     <h5>Thông tin đặt phòng</h5>
-                                                    <br />
                                                     <p><strong>Mã Đặt Phòng:</strong> {booking.bkFormat}</p>
                                                     <p><strong>Ngày đặt:</strong> {booking.createAt} </p>
                                                     <p><strong>Nhận phòng:</strong> {booking.startAt} 14:00</p>
                                                     <p><strong>Trả phòng:</strong> {booking.endAt} 12:00</p>
-                                                    <p><strong>Trạng thái:</strong> <span style={{ color: '#FEA116' }}>{booking.statusBkName}</span></p>
-                                                </div>
-                                                <div className="col-md-8">
+                                                    <p><strong>Thanh toán:</strong> {booking.methodPaymentName} </p>
+                                                    <p><strong>Trạng thái đặt phòng:</strong> <span style={{ color: '#FEA116' }}>{booking.statusBkName}</span></p>
+                                               </div>
+                                                <div className="col-md-1"></div>
+                                                <div className="col-md-6">
                                                     <h5>Chi tiết phòng</h5>
-                                                    <br />
-                                                    <p><strong>Phòng:</strong> {booking.roomInfo}</p>
+                                                    <p style={{ whiteSpace: 'normal' }}><strong>Phòng:</strong> {booking.roomInfo}</p>
                                                     <p><strong>Tiền Phòng:</strong>  {booking.totalRoom ? booking.totalRoom.toLocaleString() : "0"} VND </p>
                                                     <p><strong>Dịch vụ:</strong> {booking.combinedServiceNames || "Chưa sử dụng dịch vụ"}</p>
                                                     <p><strong>Tiền Dịch Vụ:</strong> {booking.combinedTotalServices ? booking.combinedTotalServices.toLocaleString() : "0"} VND</p>
-                                                    <strong>Tổng giá:</strong> {booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND
+                                                    <p><strong>Giảm giá:</strong> Đã giảm giá 10%</p>
+                                                    <strong>Tổng giá:</strong> <span style={{ color: '#E60000 ' }}>{booking.totalBooking ? booking.totalBooking.toLocaleString() : "0"} VND</span>VND
                                                 </div>
                                             </div>
                                             {/* Row 6: Đánh giá */}
                                             <div className="row mb-4">
-                                                <div className="col-md-12">
+                                                <div className="col-md-12 col-sm-12">
                                                     <p><strong>Nội dung đánh giá:</strong> {booking.content || "Chưa đánh giá"}</p>
                                                     <p><strong>Đánh giá:</strong> {booking.stars ? Array(booking.stars).fill("⭐").join("") : "Chưa đánh giá"}</p>
                                                 </div>
@@ -209,10 +324,10 @@ const RecentlyViewed = () => {
                                     <div className="modal-body">
                                         {/* Avatar và Tên người dùng */}
                                         <div className="d-flex align-items-center mb-3">
-                                            <img src={booking.avatarUrl} alt={booking.username} className="rounded-circle" style={{ width: "50px", height: "50px", marginRight: "10px" }} />
+                                            <img src={booking.avatar} alt={booking.fullname} className="rounded-circle" style={{ width: "50px", height: "50px", marginRight: "10px" }} />
                                             <div>
                                                 <h6>{booking.username}</h6>
-                                                <p>Mã hóa đơn: <strong>{booking.invoiceId}</strong></p>
+                                                <p>Mã đặt phòng: <strong>{booking.bkFormat}</strong></p>
                                             </div>
                                         </div>
 
@@ -247,7 +362,101 @@ const RecentlyViewed = () => {
                                     </div>
                                     <div className="modal-footers modal-footer">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                        <button type="button" className="btn btn-primary">Gửi đánh giá</button>
+                                        <button type="button" className="btn btn-primary" onClick={() => handleSubmitReview(booking.ivId)}>Gửi đánh giá</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal xem Đánh Giá */}
+                        <div className="modal fade" id={`detailViewFeedbackModal-${booking.bkId}`} tabIndex="-1" aria-labelledby={`detailViewFeedbackModalLabel-${booking.bkId}`} aria-hidden="true">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-headers modal-header">
+                                        <h5 className="modal-title" id={`detailViewFeedbackModalLabel-${booking.bkId}`}>Đánh Giá Phòng</h5>
+                                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        {/* Avatar và Tên người dùng */}
+                                        <div className="d-flex align-items-center mb-3">
+                                            <img src={booking.avatar} alt={booking.fullname} className="rounded-circle" style={{ width: "50px", height: "50px", marginRight: "10px" }} />
+                                            <div>
+                                                <h6>{booking.fullname}</h6>
+                                                <p>Mã đặt phòng: <strong>{booking.bkFormat}</strong></p>
+                                            </div>
+                                        </div>
+
+                                        {/* Sao đánh giá */}
+                                        <div>
+                                            <h6>Đánh giá sao:</h6>
+                                            <div>
+                                                {[1, 2, 3, 4, 5].map(star => (
+                                                    <button
+                                                        key={star}
+                                                        onClick={() => handleRatingClick(star)}
+                                                        style={{ fontSize: '30px', width: '40px', height: '40px', padding: 0, border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+                                                    >
+                                                        {/* Dùng ký tự sao Unicode */}
+                                                        <span className={`star ${booking.stars >= star ? 'filled' : ''}`}>&#9733;</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+
+                                        {/* Nội dung đánh giá */}
+                                        <div className="mt-3">
+                                            <textarea
+                                                className="form-control"
+                                                rows="4"
+                                                value={booking.content}
+                                                onChange={handleReviewChange}
+                                                placeholder="Nhập nội dung đánh giá..."
+                                            ></textarea>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footers modal-footer">
+                                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         {/* Modal hủy đặt phòng */}
+                         <div className="modal fade" id={`deleteBookingModal-${booking.bkId}`} tabIndex="-1" aria-labelledby={`deleteBookingModalLabel-${booking.bkId}`} aria-hidden="true">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-headers modal-header">
+                                        <h5 className="modal-title" id={`deleteBookingModalLabel-${booking.bkId}`}>Đánh Giá Phòng</h5>
+                                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        {/* Avatar và Tên người dùng */}
+                                        <div className="d-flex align-items-center mb-3">
+                                            <img src={booking.avatar} alt={booking.fullname} className="rounded-circle" style={{ width: "50px", height: "50px", marginRight: "10px" }} />
+                                            <div>
+                                                <h6>{booking.fullname}</h6>
+                                                <p>Mã đặt phòng: <strong>{booking.bkFormat}</strong></p>
+                                            </div>
+                                        </div>
+
+                                        {/* Sao đánh giá */}
+                                        <div>
+                                            <h6>Lý do hủy:</h6>
+                                           
+                                        </div>
+                                        {/* Nội dung đánh giá */}
+                                        <div className="mt-3">
+                                            <textarea
+                                                className="form-control"
+                                                rows="4"
+                                                onChange={handleDescriptionsChange}
+                                                placeholder="Nhập nội dung hủy..."
+                                            ></textarea>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footers modal-footer">
+                                    <button type="button" className="btn btn-primary" onClick={() => handleSubmitDeleteBooking(booking.bkId)}>Hủy đặt phòng</button>
+                                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                     </div>
                                 </div>
                             </div>
@@ -273,7 +482,7 @@ const RecentlyViewed = () => {
                     nextLinkClassName="page-link"
                 />
             </div>
-
+            {alertData && <Alert type={alertData.type} title={alertData.title} />}
         </div>
     );
 };

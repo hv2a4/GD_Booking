@@ -82,7 +82,7 @@ function App() {
     }
 
     if (!hasAccess) {
-      return <Navigate to="/" />; // Redirect to home if access is not allowed
+      return <Navigate to="/login-admin" />; // Redirect to home if access is not allowed
     }
 
     return element; // Render the component if access is allowed
@@ -147,8 +147,8 @@ function App() {
           <Route path="feedback" element={<FeedbackPage />} />
         </Route>
 
-        <Route path="account" element={<Login />} />
-        <Route path="login" element={<LoginAdmin />} />
+        <Route path="login-customer" element={<Login />} />
+        <Route path="login-admin" element={<LoginAdmin />} />
         <Route path="forgot-password" element={<ForgotPasswordEmail />} />
         <Route path="otp-code" element={<VerifyOTP />} />
         <Route path="reset-password" element={<ResetPassword />} />

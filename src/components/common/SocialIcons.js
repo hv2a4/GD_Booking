@@ -16,7 +16,7 @@ export default function SocialIcons() {
           <nav className="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0">
             <div className="navbar-nav mr-auto py-0">
             
-              {username ? (   <Link to={`/client/profile`} className="nav-link" style={{marginRight: '0'}}>Profile </Link>):(   <Link to={`/account`} className="nav-link" style={{marginRight: '0'}}>Đăng ký / Đăng nhập </Link>)}
+              {username ? (   <Link to={`/client/profile`} className="nav-link" style={{marginRight: '0'}}>Profile </Link>):(   <Link to={`/login-customer`} className="nav-link" style={{marginRight: '0'}}>Đăng ký / Đăng nhập </Link>)}
 
             </div>
           </nav>
