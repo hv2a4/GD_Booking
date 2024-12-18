@@ -3,10 +3,26 @@ import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import { request } from "../../../../../../config/configApi";
 import { create } from "@mui/material/styles/createTransitions";
+import { FaRegStar, FaStar } from "react-icons/fa";
+import { FeedbackDetails, FeedbackModal } from "../modal";
 
-const FeedbackDangCho = () => {
+const FeedbackDaPhanHoi = () => {
     const [feedbacks, setFeedbacks] = useState([]);
     const location = useLocation();
+
+      const renderStars = (stars) => {
+        return [...Array(5)].map((_, i) => {
+          const fullStars = Math.floor(stars);
+          const isHalfStar = stars - fullStars >= 0.5 && i === fullStars;
+          return i < fullStars ? (
+            <FaStar key={i} className="text-warning" />
+          ) : isHalfStar ? (
+            <FaStar key={i} className="text-warning half-star" />
+          ) : (
+            <FaRegStar key={i} className="text-muted" />
+          );
+        });
+      };
 
 
     useEffect(() => {
@@ -34,6 +50,7 @@ const FeedbackDangCho = () => {
                         createAt: formattedDate,  // Cập nhật ngày đã xử lý
                         content: item[3],
                         accountName: item[4],
+                        email: item[5]
                         // Thêm các trường khác nếu cần
                     };
                 });                
@@ -46,6 +63,7 @@ const FeedbackDangCho = () => {
         fetchFeedbacks();
     }, [location]);
 
+
     return (
         <div className="table-responsive mt-3">
             <table className="table table-striped table-hover" style={{ cursor: 'pointer' }}>
@@ -53,6 +71,7 @@ const FeedbackDangCho = () => {
                     <tr>
                         <th>STT</th>
                         <th>Tên khách hàng </th>
+                        <th>Email khách hàng </th>
                         <th>Sao đánh giá </th>
                         <th>Ngày tạo </th>
                         <th>Lời đánh giá</th>
@@ -65,11 +84,12 @@ const FeedbackDangCho = () => {
                             <tr>
                                 <td>{index + 1}</td>
                                 <td>{feedback.accountName}</td>
-                                <td>{feedback.stars} sao</td>
+                                <td>{feedback.email}</td>
+                                <td>{renderStars(feedback.stars)}</td>
                                 <td>{feedback.createAt}</td>
                                 <td>{feedback.content}</td>
                                 <td className="text-end">
-
+                                    <FeedbackDetails idFeedback={feedback.id} />
                                 </td>
                             </tr>
                         </React.Fragment>
@@ -80,4 +100,4 @@ const FeedbackDangCho = () => {
     );
 };
 
-export default FeedbackDangCho;
+export default FeedbackDaPhanHoi;
