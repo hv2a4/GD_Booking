@@ -23,6 +23,7 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar8 from '../../../assets/images/admin/images/avatars/8.jpg';
+import ModelAdmin from '../../../pages/account/profile/my-profile-admin/ModelAdmin';
 
 const AppHeaderDropdown = () => {
   return (
@@ -33,18 +34,11 @@ const AppHeaderDropdown = () => {
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">tuongnt</CDropdownHeader>
         <CDropdownItem href="#">
-          <CIcon icon={cilUser} className="me-2" />
-          Profile
+          <ModelAdmin />
         </CDropdownItem>
-        <CDropdownItem href="#">
-          <CIcon icon={cilSettings} className="me-2" />
-          Settings
-        </CDropdownItem>
-    
         <CDropdownDivider />
         <CDropdownItem href="#">
-          <CIcon icon={cilLockLocked} className="me-2" />
-          Đăng xuất
+          <p>Đăng xuất</p>
         </CDropdownItem>
       </CDropdownMenu>
     </CDropdown>
