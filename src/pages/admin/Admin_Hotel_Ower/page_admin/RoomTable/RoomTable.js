@@ -1,130 +1,220 @@
-import React, { useState} from "react";
-import { Table } from "react-bootstrap";
-import '../../../../../assets/css/admin/css/chart.css'; // Custom CSS
+import React, { useState, useEffect } from "react";
+import { Table, Alert } from "react-bootstrap";
+import "../../../../../assets/css/admin/css/chart.css"; // Custom CSS
+import { top5TypeRom } from "../Service/GetTokens";
 
 const RoomTable = () => {
-    const [selectedRoom, setSelectedRoom] = useState(null); // State to track selected room
-  
-    const handleRowClick = (room) => {
-        // Toggle the selected room
-        if (selectedRoom && selectedRoom.id === room.id) {
-            setSelectedRoom(null); // Collapse if the same row is clicked
-        } else {
-            setSelectedRoom(room); // Set the selected room
+    const [selectedRoom, setSelectedRoom] = useState(null); // Trạng thái phòng đã chọn
+    const [roomData, setRoomData] = useState([]); // Dữ liệu phòng
+    const [selectedDateOption, setSelectedDateOption] = useState(
+        parseInt(localStorage.getItem("selectedDateOption")) || 1 // Lấy giá trị từ localStorage hoặc mặc định là 1
+    );
+    const [error, setError] = useState(null); // Trạng thái lỗi
+
+    useEffect(() => {
+        const fetchInitialRoomData = async () => {
+            setError(null); // Xóa lỗi cũ
+
+            for (let i = 1; i <= dateOptions.length; i++) {
+                try {
+                    const response = await top5TypeRom(i); // Gọi API với từng tùy chọn
+                    if (response && response.length > 0) {
+                        setRoomData(response); // Lưu dữ liệu vào state
+                        setSelectedDateOption(i); // Đặt tùy chọn hiện tại làm mặc định
+                        localStorage.setItem("selectedDateOption", i); // Lưu vào localStorage
+                        break; // Dừng vòng lặp khi tìm được dữ liệu
+                    }
+                } catch (error) {
+                    console.error(`Error fetching data for date option ${i}`, error);
+                }
+            }
+        };
+
+        fetchInitialRoomData();
+    }, []); // Chỉ chạy một lần khi component được render
+
+    useEffect(() => {
+        const fetchRoomData = async () => {
+            setError(null); // Xóa lỗi cũ
+            try {
+                const response = await top5TypeRom(selectedDateOption); // Gọi API với tùy chọn người dùng chọn
+                setRoomData(response || []); // Lưu dữ liệu vào state
+            } catch (error) {
+                console.error("Error fetching room data", error);
+                setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+            }
+        };
+
+        if (selectedDateOption) {
+            fetchRoomData(); // Chỉ gọi khi `selectedDateOption` đã có giá trị
         }
+    }, [selectedDateOption]); // Chạy khi `selectedDateOption` thay đổi
+
+    const handleRowClick = (room) => {
+        setSelectedRoom((prev) =>
+            prev && prev.typeRoomId.id === room.typeRoomId.id ? null : room
+        );
     };
 
-    const roomData = [
-        { id: 1, name: "Phòng 101", type: "Đơn", price: "1.500.000 VNĐ", status: "Còn trống" },
-        { id: 2, name: "Phòng 102", type: "Đôi", price: "2.000.000 VNĐ", status: "Đã đặt" },
-        { id: 3, name: "Phòng 103", type: "Suite", price: "3.500.000 VNĐ", status: "Còn trống" },
-        { id: 4, name: "Phòng 104", type: "Đơn", price: "1.800.000 VNĐ", status: "Đã đặt" },
-        { id: 5, name: "Phòng 105", type: "Đôi", price: "2.200.000 VNĐ", status: "Còn trống" },
+    const handleDateChange = (event) => {
+        const newDateOption = parseInt(event.target.value);
+        setSelectedDateOption(newDateOption);
+        localStorage.setItem("selectedDateOption", newDateOption); // Lưu vào localStorage
+    };
+
+    const dateOptions = [
+        { value: 1, label: "Hôm nay" },
+        { value: 2, label: "Hôm qua" },
+        { value: 3, label: "7 ngày trước" },
+        { value: 4, label: "Tháng hiện tại" },
+        { value: 5, label: "Tháng trước" },
     ];
+    
 
-    const roomDetails = {
-        1: [
-            { detail: "Diện tích", info: "25 m²" },
-            { detail: "Giường", info: "1 Giường đơn" },
-            { detail: "Tiện nghi", info: "Máy lạnh, TV, Wi-Fi" },
-        ],
-        2: [
-            { detail: "Diện tích", info: "30 m²" },
-            { detail: "Giường", info: "1 Giường đôi" },
-            { detail: "Tiện nghi", info: "Máy lạnh, TV, Wi-Fi" },
-        ],
-        3: [
-            { detail: "Diện tích", info: "50 m²" },
-            { detail: "Giường", info: "1 Giường đôi lớn" },
-            { detail: "Tiện nghi", info: "Máy lạnh, TV, Wi-Fi, Bồn tắm" },
-        ],
-        4: [
-            { detail: "Diện tích", info: "25 m²" },
-            { detail: "Giường", info: "1 Giường đơn" },
-            { detail: "Tiện nghi", info: "Máy lạnh, TV" },
-        ],
-        5: [
-            { detail: "Diện tích", info: "30 m²" },
-            { detail: "Giường", info: "1 Giường đôi" },
-            { detail: "Tiện nghi", info: "Máy lạnh, TV, Wi-Fi" },
-        ],
-    };
-  
     return (
-        <div className="container-fluid mt-4"> {/* Main container */}
-            <div className="card"> {/* Card for content */}
-                <div className="card-body body-card"> {/* Main content of the card */}
-                    <div className="row align-items-center mb-3"> {/* Row for title and date selection */}
-                        <div className="col-12 col-md-4"> {/* Title section */}
-                            <h5 className="card-title">Top 10 hạng phòng theo doanh thu</h5> {/* Chart title */}
+        <div className="container-fluid mt-4">
+            <div className="card">
+                <div className="card-header">
+                    <div className="row align-items-center">
+                        <div className="col-6">
+                            <h5 className="mb-0">Top 5 Hạng Phòng Theo Doanh Thu</h5>
                         </div>
-                        <div className="col-12 col-md-4 text-end"> {/* Revenue selection */}
-                            <select className="form-select form-select-sm w-slot" aria-label="Select revenue">
-                                <option value="1" selected>Theo doanh thu</option>
-                                <option value="2">Theo số lượng</option>
-                            </select>
-                        </div>
-                        <div className="col-12 col-md-4 text-end"> {/* Date selection */}
-                            <select className="form-select form-select-sm w-slot" aria-label="Select date">
-                                <option value="1" selected>Hôm nay</option>
-                                <option value="2">Hôm qua</option>
-                                <option value="3">7 ngày qua</option>
-                                <option value="4">Tháng này</option>
-                                <option value="5">Tháng trước</option>
+                        <div className="col-6 text-end">
+                            <select
+                                className="form-select form-select-sm"
+                                value={selectedDateOption}
+                                onChange={handleDateChange}
+                            >
+                                {dateOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
-
-                    <Table striped bordered hover responsive> {/* Table for room data */}
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Tên phòng</th>
-                                <th>Loại phòng</th>
-                                <th>Giá</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {roomData.map(room => (
-                                <React.Fragment key={room.id}>
-                                    <tr onClick={() => handleRowClick(room)}> {/* Clickable row */}
-                                        <td>{room.id}</td>
-                                        <td>{room.name}</td>
-                                        <td>{room.type}</td>
-                                        <td>{room.price}</td>
-                                        <td>{room.status}</td>
-                                    </tr>
-                                    {selectedRoom && selectedRoom.id === room.id && ( // Show details if selected
-                                        <tr>
-                                            <td colSpan={5}>
-                                                <Table striped bordered hover size="sm" className="mt-2">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Chi tiết</th>
-                                                            <th>Thông tin</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {roomDetails[room.id]?.map((detail, index) => (
-                                                            <tr key={index}>
-                                                                <td>{detail.detail}</td>
-                                                                <td>{detail.info}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </Table>
+                </div>
+                <div className="card-body">
+                    {error ? (
+                        <Alert variant="danger" className="text-center">
+                            {error}
+                        </Alert>
+                    ) : roomData.length === 0 ? (
+                        <Alert variant="warning" className="text-center">
+                            <i className="bi bi-exclamation-triangle-fill"></i> Không có dữ liệu.
+                        </Alert>
+                    ) : (
+                        <Table striped bordered hover responsive className="mb-0">
+                            <thead className="table-secondary">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Tên phòng</th>
+                                    <th>Loại phòng</th>
+                                    <th>Doanh thu (VND)</th>
+                                    <th>Tỷ lệ trên tổng doanh thu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {roomData.map((room, index) => (
+                                    <React.Fragment key={room.typeRoomId.id}>
+                                        <tr className="cursor-pointer" onClick={() => handleRowClick(room)}>
+                                            <td>{index + 1}</td>
+                                            <td>{room.typeRoomName || "N/A"}</td>
+                                            <td>{room.typeRoomId.typeRoomName || "N/A"}</td>
+                                            <td>{room.revenue?.toLocaleString() || "N/A"}</td>
+                                            <td>
+                                                {room.revenuePercentage ? room.revenuePercentage.toFixed(2) : "N/A"} %
                                             </td>
                                         </tr>
-                                    )}
-                                </React.Fragment>
-                            ))}
-                        </tbody>
-                    </Table>
+                                        {selectedRoom && selectedRoom.typeRoomId.id === room.typeRoomId.id && (
+                                            <tr>
+                                                <td colSpan={5}>
+                                                    <div className="mt-2">
+                                                        <div className="card">
+                                                            <div className="card-body p-3">
+                                                                <div className="row g-3">
+                                                                    {/* Room Images (4 columns) */}
+                                                                    <div className="col-12 col-md-4">
+                                                                        <div className="mb-2">
+                                                                            <strong className="text-primary">Hình ảnh phòng:</strong>
+                                                                            {room.typeRoomId.typeRoomImageDto && room.typeRoomId.typeRoomImageDto.length > 0 ? (
+                                                                                <div className="d-flex flex-wrap">
+                                                                                    {room.typeRoomId.typeRoomImageDto.map((image, index) => (
+                                                                                        <img
+                                                                                            key={index}
+                                                                                            src={image.imageName}
+                                                                                            alt={`Room Image ${index + 1}`}
+                                                                                            className="img-thumbnail"
+                                                                                            style={{ maxWidth: "90px", marginRight: "8px", marginBottom: "8px" }}
+                                                                                        />
+                                                                                    ))}
+                                                                                </div>
+                                                                            ) : (
+                                                                                "N/A"
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Room Details (4 columns) */}
+                                                                    <div className="col-12 col-md-4">
+                                                                        <div className="mb-2">
+                                                                            <strong className="text-primary">Thông tin phòng:</strong>
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Loại phòng:</strong> {room.typeRoomId.typeRoomName || "N/A"}
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Mô tả:</strong> {room.typeRoomId.describes || "N/A"}
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Giá phòng:</strong> {room.typeRoomId.price?.toLocaleString() || "N/A"} VND
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Số giường:</strong> {room.typeRoomId.bedCount || "N/A"}
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Diện tích (m²):</strong> {room.typeRoomId.acreage || "N/A"}
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Sức chứa:</strong> {room.typeRoomId.guestLimit || "N/A"}
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Loại giường:</strong> {room.typeRoomId.typeBedDto?.bedName || "N/A"}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Revenue Information (4 columns) */}
+                                                                    <div className="col-12 col-md-4">
+                                                                        <div className="mb-2">
+                                                                            <strong className="text-primary">Thông tin doanh thu:</strong>
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Số lượt đặt:</strong> {room.bookingCount || "N/A"}
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Doanh thu trung bình mỗi lần đặt:</strong>
+                                                                            {room.avgRevenuePerBooking?.toLocaleString() || "N/A"} VNĐ
+                                                                        </div>
+                                                                        <div className="mb-1">
+                                                                            <strong>Giảm giá trung bình:</strong> {room.avgDiscountPercent || "N/A"} %
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                        </Table>
+                    )}
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default RoomTable;
