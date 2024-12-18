@@ -110,7 +110,7 @@ export default function ListRoom() {
                 confirmButtonText: 'Đăng nhập ngay',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    navigate("/account"); // Chuyển hướng đến trang đăng nhập
+                    navigate("/login-customer"); // Chuyển hướng đến trang đăng nhập
                 }
             });
             return; // Ngừng hàm nếu chưa đăng nhập

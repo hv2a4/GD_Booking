@@ -4,26 +4,63 @@ import user_icon from '../../../assets/images/person.png';
 import password_icon from '../../../assets/images/password.png';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
+import Cookies from 'js-cookie';
+import { jwtDecode as jwt_decode } from "jwt-decode";
+import Alert from '../../../config/alert';
 const LoginAdmin = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-
-    const handleLogin = () => {
-        if (!username || !password) {
-            toast.error('Vui lòng nhập đầy đủ thông tin!');
-            return;
+    const [alertData, setAlertData] = useState(null);
+  const handleLoginSimple = async (event) => {
+        event.preventDefault();
+        console.log("đã zo thành công");
+        try {
+            const response = await fetch('http://localhost:8080/api/account/loginToken', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    passwords: password
+                }),
+            });
+            const result = await response.json();
+            if (result.code == 200) {
+                Cookies.set("token", result.token, { expires: 6 / 24 });
+                const decodedToken = jwt_decode(Cookies.get("token"));
+                setAlertData({ type: result.status, title: result.message });
+                if (decodedToken.role == 'Customer') {
+                   
+                    setTimeout(() => {
+                        navigate('/client/home');
+                    }, 1500);
+                } else if (decodedToken.role == 'Staff') {
+                    
+                    setTimeout(() => {
+                        navigate('/employee/home');
+                    }, 1500);
+                } else if (decodedToken.role == 'HotelOwner') {
+                    
+                    setTimeout(() => {
+                        navigate('/admin/home');
+                    }, 1500);
+                }
+            } else {
+                setAlertData({ type: result.status, title: result.message });
+                setTimeout(() => {
+                    setTimeout(() => {
+                        window.location.href = "http://localhost:3000/login-admin";
+                      }, 1700);
+                }, 1500);
+            }
+        } catch (error) {
+            console.error("Error posting data to API:", error);
         }
 
-        // Placeholder for API call
-        if (username === "admin" && password === "admin123") {
-            toast.success('Đăng nhập thành công!');
-            // navigate('/dashboard'); // Điều hướng tới trang dashboard
-        } else {
-            toast.error('Tên tài khoản hoặc mật khẩu không đúng!');
-        }
-    };
+    }
+ 
 
     return (
         <div className='container'>
@@ -58,10 +95,11 @@ const LoginAdmin = () => {
                 </span>
             </div>
             <div className="submit-container">
-                <button className="submit" onClick={handleLogin}>
+                <button className="submit" onClick={handleLoginSimple}>
                     Đăng Nhập
                 </button>
             </div>
+            {alertData && <Alert type={alertData.type} title={alertData.title} />}
         </div>
     );
 };

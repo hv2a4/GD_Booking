@@ -10,7 +10,8 @@ import { imageDb } from './Config';  // Đồng bộ với file Config.js
 import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { v4 } from "uuid";
 import { useForm } from 'react-hook-form';
-
+import Alert from "../../../../config/alert";
+import uploadProfiles from "./apiUpload";
 const MyProfile = () => {
     const [userData, setUserData] = useState(null);
     const [id, setId] = useState('');
@@ -31,6 +32,7 @@ const MyProfile = () => {
     const [imgUrl, setImgUrl] = useState([]);
     const [updateImage, setUpdateImage] = useState(false);
     const navigate = useNavigate();
+    const [alertData, setAlertData] = useState(null);
     const handleFileChange = (event) => {
         const file = event.target.files[0]; // Cập nhật img
         if (file) {
@@ -49,9 +51,9 @@ const MyProfile = () => {
         reset,
         formState: { errors },
         clearErrors,
-      } = useForm({
+    } = useForm({
         mode: "onBlur", // Xác thực khi mất tiêu điểm
-      });
+    });
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -60,8 +62,6 @@ const MyProfile = () => {
         if (!isValid) {
             return; // Nếu có lỗi, không làm gì cả và thoát khỏi hàm
         }
-
-        setLoading(true); // Bắt đầu loading
         let imagePath = avatar;
         if (updateImage && !img) {
             alert("Please select a file first.");
@@ -93,43 +93,32 @@ const MyProfile = () => {
         //     setLoading(false); // Kết thúc loading sau 2 giây giả lập
         //     console.log(user); // In ra thông tin người dùng (có thể thay đổi)
         // }, 2000)
-
+        const reviewData = {
+            id: id,
+            username: username, // Gửi email hoặc thông tin khác
+            avatar: imagePath,
+            email: email,
+            phone: phone,
+            gender: gender,
+            fullname: fullname
+        };
+        console.log(reviewData);
         try {
-            const response = await fetch('http://localhost:8080/api/account/updateAccount', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    id: id,
-                    username: username, // Gửi email hoặc thông tin khác
-                    avatar: imagePath,
-                    email: email,
-                    phone: phone,
-                    gender: gender,
-                    fullname: fullname
-                }),
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            const response = await uploadProfiles(reviewData);
+            console.log("API response:", response);
+      
+            if (response.code == "201") {
+              setAlertData({ type: response.status, title: response.message });
+              setTimeout(() => {
+                window.location.href = "http://localhost:3000/client/profile";
+              }, 1700);
+            } else {
+              setAlertData({ type: response.status, title: response.message });
+              navigate("/client/profile");
             }
-
-            const result = await response.json();
-            if (result.code == 200) {
-                setLoading(false); // Bắt đầu loading
-                console.log('User updated successfully:', result);
-                console.log(result.token);
-                Cookies.set("token", result.token, { expires: 6 / 24 })
-                toast.success("Cập Nhật thành công!");
-
-            }
-
-            // Handle successful response
-        } catch (error) {
-            console.error('Error updating user:', error);
-            // Handle error
-        }
+          } catch (error) {
+            console.error("Error fetching booking history:", error);
+          }
     };
 
 
@@ -162,20 +151,7 @@ const MyProfile = () => {
     }, [avatar]);
     return (
         <div style={{ position: 'relative' }}>
-            <ToastContainer
-                position="top-right"
-                autoClose={2000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-                transition={Bounce}
-                closeButton={false} // Bỏ nút đóng
-            />
+            {alertData && <Alert type={alertData.type} title={alertData.title} />}
             <h3 className="text-center">Thông tin cá nhân</h3>
             <Form className="row g-3" >
                 <div className="col-md-12">
@@ -209,46 +185,49 @@ const MyProfile = () => {
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputUsername" className="form-label">Tên tài khoản: </label>
-                    <input type="text" className="form-control" 
-                     {...register("username", { required: "Tài khoản là bắt buộc" })}
-                     id="inputUsername" value={username}
-                        onChange={(e) =>{setUsername(e.target.value)
+                    <input type="text" className="form-control"
+                        {...register("username", { required: "Tài khoản là bắt buộc" })}
+                        id="inputUsername" value={username}
+                        onChange={(e) => {
+                            setUsername(e.target.value)
                             if (errors.username) {
                                 clearErrors("username");
-                              }
-                        }}  disabled />
-                         {errors.username && <small className="text-orange">{errors.username.message}</small>}
+                            }
+                        }} disabled />
+                    {errors.username && <small className="text-orange">{errors.username.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputFullname" className="form-label">Họ và tên: </label>
                     <input type="text"  {...register("fullname", { required: "Họ Tên là bắt buộc" })} className="form-control" id="inputFullname" value={fullname}
-                        onChange={(e) =>{setFullname(e.target.value)
+                        onChange={(e) => {
+                            setFullname(e.target.value)
                             if (errors.fullname) {
                                 clearErrors("fullname");
-                              }
-                        }}  />
-                        {errors.fullname && <small className="text-orange">{errors.fullname.message}</small>}
+                            }
+                        }} />
+                    {errors.fullname && <small className="text-orange">{errors.fullname.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label htmlFor="inputEmail" className="form-label">Email</label>
                     <input type="email" {...register("email", { required: "Email là bắt buộc" })} className="form-control" id="inputEmail" value={email}
-                        onChange={(e) =>{ setEmail(e.target.value)
+                        onChange={(e) => {
+                            setEmail(e.target.value)
                             if (errors.email) {
                                 clearErrors("email");
-                              }
+                            }
                         }} />
-                          {errors.email && <small className="text-orange">{errors.email.message}</small>}
+                    {errors.email && <small className="text-orange">{errors.email.message}</small>}
                 </div>
                 <div className="col-md-6">
                     <label for="inputPhone" className="form-label">Phone</label>
                     <input type="text" {...register("phone", { required: "Số điện thoại là bắt buộc" })} className="form-control" id="inputPhone" value={phone}
-                        onChange={(e) =>{
+                        onChange={(e) => {
                             setPhone(e.target.value)
                             if (errors.phone) {
                                 clearErrors("phone");
-                              }
-                        } } />
-                        {errors.phone && <small className="text-orange">{errors.phone.message}</small>}
+                            }
+                        }} />
+                    {errors.phone && <small className="text-orange">{errors.phone.message}</small>}
                 </div>
                 <div className="col-md-12">
                     <label htmlFor="inputGender" className="form-label">Giới tính</label><br />
@@ -279,27 +258,10 @@ const MyProfile = () => {
                 </div>
             </Form>
 
-            {loading && (
-                <div style={overlayStyle}>
-                    <ClipLoader color="#3498db" loading={loading} size={50} />
-                </div>
-            )}
         </div>
     );
 };
 
-// Style cho overlay
-const overlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // Nền trắng với độ mờ
-    zIndex: 1000, // Để overlay nằm trên các thành phần khác
-};
+
 
 export default MyProfile;
