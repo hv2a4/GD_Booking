@@ -71,23 +71,23 @@ const _nav = [
       },
     ],
   },
-  {
-    component: CNavGroup,
-    name: 'Giao dịch',
-    icon: <CIcon icon={cilCash} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Đặt phòng',
-        to: '/admin/booking-manager',
-      },
-      {
-        component: CNavItem,
-        name: 'Hóa đơn',
-        to: '/admin/invoice-room',
-      },
-    ],
-  },
+  // {
+  //   component: CNavGroup,
+  //   name: 'Giao dịch',
+  //   icon: <CIcon icon={cilCash} customClassName="nav-icon" />,
+  //   items: [
+  //     {
+  //       component: CNavItem,
+  //       name: 'Đặt phòng',
+  //       to: '/admin/booking-manager',
+  //     },
+  //     {
+  //       component: CNavItem,
+  //       name: 'Hóa đơn',
+  //       to: '/admin/invoice-room',
+  //     },
+  //   ],
+  // },
   {
     component: CNavGroup,
     name: 'Quản lý tài khoản',
