@@ -43,6 +43,7 @@ const AuthForm = () => {
     const navigate = useNavigate();
     const handleLoginSuccess = async (credentialResponse) => {
         const tokenGG = credentialResponse.credential;
+        console.log(tokenGG);
         // Gửi token lên API
         setLoading(true); // Bắt đầu loading
         try {
