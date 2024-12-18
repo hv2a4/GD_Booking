@@ -55,10 +55,6 @@ export default function ListRoom() {
             const parsedData = JSON.parse(sessionData);
             const { checkIn, checkOut, guest, typeRoomID } = parsedData;
 
-            console.log("checkIn: ", checkIn);
-            console.log("checkOut: ", checkOut);
-            console.log("guest: ", guest);
-            console.log("typeRoomID: ", typeRoomID);
             setDates({ checkin: checkIn, checkout: checkOut })
             // Gọi filterBooking thay vì handleDataFilter nếu dữ liệu có từ sessionStorage
             filterBooking(checkIn, checkOut, guest, currentPage, pageSize);
@@ -159,6 +155,8 @@ export default function ListRoom() {
             }
             return [...prev, roomDetails]; // Thêm phòng mới vào danh sách
         });
+        // Tính tổng tiền sau khi chọn phòng
+        calculateTotalPrice();
     };
 
     const handleRemoveRoom = (roomId) => {
@@ -180,9 +178,33 @@ export default function ListRoom() {
 
     // Hàm tính tổng tiền sau khi giảm giá
     const calculateTotalPrice = () => {
-        const total = selectedRooms.reduce((total, room) => total + room.price, 0);
+        // Lấy dữ liệu valueFillter từ session storage
+        const valueFillter = JSON.parse(sessionStorage.getItem("valueFillter"));
+
+        if (!valueFillter || !selectedRooms || selectedRooms.length === 0) {
+            return 0; // Trả về 0 nếu không có dữ liệu hoặc không có phòng đã chọn
+        }
+
+        // Chuyển đổi ngày checkIn và checkOut thành đối tượng Date
+        const checkinDate = new Date(valueFillter.checkIn);
+        const checkoutDate = new Date(valueFillter.checkOut);
+
+        // Tính số đêm bằng cách trừ ngày checkIn và checkOut
+        const nights = (checkoutDate - checkinDate) / (1000 * 60 * 60 * 24);
+
+        if (nights <= 0) {
+            return 0; // Nếu ngày checkOut trước hoặc bằng checkIn, trả về 0
+        }
+
+        // Tính tổng tiền cho tất cả các phòng đã chọn
+        const total = selectedRooms.reduce((total, room) => {
+            return total + (room.price * nights); // Tính tiền cho từng phòng (nights * room price)
+        }, 0);
+
+        console.log("Tổng tiền: ", total);
         return total;
     };
+
 
     // Hàm xử lý đặt phòng
     const handleBooking = () => {
@@ -355,11 +377,12 @@ export default function ListRoom() {
                                             />
                                             <div className="d-flex flex-column align-items-start position-absolute start-0 top-100 translate-middle-y ms-4">
                                                 {/* Giá hiện tại */}
-                                                <small className="bg-warning text-white rounded py-1 px-3 mb-2">
-                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
-                                                </small>
+                                                <strong>
+                                                    <small className="bg-warning text-white rounded py-1 px-3 mb-2">
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
+                                                    </small>
+                                                </strong>
                                             </div>
-
                                         </div>
 
                                         {/* Thông tin phòng */}

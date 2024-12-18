@@ -144,7 +144,7 @@ const PageBookRoom = () => {
                 roomId: Array.isArray(roomIdArray) ? roomIdArray : [], // Kiểm tra roomIdArray có phải là mảng không
                 discountName: finalDiscountName || null, // Sử dụng || để đảm bảo null nếu không có giá trị
                 methodPayment: PaymentMethodId ? parseInt(PaymentMethodId) : null // Chuyển đổi PaymentMethodId thành số nguyên nếu hợp lệ
-            };            
+            };
 
             console.log("Payload trước khi gửi:", payload);
 
@@ -442,7 +442,26 @@ const PageBookRoom = () => {
                                                             textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                                                         }}
                                                     >
-                                                        {`Giá: ${room.price.toLocaleString()} VND/ngày`}
+                                                        {(() => {
+                                                            // Lấy dữ liệu valueFillter từ sessionStorage
+                                                            const valueFillter = JSON.parse(sessionStorage.getItem("valueFillter"));
+
+                                                            if (!valueFillter) {
+                                                                return "Giá: Không có dữ liệu"; // Nếu không có dữ liệu từ sessionStorage
+                                                            }
+
+                                                            // Lấy ngày checkIn và checkOut từ valueFillter
+                                                            const checkinDate = new Date(valueFillter.checkIn);
+                                                            const checkoutDate = new Date(valueFillter.checkOut);
+
+                                                            // Tính số ngày giữa checkIn và checkOut
+                                                            const nights = (checkoutDate - checkinDate) / (1000 * 60 * 60 * 24);
+
+                                                            // Tính giá phòng cho số ngày đã chọn
+                                                            const totalPrice = room.price * nights;
+
+                                                            return `Giá: ${totalPrice.toLocaleString()} VND cho ${nights} ngày`;
+                                                        })()}
                                                     </div>
                                                     <div
                                                         className="guest-limit"
@@ -461,6 +480,7 @@ const PageBookRoom = () => {
                                                         </span>
                                                     </div>
                                                 </div>
+
                                             </li>
                                         ))}
                                     </ul>

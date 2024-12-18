@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "../../../assets/css/custom/Sticky.css";
-import Swal from "sweetalert2";
 
 const FloatingBubble = ({
     selectedRooms,

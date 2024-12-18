@@ -10,20 +10,43 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
         if (format === "DD/MM/YYYY") {
             return `${day}/${month}/${year}`;
         }
-        return d.toLocaleDateString(); // Hoặc bạn có thể thêm các định dạng khác nếu cần.
+        return d.toLocaleDateString(); // Or add other formats if necessary
+    };
+
+    // Calculate the number of days between check-in and check-out
+    const calculateNumberOfDays = (startDate, endDate) => {
+        if (!startDate || !endDate) return 0;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const timeDifference = end - start;
+        return timeDifference > 0 ? timeDifference / (1000 * 3600 * 24) : 0; // Days in milliseconds
     };
 
 
+    // Calculate total price based on rooms and days
+    const calculateTotalPrice = (rooms, selectedRooms) => {
+        const numberOfDays = calculateNumberOfDays(rooms.startDate, rooms.endDate);
+        let total = 0;
+        selectedRooms.forEach(item => {
+            total += item.price * numberOfDays; // Room price per day multiplied by number of days
+        });
+        return total;
+    };
+
+    const totalRoomPrice = calculateTotalPrice(rooms, selectedRooms);
+
     const discountPercent = discount ? discount.percent : 0;
-    const discountAmount = discountPercent > 0 ? (totalPrice * discountPercent) / 100 : 0;
-    const discountedPrice = totalPrice - discountAmount;
+    const discountAmount = discountPercent > 0 ? (totalRoomPrice * discountPercent) / 100 : 0;
+    const discountedPrice = totalRoomPrice - discountAmount;
+
+
 
     return (
         <div className="col-md-5">
             <h3 className='booking-title'>Xác thực thông tin</h3>
             <div className="hotel-page-sidebar" style={{ background: '#f9f9f9', borderRadius: '10px', padding: '20px', boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)' }}>
                 <div className="box-summary">
-                    {/* Thông tin cá nhân */}
+                    {/* Customer Information */}
                     <div className="summary-total" style={{ marginTop: '20px' }}>
                         <h4>Thông tin khách hàng</h4>
                         <table className="tlb-info" style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -56,7 +79,7 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
                         </table>
                     </div>
 
-                    {/* Thông tin phòng đã chọn */}
+                    {/* Room Details */}
                     <div className="summary-total" style={{ marginTop: '20px' }}>
                         <h4>Chi tiết phòng</h4>
                         <table className="tlb-info" style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -85,7 +108,7 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
                         </table>
                     </div>
 
-                    {/* Thông tin giá phòng */}
+                    {/* Room Cost */}
                     <div className="summary-total" style={{ marginTop: '20px' }}>
                         <h4>Chi phí phòng</h4>
                         <table className="tlb-info tlb-info-price" style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -97,7 +120,7 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
                                         </td>
                                         <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #ddd' }}>
                                             <div className="info-right">
-                                                {item.price.toLocaleString()} VND
+                                                {(item.price * calculateNumberOfDays(rooms.startDate, rooms.endDate)).toLocaleString()} VND
                                             </div>
                                         </td>
                                     </tr>
@@ -131,6 +154,6 @@ const BookingInfo = ({ token, rooms, selectedRooms, totalPrice, discount }) => {
             </div>
         </div>
     );
-}
+};
 
 export default BookingInfo;
