@@ -1,4 +1,3 @@
-import { data } from "jquery";
 import { request } from "../../../../config/configApi"
 import Swal from 'sweetalert2';
 import axios from "axios";
