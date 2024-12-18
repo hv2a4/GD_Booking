@@ -81,8 +81,7 @@ const AppHeaderDropdown = () => {
         <CDropdownMenu className="pt-0" placement="bottom-end">
           <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">{account?.username}</CDropdownHeader>
           <CDropdownItem href="#">
-            <CIcon icon={cilUser} className="me-2" />
-            Tài khoản
+            <ModelAdmin />
           </CDropdownItem>
 
           <CDropdownDivider />
