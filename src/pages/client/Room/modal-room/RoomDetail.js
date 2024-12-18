@@ -6,7 +6,7 @@ const RoomDetail = ({ show, onClose, room }) => {
     const images = room?.imageNames || [];
     const amenitiesList = room?.amenities || [];
     const priceFormatted = room.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.price) : "Chưa có giá";
-
+    
     return (
         <Modal show={show} onHide={onClose} centered className="room-detail-modal" size="lg">
             <Modal.Header closeButton>
@@ -42,14 +42,6 @@ const RoomDetail = ({ show, onClose, room }) => {
                                         <span className="amenities-badge">{item}</span>
                                     </div>
                                 ))}
-                            </div>
-
-                            {/* Mô tả phòng */}
-                            <div className="room-detail-description">
-                                {!(room.describes && room.describes.trim())
-                                    ? <p className="no-description">Chưa có mô tả</p>
-                                    : <p className="no-description">{room.describes}</p>
-                                }
                             </div>
                         </div>
 

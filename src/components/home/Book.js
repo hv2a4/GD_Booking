@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Form, InputGroup, Button, Dropdown, Row, Col } from 'react-bootstrap';
 
 import { useNavigate } from 'react-router-dom';
+import { getListTypeRoomId } from '../../services/client/home';
 
 export default function Booking() {
   const [checkinDate, setCheckinDate] = useState(null);
@@ -11,15 +12,23 @@ export default function Booking() {
   const [guestDropdownVisible, setGuestDropdownVisible] = useState(false);
   const [adultCount, setAdultCount] = useState(1);
   const [guestSummary, setGuestSummary] = useState("1 khách");
-
+  const [isCheckinOpen, setIsCheckinOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [typeRoomOptions, setTypeRoomOptions] = useState([]); // Lưu danh sách loại phòng
+  const [selectedTypeRoom, setSelectedTypeRoom] = useState(0);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const getListTypeRoomName = async () => {
+    try {
+      const res = await getListTypeRoomId();
+      setTypeRoomOptions(res);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   useEffect(() => {
-    const today = new Date();
-    setCheckinDate(today);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    setCheckoutDate(tomorrow);
+    getListTypeRoomName();
   }, []);
 
   // Format ngày về yyyy-MM-dd
@@ -49,25 +58,36 @@ export default function Booking() {
     setGuestDropdownVisible(false);
   };
 
-  const handleSubmit = () => {
-    // Sử dụng giá trị từ state hoặc fallback vào giá trị mặc định trong useEffect
+  const handleSubmit = useCallback(async () => {
+    if (!checkinDate) {
+      setIsCheckinOpen(true); // Mở lịch chọn ngày nhận khách
+      return;
+    }
+
+    if (!checkoutDate || (checkinDate && checkoutDate <= checkinDate)) {
+      setIsCheckoutOpen(true); // Mở lịch chọn ngày trả khách
+      return;
+    }
+
     const filterData = {
-      checkIn: formatDateToYYYYMMDD(checkinDate || new Date()), // Nếu chưa có ngày nhận phòng, lấy ngày hiện tại
-      checkOut: formatDateToYYYYMMDD(
-        checkoutDate ||
-        (() => {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1); // Ngày mai
-          return tomorrow;
-        })()
-      ),
+      checkIn: formatDateToYYYYMMDD(checkinDate),
+      checkOut: formatDateToYYYYMMDD(checkoutDate),
       guest: adultCount,
+      typeRoomID: selectedTypeRoom,
     };
 
-    navigate("/client/rooms", { state: filterData }); // Gửi filter qua state
-  };
+    sessionStorage.setItem("valueFillter", JSON.stringify(filterData));
 
+    // Bật trạng thái loading
+    setIsLoading(true);
 
+    // Điều hướng sau khi đảm bảo mọi thứ đã sẵn sàng
+    navigate("/client/rooms", { state: filterData });
+
+    // Tắt trạng thái loading sau khi điều hướng
+    setIsLoading(false);
+  }, [checkinDate, checkoutDate, adultCount, selectedTypeRoom, navigate]);
+  
   // Xử lý khi thay đổi ngày nhận phòng
   const handleCheckinChange = (date) => {
     setCheckinDate(date);
@@ -102,16 +122,38 @@ export default function Booking() {
               <div className="col-md-10">
                 <div className="row g-2">
                   <div className="col-md-3">
+                    <label htmlFor="typeRoom" className="form-label">Loại phòng</label>
+                    <select
+                      id="typeRoom"
+                      className="form-select"
+                      value={selectedTypeRoom}
+                      onChange={(e) => setSelectedTypeRoom(e.target.value)} // Lưu ID của loại phòng
+                    >
+                      <option value={0}>Tất cả</option>
+                      {typeRoomOptions.map((room) => (
+                        <option key={room.id} value={room.id}>
+                          {room.typeRoomName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-md-3">
                     <label htmlFor="checkin" className="form-label">Nhận phòng</label>
                     <div className="input-group flex-nowrap">
                       <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkinDate}
-                        onChange={handleCheckinChange}
+                        onChange={(date) => {
+                          handleCheckinChange(date);
+                          setIsCheckinOpen(false); // Đóng lịch sau khi chọn ngày
+                        }}
                         className="form-control mt-0"
                         placeholderText="Chọn ngày nhận khách"
                         dateFormat="dd/MM/yyyy"
-                        minDate={new Date()}
+                        open={isCheckinOpen} // Kiểm soát hiển thị lịch
+                        onClickOutside={() => setIsCheckinOpen(false)} // Đóng lịch khi click bên ngoài
+                        minDate={new Date()} // Ngày nhận phòng phải sau hoặc bằng ngày hiện tại
+                        onFocus={() => setIsCheckinOpen(true)}
                       />
                     </div>
                   </div>
@@ -121,15 +163,21 @@ export default function Booking() {
                       <span className="input-group-text"><i className="bi bi-calendar-minus"></i></span>
                       <DatePicker
                         selected={checkoutDate}
-                        onChange={handleCheckoutChange}
+                        onChange={(date) => {
+                          handleCheckoutChange(date);
+                          setIsCheckoutOpen(false); // Đóng lịch sau khi chọn ngày
+                        }}
                         className="form-control mt-0"
-                        placeholderText="Chọn ngày"
+                        placeholderText="Chọn ngày trả khách"
                         dateFormat="dd/MM/yyyy"
-                        minDate={checkinDate ? new Date(checkinDate).setDate(new Date(checkinDate).getDate() + 1) : new Date()}
+                        open={isCheckoutOpen} // Kiểm soát hiển thị lịch
+                        onClickOutside={() => setIsCheckoutOpen(false)} // Đóng lịch khi click bên ngoài
+                        minDate={checkinDate ? new Date(checkinDate).setDate(new Date(checkinDate).getDate() + 1) : new Date()} // Ngày trả phòng phải lớn hơn ngày nhận phòng
+                        onFocus={() => setIsCheckoutOpen(true)} // Mở lịch khi nhấn vào input
                       />
                     </div>
                   </div>
-                  <Col md={6} className="position-relative">
+                  <Col md={3} className="position-relative">
                     <Form.Group controlId="guests">
                       <Form.Label>Số khách</Form.Label>
                       <InputGroup className="flex-nowrap">
@@ -185,7 +233,7 @@ export default function Booking() {
                 </div>
               </div>
               <div className="col-md-2" style={{ marginTop: "40px" }}>
-                <button className="btn btn-primary w-100" onClick={handleSubmit} style={{ height: '44px' }}>Tìm</button>
+                <button className="btn btn-primary w-100" onClick={handleSubmit} style={{ height: '37px' }}>Tìm</button>
               </div>
             </div>
           </div>

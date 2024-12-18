@@ -8,19 +8,30 @@ import { format } from "date-fns";
 import { formatCurrency } from "../../../../config/formatPrice";
 import NhanPhong from "../modalNhanPhong";
 import ConfirmBookingModal from "../../list-reservation/modalXacNhan";
+import { bookingServiceRoom } from "../../../../services/employee/service";
+import { getIdBooking } from "../../../../config/idBooking";
 const ModalDetailFloor = ({ onClose, item, booking }) => {
     const [bookingRoom, setBookingRoom] = useState({});
     const [customer, setCustomer] = useState([]);
+    const [services, setServices] = useState([]);
     const encodedIdBookingRoom = item ? btoa(bookingRoom.id) : btoa(booking?.bookingRooms[0]?.id);
     const cookie = new Cookies();
     const token = cookie.get("token");
     useEffect(() => {
-        console.log(booking);
         if (item && token) {
             handleDetail(item?.id, item?.statusRoomDto?.id, token);
             handleCustomerInfo(item?.id, token);
         }
-    }, [item, booking])
+        handleService()
+    }, [item, booking]);
+
+    const handleService = async () => {
+        if (booking && booking.bookingRooms && booking.bookingRooms.length > 0) {
+            const idBookingRoom = booking.bookingRooms.map(e => e.id);
+            const services = await bookingServiceRoom(idBookingRoom);
+            setServices(services);
+        }
+    }
 
     const handleCustomerInfo = async (id, token) => {
         try {
@@ -57,25 +68,21 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
     };
     const calculateDuration = (checkIn, checkOut) => {
         if (!checkIn || !checkOut) return 'N/A';
-
+    
         const start = new Date(checkIn);
         const end = new Date(checkOut);
-
+    
         if (isNaN(start) || isNaN(end)) return 'N/A';
-
-        const diffMs = end - start; // Khoảng thời gian thuê tính bằng milliseconds
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); // Số ngày
-        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // Số giờ còn lại
-
-        if (diffDays > 0) {
-            return `${diffDays} ngày ${diffHours} giờ`;
-        } else if (diffHours > 0) {
-            return `${diffHours} giờ`;
-        } else {
-            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)); // Số phút
-            return `${diffMinutes} phút`;
-        }
+    
+        // Tính khoảng thời gian thuê tính bằng milliseconds
+        const diffMs = end - start;
+    
+        // Tính số ngày và làm tròn lên nếu có dư thời gian
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    
+        return `${diffDays} ngày`;
     };
+    
     const dataRooms = () => {
         if (booking && booking.bookingRooms && booking.bookingRooms.length > 0) {
             const roomNames = booking.bookingRooms.map((e) => e.room.roomName.replace("Phòng ", ""));
@@ -88,7 +95,12 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
         if (booking && booking.bookingRooms && booking.bookingRooms.length > 0) {
             const totalPriceBookingRoom = booking.bookingRooms.map((e) => e.price || 0);
             const totalBookingRoomPrice = totalPriceBookingRoom.reduce((sum, price) => sum + price, 0);
-            return totalBookingRoomPrice;
+            const totalPriceService = services.reduce((total, item) => {
+                return total + (item.price || 0) * (item.quantity || 0);
+            }, 0);
+            console.log(totalPriceService);
+
+            return totalBookingRoomPrice + totalPriceService;
         }
         return 0;
     }
@@ -102,7 +114,7 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
                 <div className="boxster">
                     <div className="d-flex align-items-center mb-3">
                         <h3 className="font-weight-bold mb-0">{item?.roomName || dataRooms()}</h3>
-                        <span className={item ? "text-success ms-auto" : booking?.statusBookingDto?.id === 6 ? "text-danger ms-auto":"text-success ms-auto"}>{item?.statusRoomDto?.statusRoomName || booking?.statusBookingDto?.statusBookingName == "trả phòng" ? "Đang sử dụng" : booking?.statusBookingDto?.statusBookingName}</span>
+                        <span className={item ? "text-success ms-auto" : booking?.statusBookingDto?.id === 6 ? "text-danger ms-auto" : "text-success ms-auto"}>{item?.statusRoomDto?.statusRoomName || booking?.statusBookingDto?.statusBookingName == "trả phòng" ? "Đang sử dụng" : booking?.statusBookingDto?.statusBookingName}</span>
                     </div>
                     <hr />
                     <div className="row mb-3">
@@ -112,11 +124,11 @@ const ModalDetailFloor = ({ onClose, item, booking }) => {
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Khách lưu trú</Form.Label>
-                            <div className="font-weight-medium">{customer.length} người</div>
+                            <div className="font-weight-medium">{customer.length > 0 ? customer.length : 1} người</div>
                         </div>
                         <div className="col-lg-4">
                             <Form.Label className="text-muted">Mã đặt phòng</Form.Label>
-                            <div className="font-weight-medium">{bookingRoom?.id || booking?.id}</div>
+                            <div className="font-weight-medium">{getIdBooking(booking?.id, booking?.createAt)}</div>
                         </div>
                     </div>
                     <div className="row mb-3">

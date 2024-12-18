@@ -133,3 +133,18 @@
   margin-right: 2px;
   color: var(--primary-color);
 }
+
+.feedback-card {
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: #f8f9fa; /* Màu nền nhẹ */
+}
+
+.feedback-container {
+  max-width: 800px;
+  margin: auto; /* Căn giữa container đánh giá */
+}
+
+.half-star {
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+}

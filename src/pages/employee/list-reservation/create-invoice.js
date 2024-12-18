@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Table } from "react-bootstrap";
 import { formatCurrency, formatDate, formatDateTime } from "../../../config/formatPrice";
 import { Link } from "react-router-dom";
+import { getIdBooking } from "../../../config/idBooking";
 
 const CreateInvoice = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
@@ -59,20 +60,19 @@ const CreateInvoice = ({ item }) => {
                     {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
                         getCurrentPageItems().map((booking, index) => {
                             const roomNames = booking.bookingRooms
-                                .filter(room => room.checkIn)
                                 .map(room => room.room?.roomName.replace("Phòng ", ""))
-                                .filter(Boolean)
                                 .join(", ");
                             const totalPrice = booking.bookingRooms?.reduce(
                                 (total, room) => total + (room.price || 0),
                                 0
                             ) || 0;
-                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0].id);
+                            const encodedIdBookingRoom = btoa(booking.bookingRooms[0]?.id);
+                            const priceDiscount = booking.discountPercent !== null? ( totalPrice * booking.discountPercent ) / 100 : 0;
 
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking.id}</td>
+                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
                                     <td>
                                         <strong style={{fontWeight: "500"}}>{booking.accountDto.fullname}</strong>
@@ -85,7 +85,7 @@ const CreateInvoice = ({ item }) => {
                                     </td>
                                     <td>{formatDateTime(booking.startAt)}</td>
                                     <td>{formatDate(booking.endAt)}</td>
-                                    <td>{formatCurrency(totalPrice)}</td>
+                                    <td>{formatCurrency(totalPrice - priceDiscount)}</td>
                                     <td style={{ color: "red" }}>
                                         {booking.statusBookingDto.statusBookingName}
                                     </td>

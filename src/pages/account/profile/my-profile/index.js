@@ -13,7 +13,6 @@ import { useForm } from 'react-hook-form';
 import Alert from "../../../../config/alert";
 import uploadProfiles from "./apiUpload";
 const MyProfile = () => {
-    const [userData, setUserData] = useState(null);
     const [id, setId] = useState('');
     const [username, setUsername] = useState('');
     const [fullname, setFullname] = useState('');
@@ -29,7 +28,6 @@ const MyProfile = () => {
     const [loading, setLoading] = useState(false); // Trạng thái loading
     const [preview, setPreview] = useState("");
     const [img, setImg] = useState('');
-    const [imgUrl, setImgUrl] = useState([]);
     const [updateImage, setUpdateImage] = useState(false);
     const navigate = useNavigate();
     const [alertData, setAlertData] = useState(null);
@@ -106,19 +104,19 @@ const MyProfile = () => {
         try {
             const response = await uploadProfiles(reviewData);
             console.log("API response:", response);
-      
+
             if (response.code == "201") {
-              setAlertData({ type: response.status, title: response.message });
-              setTimeout(() => {
-                window.location.href = "http://localhost:3000/client/profile";
-              }, 1700);
+                setAlertData({ type: response.status, title: response.message });
+                setTimeout(() => {
+                    window.location.href = "http://localhost:3000/client/profile";
+                }, 1700);
             } else {
-              setAlertData({ type: response.status, title: response.message });
-              navigate("/client/profile");
+                setAlertData({ type: response.status, title: response.message });
+                navigate("/client/profile");
             }
-          } catch (error) {
+        } catch (error) {
             console.error("Error fetching booking history:", error);
-          }
+        }
     };
 
 
@@ -128,7 +126,6 @@ const MyProfile = () => {
             try {
                 const decodedTokens = jwt_decode(token);
                 console.log("id người dùng: " + decodedTokens.id);
-                setUserData(decodedTokens);
                 setId(decodedTokens.id || '');
                 setUsername(decodedTokens.username || '');
                 setFullname(decodedTokens.fullname || '');

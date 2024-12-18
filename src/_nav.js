@@ -11,6 +11,7 @@ import {
   cilRoom,
   cilCloud,
   cilStar,
+  cilSpeech,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 
@@ -70,23 +71,23 @@ const _nav = [
       },
     ],
   },
-  {
-    component: CNavGroup,
-    name: 'Giao dịch',
-    icon: <CIcon icon={cilCash} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Đặt phòng',
-        to: '/admin/booking-manager',
-      },
-      {
-        component: CNavItem,
-        name: 'Hóa đơn',
-        to: '/admin/invoice-room',
-      },
-    ],
-  },
+  // {
+  //   component: CNavGroup,
+  //   name: 'Giao dịch',
+  //   icon: <CIcon icon={cilCash} customClassName="nav-icon" />,
+  //   items: [
+  //     {
+  //       component: CNavItem,
+  //       name: 'Đặt phòng',
+  //       to: '/admin/booking-manager',
+  //     },
+  //     {
+  //       component: CNavItem,
+  //       name: 'Hóa đơn',
+  //       to: '/admin/invoice-room',
+  //     },
+  //   ],
+  // },
   {
     component: CNavGroup,
     name: 'Quản lý tài khoản',
@@ -105,6 +106,12 @@ const _nav = [
     ],
   },
   {
+    component: CNavItem,
+    name: 'Quản lý đánh giá',
+    to: '/admin/feedback',
+    icon: <CIcon icon={cilSpeech} customClassName="nav-icon" />
+  },
+  {
     component: CNavGroup,
     name: 'Báo cáo',
     icon: <CIcon icon={cilClipboard} customClassName="nav-icon" />,
@@ -118,16 +125,6 @@ const _nav = [
         component: CNavItem,
         name: 'Doanh thu',
         to: '/admin/revenue',
-      },
-      {
-        component: CNavItem,
-        name: 'Phòng',
-        to: '/admin/room-class-report',
-      },
-      {
-        component: CNavItem,
-        name: 'Nhân viên',
-        to: '/admin/employee-report',
       },
     ],
   },

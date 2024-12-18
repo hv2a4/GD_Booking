@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import './AddEmployeeModal.css';
-import { addEmployee } from '../../../../../../services/admin/account-manager';
+import { addEmployee, updateAccountEmployee } from '../../../../../../services/admin/account-manager';
 import uploadImageToFirebase from '../../../../../../config/fireBase';
 import Alert from '../../../../../../config/alert';
 
-const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
+const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [alert, setAlert] = useState(null);
@@ -16,8 +16,47 @@ const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
         phone: '',
         email: '',
         gender: null,
-        avatar: ''
+        avatar: '',
     });
+
+    // Cập nhật dữ liệu khi chuyển giữa thêm mới và chỉnh sửa
+    useEffect(() => {
+        console.log(selectedEmployee);
+        
+        if (selectedEmployee) {
+            setEmployeeData({ ...selectedEmployee });
+            setSelectedImage(selectedEmployee.avatar || null);
+        } else {
+            resetForm();
+        }
+    }, [selectedEmployee]);
+
+    const resetForm = () => {
+        if (selectedEmployee) {
+            setEmployeeData({
+                username: selectedEmployee.username || '',
+                fullname: selectedEmployee.fullname || '',
+                phone: selectedEmployee.phone || '',
+                passwords: '',
+                email: selectedEmployee.email || '',
+                gender: selectedEmployee.gender ? true : false || null,
+                avatar: selectedEmployee.avatar || '',
+            });
+        } else {
+            setEmployeeData({
+                username: '',
+                fullname: '',
+                 passwords: '',
+                phone: '',
+                email: '',
+                gender: null,
+                avatar: '',
+            });
+        }
+        setSelectedImage(null);
+        setImageFile(null);
+    };
+    
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -45,66 +84,64 @@ const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
 
     const handleSubmit = async () => {
         try {
+            let avatarUrl = employeeData.avatar;
+
+            // Upload ảnh mới nếu có file ảnh
             if (imageFile) {
-                // Bắt đầu tải ảnh lên Firebase
-                const img = await uploadImageToFirebase(imageFile);
-                if (!img) {
-                    setAlert({ type: "error", title: "Không thể tải ảnh lên. Vui lòng thử lại." });
+                avatarUrl = await uploadImageToFirebase(imageFile);
+                if (!avatarUrl) {
+                    setAlert({ type: 'error', title: 'Không thể tải ảnh lên. Vui lòng thử lại.' });
                     return;
                 }
-    
-                // Gửi dữ liệu nhân viên sau khi có URL ảnh
-                const response = await addEmployee({
-                    ...employeeData,
-                    avatar: img,
-                });
-    
-                if (response && response.errors) {
-                    // Xử lý danh sách lỗi từ API
-                    const errorMessages = response.errors.map((err) => `${err.field}: ${err.message}`).join('\n');
-                    setAlert({ type: "error", title: errorMessages});
-                } else if (response && response.username) {
-                    // Thành công
-                    setAlert({ type: "success", title: `Thêm nhân viên ${response.fullname} thành công!` });
-                    handleClose();
-                    refreshData();
-                } else {
-                    // Lỗi không xác định
-                    setAlert({ type: "error", title: "Có lỗi xảy ra khi thêm nhân viên." });
-                }
+            }
+
+            // Tạo payload chung
+            const payload = {
+                ...employeeData,
+                avatar: avatarUrl,
+            };
+            console.log(payload);
+            
+            // Thêm mới hoặc cập nhật dựa vào chế độ hiện tại
+            let response;
+            if (selectedEmployee) {
+                response = await updateAccountEmployee(payload);
             } else {
-                setAlert({ type: "error", title: "Vui lòng chọn ảnh trước khi lưu." });
+                response = await addEmployee(payload);
+            }
+
+            // Xử lý kết quả từ API
+            if (response && response.errors) {
+                const errorMessages = response.errors.map((err) => `${err.field}: ${err.message}`).join('\n');
+                setAlert({ type: 'error', title: errorMessages });
+            } else if (response) {
+                const action = selectedEmployee ? 'cập nhật' : 'thêm';
+                setAlert({ type: 'success', title: `${action} nhân viên thành công!` });
+                handleClose();
+                refreshData();
+            } else {
+                setAlert({ type: 'error', title: 'Có lỗi xảy ra. Vui lòng thử lại.' });
             }
         } catch (error) {
-            console.error("Error:", error);
-    
-            if (error.response && error.response.data && error.response.data.errors) {
-                const errorMessages = error.response.data.errors
-                    .map((err) => `${err.field}: ${err.message}`)
-                    .join('\n');
-                setAlert({ type: "error", title: errorMessages });
-            } else {
-                setAlert({ type: "error", title: "Lỗi khi thêm nhân viên." });
-            }
+            console.error('Error:', error);
+            setAlert({ type: 'error', title: 'Lỗi khi lưu dữ liệu nhân viên.' });
         } finally {
-            setTimeout(() => setAlert(null), 500); // Ẩn thông báo sau 5 giây
+            setTimeout(() => setAlert(null), 500);
         }
     };
-    
-    
 
     return (
         <Modal show={show} onHide={handleClose} centered>
             {alert && <Alert type={alert.type} title={alert.title} />}
             <Modal.Header closeButton>
-                <Modal.Title>Thêm mới nhân viên</Modal.Title>
+                <Modal.Title>{selectedEmployee ? 'Cập nhật nhân viên' : 'Thêm mới nhân viên'}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Row className="employee-form">
                     <Col md={4} className="employee-image mt-4">
                         <div className="image-upload" onClick={triggerFileInput}>
                             {selectedImage ? (
-                                <img src={selectedImage} alt="Selected" className="selected-image" />
+                                <img src={selectedEmployee ? employeeData.avatar : selectedImage} alt="Selected" className="selected-image" />
                             ) : (
                                 <span className="camera-icon">📷</span>
                             )}
@@ -121,31 +158,62 @@ const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
                         <Form.Group as={Row} className="mb-3">
                             <Col md={6}>
                                 <Form.Label>Mã nhân viên</Form.Label>
-                                <Form.Control type="text" value="Mã nhân viên tự động" disabled />
+                                <Form.Control
+                                    type="text"
+                                    value={selectedEmployee ? selectedEmployee.id : 'Mã tự động'}
+                                    disabled
+                                />
                             </Col>
                             <Col md={6}>
                                 <Form.Label>Tài khoản</Form.Label>
-                                <Form.Control type="text" name="username" onChange={handleChange} />
+                                <Form.Control
+                                    type="text"
+                                    name="username"
+                                    value={employeeData.username}
+                                    onChange={handleChange}
+                                    disabled={!!selectedEmployee}
+                                />
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
                             <Col md={6}>
                                 <Form.Label>Tên nhân viên</Form.Label>
-                                <Form.Control type="text" name="fullname" onChange={handleChange} />
+                                <Form.Control
+                                    type="text"
+                                    name="fullname"
+                                    value={employeeData.fullname}
+                                    onChange={handleChange}
+                                />
                             </Col>
                             <Col md={6}>
                                 <Form.Label>Password</Form.Label>
-                                <Form.Control type="password" name="passwords" onChange={handleChange} />
+                                <Form.Control
+                                    type="password"
+                                    name="passwords"
+                                    value={employeeData.passwords}
+                                    onChange={handleChange}
+                                    disabled={!!selectedEmployee} // Vô hiệu hóa nếu cập nhật
+                                />
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
                             <Col md={6}>
                                 <Form.Label>Số điện thoại</Form.Label>
-                                <Form.Control type="text" name="phone" onChange={handleChange} />
+                                <Form.Control
+                                    type="text"
+                                    name="phone"
+                                    value={employeeData.phone}
+                                    onChange={handleChange}
+                                />
                             </Col>
                             <Col md={6}>
                                 <Form.Label>Email</Form.Label>
-                                <Form.Control type="email" name="email" onChange={handleChange} />
+                                <Form.Control
+                                    type="email"
+                                    name="email"
+                                    value={employeeData.email}
+                                    onChange={handleChange}
+                                />
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-3">
@@ -158,6 +226,7 @@ const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
                                         type="radio"
                                         name="gender"
                                         value={true}
+                                        checked={employeeData.gender === true}
                                         onChange={handleChange}
                                     />
                                     <Form.Check
@@ -166,6 +235,7 @@ const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
                                         type="radio"
                                         name="gender"
                                         value={false}
+                                        checked={employeeData.gender === false}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -175,8 +245,12 @@ const AddEmployeeModal = ({ show, handleClose, refreshData }) => {
                 </Row>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="success" onClick={handleSubmit}>Lưu</Button>
-                <Button variant="secondary" onClick={handleClose}>Bỏ qua</Button>
+                <Button variant="success" onClick={handleSubmit}>
+                    {selectedEmployee ? 'Cập nhật' : 'Lưu'}
+                </Button>
+                <Button variant="secondary" onClick={handleClose}>
+                    Bỏ qua
+                </Button>
             </Modal.Footer>
         </Modal>
     );

@@ -14,9 +14,10 @@ import {
 import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 import AddEmployeeModal from "./modal-add-employee";
-import { getAllEmployee, updateActiveAccount } from "../../../../../services/admin/account-manager";
+import { deleteAccountEmployee, getAllEmployee, updateActiveAccount } from "../../../../../services/admin/account-manager";
 import ReactPaginate from "react-paginate";
 import Alert from "../../../../../config/alert";
+import AlertComfirm from "../../../../../config/alert/comfirm";
 
 const Account = () => {
     const [details, setDetails] = useState([]);
@@ -24,7 +25,9 @@ const Account = () => {
     const [activePage, setActivePage] = useState(0);
     const itemsPerPage = 10;
     const [showModal, setShowModal] = useState(false);
+    const [showModalUpdate, setShowModalUpdate] = useState(false);
     const [employees, setEmployee] = useState([]);
+    const [itemAccount, setItemAccount] = useState({});
     const [alert, setAlert] = useState(null);
     const handleShow = () => setShowModal(true);
     const handleClose = () => setShowModal(false);
@@ -40,7 +43,8 @@ const Account = () => {
     };
     useEffect(() => {
         handleGetAllEmployee();
-    }, []);
+        setTimeout(() => setAlert(null), 500);
+    }, [alert]);
     const refreshData = () => {
         handleGetAllEmployee();
     };
@@ -102,13 +106,41 @@ const Account = () => {
         }
 
     };
+    const handleShowUpdate = (item) => {
+        setItemAccount(item);
+        setShowModalUpdate(true);
+    }
+    const handleCloseUpdate = () => setShowModalUpdate(false);
+
+    const handleDeleteAccountEmployee = async (id) => {
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn xóa nhân viên này không?",
+            confirmButtonText: "Xóa",
+            cancelButtonText: "Hủy",
+        });
+
+        if (confirmation) {
+            try {
+                // Gọi API xóa tài khoản nhân viên (thay thế với API của bạn)
+                const response = await deleteAccountEmployee(id);  // Gọi API xóa nhân viên
+                setAlert({ type: response.status, title: response.message })
+                refreshData();
+            } catch (error) {
+                console.error("Error deleting employee:", error);
+                setAlert({ type: 'error', title: 'Lỗi khi xóa nhân viên' });
+            }
+        }
+    };
+
     return (
         <div className="account-client">
             {alert && <Alert type={alert.type} title={alert.title} />}
             <div className="d-flex justify-content-between">
                 <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Tìm kiếm..."
                     onChange={handleSearch}
                     className="mb-3 form-control"
                     style={{ width: "20%" }}
@@ -122,7 +154,7 @@ const Account = () => {
                     Thêm
                 </Button>
             </div>
-            <CTable responsive>
+            <CTable responsive className="table-bordered">
                 <CTableHead>
                     <CTableRow>
                         <CTableHeaderCell>Ảnh</CTableHeaderCell>
@@ -159,53 +191,51 @@ const Account = () => {
                             </CTableRow>
                             <CTableRow>
                                 <CTableDataCell colSpan="6">
-                                    <Card>
-                                        <CCollapse visible={details.includes(item.id)}>
-                                            <CCardBody style={{ width: "auto" }}>
-                                                <h3>Thông tin nhân viên</h3>
-                                                <Row className="mt-2">
-                                                    <Col xs={12} md={4}>
-                                                        <div className="border-bottom-invoice">
-                                                            <p>Mã nhân viên: <strong>{item.id}</strong></p>
-                                                        </div>
-                                                        <div className="border-bottom-invoice">
-                                                            <p>Họ tên: <strong>{item.fullname}</strong></p>
-                                                        </div>
-                                                        <div className="border-bottom-invoice">
-                                                            <p>Tài khoản: <strong>{item.username}</strong></p>
-                                                        </div>
-                                                        <div className="border-bottom-invoice">
-                                                            <p>Email: <strong>{item.email}</strong></p>
-                                                        </div>
-                                                        <div className="border-bottom-invoice">
-                                                            <p>Số điện thoại: <strong>{item.phone}</strong></p>
-                                                        </div>
-                                                    </Col>
-                                                    <Col xs={12} md={4}>
-                                                        <div className="form-check form-switch d-flex align-items-center border-bottom-invoice ps-0 mb-3 mt-3">
-                                                            <label className="form-check-label me-3">Trạng thái:</label>
-                                                                <div color="danger" className="me-5"></div>
-                                                            <input
-                                                                className="form-check-input"
-                                                                type="checkbox"
-                                                                role="switch"
-                                                                id="flexSwitchCheckChecked"
-                                                                checked={item.isDelete} onChange={() => handleToggleStatus(item.id)}
-                                                            />
-                                                            {item.isDelete ? (<CBadge color="success" className="ms-2">Hoạt động</CBadge>) : (<CBadge color="danger" className="me-5">Khóa</CBadge>)}
-                                                        </div>
-                                                        <div className="border-bottom-invoice">
-                                                            <p>Giới tính: <strong>{item.gender ? "Nam" : "Nữ"}</strong></p>
-                                                        </div>
-                                                    </Col>
-                                                </Row>
-                                                <div className="d-flex justify-content-end me-5">
-                                                    <CButton size="sm" color="info" className="mx-2">Cập nhật</CButton>
-                                                    <CButton size="sm" color="danger" className="ms-1">Delete</CButton>
-                                                </div>
-                                            </CCardBody>
-                                        </CCollapse>
-                                    </Card>
+                                    <CCollapse visible={details.includes(item.id)}>
+                                        <CCardBody style={{ width: "auto" }}>
+                                            <h3>Thông tin nhân viên</h3>
+                                            <Row className="mt-2">
+                                                <Col xs={12} md={4}>
+                                                    <div className="border-bottom-invoice">
+                                                        <p>Mã nhân viên: <strong>{item.id}</strong></p>
+                                                    </div>
+                                                    <div className="border-bottom-invoice">
+                                                        <p>Họ tên: <strong>{item.fullname}</strong></p>
+                                                    </div>
+                                                    <div className="border-bottom-invoice">
+                                                        <p>Tài khoản: <strong>{item.username}</strong></p>
+                                                    </div>
+                                                    <div className="border-bottom-invoice">
+                                                        <p>Email: <strong>{item.email}</strong></p>
+                                                    </div>
+                                                    <div className="border-bottom-invoice">
+                                                        <p>Số điện thoại: <strong>{item.phone}</strong></p>
+                                                    </div>
+                                                </Col>
+                                                <Col xs={12} md={4}>
+                                                    <div className="form-check form-switch d-flex align-items-center border-bottom-invoice ps-0 mb-3 mt-3">
+                                                        <label className="form-check-label me-3">Trạng thái:</label>
+                                                        <div color="danger" className="me-5"></div>
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            role="switch"
+                                                            id="flexSwitchCheckChecked"
+                                                            checked={item.isDelete} onChange={() => handleToggleStatus(item.id)}
+                                                        />
+                                                        {item.isDelete ? (<CBadge color="success" className="ms-2">Hoạt động</CBadge>) : (<CBadge color="danger" className="me-5">Khóa</CBadge>)}
+                                                    </div>
+                                                    <div className="border-bottom-invoice">
+                                                        <p>Giới tính: <strong>{item.gender ? "Nam" : "Nữ"}</strong></p>
+                                                    </div>
+                                                </Col>
+                                            </Row>
+                                            <div className="d-flex justify-content-end me-5">
+                                                <CButton size="sm" color="info" className="mx-2" onClick={() => handleShowUpdate(item)}>Cập nhật</CButton>
+                                                <CButton size="sm" color="danger" className="ms-1" onClick={() => handleDeleteAccountEmployee(item.id)}>Xóa</CButton>
+                                            </div>
+                                        </CCardBody>
+                                    </CCollapse>
                                 </CTableDataCell>
                             </CTableRow>
                         </React.Fragment>
@@ -232,6 +262,7 @@ const Account = () => {
                 activeClassName="active"
             />
             <AddEmployeeModal show={showModal} handleClose={handleClose} refreshData={refreshData} />
+            <AddEmployeeModal show={showModalUpdate} handleClose={handleCloseUpdate} refreshData={refreshData} selectedEmployee={itemAccount} />
         </div>
     );
 };

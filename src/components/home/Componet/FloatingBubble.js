@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "../../../assets/css/custom/Sticky.css";
-import Swal from "sweetalert2";
 
 const FloatingBubble = ({
     selectedRooms,
@@ -46,7 +45,8 @@ const FloatingBubble = ({
     const handleBookingAndCloseModal = () => {
         // Gọi hàm đặt phòng
         handleBooking();
-
+        const isChecked = false;
+        localStorage.setItem("status", JSON.stringify(isChecked));
         setModalOpen(false);
     };
 

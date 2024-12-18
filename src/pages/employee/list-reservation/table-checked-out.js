@@ -1,17 +1,14 @@
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { formatCurrency } from "../../../config/formatPrice";
+import { formatCurrency, formatDate } from "../../../config/formatPrice";
 import { Button, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { getIdBooking } from "../../../config/idBooking";
 
 const CheckedOut = ({ item }) => {
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const itemsPerPage = 10; // Số lượng bản ghi trên mỗi trang
     const totalPages = Math.ceil(item?.length / itemsPerPage); // Tổng số trang
-
-    const formatDate = (dateString) => {
-        return format(new Date(dateString), "dd-MM-yyyy HH:mm:ss");
-    };
 
     // Lấy dữ liệu của trang hiện tại
     const getCurrentPageItems = () => {
@@ -63,17 +60,14 @@ const CheckedOut = ({ item }) => {
                     {getCurrentPageItems() && getCurrentPageItems().length > 0 ? (
                         getCurrentPageItems().map((booking, index) => {
                             const roomNames = booking.bookingRooms
-                                .map(room => room.room?.roomName.replace("Phòng ", ""))
+                                .map(room => room?.room?.roomName.replace("Phòng ", ""))
                                 .join(", ");
-                            const totalPrice = booking.bookingRooms?.reduce(
-                                (total, room) => total + (room.price || 0),
-                                0
-                            ) || 0;
+                           
                             const encodedIdBookingRoom = btoa(booking.bookingRooms[0]?.id);
                             return (
                                 <tr key={index} className="tr-center">
                                     <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                                    <td>{booking?.id}</td>
+                                    <td>{getIdBooking(booking?.id,booking?.createAt)}</td>
                                     <td>Phòng {roomNames}</td>
                                     <td>
                                         <strong style={{fontWeight: "500"}}>{booking.accountDto.fullname}</strong>
@@ -84,9 +78,9 @@ const CheckedOut = ({ item }) => {
                                             </span>
                                         </div>
                                     </td>
-                                    <td>{formatDate(booking.startAt)}</td>
-                                    <td>{formatDate(booking.endAt)}</td>
-                                    <td>{formatCurrency(totalPrice)}</td>
+                                    <td>{formatDate(booking.bookingRooms[0]?.checkIn)}</td>
+                                    <td>{formatDate(booking.bookingRooms[0]?.checkOut)}</td>
+                                    <td>{formatCurrency(booking?.invoiceDtos[0]?.totalAmount)}</td>
                                     <td style={{ color: booking.statusPayment ? "green" : "red" }}>
                                         {booking.statusPayment ? "Đã thanh toán" : "Chưa thanh toán"}
                                     </td>

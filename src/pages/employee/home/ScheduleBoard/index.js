@@ -12,7 +12,7 @@ const getDatesForNextWeek = (startDate) => {
     const date = new Date(startDate);
     date.setDate(startDate.getDate() + i); // Tính toán ngày
     const dayName = daysOfWeek[date.getDay()]; // Lấy tên ngày trong tuần
-    const formattedDate = `${date.getDate()} ${dayName}`; // Định dạng ngày
+    const formattedDate = `${date.getDate()} - ${dayName}`; // Định dạng ngày
     dates.push(formattedDate);
   }
 
@@ -41,7 +41,7 @@ function ScheduleBoard() {
     const adjustedEnd = end || new Date();
     adjustedEnd.setDate(adjustedEnd.getDate() + 7);
     setEndDate(adjustedEnd);
-};
+  };
 
 
   const toggleFloor = (floor) => {
@@ -52,11 +52,10 @@ function ScheduleBoard() {
   };
 
   return (
-    <Card className="p-2">
+    <>
       <FillterDateHome onDatesChange={handleDateFilterChange} />
       <div className="schedule-board">
         <div className="header">
-          <div className="floor">Tầng</div>
           <div className="dates">
             {dates.map((date, index) => (
               <div className="date" key={index}>{date}</div>
@@ -73,18 +72,18 @@ function ScheduleBoard() {
               <div className="rooms">
                 {floorData.roomDtos.map((room) => (
                   <RoomSchedule
-                  key={room.id}
-                  room={room}
-                  startDate={startDate}
-                  endDate={endDate}
-              />              
+                    key={room.id}
+                    room={room}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
                 ))}
               </div>
             )}
           </div>
         ))}
       </div>
-    </Card>
+    </>
   );
 }
 

@@ -14,12 +14,17 @@ import AlertComfirm from "../../../config/alert/comfirm";
 import TTNhanPhong from "../list-reservation/modalTTNP";
 import { Modal } from "react-bootstrap";
 import CancelBookingModal from "../list-reservation/modalCancel";
+import { cilColorBorder } from "@coreui/icons";
+import InsertCustomer from "../list-reservation/modalInsertCustomer";
+import TTCustomer from "../booking-offline/modalttCustomer";
 
 const EditRoom = () => {
     const encodedIdBooking = useGetParams("idBookingRoom");
     const idBookingRoom = encodedIdBooking ? atob(encodedIdBooking) : null;
     const [showModalInsertCustomer, setShowModalInsertCustomer] = useState(false);
     const [bookingRoom, setBookingRoom] = useState({});
+    const [showModalUpdateCustomer, setShowModalUpdateCustomer] = useState(false);
+    const [showModalTTCustomer, setShowModalTTCustomer] = useState(false);
     const [booking, setBooking] = useState({});
     const [modalCancel, setModalCancel] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -33,14 +38,13 @@ const EditRoom = () => {
     const [searchValue, setSearchValue] = useState("");
     const [totalRoomPrice, setTotalRoomPrice] = useState(0);
     const [totalBookingRoom, setToltalBookingRoom] = useState(0);
-
+    const flag = [6, 8].includes(booking?.statusBookingDto?.id) || false;
     const handleSearchChange = (e) => {
         setSearchValue(e.target.value);
     };
     useEffect(() => {
         hanhdleBooking();
-        setTimeout(() => setAlert(null), 500);
-    }, [encodedIdBooking, selectedManualService, alert, totalBookingRoom]);
+    }, [encodedIdBooking, selectedManualService]);
 
     useEffect(() => {
         calculateTotalPrice();
@@ -51,7 +55,6 @@ const EditRoom = () => {
             if (idBookingRoom) {
                 setLoading(true);
                 const bookingRoom = await getByIdBookingRoom(idBookingRoom);
-                console.log(bookingRoom);
                 const booking = await getBookingId(bookingRoom.booking.id);
                 setBookingRoom(bookingRoom);
                 const data = await getBookingRoomInformation([bookingRoom?.id]);
@@ -116,7 +119,7 @@ const EditRoom = () => {
         const totalManualServicePrice = selectedManualService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
         const totalApiServicePrice = selectedApiService.reduce((sum, service) => sum + (service.price * service.quantity), 0);
         const total = totalManualServicePrice + totalApiServicePrice + (bookingRoom?.price || 0);
-        setToltalBookingRoom(total);
+        setToltalBookingRoom(flag ? bookingRoom?.price : total);
     };
 
     const handleSelectService = async (service) => {
@@ -320,8 +323,8 @@ const EditRoom = () => {
             </div>
             <div className="product-item-info">
                 <h6 className="product-item-name">{service.serviceRoomName}</h6>
-                <span className="product-item-price">
-                    {service.price ? `${formatCurrency(service.price)}` : "Liên hệ"}
+                <span className="product-item-price text-danger">
+                    {service.price ? `${formatCurrency(service.price)}` : "miễn phí"}
                 </span>
             </div>
         </div>
@@ -412,7 +415,7 @@ const EditRoom = () => {
         const diffMs = end - start; // Khoảng thời gian thuê tính bằng milliseconds
         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)); // Số ngày (làm tròn lên để tính ngày lẻ)
 
-        return diffDays > 0 ? diffDays : 0; // Nếu ngày <= 0, trả về 0
+        return diffDays > 0 ? diffDays : 1; // Nếu ngày <= 0, trả về 0
     };
 
     const handleShowModalInsertCustomer = () => {
@@ -421,8 +424,20 @@ const EditRoom = () => {
     const handleCloseModalInsertCustomer = () => {
         setShowModalInsertCustomer(false);
     }
+    const handleShowModalUpdateCustomer = () => {
+        setShowModalUpdateCustomer(true);
+    }
+    const handleCloseModalUpdateCustomer = () => {
+        setShowModalUpdateCustomer(false);
+    }
+    const handleShowModalTTCustomer = () => {
+        setShowModalTTCustomer(true);
+    }
+    const handleCloseModalTTCustomer = () => {
+        setShowModalTTCustomer(false);
+    }
     return (
-        <Layoutemployee>
+        <Layoutemployee title={"Cập nhật đặt phòng"} icons={cilColorBorder}>
             <div className="mb-3">
                 {/* {loading ? (
                     <div className="overlay-loading">
@@ -443,11 +458,19 @@ const EditRoom = () => {
                                     <label className="cashier-info-label">Khách hàng</label>
                                     <div className="cashier-info-customer-search">
                                         <div className="customer-search">
-                                            <div className="auto-complete-wrapper form-control-wrapper d-flex">
-                                                <a className="customer-search-name form-control text-success font-medium" title="Lê Minh Khôi">
+                                            {bookingRoom?.booking?.descriptions === "Đặt trực tiếp" ? 
+                                            <div className="auto-complete-wrapper form-control-wrapper d-flex" onClick={handleShowModalUpdateCustomer}>
+                                                <a className="customer-search-name form-control text-success font-medium">
+                                                    {customerInformation[0]?.customerInformationDto?.fullname}
+                                                </a>
+                                            </div>
+                                            : 
+                                            <div className="auto-complete-wrapper form-control-wrapper d-flex" onClick={handleShowModalTTCustomer}>
+                                                <a className="customer-search-name form-control text-success font-medium">
                                                     {bookingRoom?.booking?.accountDto?.fullname}
                                                 </a>
                                             </div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -495,7 +518,7 @@ const EditRoom = () => {
                                     </li>
                                     <li className="nav-item" role="presentation">
                                         <button className="nav-link nav-dichvu" id="pills-ds-tab" data-bs-toggle="pill" data-bs-target="#pills-ds" type="button" role="tab" aria-controls="pills-ds" aria-selected="false">
-                                            Danh sách
+                                            Danh sách phòng
                                         </button>
                                     </li>
                                 </ul>
@@ -616,22 +639,16 @@ const EditRoom = () => {
                                         <div className="active">
                                             <div className="d-flex justify-content-between align-items-center flex-wrap">
                                                 <div className="cart-head-title d-flex align-items-center">
-                                                    <h3 className="mb-0 mr-2">{bookingRoom?.room?.roomName} - {bookingRoom?.room?.typeRoomDto.typeRoomName}</h3>
-                                                    <a className="btn btn-sm btn-text-neutral btn-icon-only btn-circle mr-2">
-                                                        <i className="fa fa-images icon-btn"></i>
-                                                    </a>
+                                                    <h3 className="mb-0 mr-2 me-2">{bookingRoom?.room?.roomName} - {bookingRoom?.room?.typeRoomDto.typeRoomName}</h3>
+
                                                     <div className={booking?.statusBookingDto?.id === 6 ? "text-danger" : "text-success"}>
                                                         <span>
-                                                            {booking?.statusBookingDto?.id === 7
+                                                            - {booking?.statusBookingDto?.id === 7
                                                                 ? `Đang sử dụng: ${calculateUsageDuration(bookingRoom.checkIn)}`
                                                                 : booking?.statusBookingDto?.statusBookingName}
                                                         </span>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="cart-item-note">
-                                                <i className="fa fa-pen icon-xs icon-mask mr-1"></i>
-                                                <span> Nhập ghi chú ... </span>
                                             </div>
                                         </div>
                                     </div>
@@ -677,7 +694,7 @@ const EditRoom = () => {
                                                         <span className="form-control">
                                                             {calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)} ngày
                                                             {bookingRoom?.booking?.endAt && new Date() > new Date(bookingRoom?.booking?.endAt) && (
-                                                                <span className="text-danger"> (Đã quá hạn trả)</span>
+                                                                bookingRoom?.booking?.statusDto.id === 7 ? <span className="text-danger"> (Đã quá hạn trả)</span> : ""
                                                             )}</span>
                                                     </div>
                                                 </div>
@@ -704,13 +721,28 @@ const EditRoom = () => {
                                                         </td>
                                                         <td className="col-4 col-lg-2 text-center">
                                                             <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
-                                                                <input type="text" className="form-control mx-1 text-center" value={calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt)} style={{ maxWidth: "50px", borderBottom: "none" }} />
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control mx-1 text-center"
+                                                                    value={calculateDuration(
+                                                                        bookingRoom?.booking?.startAt,
+                                                                        (booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8)
+                                                                            ? bookingRoom?.checkOut
+                                                                            : bookingRoom?.booking?.endAt
+                                                                    )}
+                                                                    style={{ maxWidth: "50px", borderBottom: "none" }}
+                                                                />
                                                             </div>
                                                         </td>
                                                         <td className="col-5 col-lg-3 d-flex justify-content-center">
                                                             <span className="w-auto">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price)}</span>
                                                         </td>
-                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price * calculateDuration(bookingRoom?.booking?.startAt, bookingRoom?.booking?.endAt))}</td>
+                                                        <td className="col-5 col-lg-2 d-flex text-danger fw-bolder justify-content-center font-semibold">{formatCurrency(bookingRoom?.room?.typeRoomDto?.price * calculateDuration(
+                                                            bookingRoom?.booking?.startAt,
+                                                            (booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8)
+                                                                ? bookingRoom?.checkOut
+                                                                : bookingRoom?.booking?.endAt
+                                                        ))}</td>
                                                         <td className="col-auto"></td>
                                                     </tr>
                                                     {selectedManualService && selectedManualService.length > 0 ? (
@@ -767,6 +799,7 @@ const EditRoom = () => {
                                                                     <td className="col-2 col-lg-1 text-start">{index + 2 + selectedManualService.length}</td>
                                                                     <td className="col-5 col-lg-3">
                                                                         <h6 className="cart-item-name mb-0">{item.serviceRoomDto.serviceRoomName} ({item.serviceRoomDto.typeServiceRoomDto.duration})</h6>
+                                                                        <span className="text-neutral">{formatDateTime(item.createAt)}</span>
                                                                     </td>
                                                                     <td className="col-4 col-lg-2 text-center">
                                                                         <div className="form-number form-number-sm d-flex justify-content-center align-items-center">
@@ -798,7 +831,7 @@ const EditRoom = () => {
                                                                     </td>
                                                                     <td className="col-5 col-lg-2 d-flex text-success fw-bolder justify-content-center font-semibold">{formatCurrency(item.serviceRoomDto.price * item.quantity)}</td>
                                                                     <td className="col-auto">
-                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleDeleteService(item)}>
+                                                                        <button className="btn btn-sm btn-icon-only btn-circle text-danger" onClick={() => handleDeleteService(item)} hidden={booking?.statusBookingDto?.id === 8}>
                                                                             <i className="fa fa-trash-alt"></i>
                                                                         </button>
                                                                     </td>
@@ -813,7 +846,7 @@ const EditRoom = () => {
                                         <div className="cart-footer">
                                             <div className="text-success fw-bold font-semibold d-flex">
                                                 <div className="text-right me-2">Tổng tiền: </div>
-                                                <div className="text-right">{formatCurrency(totalBookingRoom)} VNĐ</div>
+                                                <div className="text-right">{formatCurrency(booking?.statusBookingDto?.id === 8 ? booking?.invoiceDtos[0]?.totalAmount : totalBookingRoom)} VNĐ</div>
                                             </div>
                                         </div>
                                     </div>
@@ -823,12 +856,10 @@ const EditRoom = () => {
                             <div className="cashier-cart-footer">
                                 <div className="d-flex justify-content-between align-items-center flex-wrap">
                                     <div className="d-flex align-items-center">
-                                        <button type="button" className="btn btn-outline-neutral btn-icon-only" title="Hủy đặt phòng" disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8 || booking?.statusBookingDto?.id === 7} onClick={() => handleCancelBooking(booking)}>
-                                            <i className="fa fa-trash-alt icon-btn"></i>
-                                        </button>
+
                                     </div>
                                     <div className="d-flex align-items-center">
-                                        <button className="btn btn-outline-secondary ng-star-inserted mx-2" type="button" onClick={handleAddService} disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8}>Lưu</button>
+                                        <button className="btn btn-outline-success ng-star-inserted mx-2" type="button" onClick={handleAddService} disabled={booking?.statusBookingDto?.id === 6 || booking?.statusBookingDto?.id === 8}>Lưu</button>
                                         <PopupPayment bookings={booking} ></PopupPayment>
                                     </div>
                                 </div>
@@ -839,7 +870,8 @@ const EditRoom = () => {
             </div>
             {modalCancel && <CancelBookingModal handleClose={handleCloseCancel} booking={booking} />}
             {showModalInsertCustomer && <TTNhanPhong onHide={handleCloseModalInsertCustomer} bookingRoomIds={booking.bookingRooms.map((e) => e.id)} />}
-            
+            {showModalUpdateCustomer && <InsertCustomer onClose={handleCloseModalUpdateCustomer} item={customerInformation[0]} bookingRoom={[bookingRoom]} />}
+            {showModalTTCustomer && <TTCustomer onClose={handleCloseModalTTCustomer} item={bookingRoom.booking.accountDto}/>}
         </Layoutemployee >
     )
 }

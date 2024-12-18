@@ -3,11 +3,13 @@ import TTNhanPhong from "../../list-reservation/modalTTNP";
 import { Modal, Button, Table } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import Alert from "../../../../config/alert";
-import { updateStatusCheckInBooking } from "../../../../services/employee/booking-manager";
+import { getBookingRoomInformation, updateStatusCheckInBooking } from "../../../../services/employee/booking-manager";
+import { fontSize } from "@mui/system";
 
 const NhanPhong = ({ bookingRooms, onClose }) => {
     const [showModal1, setShowModal1] = useState(false);
     const [showModal2, setShowModal2] = useState(false);
+    const [customerInformation, setCustomerInformation] = useState([]);
     const [alert, setAlert] = useState(null);
     const [checkBoxSelected, setCheckBoxSelected] = useState([]); // Lưu các ID phòng đã chọn
     const [dates, setDates] = useState([]); // Lưu ngày nhận/trả phòng
@@ -23,19 +25,48 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
 
     const handleCloseModal2 = () => setShowModal2(false);
     const handleShowModal2 = async () => {
+        console.log(dates);
+
         if (checkBoxSelected.length === 0) {
             setAlert({ type: "error", title: "Vui lòng chọn phòng" });
             return;
         }
+        const bookingCreateAt = filteredBookingRoom[0]?.booking.startAt
+            ? new Date(filteredBookingRoom[0].booking.startAt)
+            : null;
+        if (!bookingCreateAt) {
+            setAlert({ type: "error", title: "Không tìm thấy ngày tạo booking" });
+            return;
+        }
+
+        if (new Date() < bookingCreateAt) {
+            setAlert({ type: "error", title: "Chưa tới ngày nhận phòng" });
+            return;
+        }
         const roomId = checkBoxSelected.map((e) => e.roomId);
         const RoomIdsString = roomId.join(',');
+        const hasInvalidRoomStatus = filteredBookingRoom?.some((d) => {
+            const roomStatus = d.room.statusRoomDto?.id;
+            if (Number(roomStatus) === 5) {
+                setAlert({ type: "error", title: `${d.room.roomName} chưa dọn không thể nhận` });
+                return true;
+            }
+            if (Number(roomStatus) === 3) {
+                setAlert({ type: "error", title: `${d.room.roomName} đang bảo trì không thể nhận` });
+                return true;
+            }
+            return false;
+        });
+
+        if (hasInvalidRoomStatus) {
+            return;
+        }
+
+
         const occupiedRoom = filteredBookingRoom?.some((d) => {
             const roomStatus = d.room.statusRoomDto?.id;
             return Number(roomStatus) === 2;
         });
-        console.log(occupiedRoom);
-        console.log(filteredBookingRoom);
-        
         if (occupiedRoom) {
             setAlert({ type: "error", title: "Phòng này đang có người" });
             return;
@@ -45,7 +76,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
             .map(d => ({
                 id: d.bookingRoomId,
                 roomId: d.roomId,
-                checkIn: d.checkIn?.toISOString(),
+                checkIn: new Date(),
                 checkOut: d.checkOut?.toISOString(),
             }));
         const bookingId = filteredBookingRoom[0]?.booking.id
@@ -75,7 +106,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                 return {
                     roomId: item.room.id,
                     bookingRoomId: item.id,
-                    checkIn: now,
+                    checkIn: new Date(item.booking.startAt),
                     checkOut: new Date(item.booking.endAt),
                 };
             });
@@ -84,6 +115,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
             if (JSON.stringify(initialDates) !== JSON.stringify(dates)) {
                 setDates(initialDates);
             }
+            handleCustomer();
         }
     }, [filteredBookingRoom, dates]);
     useEffect(() => {
@@ -166,6 +198,12 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
         setAlert(null); // Xóa thông báo lỗi nếu hợp lệ
     };
 
+    const handleCustomer = async () => {
+        const idBookingRoom = filteredBookingRoom.map((e) => e.id);
+        const idBookingRoomString = idBookingRoom.join(",");
+        const data = await getBookingRoomInformation(idBookingRoomString);
+        setCustomerInformation(data);
+    }
 
     return (
         <>
@@ -173,18 +211,22 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
             <Button
                 variant="outline-dark"
                 onClick={handleShowModal1}
-                disabled={bookingRooms[0]?.booking?.statusBookingDto?.id === 6 || bookingRooms[0]?.booking?.statusBookingDto?.id === 8}>
+                disabled={bookingRooms[0]?.booking?.statusBookingDto?.id === 6 || bookingRooms[0]?.booking?.statusBookingDto?.id === 8 || new Date() < new Date(bookingRooms[0]?.booking?.startAt)}>
                 Nhận phòng
             </Button>
 
             {/* Modal xác nhận đặt phòng */}
-            <Modal show={showModal1} onHide={handleCloseModal1} backdrop="static" centered>
+            <Modal show={showModal1} onHide={handleCloseModal1} backdrop="static" centered size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title>Xác nhận đặt phòng</Modal.Title>
+                    <Modal.Title>Nhận phòng</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
-                        <i className="bi bi-person-circle"></i> {filteredBookingRoom[0]?.booking?.accountDto?.fullname} - {filteredBookingRoom[0]?.booking?.accountDto?.phone}
+                        <i className="bi bi-person-circle"></i>
+                        {filteredBookingRoom[0]?.booking?.descriptions === "Đặt trực tiếp"
+                            ? `${customerInformation[0]?.customerInformationDto?.fullname || ''} - ${customerInformation[0]?.customerInformationDto?.phone || ''}`
+                            : `${filteredBookingRoom[0]?.booking?.accountDto?.fullname || ''} - ${filteredBookingRoom[0]?.booking?.accountDto?.phone || ''}`
+                        }
                     </p>
                     {alert && <Alert type={alert.type} title={alert.title} />}
                     {/* Bảng danh sách phòng */}
@@ -200,6 +242,7 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                                 </th>
                                 <th>Loại phòng</th>
                                 <th>Phòng</th>
+                                <th>Tình trạng phòng</th>
                                 <th>Giờ vào</th>
                                 <th>Giờ ra</th>
                             </tr>
@@ -224,6 +267,9 @@ const NhanPhong = ({ bookingRooms, onClose }) => {
                                     </td>
                                     <td style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
                                         {item.room?.roomName}
+                                    </td>
+                                    <td style={{ whiteSpace: "normal", wordWrap: "break-word" }}>
+                                        <sapn style={{ fontSize: "13px" }} className={item.room?.statusRoomDto?.id === 4 || item.room?.statusRoomDto?.id === 1 ? "text-bg-success badge text-nowrap" : "text-bg-danger badge text-nowrap"}>{item.room?.statusRoomDto?.statusRoomName}</sapn>
                                     </td>
                                     <td>
                                         <DatePicker

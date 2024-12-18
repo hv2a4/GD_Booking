@@ -5,6 +5,7 @@ import { formatCurrency } from "../../../../../../../config/formatPrice";
 import { format } from "date-fns";
 import { getBookingRoomInformation, getBookingRoomServiceRoom } from "../../../../../../../services/admin/account-manager";
 import { Cookies } from "react-cookie";
+import { getIdBooking } from "../../../../../../../config/idBooking";
 
 const DetailHistoryOrder = ({ show, handleClose, item }) => {
     const [customer, setCustomer] = useState([]);
@@ -65,7 +66,7 @@ const DetailHistoryOrder = ({ show, handleClose, item }) => {
                     </Card.Header>
                     <Card.Body>
                         <div className="mb-3">
-                            <h6>Booking ID: {item.id}</h6>
+                            <h6>Booking ID: {getIdBooking(item.id,item.createAt)}</h6>
                             <Row>
                                 <Col><strong>Ngày tạo:</strong> {formatDate(item.createAt)}</Col>
                                 <Col><strong>Ngày bắt đầu:</strong> {formatDate(item.startAt)}</Col>

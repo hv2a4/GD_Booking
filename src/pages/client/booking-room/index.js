@@ -116,7 +116,7 @@ const PageBookRoom = () => {
             } else {
                 const result = await Swal.fire({
                     title: 'Xác nhận đặt phòng',
-                    text: 'Bạn đã chọn thanh toán tại quầy lễ tân. Nhấn "Tiếp tục" để xác nhận đặt phòng.',
+                    text: 'Bạn đã chọn thanh toán khi trả phòng. Nhấn "Tiếp tục" để xác nhận đặt phòng.',
                     icon: 'info',
                     confirmButtonText: 'Tiếp tục',
                     cancelButtonText: 'Hủy',
@@ -127,6 +127,10 @@ const PageBookRoom = () => {
                 // Người dùng hủy thanh toán
                 if (!result.isConfirmed) {
                     return;
+                } else {
+                    const isChecked = true;
+                    localStorage.setItem("status", JSON.stringify(isChecked));
+                    ["bookedRooms", "booking"].forEach(item => sessionStorage.removeItem(item));
                 }
             }
 
@@ -134,19 +138,18 @@ const PageBookRoom = () => {
 
             // Tạo payload để gửi đi
             const payload = {
-                userName: token.username + "",
-                startDate: rooms.startDate,
-                endDate: rooms.endDate,
-                roomId: roomIdArray,
-                discountName: finalDiscountName ?? null,
-                methodPayment: parseInt(PaymentMethodId)
+                userName: token.username ? token.username.toString() : "", // Đảm bảo username là chuỗi
+                startDate: rooms.startDate, // Đảm bảo giá trị startDate hợp lệ
+                endDate: rooms.endDate, // Đảm bảo giá trị endDate hợp lệ
+                roomId: Array.isArray(roomIdArray) ? roomIdArray : [], // Kiểm tra roomIdArray có phải là mảng không
+                discountName: finalDiscountName || null, // Sử dụng || để đảm bảo null nếu không có giá trị
+                methodPayment: PaymentMethodId ? parseInt(PaymentMethodId) : null // Chuyển đổi PaymentMethodId thành số nguyên nếu hợp lệ
             };
 
             console.log("Payload trước khi gửi:", payload);
 
             // Gọi API đặt phòng
             await bookingRoom(payload, navigate);
-
         } catch (error) {
             console.error("Đặt phòng thất bại:", error);
         }
@@ -168,11 +171,15 @@ const PageBookRoom = () => {
                 confirmButtonText: 'OK',
             }).then((result) => {
                 if (result.isConfirmed) {
+                    ["bookedRooms", "booking"].forEach(item => sessionStorage.removeItem(item));
+                    const isChecked = true;
+                    localStorage.setItem("status", JSON.stringify(isChecked));
+                    console.log("Thành công rồi nha");
                     navigate('/client/home');
                 }
             });
         }
-        if (status === 'error' && message === 'Thanh toán thất bại, đơn đặt phòng của bạn đã bị hủy') {
+        if (status === 'error' && message === 'Thanh toán thất bại') {
             Swal.fire({
                 icon: 'error',
                 title: 'Đặt phòng không thành công!',
@@ -249,13 +256,6 @@ const PageBookRoom = () => {
     // Function to calculate the total price with discount applied
     const calculateTotalPrice = () => {
         let total = selectedRooms.reduce((acc, item) => acc + item.price, 0);
-
-        // Apply discount if available and valid
-        if (discountName && discountName.percent > 0) {
-            const discountPercent = discountName.percent;
-            total = total - (total * discountPercent / 100);
-        }
-
         setTotalPrice(total);
     };
 
@@ -274,18 +274,21 @@ const PageBookRoom = () => {
         setCurrentPage(pageNumber);
     };
 
+    //kiểm tra người dùng khi chưa đặt phòng
     useEffect(() => {
-        // Kiểm tra dữ liệu trong sessionStorage
-        const bookedRooms = sessionStorage.getItem("bookedRooms");
-        const booking = sessionStorage.getItem("booking");
-        if (!bookedRooms && !booking) {
-            // Nếu không có dữ liệu, chuyển hướng người dùng
+        try {
+            const status = localStorage.getItem("status");
+
+            if (status && JSON.parse(status) === true) {
+                navigate("/client/rooms");
+            } else {
+                navigate("/client/booking-room");
+            }
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra trạng thái đặt phòng:", error);
             navigate("/client/rooms");
-        } else {
-            navigate("/client/booking-room");
         }
     }, [navigate]);
-
 
     useEffect(() => {
         const fetchDiscountsFromAPI = async (userName) => {
@@ -316,26 +319,14 @@ const PageBookRoom = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Xóa toàn bộ dữ liệu trong sessionStorage
-                sessionStorage.clear();
+                ["bookedRooms", "booking"].forEach(item => sessionStorage.removeItem(item));
+                const isChecked = true;
+                localStorage.setItem("status", JSON.stringify(isChecked));
                 // Điều hướng về trang phòng
                 navigate("/client/rooms");
             }
         });
     }
-
-    const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
-
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
-        const year = date.getFullYear();
-
-        return `${day}/${month}/${year}`;
-    };
-
-    console.log(discounts);
-
     return (
         <LayoutClient>
             <div className="page-box-content page-hotel">
@@ -451,7 +442,26 @@ const PageBookRoom = () => {
                                                             textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                                                         }}
                                                     >
-                                                        {`Giá: ${room.price.toLocaleString()} VND/ngày`}
+                                                        {(() => {
+                                                            // Lấy dữ liệu valueFillter từ sessionStorage
+                                                            const valueFillter = JSON.parse(sessionStorage.getItem("valueFillter"));
+
+                                                            if (!valueFillter) {
+                                                                return "Giá: Không có dữ liệu"; // Nếu không có dữ liệu từ sessionStorage
+                                                            }
+
+                                                            // Lấy ngày checkIn và checkOut từ valueFillter
+                                                            const checkinDate = new Date(valueFillter.checkIn);
+                                                            const checkoutDate = new Date(valueFillter.checkOut);
+
+                                                            // Tính số ngày giữa checkIn và checkOut
+                                                            const nights = (checkoutDate - checkinDate) / (1000 * 60 * 60 * 24);
+
+                                                            // Tính giá phòng cho số ngày đã chọn
+                                                            const totalPrice = room.price * nights;
+
+                                                            return `Giá: ${totalPrice.toLocaleString()} VND cho ${nights} ngày`;
+                                                        })()}
                                                     </div>
                                                     <div
                                                         className="guest-limit"
@@ -470,6 +480,7 @@ const PageBookRoom = () => {
                                                         </span>
                                                     </div>
                                                 </div>
+
                                             </li>
                                         ))}
                                     </ul>

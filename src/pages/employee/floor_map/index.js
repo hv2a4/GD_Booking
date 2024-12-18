@@ -14,6 +14,7 @@ import DatPhong from "../list-reservation/modalDatPhong";
 import { getByRoom } from "../../../services/employee/booking-room";
 import ConfirmBookingModal from "../list-reservation/modalXacNhan";
 import { getBookingId } from "../../../services/employee/booking-manager";
+import { cilBuilding } from "@coreui/icons";
 const FloorMap = () => {
     const { id } = useParams();
     const [rooms, setRooms] = useState([]);
@@ -24,7 +25,6 @@ const FloorMap = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [modalConfirm, setModalConfirm] = useState(false);
     const [modal7, setModal7] = useState(false);
-    const [roomDetail, setRoomDetail] = useState({});
     const [statusRoom, setStatusRoom] = useState([]);
     const [booking, setBooking] = useState({});
     const cookie = new Cookies();
@@ -127,13 +127,12 @@ const FloorMap = () => {
             const data = await updateStatusRoom(room, token);
             handleRoomByFloor();
             if (data) {
-                setTimeout(() => {
-                    setIsLoading(false);
-                    setAlert({ type: data.status, title: data.message });
-                }, 1000);
+                setAlert({ type: data.status, title: data.message });
             }
         } catch (error) {
             setAlert({ type: "error", title: error.message });
+        }finally{
+            setIsLoading(false);
         }
     }
 
@@ -145,14 +144,6 @@ const FloorMap = () => {
             case 3: return 'fas fa-tools badge-icon me-1';
             case 4: return 'fas fa-calendar-check badge-icon me-1';
             case 5: return 'fa fa-broom badge-icon me-1';
-            default: return 'fas fa-hand-sparkles badge-icon me-1';
-        }
-    };
-    const getBadgeBooking = (status) => {
-        switch (status) {
-            case 2: return 'fas fa-check badge-icon me-1 text-success';
-            case 7: return 'bi bi-person-check-fill badge-icon me-1';
-            case 4: return 'fas fa-calendar-check badge-icon me-1';
             default: return 'fas fa-hand-sparkles badge-icon me-1';
         }
     };
@@ -182,16 +173,19 @@ const FloorMap = () => {
 
     const calculateDuration = (checkIn, checkOut) => {
         if (!checkIn || !checkOut) return 'N/A';
-
+    
         const start = new Date(checkIn);
         const end = new Date(checkOut);
-
+    
         if (isNaN(start) || isNaN(end)) return 'N/A';
-
+    
         const diffMs = end - start; // Khoảng thời gian thuê tính bằng milliseconds
+        
+        if (diffMs < 0) return '0 phút'; // Return '0' if the duration is negative
+    
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); // Số ngày
         const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // Số giờ còn lại
-
+    
         if (diffDays > 0) {
             return `${diffDays} ngày ${diffHours} giờ`;
         } else if (diffHours > 0) {
@@ -201,7 +195,7 @@ const FloorMap = () => {
             return `${diffMinutes} phút`;
         }
     };
-
+    
     const getBookingStatusCss = (statusId) => {
         switch (statusId) {
             case 2:
@@ -230,7 +224,7 @@ const FloorMap = () => {
 
 
     return (
-        <Layoutemployee>
+        <Layoutemployee title={"Sơ đồ tầng"} icons={cilBuilding}>
             <div className="reception-wrapper min-height-400 container-fluid pb-3 ng-star-inserted">
                 {alert && <Alert type={alert.type} title={alert.title} />}
                 {isLoading && (

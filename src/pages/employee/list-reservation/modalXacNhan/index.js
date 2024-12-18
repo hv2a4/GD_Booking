@@ -4,7 +4,10 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Alert from "../../../../config/alert";
 import { getBookingId, updateStatusBooking } from "../../../../services/employee/booking-manager";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+import { Cookies } from 'react-cookie';
+import { getIdBooking } from "../../../../config/idBooking";
 
 const ConfirmBookingModal = ({ booking, onClose }) => {
     const [alert, setAlert] = useState(null);
@@ -14,6 +17,10 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
         startAt: null,
         endAt: null,
     });
+    const navigate = useNavigate();
+    const cookies = new Cookies();
+    const token = cookies.get('token');
+    const decodedToken = token ? jwt_decode(token) : null;
 
     // Đặt mặc định `startAt` và `endAt` từ bookingRoom dòng đầu tiên
     useEffect(() => {
@@ -25,7 +32,7 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
         }
         handleBookingRoom();
         setTimeout(() => setAlert(null), 500);
-    }, [booking,alert]);
+    }, [booking, alert]);
 
     const handleBookingRoom = async () => {
         const data = await getBookingId(booking?.id);
@@ -59,12 +66,14 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
     const handleUpdateBooking = async () => {
         const newBooking = {
             startDate: dates.startAt.toISOString(),
-            endDate: dates.endAt.toISOString()
+            endDate: dates.endAt.toISOString(),
+            userName: decodedToken.username
         }
         try {
             const data = await updateStatusBooking(booking.id, 4, newBooking);
             setAlert({ type: data.status, title: data.message });
-            onClose ();
+            onClose();
+            navigate(`/employee/list-booking-room`);
         } catch (error) {
             setAlert({ type: "error", title: error.message });
         }
@@ -76,7 +85,7 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
             <Modal show={true} onHide={onClose} centered>
                 <Modal.Header closeButton>
                     {alert && <Alert type={alert.type} title={alert.title} />}
-                    <Modal.Title>Xác nhận đặt phòng - DP000017</Modal.Title>
+                    <Modal.Title>Xác nhận đặt phòng - {getIdBooking(booking?.id, booking?.createAt)}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div>
@@ -132,12 +141,13 @@ const ConfirmBookingModal = ({ booking, onClose }) => {
                             ))}
                         </tbody>
                     </Table>
-                    <p className="text-muted mt-3">
-                        Sau khi xác nhận, các phòng sẽ chuyển về trạng thái đặt trước
+                    <p className="mt-3 mx-3 text-danger">
+                    {booking.statusBookingDto.id === 1 ? "Khách hàng chưa xác nhận qua email" : ""}
+                        
                     </p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="success" onClick={handleUpdateBooking}>
+                    <Button variant="success" onClick={handleUpdateBooking} disabled={booking.statusBookingDto.id === 1} >
                         Xác nhận
                     </Button>
                 </Modal.Footer>

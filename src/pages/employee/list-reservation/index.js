@@ -14,8 +14,10 @@ import CreateInvoice from "./create-invoice";
 import { format } from "date-fns";
 import { Cookies } from "react-cookie";
 import { getAllBooking } from "../../../services/employee/order-room-manager";
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import "../home/FillterDate/style.css"
+import { cilList } from "@coreui/icons";
+import Maintenance from "./table-maintenance";
 
 const ListReservation = () => {
     const [filterType, setFilterType] = useState(null);
@@ -75,7 +77,7 @@ const ListReservation = () => {
     }
 
     const handleBooking = async (filterType, startDate, endDate, token) => {
-        const data = await getAllBooking(filterType, startDate, endDate, token);
+        const data = await getAllBooking(startDate, endDate, token);
         if (data) {
             setBookings(data);
             setFilteredBookings(filterBookings(filteredAndSearchedBookings));
@@ -92,19 +94,19 @@ const ListReservation = () => {
         return bookings.filter((booking) => {
             // Kiểm tra nếu tất cả các phòng đều có checkIn === null
             const allCheckInNull = booking.bookingRooms?.every(room => room.checkIn === null) ?? false;
-    
+
             // Kiểm tra cả 2 điều kiện: statusBookingDto.id === 7 và có ít nhất một phòng có checkIn khác null
-            return (booking.statusBookingDto.id === 7 || !allCheckInNull) && booking.statusBookingDto.id !== 8 && booking.statusBookingDto.id !== 6 && booking.statusBookingDto.id !== 2  && booking.statusBookingDto.id !== 1;
+            return (booking.statusBookingDto.id === 7 || !allCheckInNull) && booking.statusBookingDto.id !== 8 && booking.statusBookingDto.id !== 6 && booking.statusBookingDto.id !== 2 && booking.statusBookingDto.id !== 1;
         });
     };
-    
-    
-    
+
+
+
     const renderTabContent = (tab) => {
         let bookingsForTab = [];
         switch (tab) {
             case "choxacnhan":
-                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 2);
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 2 || e.statusBookingDto?.id === 1);
                 break;
             case "datra":
                 bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 8);
@@ -123,7 +125,9 @@ const ListReservation = () => {
             case "chotaohoadon":
                 bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 6);
                 break;
-                
+            case "baotri":
+                bookingsForTab = filteredAndSearchedBookings.filter((e) => e.statusBookingDto?.id === 10);
+                break;
             default:
                 return <p>Không có dữ liệu</p>;
         }
@@ -143,15 +147,17 @@ const ListReservation = () => {
                 return <InUse item={bookingsForTab} />;
             case "quagio":
                 return <OverTime item={bookingsForTab} />;
+            case "chotaohoadon":
+                return <CreateInvoice item={bookingsForTab} />;
             default:
-                return <CreateInvoice item={bookingsForTab}/>;
+                return <Maintenance item={bookingsForTab}/>;
         }
     };
-    
-    
+
+
 
     return (
-        <Layoutemployee>
+        <Layoutemployee title={"Danh sách đặt phòng"} icons={cilList}>
             <div className="container-fluid">
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
                     <div className="product-search">
@@ -172,7 +178,7 @@ const ListReservation = () => {
                     </div>
                 </div>
                 <div className="toolbar-item justify-content-end mb-3 d-flex align-items-center" style={{ flexWrap: "wrap" }}>
-                    <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
+                    {/* <div className="toolbar-select mb-2 me-3" style={{ flex: "0 0 auto" }}>
                         <select
                             className="date-filter-input"
                             value={filterType}
@@ -181,10 +187,10 @@ const ListReservation = () => {
                         >
                             <option value="">Chọn thời gian</option>
                             <option value="1">Ngày</option>
-                            <option value="2">Tuần</option>
-                            <option value="3">Tháng</option>
+                            <option value="7">Tuần</option>
+                            <option value="30">Tháng</option>
                         </select>
-                    </div>
+                    </div> */}
                     <div className="date-picker-container mb-2 me-2" style={{ flex: "0 1 auto" }}>
                         <DatePicker
                             id="date-picker"
@@ -192,6 +198,7 @@ const ListReservation = () => {
                             placeholderText="Chọn ngày bắt đầu"
                             onChange={handleStartDateChange}
                             className="date-filter-input"
+                            dateFormat="dd/MM/yyyy"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
@@ -202,16 +209,20 @@ const ListReservation = () => {
                             placeholderText="Chọn ngày kết thúc"
                             onChange={handleEndDateChange}
                             className="date-filter-input"
+                            dateFormat="dd/MM/yyyy"
                             style={{ minHeight: "44px" }}
                         />
                     </div>
-                    <Button
-                        className="mx-3 mb-2"
-                        onClick={handleShowModalInserRoom}
-                        variant="success">
-                        <i className="fa fa-plus icon-btn"></i>
-                        <span className="m-2">Đặt phòng</span>
-                    </Button>
+                    <Link to={`/employee/booking-offline`}>
+                        <Button
+                            className="mx-3 mb-2"
+                            onClick={handleShowModalInserRoom}
+                            variant="success">
+                            <i className="fa fa-plus icon-btn"></i>
+                            <span className="m-2">Đặt phòng</span>
+                        </Button>
+                    </Link>
+
                 </div>
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -220,10 +231,6 @@ const ListReservation = () => {
                             type="button" role="tab"
                             aria-controls="pills-choxacnhan"
                             aria-selected="false" onClick={handleReload}>Chờ xác nhận</button>
-                        <button class="nav-link" id="pills-datra-tab"
-                            data-bs-toggle="pill" data-bs-target="#pills-datra"
-                            type="button" role="tab" aria-controls="pills-datra"
-                            aria-selected="false" onClick={handleReload}>Hoàn thành</button>
                         <button class="nav-link" id="pills-dattruoc-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-dattruoc" type="button"
                             role="tab" aria-controls="pills-dattruoc"
@@ -236,10 +243,18 @@ const ListReservation = () => {
                             data-bs-toggle="pill" data-bs-target="#pills-quagio"
                             type="button" role="tab" aria-controls="pills-quagio"
                             aria-selected="false" onClick={handleReload}>Quá giờ trả</button>
+                        <button class="nav-link" id="pills-datra-tab"
+                            data-bs-toggle="pill" data-bs-target="#pills-datra"
+                            type="button" role="tab" aria-controls="pills-datra"
+                            aria-selected="false" onClick={handleReload}>Hoàn thành</button>
                         <button class="nav-link" id="pills-chotaohoadon-tab" data-bs-toggle="pill"
                             data-bs-target="#pills-chotaohoadon" type="button"
                             role="tab" aria-controls="pills-chotaohoadon"
                             aria-selected="false" onClick={handleReload}>Đã hủy</button>
+                        <button class="nav-link" id="pills-baotri-tab" data-bs-toggle="pill"
+                            data-bs-target="#pills-baotri" type="button"
+                            role="tab" aria-controls="pills-baotri"
+                            aria-selected="false" onClick={handleReload}>Bảo trì</button>
 
                     </div>
                 </nav>
@@ -268,6 +283,10 @@ const ListReservation = () => {
                         role="tabpanel" aria-labelledby="pills-chotaohoadon-tab">
                         {renderTabContent("chotaohoadon")}
                     </div>
+                    <div className="tab-pane fade" id="pills-baotri"
+                        role="tabpanel" aria-labelledby="pills-baotri-tab">
+                        {renderTabContent("baotri")}
+                    </div>
                 </div>
 
 
@@ -276,7 +295,7 @@ const ListReservation = () => {
                 </div>
                 <div className="d-flex spacer pb-4 pt-4 flex-center-between ng-star-inserted">
                     <div className="spacer align-items-center">
-                        <span>Tổng <strong className="text-success">{filteredAndSearchedBookings.length}</strong> đặt phòng</span>
+                        {/* <span>Tổng <strong className="text-success">{filteredAndSearchedBookings.length}</strong> đặt phòng</span> */}
                         <button className="btn btn-sm btn-outline-success" onClick={handleReload}>
                             <i className="fa fa-rotate icon-btn"></i>
                             <span>Tải lại</span>
@@ -287,7 +306,7 @@ const ListReservation = () => {
             {ShowInserRoom && <DatPhong onClose={handleCloseModalInserRoom} />}
         </Layoutemployee>
     )
-    
+
 }
 
 export default ListReservation;

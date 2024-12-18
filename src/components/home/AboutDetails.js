@@ -241,7 +241,7 @@ export default function AboutDetails() {
                                                     color: "#777",
                                                 }}
                                             >
-                                                {employee.role}
+                                                {employee.role === 'Staff' ? "Nhân viên" : "Nhân viên"}
                                             </p>
                                         </div>
                                     ))}

@@ -1,20 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import CommonHeading from "../common/CommonHeading";
 import { getDetailListTypeRoom, getListRoom } from "../../services/client/home";
 import Alert from "../../config/alert";
 import { Button } from "react-bootstrap";
-import {
-    FaWifi,
-    FaTv,
-    FaRegSnowflake,
-    FaTshirt,
-    FaConciergeBell,
-    FaCoffee,
-    FaTaxi,
-} from "react-icons/fa";
+
 import RoomDetail from "../../pages/client/Room/modal-room/RoomDetail";
 import { useLocation, useNavigate } from "react-router-dom";
-// import "../../assets/css/custom/Sticky.css";
 import "../../assets/css/custom/Filter.css";
 import "../../assets/css/custom/cardBorder.css";
 import BookingFillter from "../../pages/account/Filter/FilterBooking";
@@ -23,16 +14,6 @@ import { Cookies } from 'react-cookie';
 import Swal from 'sweetalert2';
 import { ListRooms } from "./Componet/ListRooms";
 import FloatingBubble from "./Componet/FloatingBubble";
-const amenityIcons = {
-    "WiFi": <FaWifi style={{ color: "#FEA116" }} />,
-    "Điều Hoà": <FaRegSnowflake style={{ color: "#FEA116" }} />,
-    "TV": <FaTv style={{ color: "#FEA116" }} />,
-    "Mini Bar": <FaTshirt style={{ color: "#FEA116" }} />,
-    "Dịch Vụ Phòng": <FaConciergeBell style={{ color: "#FEA116" }} />,
-    "Bữa sáng miễn phí": <FaCoffee style={{ color: "#FEA116" }} />,
-    "Giặt ủi": <FaTshirt style={{ color: "#FEA116" }} />,
-    "Đưa Đón": <FaTaxi style={{ color: "#FEA116" }} />
-};
 
 export default function ListRoom() {
     const [showModal, setShowModal] = useState(false);
@@ -53,27 +34,49 @@ export default function ListRoom() {
     const roomsPerPage = 3; // Số lượng phòng trên mỗi trang
     const [currentPageIndex, setCurrentPageIndex] = useState(1); // Trang hiện tại
     const location = useLocation();
-
     // Hàm gọi API danh sách phòng
     const fetchRooms = async () => {
         try {
-            const res = await getListRoom(currentPage - 1, pageSize); // Lấy phòng dựa trên trang hiện tại
-            setTypeRoom(res.rooms);
+            const res = await getListRoom(currentPage, pageSize); // Lấy phòng dựa trên trang hiện tại
+            setTypeRoom(res.content);
             setTotalPages(res.totalPages); // Tổng số trang từ API
         } catch (error) {
             console.log("Lỗi API trả về: ", error);
         }
     };
 
-
     // Effect để gọi API khi trang thay đổi
     useEffect(() => {
-        if (dataFilterBook.startDate || dataFilterBook.endDate || dataFilterBook.guestLimit) {
-            filterBooking(dataFilterBook.startDate, dataFilterBook.endDate, dataFilterBook.guestLimit, currentPage, pageSize);
+        // Kiểm tra nếu có dữ liệu trong sessionStorage (valueFillter)
+        const sessionData = sessionStorage.getItem("valueFillter");
+
+        if (sessionData) {
+            // Nếu sessionStorage có dữ liệu, parse và gọi filterBooking
+            const parsedData = JSON.parse(sessionData);
+            const { checkIn, checkOut, guest, typeRoomID } = parsedData;
+
+            setDates({ checkin: checkIn, checkout: checkOut })
+            // Gọi filterBooking thay vì handleDataFilter nếu dữ liệu có từ sessionStorage
+            filterBooking(checkIn, checkOut, guest, currentPage, pageSize);
+        } else if (!location.state) {
+            if (dataFilterBook.startDate || dataFilterBook.endDate || dataFilterBook.guestLimit) {
+                filterBooking(dataFilterBook.startDate, dataFilterBook.endDate, dataFilterBook.guestLimit, currentPage, pageSize);
+            } else {
+                fetchRooms();
+            }
         } else {
-            fetchRooms();
+            // Nếu có dữ liệu từ location.state, kiểm tra và gọi filterBooking
+            const { checkIn, checkOut, guest, typeRoomID } = location.state;
+            if ((checkIn && checkOut && guest) || typeRoomID) {
+                console.log("Dữ liệu hợp lệ từ location.state:", { checkIn, checkOut, guest, typeRoomID });
+                // Gọi filterBooking với dữ liệu từ location.state
+                filterBooking(checkIn, checkOut, guest, currentPage, pageSize);
+            } else {
+                console.error("Dữ liệu từ location.state không đầy đủ!");
+            }
         }
-    }, [currentPage, dataFilterBook]); // Khi currentPage hoặc dataFilterBook thay đổi, sẽ gọi lại API tương ứng
+    }, [currentPage, dataFilterBook]);
+
 
     // Fetch room details
     const getDataDetail = async (id) => {
@@ -98,9 +101,6 @@ export default function ListRoom() {
     const handleSelectRoom = ({ Object, roomId }) => {
         const cookies = new Cookies();
         const token = cookies.get('token');
-        console.log("Dữ liệu item: ", Object);  // Kiểm tra dữ liệu item
-        console.log("Dữ liệu roomId: ", roomId);  // Kiểm tra roomId
-
         // Kiểm tra người dùng đã đăng nhập chưa
         if (!token) {
             Swal.fire({
@@ -115,7 +115,18 @@ export default function ListRoom() {
             });
             return; // Ngừng hàm nếu chưa đăng nhập
         }
+        // Kiểm tra xem người dùng đã chọn thời gian chưa
+        if (!dates.checkin || !dates.checkout) {
+            // Nếu chưa chọn thời gian, tự động kích hoạt bộ lọc
+            Swal.fire({
+                icon: 'info',
+                title: 'Chọn thời gian',
+                text: 'Vui lòng chọn thời gian trước khi chọn phòng!',
+                confirmButtonText: 'OK',
+            })
 
+            return; // Ngừng hàm cho đến khi người dùng chọn thời gian
+        }
         // Tìm đối tượng phòng dựa trên roomId
         const selectedRoomIndex = Object.roomId.indexOf(roomId);
 
@@ -127,11 +138,11 @@ export default function ListRoom() {
         // Lấy thông tin phòng
         const roomDetails = {
             roomId: roomId,
-            roomName: Object.roomName[selectedRoomIndex],
-            price: Object.price,
-            typeRoomName: Object.typeRoomName,
-            description: Object.description,
-            imageList: Object.imageList,
+            roomName: Object?.roomName[selectedRoomIndex],
+            price: Object?.price,
+            typeRoomName: Object?.typeRoomName,
+            description: Object?.description ?? "",
+            imageList: Object?.imageList,
         };
 
         console.log("Thông tin phòng đã chọn: ", roomDetails);
@@ -144,6 +155,8 @@ export default function ListRoom() {
             }
             return [...prev, roomDetails]; // Thêm phòng mới vào danh sách
         });
+        // Tính tổng tiền sau khi chọn phòng
+        calculateTotalPrice();
     };
 
     const handleRemoveRoom = (roomId) => {
@@ -165,9 +178,33 @@ export default function ListRoom() {
 
     // Hàm tính tổng tiền sau khi giảm giá
     const calculateTotalPrice = () => {
-        const total = selectedRooms.reduce((total, room) => total + room.price, 0);
+        // Lấy dữ liệu valueFillter từ session storage
+        const valueFillter = JSON.parse(sessionStorage.getItem("valueFillter"));
+
+        if (!valueFillter || !selectedRooms || selectedRooms.length === 0) {
+            return 0; // Trả về 0 nếu không có dữ liệu hoặc không có phòng đã chọn
+        }
+
+        // Chuyển đổi ngày checkIn và checkOut thành đối tượng Date
+        const checkinDate = new Date(valueFillter.checkIn);
+        const checkoutDate = new Date(valueFillter.checkOut);
+
+        // Tính số đêm bằng cách trừ ngày checkIn và checkOut
+        const nights = (checkoutDate - checkinDate) / (1000 * 60 * 60 * 24);
+
+        if (nights <= 0) {
+            return 0; // Nếu ngày checkOut trước hoặc bằng checkIn, trả về 0
+        }
+
+        // Tính tổng tiền cho tất cả các phòng đã chọn
+        const total = selectedRooms.reduce((total, room) => {
+            return total + (room.price * nights); // Tính tiền cho từng phòng (nights * room price)
+        }, 0);
+
+        console.log("Tổng tiền: ", total);
         return total;
     };
+
 
     // Hàm xử lý đặt phòng
     const handleBooking = () => {
@@ -242,42 +279,54 @@ export default function ListRoom() {
         }
     };
 
-    // Hàm xử lý lọc phòng
-    const handleDataFilter = async (startDate, endDate, guestLimit) => {
+
+    const handleDataFilter = useCallback(async (startDate, endDate, guestLimit, typeRoomID) => {
         console.log("handleDataFilter nhận giá trị:", startDate, endDate, guestLimit);
+        console.log('typeRoom: ', typeRoomID);
+
+        // Lưu giá trị vào sessionStorage
+        sessionStorage.setItem("selectedTypeRoom", typeRoomID);
 
         // Cập nhật dữ liệu lọc vào state
         setDataFilterBook({ startDate, endDate, guestLimit });
         setCurrentPage(1); // Reset về trang đầu
         setDates({ checkin: startDate, checkout: endDate });
 
-        // Gọi API lọc và cập nhật danh sách phòng
         try {
-            const res = await getFilterBooking(startDate, endDate, guestLimit, 1, pageSize); // Trang đầu tiên
-            setTypeRoom(res.content); // Cập nhật danh sách phòng
-            setTotalPages(res.totalPages); // Cập nhật tổng số trang từ API
-            console.log("Dữ liệu khi lọc thành công");
+            // Lấy giá trị typeRoomID từ sessionStorage (đảm bảo luôn lấy giá trị đúng)
+            const savedTypeRoomID = sessionStorage.getItem("selectedTypeRoom");
+            console.log("Lấy typeRoomID từ sessionStorage:", savedTypeRoomID);
 
+            // Kiểm tra nếu savedTypeRoomID có giá trị hợp lệ, nếu không sử dụng giá trị mặc định
+            const validTypeRoomID = savedTypeRoomID ? parseInt(savedTypeRoomID) : 0;
+            console.log("typeRoomID sử dụng khi gọi API:", validTypeRoomID);
+
+            // Gọi API lọc phòng với giá trị typeRoomID đã được lấy từ sessionStorage
+            const res = await getFilterBooking(startDate, endDate, guestLimit, 1, pageSize, validTypeRoomID);
+
+            if (res && res.content) {
+                setTypeRoom(res.content); // Cập nhật danh sách phòng
+                setTotalPages(res.totalPages); // Cập nhật tổng số trang từ API
+            } else {
+                console.error("Không có dữ liệu phòng trong phản hồi từ API");
+            }
         } catch (error) {
             console.error("Lỗi khi gọi API filterBooking:", error);
         }
-    };
+    }, [pageSize, getFilterBooking]);
 
     useEffect(() => {
         if (location.state) {
-            const { checkIn, checkOut, guest } = location.state;
-
-            if (checkIn && checkOut && guest) {
-                console.log("Dữ liệu hợp lệ từ location.state:", { checkIn, checkOut, guest });
-                handleDataFilter(checkIn, checkOut, guest);
+            const { checkIn, checkOut, guest, typeRoomID } = location.state;
+            const typeRoom_ID = parseInt(sessionStorage.getItem("selectedTypeRoom"));
+            if ((checkIn && checkOut && guest) || typeRoomID) {
+                console.log("Dữ liệu hợp lệ từ location.state:", { checkIn, checkOut, guest, typeRoom_ID });
+                handleDataFilter(checkIn, checkOut, guest, typeRoomID);
             } else {
                 console.error("Dữ liệu từ location.state không đầy đủ!");
             }
-        } else {
-            console.log("Không có location.state.");
         }
     }, [location.state]);
-
 
     const filterBooking = async (startDate, endDate, guestLimit, page, size) => {
         try {
@@ -328,11 +377,12 @@ export default function ListRoom() {
                                             />
                                             <div className="d-flex flex-column align-items-start position-absolute start-0 top-100 translate-middle-y ms-4">
                                                 {/* Giá hiện tại */}
-                                                <small className="bg-warning text-white rounded py-1 px-3 mb-2">
-                                                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
-                                                </small>
+                                                <strong>
+                                                    <small className="bg-warning text-white rounded py-1 px-3 mb-2">
+                                                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item?.price)} / <strong>Ngày</strong>
+                                                    </small>
+                                                </strong>
                                             </div>
-
                                         </div>
 
                                         {/* Thông tin phòng */}
@@ -346,7 +396,6 @@ export default function ListRoom() {
                                                         <span className="ms-2">
                                                             {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(item.estCost)}
                                                         </span>
-                                                        / <strong>Ngày</strong>
                                                     </p>
                                                 </div>
                                             )}
@@ -365,14 +414,9 @@ export default function ListRoom() {
                                                             key={idx}
                                                             style={{ fontSize: "1.2rem" }}
                                                         >
-                                                            {amenityIcons[amenity]}
                                                             <span
                                                                 style={{
-                                                                    fontSize: "1rem",
-                                                                    maxWidth: "82px",
-                                                                    whiteSpace: "nowrap",
-                                                                    overflow: "hidden",
-                                                                    textOverflow: "ellipsis"
+                                                                    fontSize: "1rem"
                                                                 }}
                                                                 title={amenity}
                                                             >
