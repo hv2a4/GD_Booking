@@ -5,12 +5,14 @@ import { useForm, Controller } from 'react-hook-form';
 import { addCustomer, updateCustomer } from '../../../../services/employee/customer';
 import Alert from '../../../../config/alert';
 import { getBookingRoomInformation } from '../../../../services/admin/account-manager';
+import { useNavigate } from 'react-router-dom';
 
-const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData, bookingoff }) => {
+const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData, bookingoff, close }) => {
     const { register, handleSubmit, control, setValue } = useForm();
     const [customerInformation, setCustomerInformation] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [alert, setAlert] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (item && item.customerInformationDto?.birthday) {
@@ -91,17 +93,18 @@ const InsertCustomer = ({ onClose, item, rooms, bookingRoom, fetchData, bookingo
             const customerData = item ? await updateCustomer(item.id, newCustomer, id[0]?.id) : await addCustomer(newCustomer, id[0]?.id);
             setAlert({ type: customerData.status, title: customerData.message });
             if (bookingoff) {
-                onClose();
-            }else{
+                close();
+                navigate("/employee/list-booking-room")
+            } else {
                 fetchData();
+                onClose();
             }
-            
+
         } catch (error) {
             setAlert({ type: "error", title: "Lỗi khi thêm khách hàng.", details: error.message });
         }
         setIsLoading(false);
 
-        onClose();
     };
 
 

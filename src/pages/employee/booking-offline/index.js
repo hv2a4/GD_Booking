@@ -27,6 +27,8 @@ import { jwtDecode as jwt_decode } from "jwt-decode";
 import { addBookingOffline } from "../../../services/employee/orderRoom";
 import InsertCustomer from "../list-reservation/modalInsertCustomer";
 import { getBookingId } from "../../../services/employee/booking-manager";
+import AlertComfirm from "../../../config/alert/comfirm";
+import CancelBookingModal from "../list-reservation/modalCancel";
 
 const amenityIcons = {
     "WiFi": <FaWifi style={{ color: "#FEA116" }} />,
@@ -44,6 +46,7 @@ export default function ListRoomEmployee() {
     const [showModalCustomer, setShowModalCustomer] = useState(false);
     const [booking, setBooking] = useState({});
     const [roomItem, setRoomItem] = useState([]);
+    const [modalCancel, setModalCancel] = useState(false);
     const [typeRoom, setTypeRoom] = useState([]);
     const [alert, setAlert] = useState(null);
     const [currentPage, setCurrentPage] = useState(1); // Current page state
@@ -77,7 +80,7 @@ export default function ListRoomEmployee() {
     // Effect để gọi API khi trang thay đổi
     useEffect(() => {
         console.log(booking);
-        
+
         if (dataFilterBook.startDate || dataFilterBook.endDate || dataFilterBook.guestLimit) {
             filterBooking(dataFilterBook.startDate, dataFilterBook.endDate, dataFilterBook.guestLimit, currentPage, pageSize);
         } else {
@@ -226,43 +229,29 @@ export default function ListRoomEmployee() {
             console.log("Vui lòng chọn phòng trước khi đặt!");
         }
     };
+    const handleCloseCancel = () => {
+        setModalCancel(false);
+    }
 
-    const handleLoseModalCustomer = () => {
-        setShowModalCustomer(false);
+    const handleCancelBooking = async () => {
+        setModalCancel(true);
+    }
+
+    const handleLoseModalCustomer = async () => {
+        const confirmation = await AlertComfirm.confirm({
+            type: "warning",
+            title: "Xác nhận xóa",
+            text: "Bạn có chắc chắn muốn hủy đặt phòng này không?",
+            confirmButtonText: "Đồng ý",
+            cancelButtonText: "Bỏ qua",
+        });
+        if (confirmation) {
+            handleCancelBooking();
+        }
     }
 
     const handleSaveModalCustomer = () => {
-        //Bất đầu tải trang
-        setLoading(true);
-        let timerInterval;
-        Swal.fire({
-            title: "Đang xử lý đặt phòng...",
-            html: "Chờ một chút, bạn sẽ được chuyển hướng.",
-            timer: 1000,
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-                const timer = Swal.getPopup().querySelector("b");
-                if (timer) { // Kiểm tra xem phần tử b có tồn tại không
-                    timerInterval = setInterval(() => {
-                        timer.textContent = `${Swal.getTimerLeft()}`;
-                    }, 100);
-                }
-            },
-            willClose: () => {
-                clearInterval(timerInterval);
-            }
-        }).then((result) => {
-            // Sau khi thông báo tự động đóng, đóng modal
-            if (result.dismiss === Swal.DismissReason.timer) {
-                
-            }
-        });
-        handleLoseModalCustomer();
-        
-        //Dừng tải lại trang
-        setLoading(false);
-        navigate(`/employee/list-booking-room`);
+        setShowModalCustomer(false);
     }
 
     // Hàm xử lý lọc phòng
@@ -459,7 +448,8 @@ export default function ListRoomEmployee() {
                     handleBooking={handleBooking}
                 />
                 <RoomDetail show={showModal} onClose={() => setShowModal(false)} room={roomItem} />
-                {showModalCustomer && <InsertCustomer bookingRoom={booking.bookingRooms} onClose={handleSaveModalCustomer} bookingoff={true}/>}
+                {modalCancel && <CancelBookingModal handleClose={handleCloseCancel} booking={booking} />}
+                {showModalCustomer && <InsertCustomer bookingRoom={booking.bookingRooms} onClose={handleLoseModalCustomer} bookingoff={true} close={handleSaveModalCustomer} />}
             </div >
         </Layoutemployee>
     );
