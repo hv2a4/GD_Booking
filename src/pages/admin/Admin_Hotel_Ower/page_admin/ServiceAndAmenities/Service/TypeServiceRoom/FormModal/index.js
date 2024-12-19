@@ -7,25 +7,26 @@ import { GiCancel } from "react-icons/gi";
 import { createTypeRoomService, deleteTypeRoomService, updateTypeRoomService } from '../../../../../../../../services/admin/service-management';
 import { Cookies } from "react-cookie";
 import Alert from '../../../../../../../../config/alert';
+import { useNavigate } from 'react-router-dom';
 
-const RoomServiceRoomFormModal = ({ item, refreshData }) => {
+const RoomServiceRoomFormModal = ({ item }) => {
     const [show, setShow] = useState(false);
     const { register, handleSubmit, setValue } = useForm();
     const [alert, setAlert] = useState(null);
     const cookie = new Cookies();
     const token = cookie.get("token");
+    const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     if (item) {
-    //         setValue("id", item.id);
-    //         setValue("serviceRoomName", item.serviceRoomName);
-    //     }
-    // }, [item, setValue]);
+    useEffect(() => {
+        if (item) {
+            setValue("id", item.id);
+            setValue("serviceRoomName", item.serviceRoomName);
+        }
+    }, [item, setValue]);
 
     const handleShow = () => { if (!show) { setShow(true) } };
     const handleClose = () => {
         setShow(false);
-        setAlert(null);
     }
 
     const onSubmit = async (data) => {
@@ -35,22 +36,17 @@ const RoomServiceRoomFormModal = ({ item, refreshData }) => {
         if (!data.serviceRoomName) {
             setAlert({ type: "error", title: "Không được bỏ trống thông tin" });
         }
-        console.log(data);
 
         try {
-            const res = item ? await updateTypeRoomService(data.id, data, token) : await createTypeRoomService(data, token);
+            const res = item ? await updateTypeRoomService(item.id, data, token) : await createTypeRoomService(data, token);
             if (res) {
                 setAlert({ type: "success", title: item ? "Cập nhật thành công" : "Thêm thành công" });
-            }
-            if (item) {
-                refreshData();
+                handleClose();
+                navigate('/admin/service');
             }
         } catch (error) {
             setAlert({ type: "error", title: error.message });
         } 
-        setTimeout(() => {
-            handleClose(); // Đóng modal sau khi thông báo hiển thị
-        }, 1000);
     };
 
     return (
@@ -99,7 +95,7 @@ const RoomServiceRoomFormModal = ({ item, refreshData }) => {
                                                     type="text"
                                                     placeholder="Mã loại dịch vụ phòng tự động"
                                                     disabled
-                                                    {...register('id')}
+                                                    value={item?.id}
                                                 />
                                             </Col>
                                         </Form.Group>
@@ -156,14 +152,22 @@ const DeleteTypeServiceModal = ({ item, refreshData }) => {
     const [show, setShow] = useState(false);
     const [alert, setAlert] = useState(null);
     const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    const handleShow = () => {
+        setShow(true);
+        setAlert(null);
+    };
     const cookie = new Cookies();
     const token = cookie.get("token");
     const handleDelete = async () => {
             const res = await deleteTypeRoomService(item?.id, token);
             refreshData();
-            if (res) {
-                setAlert({ type: "warning", title: res });
+            console.log(res);
+            if (res === 'Xóa thành công!') {
+                setAlert({ type: "success", title: res });
+                // Gọi refreshData để tải lại dữ liệu
+            }
+            if (res === 'Không thể xóa vì đang có dữ liệu liên quan!') {
+                setAlert({ type: "error", title: res });
                 // Gọi refreshData để tải lại dữ liệu
             }
 

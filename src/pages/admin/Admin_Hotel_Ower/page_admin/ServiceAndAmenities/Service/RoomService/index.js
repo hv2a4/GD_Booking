@@ -4,14 +4,17 @@ import { CAvatar } from "@coreui/react";
 import { getAllRoomService } from "../../../../../../../services/admin/service-management";
 import Alert from "../../../../../../../config/alert";
 import { formatCurrency } from "../../../../../../../config/formatPrice";
+import { useLocation } from "react-router-dom";
 
 const RoomService = () => {
     const [roomService, setRoomService] = useState([]);
     const [alert, setAlert] = useState(null);
+    const location = useLocation();
 
     useEffect(() => {
         handleAllRoomService();
-    }, [])
+    }, [location]);
+
     const handleAllRoomService = async () => {
         try {
             const data = await getAllRoomService();
@@ -52,7 +55,7 @@ const RoomService = () => {
                             <td className="text-center">{item?.typeServiceRoomDto?.serviceRoomName}</td>
                             {/* <td className="text-center">{description}</td> */}
                             <td className="text-center">
-                                <RoomServiceFormModal item={item} refreshData={refreshData}/>
+                                <RoomServiceFormModal item={item}/>
                                 <DeleteRoomServiceModal item={item} refreshData={refreshData}/>
                             </td>
                         </tr>

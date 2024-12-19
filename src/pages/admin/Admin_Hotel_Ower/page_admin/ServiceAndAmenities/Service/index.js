@@ -16,13 +16,17 @@ const ServicesPageComponent = () => {
 
     const renderTabContent = () => {
         switch (currentTab) {
+            // case 0:
+            //     return (<HotelService />);
+            // case 1:
+            //     return (<PackedService />);
+            // case 2:
+            //     return (<RoomService />);
+            // case 3:
+            //     return (<TypeServiceRoom />);
             case 0:
-                return (<HotelService />);
-            case 1:
-                return (<PackedService />);
-            case 2:
                 return (<RoomService />);
-            case 3:
+            case 1:
                 return (<TypeServiceRoom />);
             default:
                 return null;
@@ -82,7 +86,7 @@ const ServicesPageComponent = () => {
                                     Thêm mới
                                 </button>
                                 <ul className="dropdown-menu">
-                                    <li>
+                                    {/* <li>
                                         <a
                                             className="dropdown-item" href="#"
                                             onClick={handlAddHotelServiceClick}
@@ -103,7 +107,7 @@ const ServicesPageComponent = () => {
                                                 <PackedServiceFormModal/>
                                             </div>
                                         </a>
-                                    </li>
+                                    </li> */}
                                     <li>
                                         <a className="dropdown-item" href="#" onClick={handlAddRoomServiceClick}>
                                             <MdAdd />
@@ -130,7 +134,7 @@ const ServicesPageComponent = () => {
 
                     {/* Tabs */}
                     <ul className="nav nav-tabs mt-4">
-                        <li className="nav-item" role="presentation">
+                        {/* <li className="nav-item" role="presentation">
                             <button
                                 className={`nav-link ${currentTab === 0 ? "active" : ""}`}
                                 onClick={() => setCurrentTab(0)}
@@ -145,11 +149,11 @@ const ServicesPageComponent = () => {
                             >
                                 Gói dịch vụ
                             </button>
-                        </li>
+                        </li> */}
                         <li className="nav-item" role="presentation">
                             <button
                                 className={`nav-link ${currentTab === 2 ? "active" : ""}`}
-                                onClick={() => setCurrentTab(2)}
+                                onClick={() => setCurrentTab(0)}
                             >
                                 Dịch vụ phòng
                             </button>
@@ -157,7 +161,7 @@ const ServicesPageComponent = () => {
                         <li className="nav-item" role="presentation">
                             <button
                                 className={`nav-link ${currentTab === 3 ? "active" : ""}`}
-                                onClick={() => setCurrentTab(3)}
+                                onClick={() => setCurrentTab(1)}
                             >
                                 Loại dịch vụ phòng
                             </button>

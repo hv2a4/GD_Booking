@@ -54,7 +54,7 @@ const getBookingRoomServiceRoom = async (id, token) => {
 const updateAccountEmployee = async (data) => {
     const res = await request({
         method: "PUT",
-        path: `api/account/updateAccount`,
+        path: `api/account/update-account-staff/${data.id}`,
         data: data
     });
     return res;

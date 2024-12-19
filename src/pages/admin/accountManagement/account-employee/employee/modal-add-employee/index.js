@@ -61,54 +61,23 @@ const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) 
             }
 
             // Xử lý kết quả từ API
-            if (response && response.errors) {
-                const { errors } = response;
-                // Lặp qua các lỗi và sử dụng setError của React Hook Form để set lỗi cho từng trường
-                for (const error of errors) {
-                    if (error.field && error.message) {
-                        // Xử lý từng trường hợp lỗi và hiển thị thông báo tương ứng
-                        switch (error.field) {
-                            case 'username':
-                                setError('username', {
-                                    type: 'server',
-                                    message: error.message,
-                                });
-                                break;
-                            case 'email':
-                                setError('email', {
-                                    type: 'server',
-                                    message: error.message,
-                                });
-                                break;
-                            case 'phone':
-                                setError('phone', {
-                                    type: 'server',
-                                    message: error.message,
-                                });
-                                break;
-                            default:
-                                // Nếu có các trường lỗi khác chưa xử lý, có thể thêm ở đây
-                                break;
-                        }
-                    }
-                }
-                setAlert({ type: 'error', title: 'Có lỗi xảy ra, vui lòng kiểm tra lại thông tin' });
-            } else if (response) {
-                const action = selectedEmployee ? 'cập nhật' : 'thêm';
+            if (response && response.code === '200') {
+                const action = selectedEmployee ? 'Cập nhật' : 'Thêm';
                 setAlert({ type: 'success', title: `${action} nhân viên thành công!` });
                 reset(); // Reset form after successful submit
                 handleClose();
                 refreshData();
-            } else {
-                setAlert({ type: 'error', title: 'Có lỗi xảy ra. Vui lòng thử lại.' });
             }
         } catch (error) {
             console.error('Error:', error);
-            setAlert({ type: 'error', title: 'Lỗi khi lưu dữ liệu nhân viên.' });
-        } finally {
-            setTimeout(() => setAlert(null), 5000); // Hide alert after 5 seconds
         }
     };
+
+    useEffect(() => {
+        if (!show) {
+            setAlert(null);
+        }
+    }, [show]);
 
 
     return (
@@ -138,8 +107,8 @@ const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) 
                     </Col>
                     <Col md={8} className="employee-info">
                         <Form onSubmit={handleSubmit(onSubmit)}>
-                            <Form.Group as={Row} className="mb-3">
-                                <Col md={6}>
+                            <Form.Group as={Row}>
+                                <Col md={6} className="mb-3">
                                     <Form.Label>Mã nhân viên</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -147,8 +116,8 @@ const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) 
                                         disabled
                                     />
                                 </Col>
-                                <Col md={6}>
-                                    <Form.Label>Tài khoản</Form.Label>
+                                <Col md={6} className="mb-3">
+                                    <Form.Label>Tên tài khoản</Form.Label>
                                     <Controller
                                         name="username"
                                         control={control}
@@ -166,9 +135,7 @@ const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) 
                                         {errors.username && errors.username.message}
                                     </Form.Control.Feedback>
                                 </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3">
-                                <Col md={6}>
+                                <Col md={6} className="mb-3">
                                     <Form.Label>Tên nhân viên</Form.Label>
                                     <Controller
                                         name="fullname"
@@ -180,50 +147,8 @@ const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) 
                                         {errors.fullname && errors.fullname.message}
                                     </Form.Control.Feedback>
                                 </Col>
-                                <Col md={6}>
-                                    <Form.Label>Password</Form.Label>
-                                    <Controller
-                                        name="passwords"
-                                        control={control}
-                                        rules={{
-                                            required: 'Mật khẩu không được bỏ trống',
-                                            minLength: { value: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
-                                        }}
-                                        render={({ field }) => <Form.Control {...field} type="password" isInvalid={!!errors.passwords} />}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.passwords && errors.passwords.message}
-                                    </Form.Control.Feedback>
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3">
-                                <Col md={6}>
-                                    <Form.Label>Số điện thoại</Form.Label>
-                                    <Controller
-                                        name="phone"
-                                        control={control}
-                                        rules={{ required: 'Không được bỏ trống số điện thoại' }}
-                                        render={({ field }) => <Form.Control {...field} isInvalid={!!errors.phone} />}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.phone && errors.phone.message}
-                                    </Form.Control.Feedback>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Label>Email</Form.Label>
-                                    <Controller
-                                        name="email"
-                                        control={control}
-                                        rules={{ required: 'Không được bỏ trống số email' }}
-                                        render={({ field }) => <Form.Control {...field} isInvalid={!!errors.email} />}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        {errors.email && errors.email.message}
-                                    </Form.Control.Feedback>
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3">
-                                <Col md={6}>
+                                {selectedEmployee ? (
+                                    <Col md={6} className="mb-3">
                                     <Form.Label>Giới tính</Form.Label>
                                     <div>
                                         <Controller
@@ -237,6 +162,7 @@ const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) 
                                                         type="radio"
                                                         {...field}
                                                         value={true}
+                                                        checked={field.value === true}
                                                     />
                                                     <Form.Check
                                                         inline
@@ -244,13 +170,82 @@ const AddEmployeeModal = ({ show, handleClose, refreshData, selectedEmployee }) 
                                                         type="radio"
                                                         {...field}
                                                         value={false}
+                                                        checked={field.value === false}
                                                     />
                                                 </>
                                             )}
                                         />
                                     </div>
+                                </Col>) : (<Col md={6} className="mb-3">
+                                    <Form.Label>Giới tính</Form.Label>
+                                    <div>
+                                        <Controller
+                                            name="gender"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <>
+                                                    <Form.Check
+                                                        inline
+                                                        label="Nam"
+                                                        type="radio"
+                                                        {...field}
+
+                                                    />
+                                                    <Form.Check
+                                                        inline
+                                                        label="Nữ"
+                                                        type="radio"
+                                                        {...field}
+
+                                                    />
+                                                </>
+                                            )}
+                                        />
+                                    </div>
+                                </Col>)}
+                                {selectedEmployee == null && (
+                                    <Col md={6} className="mb-3">
+                                        <Form.Label>Password</Form.Label>
+                                        <Controller
+                                            name="passwords"
+                                            control={control}
+                                            rules={{
+                                                required: 'Mật khẩu không được bỏ trống',
+                                                minLength: { value: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
+                                            }}
+                                            render={({ field }) => <Form.Control {...field} type="password" isInvalid={!!errors.passwords} />}
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.passwords && errors.passwords.message}
+                                        </Form.Control.Feedback>
+                                    </Col>
+                                )}
+                                <Col md={6} className="mb-3">
+                                    <Form.Label>Số điện thoại</Form.Label>
+                                    <Controller
+                                        name="phone"
+                                        control={control}
+                                        rules={{ required: 'Không được bỏ trống số điện thoại' }}
+                                        render={({ field }) => <Form.Control {...field} isInvalid={!!errors.phone} />}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.phone && errors.phone.message}
+                                    </Form.Control.Feedback>
+                                </Col>
+                                <Col md={6} className="mb-3">
+                                    <Form.Label>Email</Form.Label>
+                                    <Controller
+                                        name="email"
+                                        control={control}
+                                        rules={{ required: 'Không được bỏ trống số email' }}
+                                        render={({ field }) => <Form.Control {...field} isInvalid={!!errors.email} />}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.email && errors.email.message}
+                                    </Form.Control.Feedback>
                                 </Col>
                             </Form.Group>
+
                             <Modal.Footer>
                                 <Button variant="success" type="submit">
                                     {selectedEmployee ? 'Cập nhật' : 'Lưu'}

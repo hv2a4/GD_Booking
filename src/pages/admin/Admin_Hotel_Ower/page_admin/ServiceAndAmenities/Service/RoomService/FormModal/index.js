@@ -9,15 +9,17 @@ import { createRoomService, deleteRoomService, getAllTypeRoomService, updateRoom
 import uploadImageToFirebase from '../../../../../../../../config/fireBase';
 import { Cookies } from "react-cookie";
 import Alert from '../../../../../../../../config/alert';
+import { useNavigate } from 'react-router-dom';
 
-const RoomServiceFormModal = ({ item, refreshData }) => {
+const RoomServiceFormModal = ({ item }) => {
     const [show, setShow] = useState(false);
-    const { register, handleSubmit, setValue } = useForm(); // Khởi tạo useForm
+    const { register, handleSubmit, setValue, reset } = useForm(); // Khởi tạo useForm
     const [images, setImages] = useState([]);
     const [typeRoomService, setTypeRoomService] = useState([]);
     const [alert, setAlert] = useState(null);
     const cookie = new Cookies();
     const token = cookie.get("token");
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (item) {
@@ -32,14 +34,14 @@ const RoomServiceFormModal = ({ item, refreshData }) => {
 
 
     const handleImagesChange = (newImages) => {
-        setImages(newImages[0]);
+        setImages(newImages);
     };
 
     const handleTypeRoomService = async () => {
         try {
             const data = await getAllTypeRoomService();
             if (!data) {
-                console.log("hfhsf");
+
             } else {
                 setTypeRoomService(data);
             }
@@ -55,46 +57,46 @@ const RoomServiceFormModal = ({ item, refreshData }) => {
     }
     const handleClose = () => {
         setShow(false);
-        setAlert(null);
+        // setAlert(null);
+        reset();
     }
 
     const onSubmit = async (data) => {
-        console.log(images);
-        
-        if(images.length <= 0){
+        if (item == null && images.length <= 0) {
             setAlert({ type: "error", title: "Vui lòng chọn ảnh" });
             return;
         }
-        const urlImage = images ? await uploadImageToFirebase(images) : "";
 
-        const service = { ...data, imageName: urlImage || "" }
-        console.log(service);
+        const urlImage = images.length > 0 ? await uploadImageToFirebase(images[0]) : "";
+        const service = { ...data, imageName: images.length > 0 ? urlImage : item.imageName };
 
         try {
-            const res = item ? await updateRoomService(service.id, service, token) : createRoomService(service, token);
+            const serviceCall = item
+                ? updateRoomService(service.id, service, token)
+                : createRoomService(service, token);
 
-            if (res) {
-                setAlert({ type: res.status, title: res.message });  // Chỉ gọi setAlert sau khi nhận phản hồi từ API
-            } else {
-                setAlert({ type: res.status, title: res.message });
-            }
+            serviceCall
+                .then(res => {
 
-            if (item) {
-                refreshData();
-            }
+                    if (res && res.code === 200) {
+                        setAlert({ type: 'success', title: item ? 'Cập nhật dịch vụ phòng thành công!' : 'Thêm dịch vụ phòng thành công!' });
+                        handleClose();
+                        navigate('/admin/service');
+                    }
+                })
+                .catch(error => {
+                    setAlert({ type: "error", title: error.message });
+                });
         } catch (error) {
             setAlert({ type: "error", title: error.message });
-        } finally {
-            // Đảm bảo đóng modal chỉ sau khi thông báo hiển thị
-            setTimeout(() => {
-                handleClose();
-            }, 1000);
         }
     };
 
 
+
     return (
         <>
+         {alert && <Alert type={alert.type} title={alert.title} />}
             {(() => {
                 if (!item) {
                     return (
@@ -256,10 +258,10 @@ const DeleteRoomServiceModal = ({ item, refreshData }) => {
     const token = cookie.get("token");
     const handleDelete = async () => {
         try {
-            const res = await deleteRoomService(item?.id,token);
+            const res = await deleteRoomService(item?.id, token);
             refreshData();
             if (res) {
-                setAlert({ type:"warning", title: res.message });
+                setAlert({ type: "warning", title: res.message });
                 // Gọi refreshData để tải lại dữ liệu
             }
         } catch (error) {

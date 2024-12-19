@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { DeleteTypeServiceModal, RoomServiceRoomFormModal } from "./FormModal";
 import { getAllTypeRoomService } from "../../../../../../../services/admin/service-management";
 import Alert from "../../../../../../../config/alert";
+import { useLocation } from "react-router-dom";
 
 const TypeServiceRoom = () => {
     const [typeServiceRooms, setTypeServiceRooms] = useState([]);
     const [alert, setAlert] = useState(null);
-
+    const location = useLocation();
     useEffect(() => {
         handleTypeServiceRoom();
-    }, [])
+    }, [location])
 
     const handleTypeServiceRoom = async () => {
         try {
@@ -43,7 +44,7 @@ const TypeServiceRoom = () => {
                             <td>{item?.id}</td>
                             <td className="text-center">{item?.serviceRoomName}</td>
                             <td className="text-center">
-                                <RoomServiceRoomFormModal item={item} refreshData={refreshData}/>
+                                <RoomServiceRoomFormModal item={item}/>
                                 <DeleteTypeServiceModal item={item} refreshData={refreshData} />
                             </td>
                         </tr>
