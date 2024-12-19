@@ -123,7 +123,7 @@ const Account = () => {
             {alert && <Alert type={alert.type} title={alert.title} />}
             <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Tìm kiếm..."
                 onChange={handleSearch}
                 className="mb-3 form-control"
                 style={{ width: "20%" }}

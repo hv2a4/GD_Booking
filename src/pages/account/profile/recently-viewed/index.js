@@ -212,9 +212,9 @@ const RecentlyViewed = () => {
                                             className="btn btn-primary  btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target={`#reviewModal-${booking.bkId}`}
-                                            disabled={booking.ivId !== null}
+                                            disabled={booking.fbId !== null}
                                         >
-                                            Đánh giá
+                                            Đánh giá {console.log(booking)}
                                         </button>
                                     )}
 
